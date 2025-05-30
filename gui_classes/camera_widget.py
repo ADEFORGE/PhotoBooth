@@ -4,6 +4,7 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
+from constante import CAMERA_ID
 
 class CameraWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
@@ -20,7 +21,7 @@ class CameraWidget(PhotoBoothBaseWidget):
 
     def start_camera(self):
         if self.cap is None or not self.cap.isOpened():
-            self.cap = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(CAMERA_ID)
             self.timer.start(30)
 
     def stop_camera(self):
@@ -33,7 +34,9 @@ class CameraWidget(PhotoBoothBaseWidget):
         if not self.cap:
             return
         ret, frame = self.cap.read()
-        if not ret:
+        if not ret or frame is None:
+            # Affiche l'image de secours si la caméra ne fonctionne pas
+            self.show_pixmap(QPixmap("gui_template/nocam.png"))
             return
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape

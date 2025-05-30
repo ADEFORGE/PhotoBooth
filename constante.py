@@ -1,5 +1,9 @@
 # constante.py
 
+# =========================
+# === Constantes TECHNIQUES ===
+# =========================
+
 # --- Palette de couleurs classiques et personnalisées ---
 COLORS = {
     "white": "#FFFFFF",
@@ -29,6 +33,13 @@ COLORS = {
     "softred": "#ec7063",
 }
 
+CAMERA_ID = 0  # ID de la caméra à utiliser (0 = webcam par défaut)
+TEMP_IMAGE = "temp.jpg"
+
+LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
+LABEL_HEIGHT_RATIO = 0.8  # % hauteur écran pour l'affichage principal
+GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
+
 # --- Styles disponibles ---
 dico_styles = {
     "anime": "anime style illustration, vibrant colors, dynamic poses",
@@ -37,13 +48,9 @@ dico_styles = {
     "oil paint": "oil painting, classic art style, rich textures, brush strokes",
 }
 
-# --- Chemins et fichiers temporaires ---
-TEMP_IMAGE = "temp.jpg"
-
-# --- Mise en page générale ---
-LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
-LABEL_HEIGHT_RATIO = 0.8  # % hauteur écran pour l'affichage principal
-GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
+# =========================
+# === Constantes ESTHÉTIQUES ===
+# =========================
 
 # --- Fenêtre principale ---
 WINDOW_TITLE = "PhotoBooth"

@@ -57,7 +57,7 @@ class ChooseStyleWidget(QWidget):
         cv2_img = self.qimage_to_cv(self.window().captured_image)
         cv2.imwrite("../ComfyUI/input/input.png", cv2_img)
         self.generator.generate_image()
-        time.sleep(10)  # Wait for the image to be processed
+        #time.sleep(10)  # Wait for the image to be processed
         # Find the only PNG file in the output folder
         png_files = glob.glob("../ComfyUI/output/*.png")
         if png_files:

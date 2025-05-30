@@ -4,13 +4,26 @@ import numpy as np
 import glob
 import os
 import time
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal, QObject
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QSizePolicy, QGridLayout, QButtonGroup
 
 from constante import dico_styles
 
 from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+
+class Worker(QObject):
+    finished = Signal()
+    result = Signal(str)
+
+    def __init__(self, generator):
+        super().__init__()
+        self.generator = generator
+
+    def run(self):
+        self.generator.generate_image()
+        self.finished.emit()
+
 
 class ChooseStyleWidget(QWidget):
     def __init__(self, parent=None):
@@ -57,18 +70,26 @@ class ChooseStyleWidget(QWidget):
         cv2_img = self.qimage_to_cv(self.window().captured_image)
         cv2.imwrite("../ComfyUI/input/input.png", cv2_img)
 
-        self.window().show_load_widget()  # <-- Ajout ici
+        self.window().show_load_widget()
 
-        self.generator.generate_image()   
-        
+        self.thread = QThread()
+        self.worker = Worker(self.generator)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.on_generation_finished)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.start()
+
+    def on_generation_finished(self):
         png_files = glob.glob("../ComfyUI/output/*.png")
         if png_files:
             processed = cv2.imread(png_files[0])
             self.window().generated_image = self.cv_to_qimage(processed)
-            self.window().show_result() 
-                       
-        os.remove(png_files[0])
-        os.remove("../ComfyUI/input/input.png")
+            self.window().show_result()
+            os.remove(png_files[0])
+            os.remove("../ComfyUI/input/input.png")
         
 
     @staticmethod

@@ -94,4 +94,4 @@ MIT License (or your chosen license)
 
 ---
 
-**Developed by [Your Name or Team]**
+**Developed by ML Group - UiT Tromsø**

@@ -1,17 +1,23 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QApplication, QSizePolicy
-from PySide6.QtGui import QPixmap, QMovie, QImage
+from PySide6.QtGui import QPixmap, QMovie, QImage, QFont
 from PySide6.QtCore import Qt, QSize
-from constante import LABEL_WIDTH_RATIO, LABEL_HEIGHT_RATIO, GRID_WIDTH
+from constante import (
+    LABEL_WIDTH_RATIO, LABEL_HEIGHT_RATIO, GRID_WIDTH,
+    DISPLAY_LABEL_STYLE, BUTTON_STYLE, WINDOW_STYLE,
+    APP_FONT_FAMILY, APP_FONT_SIZE
+)
 import sys
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhotoBooth Nouvelle Génération")
+        self.setStyleSheet(WINDOW_STYLE)
+        self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
         self.grid = QGridLayout(self)
         self.display_label = QLabel(alignment=Qt.AlignCenter)
+        self.display_label.setStyleSheet(DISPLAY_LABEL_STYLE)
         self.display_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.display_label.setStyleSheet("background: transparent;")
         screen = QApplication.primaryScreen()
         size = screen.size()
         w = int(size.width() * LABEL_WIDTH_RATIO)
@@ -87,6 +93,7 @@ class PhotoBoothBaseWidget(QWidget):
             for j in range(btns_this_row):
                 btn_name, method_name = btn_names[i + j]
                 btn = QPushButton(btn_name)
+                btn.setStyleSheet(BUTTON_STYLE)
                 if method_name not in ("none", None):
                     if hasattr(self, method_name):
                         btn.clicked.connect(getattr(self, method_name))

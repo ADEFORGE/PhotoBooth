@@ -42,15 +42,6 @@ class StyleChooserWidget(PhotoBoothBaseWidget):
 
         self.setup_buttons_from_config()  # Place tous les boutons centrés
 
-    def clear_buttons(self):
-        for i in reversed(range(1, self.grid.rowCount())):
-            for j in range(self.grid.columnCount()):
-                item = self.grid.itemAtPosition(i, j)
-                if item:
-                    w = item.widget()
-                    if w:
-                        w.setParent(None)
-
     def show_image(self):
         if img := self.window().captured_image:
             super().show_image(img)
@@ -109,7 +100,7 @@ class StyleChooserWidget(PhotoBoothBaseWidget):
         col_max = self.get_grid_width()
         btn_names = list(self.button_config.items())
         total_btns = len(btn_names)
-        col, row = 0, 1
+        col, row = 0, 2
         i = 0
         while i < total_btns:
             btns_this_row = min(col_max, total_btns - i)

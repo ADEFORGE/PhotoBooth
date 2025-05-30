@@ -17,14 +17,6 @@ class CameraWidget(PhotoBoothBaseWidget):
         
         self.setup_buttons_from_config()
 
-    def clear_buttons(self):
-        for i in reversed(range(1, self.grid.rowCount())):
-            for j in range(self.grid.columnCount()):
-                item = self.grid.itemAtPosition(i, j)
-                if item:
-                    w = item.widget()
-                    if w:
-                        w.setParent(None)
 
     def start_camera(self):
         if self.cap is None or not self.cap.isOpened():

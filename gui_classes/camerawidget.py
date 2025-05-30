@@ -11,11 +11,11 @@ class CameraWidget(MainGUI):
         self.cap = None
         self.timer = QTimer(self, timeout=self.update_frame)
 
-        # Remplacer les boutons hérités par ceux de la caméra
-        self.clear_buttons()
-        self.capture_button = QPushButton("📸 Take Picture")
-        self.capture_button.clicked.connect(self.capture)
-        self.grid.addWidget(self.capture_button, 1, 1, 1, 1)
+        self.button_config = {
+            "📸 Take Picture": "capture"
+        }
+        
+        self.setup_buttons_from_config()
 
     def clear_buttons(self):
         for i in reversed(range(1, self.grid.rowCount())):

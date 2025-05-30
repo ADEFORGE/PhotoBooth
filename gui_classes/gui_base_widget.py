@@ -17,8 +17,7 @@ class PhotoBoothBaseWidget(QWidget):
         self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
         self.grid = QGridLayout(self)
 
-        self.title_label = QLabel(TITLE_LABEL_TEXT, alignment=Qt.AlignCenter)
-        self.title_label.setStyleSheet(TITLE_LABEL_STYLE)
+        self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
         self.grid.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
         self.display_label = QLabel(alignment=Qt.AlignCenter)
@@ -109,4 +108,53 @@ class PhotoBoothBaseWidget(QWidget):
                 self.grid.addWidget(btn, row, start_col + j)
             i += btns_this_row
             row += 1
+
+from PySide6.QtWidgets import QLabel
+from PySide6.QtGui import QPainter, QPen, QColor, QFont, QPainterPath
+from PySide6.QtCore import Qt
+
+from constante import (
+    TITLE_LABEL_TEXT, TITLE_LABEL_FONT_SIZE, TITLE_LABEL_FONT_FAMILY,
+    TITLE_LABEL_BOLD, TITLE_LABEL_ITALIC, TITLE_LABEL_COLOR,
+    TITLE_LABEL_BORDER_COLOR, TITLE_LABEL_BORDER_WIDTH
+)
+
+class OutlinedLabel(QLabel):
+    def __init__(self, text='', parent=None):
+        super().__init__(text, parent)
+        self.outline_color = QColor(TITLE_LABEL_BORDER_COLOR)
+        self.text_color = QColor(TITLE_LABEL_COLOR)
+        self.outline_width = TITLE_LABEL_BORDER_WIDTH
+        font = QFont(TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE)
+        font.setBold(TITLE_LABEL_BOLD)
+        font.setItalic(TITLE_LABEL_ITALIC)
+        self.setFont(font)
+        self.setAlignment(Qt.AlignCenter)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        font = self.font()
+        painter.setFont(font)
+        rect = self.rect()
+        text = self.text()
+
+        # Centrage vertical/horizontal
+        metrics = painter.fontMetrics()
+        x = (rect.width() - metrics.horizontalAdvance(text)) // 2
+        y = (rect.height() + metrics.ascent() - metrics.descent()) // 2
+
+        # Chemin du texte
+        path = QPainterPath()
+        path.addText(x, y, font, text)
+
+        # Contour
+        pen = QPen(self.outline_color)
+        pen.setWidth(self.outline_width)
+        painter.setPen(pen)
+        painter.drawPath(path)
+
+        # Texte plein
+        painter.setPen(self.text_color)
+        painter.drawText(rect, Qt.AlignCenter, text)
 

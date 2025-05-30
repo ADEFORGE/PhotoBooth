@@ -1,5 +1,34 @@
 # constante.py
 
+# --- Palette de couleurs classiques et personnalisées ---
+COLORS = {
+    "white": "#FFFFFF",
+    "black": "#000000",
+    "red": "#FF0000",
+    "green": "#00FF00",
+    "blue": "#0000FF",
+    "yellow": "#FFFF00",
+    "cyan": "#00FFFF",
+    "magenta": "#FF00FF",
+    "gray": "#888888",
+    "darkgray": "#222222",
+    "lightgray": "#CCCCCC",
+    # Couleurs personnalisées
+    "primary": "#1abc9c",
+    "secondary": "#2ecc71",
+    "accent": "#e67e22",
+    "danger": "#e74c3c",
+    "info": "#3498db",
+    "warning": "#f1c40f",
+    "success": "#27ae60",
+    "background": "#23272e",
+    "panel": "#363b48",
+    "highlight": "#9b59b6",
+    "softblue": "#5dade2",
+    "softgreen": "#58d68d",
+    "softred": "#ec7063",
+}
+
 # --- Styles disponibles ---
 dico_styles = {
     "anime": "anime style illustration, vibrant colors, dynamic poses",

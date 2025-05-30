@@ -28,9 +28,12 @@ class ResultWidget(QWidget):
 
     def save(self):
         if img := self.window().generated_image:
-            path, _ = QFileDialog.getSaveFileName(self, "Save Image", "output.jpg", "Images (*.png *.jpg)")
-            if path:
-                img.save(path)
+            dialog = QFileDialog(self.window(), "Save Image", "output.jpg", "Images (*.png *.jpg)")
+            dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+            if dialog.exec():
+                path = dialog.selectedFiles()[0]
+                if path:
+                    img.save(path)
 
     def print_image(self):
         print("Printing image... (this is a placeholder, implement actual printing logic here)")

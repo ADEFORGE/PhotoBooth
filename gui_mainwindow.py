@@ -1,11 +1,11 @@
 # gui_main.py
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
-from gui_classes.camerawidget import CameraWidget
-from gui_classes.choosestylewidget import ChooseStyleWidget
-from gui_classes.resultwidget import ResultWidget
-from gui_classes.loadwidget import LoadWidget
+from gui_classes.camera_widget import CameraWidget
+from gui_classes.style_chooser_widget import StyleChooserWidget
+from gui_classes.result_widget import ResultWidget
+from gui_classes.loading_widget import LoadingWidget
 
-class MainWindow(QWidget):
+class PhotoBoothApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhotoBooth")
@@ -14,9 +14,9 @@ class MainWindow(QWidget):
 
         self.stack = QStackedWidget(self)
         self.camera_widget = CameraWidget(self)
-        self.choose_widget = ChooseStyleWidget(self)
+        self.choose_widget = StyleChooserWidget(self)
         self.result_widget = ResultWidget(self)
-        self.load_widget = LoadWidget(self)
+        self.load_widget = LoadingWidget(self)
 
         for w in [self.camera_widget, self.choose_widget, self.result_widget, self.load_widget]:
             self.stack.addWidget(w)

@@ -7,7 +7,7 @@ import time
 from PySide6.QtCore import Qt, QThread, Signal, QObject
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QButtonGroup
-from main_GUI import MainGUI
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import dico_styles
 from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 
@@ -24,7 +24,7 @@ class Worker(QObject):
         self.finished.emit()
 
 
-class ChooseStyleWidget(MainGUI):
+class StyleChooserWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
         self.generator = ImageGeneratorAPIWrapper()
         super().__init__()
@@ -34,19 +34,13 @@ class ChooseStyleWidget(MainGUI):
         self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
 
-        for idx, style in enumerate(dico_styles):
-            btn = QPushButton(style)
-            btn.setCheckable(True)
-            if idx == 0:
-                btn.setChecked(True)
-                self.selected_style = style
-            btn.toggled.connect(lambda checked, s=style: self.on_toggle(checked, s))
-            self.button_group.addButton(btn)
-            self.grid.addWidget(btn, 1, idx)
+        # Prépare le dico pour tous les boutons (styles + action)
+        self.button_config = {}
+        for style in dico_styles:
+            self.button_config[style] = "toggle_style"
+        self.button_config["Apply Style"] = "apply_style"
 
-        self.run_btn = QPushButton("Apply Style")
-        self.run_btn.clicked.connect(self.apply_style)
-        self.grid.addWidget(self.run_btn, 2, 0, 1, len(dico_styles))
+        self.setup_buttons_from_config()  # Place tous les boutons centrés
 
     def clear_buttons(self):
         for i in reversed(range(1, self.grid.rowCount())):
@@ -108,3 +102,32 @@ class ChooseStyleWidget(MainGUI):
         rgb = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
         return QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
+
+    def setup_buttons_from_config(self):
+        """Place automatiquement les boutons selon self.button_config, centrés sur chaque ligne."""
+        self.clear_buttons()
+        col_max = self.get_grid_width()
+        btn_names = list(self.button_config.items())
+        total_btns = len(btn_names)
+        col, row = 0, 1
+        i = 0
+        while i < total_btns:
+            btns_this_row = min(col_max, total_btns - i)
+            start_col = (col_max - btns_this_row) // 2
+            for j in range(btns_this_row):
+                btn_name, method_name = btn_names[i + j]
+                btn = QPushButton(btn_name)
+                # Si c'est un style, bouton checkable et groupé
+                if method_name == "toggle_style":
+                    btn.setCheckable(True)
+                    if btn_name == list(dico_styles.keys())[0]:
+                        btn.setChecked(True)
+                        self.selected_style = btn_name
+                    btn.toggled.connect(lambda checked, s=btn_name: self.on_toggle(checked, s))
+                    self.button_group.addButton(btn)
+                elif method_name not in ("none", None):
+                    if hasattr(self, method_name):
+                        btn.clicked.connect(getattr(self, method_name))
+                self.grid.addWidget(btn, row, start_col + j)
+            i += btns_this_row
+            row += 1

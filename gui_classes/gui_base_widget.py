@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QSize
 from constante import LABEL_WIDTH_RATIO, LABEL_HEIGHT_RATIO, GRID_WIDTH
 import sys
 
-class MainGUI(QWidget):
+class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhotoBooth Nouvelle Génération")
@@ -20,7 +20,7 @@ class MainGUI(QWidget):
         self.display_label.setMaximumSize(w, h)
         self.grid.addWidget(self.display_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
-        self.button_config = {}  # {nom_bouton: nom_methode}
+        self.button_config = {}
 
     def show_image(self, qimage: QImage):
         pix = QPixmap.fromImage(qimage)
@@ -73,23 +73,24 @@ class MainGUI(QWidget):
         return GRID_WIDTH
 
     def setup_buttons_from_config(self):
-        """Place automatiquement les boutons selon self.button_config."""
+        """Place automatiquement les boutons selon self.button_config, centrés sur chaque ligne.
+        Si la méthode associée est 'none' ou None, le bouton n'est pas connecté."""
         self.clear_buttons()
         col_max = self.get_grid_width()
+        btn_names = list(self.button_config.items())
+        total_btns = len(btn_names)
         col, row = 0, 1
-        for btn_name, method_name in self.button_config.items():
-            btn = QPushButton(btn_name)
-            # Connecte le bouton à la méthode de l'instance si elle existe
-            if hasattr(self, method_name):
-                btn.clicked.connect(getattr(self, method_name))
-            self.grid.addWidget(btn, row, col)
-            col += 1
-            if col >= col_max:
-                col = 0
-                row += 1
+        i = 0
+        while i < total_btns:
+            btns_this_row = min(col_max, total_btns - i)
+            start_col = (col_max - btns_this_row) // 2
+            for j in range(btns_this_row):
+                btn_name, method_name = btn_names[i + j]
+                btn = QPushButton(btn_name)
+                if method_name not in ("none", None):
+                    if hasattr(self, method_name):
+                        btn.clicked.connect(getattr(self, method_name))
+                self.grid.addWidget(btn, row, start_col + j)
+            i += btns_this_row
+            row += 1
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = MainGUI()
-    win.showFullScreen()
-    sys.exit(app.exec())

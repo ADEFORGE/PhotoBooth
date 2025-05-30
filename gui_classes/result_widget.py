@@ -2,9 +2,9 @@
 from PySide6.QtWidgets import QPushButton, QFileDialog
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-from main_GUI import MainGUI
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 
-class ResultWidget(MainGUI):
+class ResultWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
         super().__init__()
         self.clear_buttons()

@@ -3,9 +3,9 @@ import cv2
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
-from main_GUI import MainGUI
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 
-class CameraWidget(MainGUI):
+class CameraWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
         super().__init__()
         self.cap = None

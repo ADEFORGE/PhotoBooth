@@ -88,10 +88,6 @@ python photobooth_main.py
 - **ComfyUI errors:**  
   Ensure the workflow JSON matches the expected format and ComfyUI is running.
 
-## License
-
-MIT License (or your chosen license)
-
 ---
 
 **Developed by ML Group - UiT Tromsø**

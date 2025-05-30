@@ -1,5 +1,5 @@
 # gui_classes/resultwidget.py
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QSizePolicy
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QSizePolicy, QApplication
 from PySide6.QtGui import QMovie
 from PySide6.QtCore import Qt
 
@@ -9,7 +9,14 @@ class LoadWidget(QWidget):
         layout = QGridLayout(self)        
 
         self.load_animation_label = QLabel(alignment=Qt.AlignCenter)
-        self.load_animation_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.load_animation_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        
+        # Taille relative à l'écran
+        screen = QApplication.primaryScreen()
+        size = screen.size()
+        w = int(size.width() * 0.2)
+        h = int(size.height() * 0.2)
+        self.load_animation_label.setFixedSize(w, h)
         
         # Utiliser QMovie pour animer le GIF
         self.movie = QMovie("./gui_template/load.gif")

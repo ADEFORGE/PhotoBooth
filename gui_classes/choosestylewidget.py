@@ -21,7 +21,8 @@ class Worker(QObject):
         self.generator = generator
 
     def run(self):
-        self.generator.generate_image()
+        #self.generator.generate_image()
+        time.sleep(10)  # Simulate a long-running task
         self.finished.emit()
 
 

@@ -56,16 +56,20 @@ class ChooseStyleWidget(QWidget):
             return
         cv2_img = self.qimage_to_cv(self.window().captured_image)
         cv2.imwrite("../ComfyUI/input/input.png", cv2_img)
-        self.generator.generate_image()
-        time.sleep(10)  # Wait for the image to be processed
-        # Find the only PNG file in the output folder
+
+        self.window().show_load_widget()
+
+        self.generator.generate_image()   
+        
         png_files = glob.glob("../ComfyUI/output/*.png")
         if png_files:
             processed = cv2.imread(png_files[0])
             self.window().generated_image = self.cv_to_qimage(processed)
-            self.window().show_result()
-        else:
-            print("No PNG file found in output folder.")
+            self.window().show_result() 
+                       
+        os.remove(png_files[0])
+        os.remove("../ComfyUI/input/input.png")
+        
 
     @staticmethod
     def qimage_to_cv(qimg: QImage) -> np.ndarray:

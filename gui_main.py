@@ -33,6 +33,10 @@ class MainWindow(QWidget):
     def show_result(self):
         self.set_view(2)
         self.result_widget.show_image()
+    
+    def show_load_widget(self):
+        self.set_view(3)
+        self.load_widget.show_image()
 
     def set_view(self, index: int):
         if self.stack.currentIndex() == 0:

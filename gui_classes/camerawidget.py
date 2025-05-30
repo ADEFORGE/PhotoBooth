@@ -2,7 +2,7 @@
 import cv2
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QSizePolicy, QGridLayout
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QSizePolicy, QGridLayout, QApplication
 
 class CameraWidget(QWidget):
     def __init__(self, parent=None):
@@ -12,6 +12,13 @@ class CameraWidget(QWidget):
 
         self.video_label = QLabel(alignment=Qt.AlignCenter)
         self.video_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Taille relative à l'écran
+        screen = QApplication.primaryScreen()
+        size = screen.size()
+        w = int(size.width() * 0.5)   # 50% de la largeur de l'écran
+        h = int(size.height() * 0.5)  # 50% de la hauteur de l'écran
+        self.video_label.setMinimumSize(w, h)
 
         self.capture_button = QPushButton("📸 Take Picture")
         self.capture_button.clicked.connect(self.capture)

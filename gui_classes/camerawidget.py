@@ -2,34 +2,33 @@
 import cv2
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QSizePolicy, QGridLayout, QApplication
+from PySide6.QtWidgets import QPushButton, QApplication
+from main_GUI import MainGUI
 
-class CameraWidget(QWidget):
+class CameraWidget(MainGUI):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__()
         self.cap = None
         self.timer = QTimer(self, timeout=self.update_frame)
 
-        self.video_label = QLabel(alignment=Qt.AlignCenter)
-        self.video_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        # Taille relative à l'écran
-        screen = QApplication.primaryScreen()
-        size = screen.size()
-        w = int(size.width() * 0.5)   # 50% de la largeur de l'écran
-        h = int(size.height() * 0.5)  # 50% de la hauteur de l'écran
-        self.video_label.setMinimumSize(w, h)
-
+        # Remplacer les boutons hérités par ceux de la caméra
+        self.clear_buttons()
         self.capture_button = QPushButton("📸 Take Picture")
         self.capture_button.clicked.connect(self.capture)
+        self.grid.addWidget(self.capture_button, 1, 1, 1, 1)
 
-        layout = QGridLayout(self)
-        layout.addWidget(self.video_label, 0, 0)
-        layout.addWidget(self.capture_button, 1, 0)
+    def clear_buttons(self):
+        for i in reversed(range(1, self.grid.rowCount())):
+            for j in range(self.grid.columnCount()):
+                item = self.grid.itemAtPosition(i, j)
+                if item:
+                    w = item.widget()
+                    if w:
+                        w.setParent(None)
 
     def start_camera(self):
         if self.cap is None or not self.cap.isOpened():
-            self.cap = cv2.VideoCapture(1)
+            self.cap = cv2.VideoCapture(0)
             self.timer.start(30)
 
     def stop_camera(self):
@@ -47,10 +46,7 @@ class CameraWidget(QWidget):
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
         qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888)
-        pix = QPixmap.fromImage(qimg)
-        self.video_label.setPixmap(pix.scaled(
-            self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-        ))
+        self.show_image(qimg)
 
     def capture(self):
         if not self.cap:

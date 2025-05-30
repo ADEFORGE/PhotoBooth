@@ -1,13 +1,13 @@
 # gui_classes/resultwidget.py
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QFileDialog, QGridLayout, QSizePolicy
+from PySide6.QtWidgets import QPushButton, QFileDialog
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
+from main_GUI import MainGUI
 
-class ResultWidget(QWidget):
+class ResultWidget(MainGUI):
     def __init__(self, parent=None):
-        super().__init__(parent)
-        self.image_label = QLabel(alignment=Qt.AlignCenter)
-        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        super().__init__()
+        self.clear_buttons()
 
         save_btn = QPushButton("Save")
         save_btn.clicked.connect(self.save)
@@ -16,15 +16,13 @@ class ResultWidget(QWidget):
         finish_btn = QPushButton("Finish")
         finish_btn.clicked.connect(lambda: self.window().set_view(0))
 
-        layout = QGridLayout(self)
-        layout.addWidget(self.image_label, 0, 0, 1, 2)
-        layout.addWidget(save_btn, 1, 0)
-        layout.addWidget(print_btn, 1, 1)
-        layout.addWidget(finish_btn, 2, 0, 1, 2)
+        self.grid.addWidget(save_btn, 1, 0)
+        self.grid.addWidget(print_btn, 1, 1)
+        self.grid.addWidget(finish_btn, 2, 0, 1, 2)
 
     def show_image(self):
         if img := self.window().generated_image:
-            self.image_label.setPixmap(QPixmap.fromImage(img))
+            self.show_image(img)
 
     def save(self):
         if img := self.window().generated_image:

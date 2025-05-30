@@ -6,11 +6,10 @@ import os
 import time
 from PySide6.QtCore import Qt, QThread, Signal, QObject
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QSizePolicy, QGridLayout, QButtonGroup
-
+from PySide6.QtWidgets import QPushButton, QButtonGroup
+from main_GUI import MainGUI
 from constante import dico_styles
-
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 
 class Worker(QObject):
     finished = Signal()
@@ -25,20 +24,15 @@ class Worker(QObject):
         self.finished.emit()
 
 
-class ChooseStyleWidget(QWidget):
+class ChooseStyleWidget(MainGUI):
     def __init__(self, parent=None):
         self.generator = ImageGeneratorAPIWrapper()
-        super().__init__(parent)
+        super().__init__()
         self.selected_style = None
 
-        self.image_label = QLabel(alignment=Qt.AlignCenter)
-        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
+        self.clear_buttons()
         self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
-
-        grid = QGridLayout(self)
-        grid.addWidget(self.image_label, 0, 0, 1, len(dico_styles))
 
         for idx, style in enumerate(dico_styles):
             btn = QPushButton(style)
@@ -48,15 +42,24 @@ class ChooseStyleWidget(QWidget):
                 self.selected_style = style
             btn.toggled.connect(lambda checked, s=style: self.on_toggle(checked, s))
             self.button_group.addButton(btn)
-            grid.addWidget(btn, 1, idx)
+            self.grid.addWidget(btn, 1, idx)
 
         self.run_btn = QPushButton("Apply Style")
         self.run_btn.clicked.connect(self.apply_style)
-        grid.addWidget(self.run_btn, 2, 0, 1, len(dico_styles))
+        self.grid.addWidget(self.run_btn, 2, 0, 1, len(dico_styles))
+
+    def clear_buttons(self):
+        for i in reversed(range(1, self.grid.rowCount())):
+            for j in range(self.grid.columnCount()):
+                item = self.grid.itemAtPosition(i, j)
+                if item:
+                    w = item.widget()
+                    if w:
+                        w.setParent(None)
 
     def show_image(self):
         if img := self.window().captured_image:
-            self.image_label.setPixmap(QPixmap.fromImage(img))
+            super().show_image(img)
 
     def on_toggle(self, checked: bool, style_name: str):
         if checked:

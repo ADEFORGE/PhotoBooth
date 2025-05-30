@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
 from gui_classes.camerawidget import CameraWidget
 from gui_classes.choosestylewidget import ChooseStyleWidget
 from gui_classes.resultwidget import ResultWidget
+from gui_classes.loadwidget import LoadWidget
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -15,8 +16,9 @@ class MainWindow(QWidget):
         self.camera_widget = CameraWidget(self)
         self.choose_widget = ChooseStyleWidget(self)
         self.result_widget = ResultWidget(self)
+        self.load_widget = LoadWidget(self)
 
-        for w in [self.camera_widget, self.choose_widget, self.result_widget]:
+        for w in [self.camera_widget, self.choose_widget, self.result_widget, self.load_widget]:
             self.stack.addWidget(w)
 
         layout = QVBoxLayout(self)
@@ -31,6 +33,10 @@ class MainWindow(QWidget):
     def show_result(self):
         self.set_view(2)
         self.result_widget.show_image()
+    
+    def show_load_widget(self):
+        self.set_view(3)
+        self.load_widget.show_image()
 
     def set_view(self, index: int):
         if self.stack.currentIndex() == 0:

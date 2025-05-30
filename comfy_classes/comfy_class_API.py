@@ -58,6 +58,8 @@ class ImageGeneratorAPIWrapper:
                     node["inputs"]["text"] = self._negative_prompt
             elif node["class_type"] == "KSampler":
                 node["inputs"]["seed"] = random.randint(0, 1000000000)
+                node["inputs"]["cfg"] = 2.0
+                node["inputs"]["denoise"] = 0.500000000000001
             elif node["class_type"] == "LoadImage":
                 node["inputs"]["image"] = "input.png"
             elif node["class_type"] == "SaveImage":

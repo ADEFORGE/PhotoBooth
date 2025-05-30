@@ -1,11 +1,12 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QApplication, QSizePolicy
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QApplication, QSizePolicy, QHBoxLayout
 from PySide6.QtGui import QPixmap, QMovie, QImage, QFont
 from PySide6.QtCore import Qt, QSize
 from constante import (
     LABEL_WIDTH_RATIO, LABEL_HEIGHT_RATIO, GRID_WIDTH,
     DISPLAY_LABEL_STYLE, BUTTON_STYLE, WINDOW_STYLE,
     APP_FONT_FAMILY, APP_FONT_SIZE,
-    TITLE_LABEL_TEXT, TITLE_LABEL_STYLE
+    TITLE_LABEL_TEXT, TITLE_LABEL_STYLE,
+    LOGO_SIZE  # <-- Ajoute ceci
 )
 import sys
 
@@ -17,8 +18,29 @@ class PhotoBoothBaseWidget(QWidget):
         self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
         self.grid = QGridLayout(self)
 
+        # Ajout des logos en haut à gauche
+        logo_layout = QHBoxLayout()
+        logo1 = QLabel()
+        logo2 = QLabel()
+        pix1 = QPixmap("gui_template/logo1.png")
+        pix2 = QPixmap("gui_template/logo2.png")
+        logo1.setPixmap(pix1.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        logo2.setPixmap(pix2.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        logo1.setAttribute(Qt.WA_TranslucentBackground)
+        logo2.setAttribute(Qt.WA_TranslucentBackground)
+        logo1.setStyleSheet("background: rgba(0,0,0,0);")
+        logo2.setStyleSheet("background: rgba(0,0,0,0);")
+        logo_layout.addWidget(logo1)
+        logo_layout.addWidget(logo2)
+        logo_widget = QWidget()
+        logo_widget.setLayout(logo_layout)
+        logo_widget.setAttribute(Qt.WA_TranslucentBackground)
+        logo_widget.setStyleSheet("background: rgba(0,0,0,0);")
+        self.grid.addWidget(logo_widget, 0, 0, 1, 1, alignment=Qt.AlignLeft | Qt.AlignTop)
+
+        # Titre (centré sur la première ligne)
         self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
-        self.grid.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self.grid.addWidget(self.title_label, 0, 1, 1, GRID_WIDTH - 1, alignment=Qt.AlignCenter)
 
         self.display_label = QLabel(alignment=Qt.AlignCenter)
         self.display_label.setStyleSheet(DISPLAY_LABEL_STYLE)
@@ -157,4 +179,3 @@ class OutlinedLabel(QLabel):
         # Texte plein
         painter.setPen(self.text_color)
         painter.drawText(rect, Qt.AlignCenter, text)
-

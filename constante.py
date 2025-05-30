@@ -33,7 +33,11 @@ COLORS = {
     "softred": "#ec7063",
 }
 
-CAMERA_ID = 0  # ID de la caméra à utiliser (0 = webcam par défaut)
+try:
+    from config_local import CAMERA_ID
+except ImportError:
+    CAMERA_ID = 0  # Valeur par défaut si pas de config locale
+
 TEMP_IMAGE = "temp.jpg"
 
 LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
@@ -119,4 +123,7 @@ BUTTON_STYLE = (
     f"background-color: {BUTTON_BG_PRESSED};"
     f"}}"
 )
+
+# --- Logos ---
+LOGO_SIZE = 64  # Taille (largeur/hauteur) des logos en pixels
 

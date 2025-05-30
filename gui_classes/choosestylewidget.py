@@ -1,14 +1,20 @@
 # gui_classes/choosestylewidget.py
 import cv2
 import numpy as np
+import glob
+import os
+import time
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QSizePolicy, QGridLayout, QButtonGroup
 
 from constante import dico_styles
 
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+
 class ChooseStyleWidget(QWidget):
     def __init__(self, parent=None):
+        self.generator = ImageGeneratorAPIWrapper()
         super().__init__(parent)
         self.selected_style = None
 
@@ -42,15 +48,24 @@ class ChooseStyleWidget(QWidget):
     def on_toggle(self, checked: bool, style_name: str):
         if checked:
             self.selected_style = style_name
+            self.generator.set_style(style_name)
+
 
     def apply_style(self):
         if not self.selected_style:
             return
         cv2_img = self.qimage_to_cv(self.window().captured_image)
-        cv2.imwrite("temp.jpg", cv2_img)
-        processed = cv2.imread("temp.jpg")
-        self.window().generated_image = self.cv_to_qimage(processed)
-        self.window().show_result()
+        cv2.imwrite("../ComfyUI/input/input.png", cv2_img)
+        self.generator.generate_image()
+        time.sleep(10)  # Wait for the image to be processed
+        # Find the only PNG file in the output folder
+        png_files = glob.glob("../ComfyUI/output/*.png")
+        if png_files:
+            processed = cv2.imread(png_files[0])
+            self.window().generated_image = self.cv_to_qimage(processed)
+            self.window().show_result()
+        else:
+            print("No PNG file found in output folder.")
 
     @staticmethod
     def qimage_to_cv(qimg: QImage) -> np.ndarray:

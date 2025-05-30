@@ -2,11 +2,9 @@
 
 dico_styles = {
     "anime": "prompt_anime",
-    "photo": "prompt_photo",
-    "art": "prompt_art",
-    "art2": "prompt_art2",
-    "art3": "prompt_art3",
-    "art4": "prompt_art4",
+    "photo": "photograph of victorian woman with wings, sky clouds, meadow grass",
+    "comic": "comic style illustration of victorian woman with wings, sky clouds, meadow grass",
+    "oil paint": "oil painting of victorian woman with wings, sky clouds, meadow grass"
 }
 
 # autres constantes (par ex. chemins fichiers temporaires)

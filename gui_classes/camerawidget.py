@@ -22,7 +22,7 @@ class CameraWidget(QWidget):
 
     def start_camera(self):
         if self.cap is None or not self.cap.isOpened():
-            self.cap = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(1)
             self.timer.start(30)
 
     def stop_camera(self):

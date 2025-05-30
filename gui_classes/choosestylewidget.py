@@ -57,7 +57,7 @@ class ChooseStyleWidget(QWidget):
         cv2_img = self.qimage_to_cv(self.window().captured_image)
         cv2.imwrite("../ComfyUI/input/input.png", cv2_img)
 
-        self.window().show_load_widget()
+        self.window().show_load_widget()  # <-- Ajout ici
 
         self.generator.generate_image()   
         

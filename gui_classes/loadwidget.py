@@ -9,23 +9,16 @@ class LoadWidget(QWidget):
         layout = QGridLayout(self)        
 
         self.load_animation_label = QLabel(alignment=Qt.AlignCenter)
-        self.load_animation_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        # Ne pas utiliser setScaledContents(True) pour éviter la déformation
+        # Définir une taille fixe pour le label (par exemple, 120x120 pixels)
+        self.load_animation_label.setFixedSize(400, 400)
 
-        # Taille relative à l'écran
-        screen = QApplication.primaryScreen()
-        size = screen.size()
-        w = int(size.width() * 0.2)
-        h = int(size.height() * 0.2)
-        self.load_animation_label.setMinimumSize(w, h)  # Minimum, pas fixe
-
-        # Utiliser QMovie pour animer le GIF
+        # Charger et mettre à l'échelle le GIF
         self.movie = QMovie("./gui_template/load.gif")
+        self.movie.setScaledSize(self.load_animation_label.size())
         self.load_animation_label.setMovie(self.movie)
         self.movie.start()
 
-        # Centrer le label dans le layout
         layout.addWidget(self.load_animation_label, 0, 0, 1, 1, alignment=Qt.AlignCenter)
 
     def fct(self):
-        return 
+        return

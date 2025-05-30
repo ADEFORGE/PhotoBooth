@@ -1,6 +1,6 @@
 # gui_classes/resultwidget.py
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QFileDialog, QGridLayout, QSizePolicy
-from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QSizePolicy
+from PySide6.QtGui import QMovie
 from PySide6.QtCore import Qt
 
 class LoadWidget(QWidget):
@@ -11,9 +11,10 @@ class LoadWidget(QWidget):
         self.load_animation_label = QLabel(alignment=Qt.AlignCenter)
         self.load_animation_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
-        pixmap = QPixmap("./gui_template/load.gif")
-        pixmap = pixmap.scaled(self.load_animation_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.load_animation_label.setPixmap(pixmap)
+        # Utiliser QMovie pour animer le GIF
+        self.movie = QMovie("./gui_template/load.gif")
+        self.load_animation_label.setMovie(self.movie)
+        self.movie.start()
 
         layout.addWidget(self.load_animation_label, 0, 0, 1, 2)
 

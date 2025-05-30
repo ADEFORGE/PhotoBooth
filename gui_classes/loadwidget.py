@@ -10,6 +10,7 @@ class LoadWidget(QWidget):
 
         self.load_animation_label = QLabel(alignment=Qt.AlignCenter)
         self.load_animation_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.load_animation_label.setScaledContents(True)
         
         # Taille relative à l'écran
         screen = QApplication.primaryScreen()

@@ -4,17 +4,24 @@ from PySide6.QtCore import Qt, QSize
 from constante import (
     LABEL_WIDTH_RATIO, LABEL_HEIGHT_RATIO, GRID_WIDTH,
     DISPLAY_LABEL_STYLE, BUTTON_STYLE, WINDOW_STYLE,
-    APP_FONT_FAMILY, APP_FONT_SIZE
+    APP_FONT_FAMILY, APP_FONT_SIZE,
+    TITLE_LABEL_TEXT, TITLE_LABEL_STYLE, WINDOW_TITLE
 )
-import sys
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PhotoBooth Nouvelle Génération")
+        self.setWindowTitle(WINDOW_TITLE)
         self.setStyleSheet(WINDOW_STYLE)
         self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
         self.grid = QGridLayout(self)
+
+        # Title label tout en haut, centré
+        self.title_label = QLabel(TITLE_LABEL_TEXT, alignment=Qt.AlignCenter)
+        self.title_label.setStyleSheet(TITLE_LABEL_STYLE)
+        self.grid.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+
+        # Label principal d'affichage (ligne 1)
         self.display_label = QLabel(alignment=Qt.AlignCenter)
         self.display_label.setStyleSheet(DISPLAY_LABEL_STYLE)
         self.display_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -24,7 +31,7 @@ class PhotoBoothBaseWidget(QWidget):
         h = int(size.height() * LABEL_HEIGHT_RATIO)
         self.display_label.setMinimumSize(w, h)
         self.display_label.setMaximumSize(w, h)
-        self.grid.addWidget(self.display_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self.grid.addWidget(self.display_label, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
         self.button_config = {}
 
@@ -85,7 +92,7 @@ class PhotoBoothBaseWidget(QWidget):
         col_max = self.get_grid_width()
         btn_names = list(self.button_config.items())
         total_btns = len(btn_names)
-        col, row = 0, 1
+        col, row = 0, 2  # <-- Commence à la ligne 2 pour ne pas écraser display_label
         i = 0
         while i < total_btns:
             btns_this_row = min(col_max, total_btns - i)

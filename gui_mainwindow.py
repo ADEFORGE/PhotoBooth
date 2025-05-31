@@ -4,15 +4,25 @@ from gui_classes.camera_widget import CameraWidget
 from gui_classes.style_chooser_widget import StyleChooserWidget
 from gui_classes.result_widget import ResultWidget
 from gui_classes.loading_widget import LoadingWidget
+from constante import WINDOW_STYLE
 
 class PhotoBoothApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhotoBooth")
+        self.setStyleSheet(WINDOW_STYLE)
         self.captured_image = None
         self.generated_image = None
 
-        self.stack = QStackedWidget(self)
+        # Layout principal
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        # Stack widget avec style
+        self.stack = QStackedWidget()
+        self.stack.setStyleSheet(WINDOW_STYLE)
+        layout.addWidget(self.stack)
+
         self.camera_widget = CameraWidget(self)
         self.choose_widget = StyleChooserWidget(self)
         self.result_widget = ResultWidget(self)
@@ -20,9 +30,6 @@ class PhotoBoothApp(QWidget):
 
         for w in [self.camera_widget, self.choose_widget, self.result_widget, self.load_widget]:
             self.stack.addWidget(w)
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.stack)
 
         self.set_view(0)
 

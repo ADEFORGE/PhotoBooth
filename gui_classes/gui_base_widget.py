@@ -14,10 +14,13 @@ class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhotoBooth Nouvelle Génération")
-        self.setStyleSheet(WINDOW_STYLE)
-        self.setAutoFillBackground(True)
+        # Supprime ces deux lignes
+        # self.setStyleSheet(WINDOW_STYLE)
+        # self.setAutoFillBackground(True)
+        
         self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
         self.grid = QGridLayout(self)
+        self.grid.setContentsMargins(0, 0, 0, 0)
 
         # Ajout des logos en haut à gauche
         logo_layout = QHBoxLayout()

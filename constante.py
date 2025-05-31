@@ -43,8 +43,8 @@ except ImportError:
 
 TEMP_IMAGE = "temp.jpg"
 
-LABEL_WIDTH_RATIO = 0.9   # % largeur écran pour l'affichage principal
-LABEL_HEIGHT_RATIO = 0.6  # % hauteur écran pour l'affichage principal
+LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
+LABEL_HEIGHT_RATIO = 0.8  # % hauteur écran pour l'affichage principal
 GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
 
 # --- Styles disponibles ---
@@ -102,6 +102,7 @@ TITLE_LABEL_STYLE = (
 
 # --- Cadre des affichages (label central) ---
 DISPLAY_BORDER_COLOR = COLORS["black"]
+DISPLAY_BORDER_WIDTH = 4  # px  # Ajout de cette ligne
 DISPLAY_BORDER_RADIUS = 20  # px
 DISPLAY_BACKGROUND_COLOR = COLORS["white"]
 DISPLAY_TEXT_COLOR = COLORS["orange"]
@@ -109,7 +110,7 @@ DISPLAY_TEXT_SIZE = 18
 
 DISPLAY_LABEL_STYLE = (
     f"background: {DISPLAY_BACKGROUND_COLOR};"
-    f"border: 2px solid {DISPLAY_BORDER_COLOR};"
+    f"border: {DISPLAY_BORDER_WIDTH}px solid {DISPLAY_BORDER_COLOR};"  # Modification ici
     f"border-radius: {DISPLAY_BORDER_RADIUS}px;"
     f"color: {DISPLAY_TEXT_COLOR};"
     f"font-size: {DISPLAY_TEXT_SIZE}px;"
@@ -120,14 +121,19 @@ BUTTON_BG_COLOR = COLORS["softyellow"]
 BUTTON_BG_HOVER = COLORS["yellow"]
 BUTTON_BG_PRESSED = COLORS["hardorangee"]
 BUTTON_TEXT_COLOR = COLORS["white"]
-BUTTON_TEXT_SIZE = 14
+BUTTON_TEXT_SIZE = 16
+BUTTON_BORDER_COLOR = COLORS["black"]  # Ajout
+BUTTON_BORDER_WIDTH = 2  # px            # Ajout
+BUTTON_BORDER_RADIUS = 10  # px         # Déplacé ici pour plus de clarté
 
 BUTTON_STYLE = (
     f"QPushButton {{"
     f"background-color: {BUTTON_BG_COLOR};"
     f"color: {BUTTON_TEXT_COLOR};"
     f"font-size: {BUTTON_TEXT_SIZE}px;"
-    f"border-radius: 10px;"
+    f"border: {BUTTON_BORDER_WIDTH}px solid {BUTTON_BORDER_COLOR};"  # Ajout
+    f"border-radius: {BUTTON_BORDER_RADIUS}px;"
+    f"font-weight: bold;"  # Ajout pour le texte en gras
     f"}}"
     f"QPushButton:hover {{"
     f"background-color: {BUTTON_BG_HOVER};"
@@ -139,4 +145,12 @@ BUTTON_STYLE = (
 
 # --- Logos ---
 LOGO_SIZE = 64  # Taille (largeur/hauteur) des logos en pixels
+
+# --- Layout Spacing & Margins ---
+GRID_MARGIN_TOP = 20     # px
+GRID_MARGIN_BOTTOM = 40  # px  # Réduit de 400 à 40
+GRID_MARGIN_LEFT = 20    # px
+GRID_MARGIN_RIGHT = 20   # px
+GRID_VERTICAL_SPACING = 20   # px entre les lignes  # Augmenté de 10 à 20
+GRID_HORIZONTAL_SPACING = 10 # px entre les colonnes
 

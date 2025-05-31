@@ -6,21 +6,33 @@ from constante import (
     DISPLAY_LABEL_STYLE, BUTTON_STYLE, WINDOW_STYLE,
     APP_FONT_FAMILY, APP_FONT_SIZE,
     TITLE_LABEL_TEXT, TITLE_LABEL_STYLE,
-    LOGO_SIZE  # <-- Ajoute ceci
+    LOGO_SIZE,
+    # Ajoute ces imports
+    GRID_MARGIN_TOP, GRID_MARGIN_BOTTOM,
+    GRID_MARGIN_LEFT, GRID_MARGIN_RIGHT,
+    GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING
 )
 import sys
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PhotoBooth Nouvelle Génération")
-        # Supprime ces deux lignes
-        # self.setStyleSheet(WINDOW_STYLE)
-        # self.setAutoFillBackground(True)
         
-        self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
+        # Force le fond orange sur ce widget
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #FFA500;
+            }
+            QLabel {
+                background: transparent;
+            }
+        """)
+        
         self.grid = QGridLayout(self)
-        self.grid.setContentsMargins(0, 0, 0, 0)
+        
+        # Réduire les marges pour avoir plus d'espace
+        self.grid.setContentsMargins(10, 10, 10, 10)
+        self.grid.setSpacing(5)
 
         # Ajout des logos en haut à gauche
         logo_layout = QHBoxLayout()
@@ -52,15 +64,21 @@ class PhotoBoothBaseWidget(QWidget):
         self.display_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         screen = QApplication.primaryScreen()
         size = screen.size()
-        w = int(size.width() * LABEL_WIDTH_RATIO)
-        h = int(size.height() * LABEL_HEIGHT_RATIO)
-        self.display_label.setMinimumSize(w, h)
-        self.display_label.setMaximumSize(w, h)
+        w = int(size.width() * 0.7)  # Réduit de 0.8 à 0.7
+        h = int(size.height() * 0.6)  # Réduit de 0.8 à 0.6
+        self.display_label.setFixedSize(w, h)
         self.grid.addWidget(self.display_label, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
         self.button_config = {}
 
-        # AJOUTE CETTE LIGNE :
+        # Après avoir ajouté tous les widgets à la grille, configure les stretches :
+        self.grid.setRowStretch(0, 1)    # Titre
+        self.grid.setRowStretch(1, 10)   # Affichage
+        self.grid.setRowStretch(2, 2)    # Boutons
+
+        # Ajoute un espacement entre les lignes
+        self.grid.setVerticalSpacing(20)  # Ajuste selon tes besoins
+
         self.setLayout(self.grid)
 
     def show_image(self, qimage: QImage):

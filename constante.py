@@ -43,8 +43,8 @@ except ImportError:
 
 TEMP_IMAGE = "temp.jpg"
 
-LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
-LABEL_HEIGHT_RATIO = 0.8  # % hauteur écran pour l'affichage principal
+LABEL_WIDTH_RATIO = 0.9   # % largeur écran pour l'affichage principal
+LABEL_HEIGHT_RATIO = 0.6  # % hauteur écran pour l'affichage principal
 GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
 
 # --- Styles disponibles ---

@@ -41,8 +41,8 @@ class StyleChooserWidget(PhotoBoothBaseWidget):
         # Prépare le dico pour tous les boutons (styles + action)
         self.button_config = {}
         for style in dico_styles:
-            self.button_config[style] = "toggle_style"
-        self.button_config["Apply Style"] = "apply_style"
+            self.button_config[style] = ("toggle_style", True)  # Indique que c'est un toggle button
+        self.button_config["Apply Style"] = "apply_style"  # Bouton normal
 
         self.setup_buttons_from_config()  # Place tous les boutons centrés
 
@@ -97,33 +97,3 @@ class StyleChooserWidget(PhotoBoothBaseWidget):
         rgb = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
         return QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
-
-    def setup_buttons_from_config(self):
-        """Place automatiquement les boutons selon self.button_config, centrés sur chaque ligne."""
-        self.clear_buttons()
-        col_max = self.get_grid_width()
-        btn_names = list(self.button_config.items())
-        total_btns = len(btn_names)
-        col, row = 0, 2
-        i = 0
-        while i < total_btns:
-            btns_this_row = min(col_max, total_btns - i)
-            start_col = (col_max - btns_this_row) // 2
-            for j in range(btns_this_row):
-                btn_name, method_name = btn_names[i + j]
-                btn = QPushButton(btn_name)
-                btn.setStyleSheet(BUTTON_STYLE)
-                # Si c'est un style, bouton checkable et groupé
-                if method_name == "toggle_style":
-                    btn.setCheckable(True)
-                    if btn_name == list(dico_styles.keys())[0]:
-                        btn.setChecked(True)
-                        self.selected_style = btn_name
-                    btn.toggled.connect(lambda checked, s=btn_name: self.on_toggle(checked, s))
-                    self.button_group.addButton(btn)
-                elif method_name not in ("none", None):
-                    if hasattr(self, method_name):
-                        btn.clicked.connect(getattr(self, method_name))
-                self.grid.addWidget(btn, row, start_col + j)
-            i += btns_this_row
-            row += 1

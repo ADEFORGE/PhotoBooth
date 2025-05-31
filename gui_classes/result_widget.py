@@ -1,32 +1,36 @@
 # gui_classes/resultwidget.py
-from PySide6.QtWidgets import QPushButton, QFileDialog
-from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QFileDialog
 from PySide6.QtCore import Qt
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 
 class ResultWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
         super().__init__()
-        self.clear_buttons()
-
-        save_btn = QPushButton("Save")
-        save_btn.clicked.connect(self.save)
-        print_btn = QPushButton("Print")
-        print_btn.clicked.connect(self.print_image)
-        finish_btn = QPushButton("Finish")
-        finish_btn.clicked.connect(lambda: self.window().set_view(0))
-
-        self.grid.addWidget(save_btn, 1, 0)
-        self.grid.addWidget(print_btn, 1, 1)
-        self.grid.addWidget(finish_btn, 2, 0, 1, 2)
+        
+        # Configuration des boutons avec le même format que les autres widgets
+        self.button_config = {
+            "Save": "save",
+            "Print": "print_image",
+            "Back to Camera": ("set_view_camera", False)
+        }
+        
+        # Utilise la méthode héritée pour créer les boutons
+        self.setup_buttons_from_config()
 
     def show_image(self):
+        """Affiche l'image générée."""
         if img := self.window().generated_image:
-            self.show_image(img)
+            super().show_image(img)
 
     def save(self):
+        """Sauvegarde l'image générée."""
         if img := self.window().generated_image:
-            dialog = QFileDialog(self.window(), "Save Image", "output.jpg", "Images (*.png *.jpg)")
+            dialog = QFileDialog(
+                self.window(), 
+                "Save Image", 
+                "output.jpg", 
+                "Images (*.png *.jpg)"
+            )
             dialog.setOption(QFileDialog.DontUseNativeDialog, True)
             if dialog.exec():
                 path = dialog.selectedFiles()[0]
@@ -34,4 +38,9 @@ class ResultWidget(PhotoBoothBaseWidget):
                     img.save(path)
 
     def print_image(self):
-        print("Printing image... (this is a placeholder, implement actual printing logic here)")
+        """Imprime l'image (à implémenter)."""
+        print("Printing image... (placeholder)")
+
+    def set_view_camera(self):
+        """Retourne à la vue caméra."""
+        self.window().set_view(0)

@@ -44,7 +44,7 @@ except ImportError:
 TEMP_IMAGE = "temp.jpg"
 
 LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
-LABEL_HEIGHT_RATIO = 0.8  # % hauteur écran pour l'affichage principal
+LABEL_HEIGHT_RATIO = 0.9  # % hauteur écran pour l'affichage principal
 GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
 
 # --- Styles disponibles ---
@@ -83,7 +83,7 @@ TITLE_LABEL_TEXT = WINDOW_TITLE
 TITLE_LABEL_FONT_SIZE = 32
 TITLE_LABEL_FONT_FAMILY = "Arial"
 TITLE_LABEL_BOLD = True
-TITLE_LABEL_ITALIC = False
+TITLE_LABEL_ITALIC = True
 TITLE_LABEL_COLOR = COLORS["white"]
 TITLE_LABEL_BORDER_COLOR = COLORS["black"]
 TITLE_LABEL_BORDER_WIDTH = 5  # px
@@ -131,15 +131,19 @@ BUTTON_STYLE = (
     f"background-color: {BUTTON_BG_COLOR};"
     f"color: {BUTTON_TEXT_COLOR};"
     f"font-size: {BUTTON_TEXT_SIZE}px;"
-    f"border: {BUTTON_BORDER_WIDTH}px solid {BUTTON_BORDER_COLOR};"  # Ajout
+    f"border: {BUTTON_BORDER_WIDTH}px solid {BUTTON_BORDER_COLOR};"
     f"border-radius: {BUTTON_BORDER_RADIUS}px;"
-    f"font-weight: bold;"  # Ajout pour le texte en gras
+    f"font-weight: bold;"
     f"}}"
     f"QPushButton:hover {{"
     f"background-color: {BUTTON_BG_HOVER};"
     f"}}"
     f"QPushButton:pressed {{"
     f"background-color: {BUTTON_BG_PRESSED};"
+    f"}}"
+    f"QPushButton:checked {{"
+    f"background-color: {COLORS['hardorangee']};"
+    f"border: {BUTTON_BORDER_WIDTH}px solid {COLORS['black']};"
     f"}}"
 )
 
@@ -153,4 +157,18 @@ GRID_MARGIN_LEFT = 20    # px
 GRID_MARGIN_RIGHT = 20   # px
 GRID_VERTICAL_SPACING = 20   # px entre les lignes  # Augmenté de 10 à 20
 GRID_HORIZONTAL_SPACING = 10 # px entre les colonnes
+
+# --- Grid Layout Configuration ---
+GRID_LAYOUT_MARGINS = (10, 10, 10, 10)  # left, top, right, bottom
+GRID_LAYOUT_SPACING = 5
+
+# --- Grid Row Configuration ---
+GRID_ROW_STRETCHES = {
+    "title": 1,     # Row 0
+    "display": 10,  # Row 1
+    "buttons": 2    # Row 2
+}
+
+# --- Display Configuration ---
+DISPLAY_SIZE_RATIO = (0.7, 0.6)  # width%, height% of screen
 

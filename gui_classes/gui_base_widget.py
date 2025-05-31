@@ -1,85 +1,83 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QApplication, QSizePolicy, QHBoxLayout
+from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout, QPushButton, 
+                             QApplication, QSizePolicy, QHBoxLayout, QButtonGroup)  # Ajoute QButtonGroup
 from PySide6.QtGui import QPixmap, QMovie, QImage, QFont
 from PySide6.QtCore import Qt, QSize
 from constante import (
-    LABEL_WIDTH_RATIO, LABEL_HEIGHT_RATIO, GRID_WIDTH,
-    DISPLAY_LABEL_STYLE, BUTTON_STYLE, WINDOW_STYLE,
-    APP_FONT_FAMILY, APP_FONT_SIZE,
-    TITLE_LABEL_TEXT, TITLE_LABEL_STYLE,
-    LOGO_SIZE,
-    # Ajoute ces imports
-    GRID_MARGIN_TOP, GRID_MARGIN_BOTTOM,
-    GRID_MARGIN_LEFT, GRID_MARGIN_RIGHT,
-    GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING
+    GRID_WIDTH,
+    DISPLAY_LABEL_STYLE, BUTTON_STYLE,
+    TITLE_LABEL_TEXT,LOGO_SIZE,
+    GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
+    GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING,
+    GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO
 )
 import sys
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
-        
-        # # Force le fond orange sur ce widget
-        # self.setStyleSheet("""
-        #     QWidget {
-        #         background-color: #FFA500;
-        #     }
-        #     QLabel {
-        #         background: transparent;
-        #     }
-        # """)
-        
         self.grid = QGridLayout(self)
-        
-        # Réduire les marges pour avoir plus d'espace
-        self.grid.setContentsMargins(10, 10, 10, 10)
-        self.grid.setSpacing(5)
+        self.setup_grid_layout()
+        self.setup_logos()
+        self.setup_title()
+        self.setup_display()
+        self.button_config = {}
+        self.setup_row_stretches()
+        self.setLayout(self.grid)
 
-        # Ajout des logos en haut à gauche
+    def setup_grid_layout(self):
+        """Configure les marges et l'espacement du grid layout."""
+        self.grid.setContentsMargins(*GRID_LAYOUT_MARGINS)
+        self.grid.setSpacing(GRID_LAYOUT_SPACING)
+        self.grid.setVerticalSpacing(GRID_VERTICAL_SPACING)
+        self.grid.setHorizontalSpacing(GRID_HORIZONTAL_SPACING)
+
+    def setup_logos(self):
+        """Place les logos en haut à gauche."""
         logo_layout = QHBoxLayout()
         logo1 = QLabel()
         logo2 = QLabel()
-        pix1 = QPixmap("gui_template/logo1.png")
-        pix2 = QPixmap("gui_template/logo2.png")
-        logo1.setPixmap(pix1.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        logo2.setPixmap(pix2.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        logo1.setAttribute(Qt.WA_TranslucentBackground)
-        logo2.setAttribute(Qt.WA_TranslucentBackground)
-        logo1.setStyleSheet("background: rgba(0,0,0,0);")
-        logo2.setStyleSheet("background: rgba(0,0,0,0);")
-        logo_layout.addWidget(logo1)
-        logo_layout.addWidget(logo2)
+        
+        for logo, path in [(logo1, "gui_template/logo1.png"), (logo2, "gui_template/logo2.png")]:
+            pix = QPixmap(path)
+            logo.setPixmap(pix.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            logo.setAttribute(Qt.WA_TranslucentBackground)
+            logo.setStyleSheet("background: rgba(0,0,0,0);")
+            logo_layout.addWidget(logo)
+
         logo_widget = QWidget()
         logo_widget.setLayout(logo_layout)
         logo_widget.setAttribute(Qt.WA_TranslucentBackground)
         logo_widget.setStyleSheet("background: rgba(0,0,0,0);")
+        # Force les logos à rester au-dessus du titre
         self.grid.addWidget(logo_widget, 0, 0, 1, 1, alignment=Qt.AlignLeft | Qt.AlignTop)
+        logo_widget.raise_()  # Ajoute cette ligne pour mettre les logos au premier plan
 
-        # Titre (centré sur la première ligne)
+    def setup_title(self):
+        """Configure et place le titre."""
         self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
         self.title_label.setStyleSheet("background: transparent;")
-        self.grid.addWidget(self.title_label, 0, 1, 1, GRID_WIDTH - 1, alignment=Qt.AlignCenter)
+        # Utilise toute la largeur du grid (0 à GRID_WIDTH)
+        self.grid.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
+    def setup_display(self):
+        """Configure et place la zone d'affichage principale."""
         self.display_label = QLabel(alignment=Qt.AlignCenter)
         self.display_label.setStyleSheet(DISPLAY_LABEL_STYLE)
         self.display_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
         screen = QApplication.primaryScreen()
         size = screen.size()
-        w = int(size.width() * 0.7)  # Réduit de 0.8 à 0.7
-        h = int(size.height() * 0.6)  # Réduit de 0.8 à 0.6
+        w = int(size.width() * DISPLAY_SIZE_RATIO[0])
+        h = int(size.height() * DISPLAY_SIZE_RATIO[1])
         self.display_label.setFixedSize(w, h)
+        
         self.grid.addWidget(self.display_label, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
-        self.button_config = {}
-
-        # Après avoir ajouté tous les widgets à la grille, configure les stretches :
-        self.grid.setRowStretch(0, 1)    # Titre
-        self.grid.setRowStretch(1, 10)   # Affichage
-        self.grid.setRowStretch(2, 2)    # Boutons
-
-        # Ajoute un espacement entre les lignes
-        self.grid.setVerticalSpacing(20)  # Ajuste selon tes besoins
-
-        self.setLayout(self.grid)
+    def setup_row_stretches(self):
+        """Configure les proportions des lignes."""
+        for row, stretch in GRID_ROW_STRETCHES.items():
+            row_index = {"title": 0, "display": 1, "buttons": 2}[row]
+            self.grid.setRowStretch(row_index, stretch)
 
     def show_image(self, qimage: QImage):
         pix = QPixmap.fromImage(qimage)
@@ -132,9 +130,12 @@ class PhotoBoothBaseWidget(QWidget):
         return GRID_WIDTH
 
     def setup_buttons_from_config(self):
-        """Place automatiquement les boutons selon self.button_config, centrés sur chaque ligne.
-        Si la méthode associée est 'none' ou None, le bouton n'est pas connecté."""
+        """Place automatiquement les boutons selon self.button_config."""
         self.clear_buttons()
+        # Crée un groupe de boutons pour gérer l'exclusivité
+        self.button_group = QButtonGroup(self)
+        self.button_group.setExclusive(True)  # Un seul bouton peut être checked à la fois
+        
         col_max = self.get_grid_width()
         btn_names = list(self.button_config.items())
         total_btns = len(btn_names)
@@ -144,12 +145,23 @@ class PhotoBoothBaseWidget(QWidget):
             btns_this_row = min(col_max, total_btns - i)
             start_col = (col_max - btns_this_row) // 2
             for j in range(btns_this_row):
-                btn_name, method_name = btn_names[i + j]
+                btn_name, method_info = btn_names[i + j]
                 btn = QPushButton(btn_name)
                 btn.setStyleSheet(BUTTON_STYLE)
-                if method_name not in ("none", None):
-                    if hasattr(self, method_name):
+                
+                # Gestion des boutons toggle
+                if isinstance(method_info, tuple):
+                    method_name, is_toggle = method_info
+                    if is_toggle:
+                        btn.setCheckable(True)
+                        self.button_group.addButton(btn)  # Ajoute le bouton au groupe
+                        btn.clicked.connect(lambda checked, name=btn_name: 
+                            self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
+                else:
+                    method_name = method_info
+                    if method_name not in ("none", None) and hasattr(self, method_name):
                         btn.clicked.connect(getattr(self, method_name))
+                
                 self.grid.addWidget(btn, row, start_col + j)
             i += btns_this_row
             row += 1

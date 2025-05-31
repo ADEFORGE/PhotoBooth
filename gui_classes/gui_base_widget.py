@@ -18,15 +18,15 @@ class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
         
-        # Force le fond orange sur ce widget
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #FFA500;
-            }
-            QLabel {
-                background: transparent;
-            }
-        """)
+        # # Force le fond orange sur ce widget
+        # self.setStyleSheet("""
+        #     QWidget {
+        #         background-color: #FFA500;
+        #     }
+        #     QLabel {
+        #         background: transparent;
+        #     }
+        # """)
         
         self.grid = QGridLayout(self)
         

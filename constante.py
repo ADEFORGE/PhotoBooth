@@ -17,6 +17,7 @@ COLORS = {
     "gray": "#888888",
     "darkgray": "#222222",
     "lightgray": "#CCCCCC",
+    "orange": "#FFA500",
     # Couleurs personnalisées
     "primary": "#1abc9c",
     "secondary": "#2ecc71",
@@ -31,6 +32,8 @@ COLORS = {
     "softblue": "#5dade2",
     "softgreen": "#58d68d",
     "softred": "#ec7063",
+    "softyellow": "#eecc46",
+    "hardorangee" : "#f7811a",
 }
 
 try:
@@ -58,11 +61,11 @@ dico_styles = {
 
 # --- Fenêtre principale ---
 WINDOW_TITLE = "PhotoBooth"
-WINDOW_BG_COLOR = "#111"
-WINDOW_STYLE = f"background: {WINDOW_BG_COLOR};"
+WINDOW_BG_COLOR = COLORS["orange"]
+WINDOW_STYLE = f"background-color: {WINDOW_BG_COLOR};"
 
 # --- Police globale ---
-APP_FONT_FAMILY = "Arial"
+APP_FONT_FAMILY = "Arial"   
 APP_FONT_SIZE = 14
 
 # --- Titre principal (label tout en haut) ---
@@ -71,10 +74,10 @@ TITLE_LABEL_FONT_SIZE = 32
 TITLE_LABEL_FONT_FAMILY = "Arial"
 TITLE_LABEL_BOLD = True
 TITLE_LABEL_ITALIC = False
-TITLE_LABEL_COLOR = "#fff"
-TITLE_LABEL_BORDER_COLOR = "#222"
-TITLE_LABEL_BORDER_WIDTH = 2  # px
-TITLE_LABEL_BORDER_STYLE = "solid"  # solid, dashed, etc.
+TITLE_LABEL_COLOR = COLORS["white"]
+TITLE_LABEL_BORDER_COLOR = COLORS["black"]
+TITLE_LABEL_BORDER_WIDTH = 5  # px
+TITLE_LABEL_BORDER_STYLE = "dashed"  # solid, dashed, etc.
 
 TITLE_LABEL_STYLE = (
     f"color: {TITLE_LABEL_COLOR};"
@@ -88,10 +91,10 @@ TITLE_LABEL_STYLE = (
 )
 
 # --- Cadre des affichages (label central) ---
-DISPLAY_BORDER_COLOR = "#888"
+DISPLAY_BORDER_COLOR = COLORS["black"]
 DISPLAY_BORDER_RADIUS = 20  # px
-DISPLAY_BACKGROUND_COLOR = "#222"
-DISPLAY_TEXT_COLOR = "#fff"
+DISPLAY_BACKGROUND_COLOR = COLORS["white"]
+DISPLAY_TEXT_COLOR = COLORS["orange"]
 DISPLAY_TEXT_SIZE = 18
 
 DISPLAY_LABEL_STYLE = (
@@ -103,10 +106,10 @@ DISPLAY_LABEL_STYLE = (
 )
 
 # --- Boutons ---
-BUTTON_BG_COLOR = "#444"
-BUTTON_BG_HOVER = "#666"
-BUTTON_BG_PRESSED = "#222"
-BUTTON_TEXT_COLOR = "#fff"
+BUTTON_BG_COLOR = COLORS["softyellow"]
+BUTTON_BG_HOVER = COLORS["yellow"]
+BUTTON_BG_PRESSED = COLORS["hardorangee"]
+BUTTON_TEXT_COLOR = COLORS["white"]
 BUTTON_TEXT_SIZE = 14
 
 BUTTON_STYLE = (

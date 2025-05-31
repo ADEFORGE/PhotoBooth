@@ -15,6 +15,7 @@ class PhotoBoothBaseWidget(QWidget):
         super().__init__()
         self.setWindowTitle("PhotoBooth Nouvelle Génération")
         self.setStyleSheet(WINDOW_STYLE)
+        self.setAutoFillBackground(True)
         self.setFont(QFont(APP_FONT_FAMILY, APP_FONT_SIZE))
         self.grid = QGridLayout(self)
 
@@ -40,6 +41,7 @@ class PhotoBoothBaseWidget(QWidget):
 
         # Titre (centré sur la première ligne)
         self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
+        self.title_label.setStyleSheet("background: transparent;")
         self.grid.addWidget(self.title_label, 0, 1, 1, GRID_WIDTH - 1, alignment=Qt.AlignCenter)
 
         self.display_label = QLabel(alignment=Qt.AlignCenter)

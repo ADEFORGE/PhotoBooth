@@ -147,6 +147,36 @@ BUTTON_STYLE = (
     f"}}"
 )
 
+# --- Boutons spéciaux ---
+SPECIAL_BUTTON_NAMES = [
+    "Apply Style",
+    "Save",
+    "Print",
+    "Back to Camera"
+]
+
+# Style pour les boutons spéciaux (plus foncé)
+SPECIAL_BUTTON_STYLE = (
+    f"QPushButton {{"
+    f"background-color: {COLORS['red']};"  # Fond plus foncé
+    f"color: {COLORS['white']};"
+    f"font-size: {BUTTON_TEXT_SIZE}px;"
+    f"border: {BUTTON_BORDER_WIDTH}px solid {COLORS['black']};"
+    f"border-radius: {BUTTON_BORDER_RADIUS}px;"
+    f"font-weight: bold;"
+    f"}}"
+    f"QPushButton:hover {{"
+    f"background-color: {COLORS['gray']};"  # Hover plus foncé
+    f"}}"
+    f"QPushButton:pressed {{"
+    f"background-color: {COLORS['black']};"  # Pressed encore plus foncé
+    f"}}"
+    f"QPushButton:checked {{"
+    f"background-color: {COLORS['primary']};"
+    f"border: {BUTTON_BORDER_WIDTH}px solid {COLORS['white']};"
+    f"}}"
+)
+
 # --- Logos ---
 LOGO_SIZE = 64  # Taille (largeur/hauteur) des logos en pixels
 
@@ -171,4 +201,21 @@ GRID_ROW_STRETCHES = {
 
 # --- Display Configuration ---
 DISPLAY_SIZE_RATIO = (0.7, 0.6)  # width%, height% of screen
+
+# --- Info Button ---
+INFO_BUTTON_SIZE = 32  # px
+INFO_BUTTON_STYLE = (
+    f"QPushButton {{"
+    f"background-color: transparent;"
+    f"border: none;"
+    f"width: {INFO_BUTTON_SIZE}px;"
+    f"height: {INFO_BUTTON_SIZE}px;"
+    f"}}"
+    f"QPushButton:hover {{"
+    f"background-color: rgba(255, 255, 255, 0.1);"
+    f"}}"
+    f"QPushButton:pressed {{"
+    f"background-color: rgba(0, 0, 0, 0.1);"
+    f"}}"
+)
 

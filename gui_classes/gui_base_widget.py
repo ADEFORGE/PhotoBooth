@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout, QPushButton, 
-                             QApplication, QSizePolicy, QHBoxLayout, QButtonGroup)  # Ajoute QButtonGroup
-from PySide6.QtGui import QPixmap, QMovie, QImage, QFont
+                             QApplication, QSizePolicy, QHBoxLayout, QButtonGroup)
+from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon
 from PySide6.QtCore import Qt, QSize
+from gui_classes.more_info_box import InfoDialog
 from constante import (
-    GRID_WIDTH,
-    DISPLAY_LABEL_STYLE, BUTTON_STYLE,
-    TITLE_LABEL_TEXT,LOGO_SIZE,
+    GRID_WIDTH, DISPLAY_LABEL_STYLE, BUTTON_STYLE,
+    SPECIAL_BUTTON_STYLE, SPECIAL_BUTTON_NAMES, TITLE_LABEL_TEXT,
+    LOGO_SIZE, INFO_BUTTON_SIZE, INFO_BUTTON_STYLE,  # Ajoute ces imports
     GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING,
     GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO
@@ -18,6 +19,7 @@ class PhotoBoothBaseWidget(QWidget):
         self.grid = QGridLayout(self)
         self.setup_grid_layout()
         self.setup_logos()
+        self.setup_info_button()  # Ajoute cette ligne
         self.setup_title()
         self.setup_display()
         self.button_config = {}
@@ -132,9 +134,8 @@ class PhotoBoothBaseWidget(QWidget):
     def setup_buttons_from_config(self):
         """Place automatiquement les boutons selon self.button_config."""
         self.clear_buttons()
-        # Crée un groupe de boutons pour gérer l'exclusivité
         self.button_group = QButtonGroup(self)
-        self.button_group.setExclusive(True)  # Un seul bouton peut être checked à la fois
+        self.button_group.setExclusive(True)
         
         col_max = self.get_grid_width()
         btn_names = list(self.button_config.items())
@@ -147,14 +148,19 @@ class PhotoBoothBaseWidget(QWidget):
             for j in range(btns_this_row):
                 btn_name, method_info = btn_names[i + j]
                 btn = QPushButton(btn_name)
-                btn.setStyleSheet(BUTTON_STYLE)
+                
+                # Applique le style approprié selon le nom du bouton
+                if btn_name in SPECIAL_BUTTON_NAMES:
+                    btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+                else:
+                    btn.setStyleSheet(BUTTON_STYLE)
                 
                 # Gestion des boutons toggle
                 if isinstance(method_info, tuple):
                     method_name, is_toggle = method_info
                     if is_toggle:
                         btn.setCheckable(True)
-                        self.button_group.addButton(btn)  # Ajoute le bouton au groupe
+                        self.button_group.addButton(btn)
                         btn.clicked.connect(lambda checked, name=btn_name: 
                             self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
                 else:
@@ -165,6 +171,30 @@ class PhotoBoothBaseWidget(QWidget):
                 self.grid.addWidget(btn, row, start_col + j)
             i += btns_this_row
             row += 1
+
+    def setup_info_button(self):
+        """Ajoute le bouton d'information à droite."""
+        info_btn = QPushButton()
+        info_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)  # Utilise le style des boutons spéciaux
+        
+        # Configure l'icône
+        icon = QPixmap("gui_template/moreinfo.png")
+        info_btn.setIcon(QIcon(icon))
+        info_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        info_btn.setFixedSize(INFO_BUTTON_SIZE + 20, INFO_BUTTON_SIZE + 20)  # Ajoute un peu d'espace autour de l'icône
+        
+        # Connecte le clic à l'ouverture du dialogue
+        info_btn.clicked.connect(self.show_info_dialog)
+        
+        # Place le bouton en haut à droite
+        self.grid.addWidget(info_btn, 0, GRID_WIDTH-1, 1, 1, 
+                           alignment=Qt.AlignRight | Qt.AlignTop)
+        info_btn.raise_()
+
+    def show_info_dialog(self):
+        """Ouvre la boîte de dialogue d'information."""
+        dialog = InfoDialog(self)
+        dialog.exec()
 
 from PySide6.QtWidgets import QLabel
 from PySide6.QtGui import QPainter, QPen, QColor, QFont, QPainterPath

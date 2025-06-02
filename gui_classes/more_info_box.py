@@ -8,7 +8,15 @@ class InfoDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Information")
-        self.setFixedSize(600, 300)
+        self.setFixedSize(600, 400)
+        
+        # Liste des images et index courant
+        self.image_paths = [
+            "gui_template/info1.png",
+            "gui_template/info2.png",
+            "gui_template/info3.png"
+        ]
+        self.current_index = 0
         
         # Force le fond de la boîte de dialogue (même style que l'app principale)
         self.setStyleSheet(f"background-color: {COLORS['orange']};")
@@ -21,14 +29,8 @@ class InfoDialog(QDialog):
         self.image_label.setStyleSheet("background: transparent;")
         self.image_label.setAlignment(Qt.AlignCenter)
         
-        # Charge et affiche l'image
-        self.current_image = QPixmap("gui_template/image.png")
-        if not self.current_image.isNull():
-            self.image_label.setPixmap(self.current_image.scaled(
-                500, 300, 
-                Qt.KeepAspectRatio, 
-                Qt.SmoothTransformation
-            ))
+        # Charge la première image
+        self.update_image()
         
         main_layout.addWidget(self.image_label)
         
@@ -36,14 +38,14 @@ class InfoDialog(QDialog):
         nav_layout = QHBoxLayout()
         
         # Bouton précédent
-        prev_btn = QPushButton("↤ Précédent")
-        prev_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
-        prev_btn.clicked.connect(self.previous_image)
+        self.prev_btn = QPushButton("↤ Précédent")
+        self.prev_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+        self.prev_btn.clicked.connect(self.previous_image)
         
         # Bouton suivant
-        next_btn = QPushButton("Suivant ↦")
-        next_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
-        next_btn.clicked.connect(self.next_image)
+        self.next_btn = QPushButton("Suivant ↦")
+        self.next_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+        self.next_btn.clicked.connect(self.next_image)
         
         # Bouton fermer
         close_btn = QPushButton("Fermer")
@@ -51,19 +53,44 @@ class InfoDialog(QDialog):
         close_btn.clicked.connect(self.accept)
         
         # Ajoute les boutons au layout de navigation
-        nav_layout.addWidget(prev_btn)
+        nav_layout.addWidget(self.prev_btn)
         nav_layout.addWidget(close_btn)
-        nav_layout.addWidget(next_btn)
+        nav_layout.addWidget(self.next_btn)
         
         # Ajoute le layout de navigation au layout principal
         main_layout.addLayout(nav_layout)
         
         self.setLayout(main_layout)
+        
+        # Met à jour l'état des boutons
+        self.update_buttons_state()
+
+    def update_image(self):
+        """Charge et affiche l'image courante."""
+        current_path = self.image_paths[self.current_index]
+        pixmap = QPixmap(current_path)
+        if not pixmap.isNull():
+            self.image_label.setPixmap(pixmap.scaled(
+                500, 300,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            ))
+
+    def update_buttons_state(self):
+        """Met à jour l'état actif/inactif des boutons de navigation."""
+        self.prev_btn.setEnabled(self.current_index > 0)
+        self.next_btn.setEnabled(self.current_index < len(self.image_paths) - 1)
 
     def previous_image(self):
-        # À implémenter : chargement image précédente
-        print("Previous image")
-        
+        """Affiche l'image précédente."""
+        if self.current_index > 0:
+            self.current_index -= 1
+            self.update_image()
+            self.update_buttons_state()
+
     def next_image(self):
-        # À implémenter : chargement image suivante
-        print("Next image")
+        """Affiche l'image suivante."""
+        if self.current_index < len(self.image_paths) - 1:
+            self.current_index += 1
+            self.update_image()
+            self.update_buttons_state()

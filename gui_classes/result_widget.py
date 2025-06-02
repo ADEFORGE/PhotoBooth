@@ -11,7 +11,7 @@ class ResultWidget(PhotoBoothBaseWidget):
         self.button_config = {
             "Save": "save",
             "Print": "print_image",
-            "Back to Camera": ("set_view_camera", False)
+            "Back to Camera": "set_view_camera"
         }
         
         # Utilise la méthode héritée pour créer les boutons

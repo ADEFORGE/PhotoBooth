@@ -1,6 +1,9 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QWidget, QHBoxLayout, QLabel, QGraphicsBlurEffect
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QLabel, QGraphicsBlurEffect
 from PySide6.QtCore import Qt
 from constante import DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE
+
+# Correction : importer QWidget explicitement
+from PySide6.QtWidgets import QWidget
 
 
 class RulesDialog(QDialog):
@@ -12,8 +15,8 @@ class RulesDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Rules")
         self.setFixedSize(600, 400)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)  # Ajout pour transparence réelle
-        self.setStyleSheet(DIALOG_BOX_STYLE)  # Applique le style commun
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet(DIALOG_BOX_STYLE)
 
         # --- Ajout d'un fond filtré ---
         bg = QLabel(self)
@@ -24,34 +27,37 @@ class RulesDialog(QDialog):
         bg.setGraphicsEffect(blur)
         bg.lower()
 
-        main_layout = QVBoxLayout()
+        main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(16)
 
         # Titre
-        title = QLabel("Usage Rules")
+        title = QLabel("Usage Rules", self)
         title.setStyleSheet("color: white; font-size: 24px; font-weight: bold; background: transparent;")
         title.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title)
 
-        # Zone de texte
-        self.text_edit = QTextEdit()
+        # Texte
+        self.text_edit = QTextEdit(self)
         self.text_edit.setReadOnly(True)
         self.text_edit.setStyleSheet("background: transparent; color: white; font-size: 16px; border: none;")
-        main_layout.addWidget(self.text_edit, stretch=1)
+        main_layout.addWidget(self.text_edit)
+        self._load_rules_content()
 
-        # Bouton fermer
+        # Boutons (nom anglais et sans caractères spéciaux)
         btn_layout = QHBoxLayout()
-        btn_layout.addStretch()
-        accept_btn = QPushButton("Accept")
+        accept_btn = QPushButton("accept")
         accept_btn.setStyleSheet(DIALOG_ACTION_BUTTON_STYLE)
         accept_btn.clicked.connect(self.accept)
+        btn_layout.addStretch()
         btn_layout.addWidget(accept_btn)
         btn_layout.addStretch()
         main_layout.addLayout(btn_layout)
 
         self.setLayout(main_layout)
-        self._load_rules_content()
+
+    def accept(self):
+        self.close()
 
     def _load_rules_content(self) -> None:
         try:

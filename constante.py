@@ -293,3 +293,82 @@ ICON_BUTTON_STYLE = (
     "}"
 )
 
+# --- Style pour les boutons de style (TOGGLE, AVEC OU SANS TEXTURE) ---
+def get_style_button_style(style_name):
+    import os
+    texture_path = f"gui_template/styles_textures/{style_name}.png"
+    checked = (
+        "QPushButton:checked {"
+        "background-color: #f7811a;"
+        "border: 3px solid #fff;"
+        "color: #fff;"
+        "}"
+    )
+    if os.path.exists(texture_path):
+        return (
+            "QPushButton {"
+            "border: 2px solid black;"
+            "border-radius: 16px;"
+            f"background-image: url('{texture_path}');"
+            "background-repeat: no-repeat;"
+            "background-position: center;"
+            "background-size: cover;"
+            "background-color: black;"
+            "color: white;"
+            "font-size: 18px;"
+            "font-weight: bold;"
+            "min-width: 80px; min-height: 80px;"
+            "max-width: 120px; max-height: 120px;"
+            "}"
+            "QPushButton:hover {"
+            "border: 2px solid gray;"
+            "}"
+            "QPushButton:pressed {"
+            "border: 4px solid white;"
+            "}"
+            + checked
+        )
+    else:
+        return (
+            "QPushButton {"
+            "border: 2px solid black;"
+            "border-radius: 16px;"
+            "background-color: black;"
+            "color: white;"
+            "font-size: 18px;"
+            "font-weight: bold;"
+            "min-width: 80px; min-height: 80px;"
+            "max-width: 120px; max-height: 120px;"
+            "}"
+            "QPushButton:hover {"
+            "border: 2px solid gray;"
+            "}"
+            "QPushButton:pressed {"
+            "border: 4px solid white;"
+            "}"
+            + checked
+        )
+
+# --- Style pour les boutons "first_buttons" (icônes ronds) ---
+FIRST_BUTTON_STYLE = (
+    "QPushButton {"
+    "background-color: rgba(180,180,180,0.5);"
+    "border: 2px solid #888;"
+    "border-radius: 24px;"
+    "min-width: 48px; min-height: 48px;"
+    "max-width: 48px; max-height: 48px;"
+    "font-size: 22px;"
+    "color: white;"
+    "font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "border: 2.5px solid white;"
+    "}"
+    "QPushButton:pressed {"
+    "border: 3px solid black;"
+    "}"
+)
+
+# --- Style pour les boutons génériques (autres que styles et first_buttons) ---
+GENERIC_BUTTON_STYLE = FIRST_BUTTON_STYLE  # ou personnalise si besoin
+

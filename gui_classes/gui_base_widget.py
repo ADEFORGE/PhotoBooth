@@ -11,10 +11,21 @@ from constante import (
     GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING,
     GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO,
-    dico_styles, ICON_BUTTON_STYLE  # <-- Ajout ici
+    dico_styles, ICON_BUTTON_STYLE,  # <-- Ajout ici
+    get_style_button_style, FIRST_BUTTON_STYLE, GENERIC_BUTTON_STYLE
 )
 import sys
 import os
+import unicodedata
+import re
+
+def normalize_btn_name(btn_name):
+    # Enlève accents, met en minuscule, remplace espaces et caractères spéciaux par _
+    name = btn_name.lower()
+    name = unicodedata.normalize('NFD', name).encode('ascii', 'ignore').decode('utf-8')
+    name = re.sub(r'[^a-z0-9]+', '_', name)
+    name = name.strip('_')
+    return name
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
@@ -218,11 +229,48 @@ class PhotoBoothBaseWidget(QWidget):
             f"}}"
         )
 
-    def get_icon_for_button(self, btn_name):
-        icon_path = f"gui_template/btn_icons/{btn_name.lower().replace(' ', '_')}.png"
-        if os.path.exists(icon_path):
-            return QIcon(icon_path)
-        return None
+    def _create_button(self, btn_name, method_info):
+        btn = QPushButton()
+        icon_name = normalize_btn_name(btn_name)
+        icon_path = f"gui_template/btn_icons/{icon_name}.png"
+        icon = QIcon(icon_path) if os.path.exists(icon_path) else None
+
+        # Style pour bouton de style (dico_styles)
+        if btn_name in dico_styles:
+            btn.setCheckable(True)
+            btn.setStyleSheet(get_style_button_style(btn_name))
+            btn.setMinimumSize(80, 80)
+            btn.setMaximumSize(120, 120)
+            self.button_group.addButton(btn)
+            btn.clicked.connect(lambda checked, name=btn_name: 
+                self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
+            if icon:
+                btn.setIcon(icon)
+                btn.setIconSize(btn.size())
+                btn.setText("")  # Pas de texte si icône
+            else:
+                btn.setText(btn_name)
+        else:
+            btn.setStyleSheet(GENERIC_BUTTON_STYLE)
+            btn.setFixedSize(48, 48)
+            if icon:
+                btn.setIcon(icon)
+                btn.setIconSize(btn.size())
+                btn.setText("")
+            else:
+                btn.setText(btn_name)
+            if isinstance(method_info, tuple):
+                method_name, is_toggle = method_info
+                if is_toggle:
+                    btn.setCheckable(True)
+                    self.button_group.addButton(btn)
+                    btn.clicked.connect(lambda checked, name=btn_name: 
+                        self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
+            else:
+                method_name = method_info
+                if method_name not in ("none", None) and hasattr(self, method_name):
+                    btn.clicked.connect(getattr(self, method_name))
+        return btn
 
     def setup_buttons_from_config(self):
         self.clear_buttons()
@@ -244,29 +292,8 @@ class PhotoBoothBaseWidget(QWidget):
                 if skip_central and col == central_col:
                     col += 1
                 btn_name, method_info = btn_names[j]
-                btn = QPushButton()
-                # Style et contenu pour bouton "autre"
-                btn.setStyleSheet(self.get_icon_button_style())
-                btn.setFixedSize(48, 48)
-                icon = self.get_icon_for_button(btn_name)
-                if icon:
-                    btn.setIcon(icon)
-                    btn.setIconSize(btn.size())
-                else:
-                    btn.setText(btn_name[0].upper())
-                # Connexion
-                if isinstance(method_info, tuple):
-                    method_name, is_toggle = method_info
-                    if is_toggle:
-                        btn.setCheckable(True)
-                        self.button_group.addButton(btn)
-                        btn.clicked.connect(lambda checked, name=btn_name: 
-                            self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
-                else:
-                    method_name = method_info
-                    if method_name not in ("none", None) and hasattr(self, method_name):
-                        btn.clicked.connect(getattr(self, method_name))
-                self.overlay_layout.addWidget(btn, row, col)
+                btn = self._create_button(btn_name, method_info)
+                self.overlay_layout.addWidget(btn, row, col, alignment=Qt.AlignHCenter)
                 col += 1
             row += 1
 
@@ -284,34 +311,8 @@ class PhotoBoothBaseWidget(QWidget):
                 if skip_central and col == central_col:
                     col += 1
                 btn_name, method_info = btn_names[i + j]
-                btn = QPushButton(btn_name)
-                # Style pour bouton de style (dico_styles)
-                if btn_name in dico_styles:
-                    btn.setStyleSheet(self.get_style_button_style(btn_name))
-                    btn.setMinimumSize(80, 80)
-                    btn.setMaximumSize(120, 120)
-                else:
-                    btn.setStyleSheet(self.get_icon_button_style())
-                    btn.setFixedSize(48, 48)
-                    icon = self.get_icon_for_button(btn_name)
-                    if icon:
-                        btn.setIcon(icon)
-                        btn.setIconSize(btn.size())
-                    else:
-                        btn.setText(btn_name[0].upper())
-                # Connexion
-                if isinstance(method_info, tuple):
-                    method_name, is_toggle = method_info
-                    if is_toggle:
-                        btn.setCheckable(True)
-                        self.button_group.addButton(btn)
-                        btn.clicked.connect(lambda checked, name=btn_name: 
-                            self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
-                else:
-                    method_name = method_info
-                    if method_name not in ("none", None) and hasattr(self, method_name):
-                        btn.clicked.connect(getattr(self, method_name))
-                self.overlay_layout.addWidget(btn, row, col)
+                btn = self._create_button(btn_name, method_info)
+                self.overlay_layout.addWidget(btn, row, col, alignment=Qt.AlignHCenter)
                 col += 1
             i += btns_this_row
             row += 1

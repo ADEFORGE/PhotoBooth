@@ -372,3 +372,6 @@ FIRST_BUTTON_STYLE = (
 # --- Style pour les boutons génériques (autres que styles et first_buttons) ---
 GENERIC_BUTTON_STYLE = FIRST_BUTTON_STYLE  # ou personnalise si besoin
 
+# --- Message affiché en haut de l'overlay de validation ---
+VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de continuer."  # Personnalisez ici
+

@@ -9,9 +9,11 @@ from constante import (
     LOGO_SIZE, INFO_BUTTON_SIZE, INFO_BUTTON_STYLE,
     GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING,
-    GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO
+    GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO,
+    dico_styles  # <-- Ajout ici
 )
 import sys
+import os
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
@@ -150,6 +152,76 @@ class PhotoBoothBaseWidget(QWidget):
             row_index = {"title": 0, "display": 1, "buttons": 2}[row]
             self.overlay_layout.setRowStretch(row_index, stretch)
 
+    def get_style_button_style(self, style_name):
+        # Chemin de la texture
+        texture_path = f"gui_template/styles_textures/{style_name}.png"
+        if os.path.exists(texture_path):
+            # Texture présente
+            return (
+                f"QPushButton {{"
+                f"border: 2px solid black;"
+                f"border-radius: 8px;"
+                f"background-image: url('{texture_path}');"
+                f"background-repeat: no-repeat;"
+                f"background-position: center;"
+                f"background-color: black;"
+                f"color: white;"
+                f"font-size: 18px;"
+                f"font-weight: bold;"
+                f"}}"
+                f"QPushButton:hover {{"
+                f"border: 2px solid gray;"
+                f"}}"
+                f"QPushButton:pressed {{"
+                f"border: 4px solid white;"
+                f"}}"
+            )
+        else:
+            # Pas de texture, fond noir
+            return (
+                f"QPushButton {{"
+                f"border: 2px solid black;"
+                f"border-radius: 8px;"
+                f"background-color: black;"
+                f"color: white;"
+                f"font-size: 18px;"
+                f"font-weight: bold;"
+                f"}}"
+                f"QPushButton:hover {{"
+                f"border: 2px solid gray;"
+                f"}}"
+                f"QPushButton:pressed {{"
+                f"border: 4px solid white;"
+                f"}}"
+            )
+
+    def get_icon_button_style(self):
+        # Rond, gris transparent, bordures dynamiques
+        return (
+            f"QPushButton {{"
+            f"background-color: rgba(180,180,180,0.5);"
+            f"border: 2px solid #888;"
+            f"border-radius: 24px;"  # Pour bouton rond, taille fixée plus bas
+            f"min-width: 48px; min-height: 48px;"
+            f"max-width: 48px; max-height: 48px;"
+            f"font-size: 22px;"
+            f"color: white;"
+            f"font-weight: bold;"
+            f"}}"
+            f"QPushButton:hover {{"
+            f"border: 2.5px solid white;"
+            f"}}"
+            f"QPushButton:pressed {{"
+            f"border: 3px solid black;"
+            f"}}"
+        )
+
+    def get_icon_for_button(self, btn_name):
+        icon_path = f"gui_template/btn_icons/{btn_name.lower().replace(' ', '_')}.png"
+        if os.path.exists(icon_path):
+            return QIcon(icon_path)
+        return None
+
     def setup_buttons_from_config(self):
         self.clear_buttons()
         self.button_group = QButtonGroup(self)
@@ -167,15 +239,20 @@ class PhotoBoothBaseWidget(QWidget):
             central_col = col_max // 2 if skip_central else -1
             col = start_col
             for j in range(btns_this_row):
-                # Si pair, on saute la colonne centrale et place le bouton restant juste après
                 if skip_central and col == central_col:
                     col += 1
                 btn_name, method_info = btn_names[j]
-                btn = QPushButton(btn_name)
-                if btn_name in SPECIAL_BUTTON_NAMES:
-                    btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+                btn = QPushButton()
+                # Style et contenu pour bouton "autre"
+                btn.setStyleSheet(self.get_icon_button_style())
+                btn.setFixedSize(48, 48)
+                icon = self.get_icon_for_button(btn_name)
+                if icon:
+                    btn.setIcon(icon)
+                    btn.setIconSize(btn.size())
                 else:
-                    btn.setStyleSheet(BUTTON_STYLE)
+                    btn.setText(btn_name[0].upper())
+                # Connexion
                 if isinstance(method_info, tuple):
                     method_name, is_toggle = method_info
                     if is_toggle:
@@ -189,7 +266,7 @@ class PhotoBoothBaseWidget(QWidget):
                         btn.clicked.connect(getattr(self, method_name))
                 self.overlay_layout.addWidget(btn, row, col)
                 col += 1
-            row += 1  # Les autres boutons commencent à la ligne suivante
+            row += 1
 
         # --- Placement des autres boutons comme avant, à partir de row ---
         btn_names = list(self.button_config.items())
@@ -206,10 +283,21 @@ class PhotoBoothBaseWidget(QWidget):
                     col += 1
                 btn_name, method_info = btn_names[i + j]
                 btn = QPushButton(btn_name)
-                if btn_name in SPECIAL_BUTTON_NAMES:
-                    btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+                # Style pour bouton de style (dico_styles)
+                if btn_name in dico_styles:
+                    btn.setStyleSheet(self.get_style_button_style(btn_name))
+                    btn.setMinimumSize(80, 80)
+                    btn.setMaximumSize(120, 120)
                 else:
-                    btn.setStyleSheet(BUTTON_STYLE)
+                    btn.setStyleSheet(self.get_icon_button_style())
+                    btn.setFixedSize(48, 48)
+                    icon = self.get_icon_for_button(btn_name)
+                    if icon:
+                        btn.setIcon(icon)
+                        btn.setIconSize(btn.size())
+                    else:
+                        btn.setText(btn_name[0].upper())
+                # Connexion
                 if isinstance(method_info, tuple):
                     method_name, is_toggle = method_info
                     if is_toggle:

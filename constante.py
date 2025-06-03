@@ -219,3 +219,55 @@ INFO_BUTTON_STYLE = (
     f"}}"
 )
 
+# --- Dialog Box Style (InfoDialog & RulesDialog) ---
+DIALOG_BOX_STYLE = (
+    "QDialog {"
+    "background-color: rgba(24, 24, 24, 0.82);"  # gris très foncé, bien transparent
+    "border-radius: 18px;"
+    "backdrop-filter: blur(6px);"  # effet glass si supporté
+    "}"
+    "QLabel {"
+    "background: transparent;"
+    "color: white;"
+    "font-size: 18px;"
+    "}"
+    "QTextEdit {"
+    "background: transparent;"
+    "color: white;"
+    "font-size: 16px;"
+    "border: none;"
+    "}"
+    "QPushButton {"
+    "background-color: #444;"
+    "color: white;"
+    "font-size: 16px;"
+    "border-radius: 10px;"
+    "padding: 8px 24px;"
+    "margin-top: 12px;"
+    "}"
+    "QPushButton:hover {"
+    "background-color: #666;"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: #222;"
+    "}"
+)
+
+# --- Icon Button Style (pour info/rules boutons ronds transparents) ---
+ICON_BUTTON_STYLE = (
+    "QPushButton {"
+    "background-color: rgba(180,180,180,0.35);"
+    "border: 2px solid #bbb;"
+    "border-radius: 24px;"
+    "min-width: 48px; min-height: 48px;"
+    "max-width: 48px; max-height: 48px;"
+    "}"
+    "QPushButton:hover {"
+    "border: 2.5px solid white;"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: rgba(220,220,220,0.55);"
+    "border: 3px solid #eee;"
+    "}"
+)
+

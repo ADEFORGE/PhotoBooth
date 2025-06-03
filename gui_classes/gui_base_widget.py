@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout, QPushButton,
 from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize
 from gui_classes.more_info_box import InfoDialog
+from gui_classes.rules_dialog import RulesDialog
 from constante import (
     GRID_WIDTH, DISPLAY_LABEL_STYLE, BUTTON_STYLE,
     SPECIAL_BUTTON_STYLE, SPECIAL_BUTTON_NAMES, TITLE_LABEL_TEXT,
@@ -10,7 +11,7 @@ from constante import (
     GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING,
     GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO,
-    dico_styles  # <-- Ajout ici
+    dico_styles, ICON_BUTTON_STYLE  # <-- Ajout ici
 )
 import sys
 import os
@@ -32,6 +33,7 @@ class PhotoBoothBaseWidget(QWidget):
 
         self.setup_logos()
         self.setup_info_button()
+        self.setup_rules_button()  # Ajout ici
         self.setup_title()
         self.button_config = {}
         self.first_buttons = []  # Nouvelle liste pour les boutons du haut
@@ -316,17 +318,34 @@ class PhotoBoothBaseWidget(QWidget):
 
     def setup_info_button(self):
         info_btn = QPushButton()
-        info_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+        info_btn.setStyleSheet(ICON_BUTTON_STYLE)
         icon = QPixmap("gui_template/moreinfo.png")
         info_btn.setIcon(QIcon(icon))
         info_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
-        info_btn.setFixedSize(INFO_BUTTON_SIZE + 20, INFO_BUTTON_SIZE + 20)
+        info_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
         info_btn.clicked.connect(self.show_info_dialog)
         self.overlay_layout.addWidget(info_btn, 0, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)
         info_btn.raise_()
+        self._info_btn = info_btn  # Pour positionner le bouton Rules juste en dessous
+
+    def setup_rules_button(self):
+        rules_btn = QPushButton()
+        rules_btn.setStyleSheet(ICON_BUTTON_STYLE)
+        rules_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
+        rules_icon = QPixmap("gui_template/rule_ico.png")
+        rules_btn.setIcon(QIcon(rules_icon))
+        rules_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        rules_btn.clicked.connect(self.show_rules_dialog)
+        # Place juste en dessous du bouton info
+        self.overlay_layout.addWidget(rules_btn, 1, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)
+        self._rules_btn = rules_btn
 
     def show_info_dialog(self):
         dialog = InfoDialog(self)
+        dialog.exec()
+
+    def show_rules_dialog(self):
+        dialog = RulesDialog(self)
         dialog.exec()
 
 from PySide6.QtWidgets import QLabel

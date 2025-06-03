@@ -1,15 +1,26 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton, 
-                             QHBoxLayout, QWidget)
-from PySide6.QtGui import QPixmap
+                             QHBoxLayout, QWidget, QGraphicsBlurEffect)
+from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt
-from constante import SPECIAL_BUTTON_STYLE, COLORS, WINDOW_STYLE
+from constante import SPECIAL_BUTTON_STYLE, COLORS, WINDOW_STYLE, DIALOG_BOX_STYLE
 
 class InfoDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Information")
         self.setFixedSize(600, 400)
-        
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet(DIALOG_BOX_STYLE)
+
+        # --- Ajout d'un fond filtré ---
+        bg = QLabel(self)
+        bg.setGeometry(0, 0, 600, 400)
+        bg.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
+        blur = QGraphicsBlurEffect()
+        blur.setBlurRadius(18)
+        bg.setGraphicsEffect(blur)
+        bg.lower()  # Met le fond derrière tout
+
         # Liste des images et index courant
         self.image_paths = [
             "gui_template/info1.png",
@@ -18,11 +29,9 @@ class InfoDialog(QDialog):
         ]
         self.current_index = 0
         
-        # Force le fond de la boîte de dialogue (même style que l'app principale)
-        self.setStyleSheet(f"background-color: {COLORS['orange']};")
-        
         # Layout principal
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)  # Pour que le fond couvre tout
         
         # Zone d'affichage de l'image
         self.image_label = QLabel()

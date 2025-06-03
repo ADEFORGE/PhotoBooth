@@ -224,7 +224,7 @@ DIALOG_BOX_STYLE = (
     "QDialog {"
     "background-color: rgba(24, 24, 24, 0.82);"  # gris très foncé, bien transparent
     "border-radius: 18px;"
-    "backdrop-filter: blur(6px);"  # effet glass si supporté
+    # "backdrop-filter: blur(6px);"  # <-- SUPPRIMÉ car non supporté par Qt
     "}"
     "QLabel {"
     "background: transparent;"

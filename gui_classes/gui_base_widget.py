@@ -128,7 +128,7 @@ class PhotoBoothBaseWidget(QWidget):
         pass
 
     def setup_logos(self):
-        logo_layout = QHBoxLayout()
+        logo_layout = QVBoxLayout()  # <-- Changement ici : QVBoxLayout au lieu de QHBoxLayout
         logo1 = QLabel()
         logo2 = QLabel()
         for logo, path in [(logo1, "gui_template/logo1.png"), (logo2, "gui_template/logo2.png")]:

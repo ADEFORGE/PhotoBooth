@@ -162,7 +162,14 @@ class PhotoBoothBaseWidget(QWidget):
             btn_names = list(self.first_buttons.items()) if isinstance(self.first_buttons, dict) else list(self.first_buttons)
             total_first = len(btn_names)
             btns_this_row = min(col_max, total_first)
+            # Calcul du centrage : centre entre deux boutons si pair, bouton du milieu si impair
             start_col = (col_max - btns_this_row) // 2
+            if btns_this_row % 2 == 0:
+                # Pour pair, décale d'un demi-colonne à gauche pour que le centre soit entre les deux boutons du milieu
+                start_col = int(col_max / 2 - btns_this_row / 2)
+            else:
+                # Pour impair, centre le bouton du milieu
+                start_col = int(col_max / 2 - btns_this_row // 2)
             for j in range(btns_this_row):
                 btn_name, method_info = btn_names[j]
                 btn = QPushButton(btn_name)
@@ -190,7 +197,11 @@ class PhotoBoothBaseWidget(QWidget):
         i = 0
         while i < total_btns:
             btns_this_row = min(col_max, total_btns - i)
-            start_col = (col_max - btns_this_row) // 2
+            # Calcul du centrage : centre entre deux boutons si pair, bouton du milieu si impair
+            if btns_this_row % 2 == 0:
+                start_col = int(col_max / 2 - btns_this_row / 2)
+            else:
+                start_col = int(col_max / 2 - btns_this_row // 2)
             for j in range(btns_this_row):
                 btn_name, method_info = btn_names[i + j]
                 btn = QPushButton(btn_name)

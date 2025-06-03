@@ -246,8 +246,8 @@ class PhotoBoothBaseWidget(QWidget):
                 self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
             if icon:
                 btn.setIcon(icon)
-                btn.setIconSize(btn.size())
-                btn.setText("")  # Pas de texte si icône
+                btn.setIconSize(QSize(40, 40))  # Taille réduite de l'icône style
+                btn.setText("")
             else:
                 btn.setText(btn_name)
         else:
@@ -255,7 +255,7 @@ class PhotoBoothBaseWidget(QWidget):
             btn.setFixedSize(48, 48)
             if icon:
                 btn.setIcon(icon)
-                btn.setIconSize(btn.size())
+                btn.setIconSize(QSize(28, 28))  # Taille réduite de l'icône générique
                 btn.setText("")
             else:
                 btn.setText(btn_name)
@@ -322,7 +322,7 @@ class PhotoBoothBaseWidget(QWidget):
         info_btn.setStyleSheet(ICON_BUTTON_STYLE)
         icon = QPixmap("gui_template/moreinfo.png")
         info_btn.setIcon(QIcon(icon))
-        info_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        info_btn.setIconSize(QSize(24, 24))  # Taille réduite de l'icône info
         info_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
         info_btn.clicked.connect(self.show_info_dialog)
         self.overlay_layout.addWidget(info_btn, 0, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)
@@ -335,7 +335,7 @@ class PhotoBoothBaseWidget(QWidget):
         rules_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
         rules_icon = QPixmap("gui_template/rule_ico.png")
         rules_btn.setIcon(QIcon(rules_icon))
-        rules_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        rules_btn.setIconSize(QSize(24, 24))  # Taille réduite de l'icône rules
         rules_btn.clicked.connect(self.show_rules_dialog)
         # Place juste en dessous du bouton info
         self.overlay_layout.addWidget(rules_btn, 1, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)

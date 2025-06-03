@@ -1,12 +1,21 @@
-from PySide6.QtWidgets import (QVBoxLayout, QLabel, QHBoxLayout, QWidget, QGraphicsBlurEffect, QPushButton)
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
-from constante import DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget
+from PySide6.QtWidgets import (QVBoxLayout, QLabel, QHBoxLayout, QWidget, QGraphicsBlurEffect, QPushButton, QDialog)
+from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtCore import Qt, QSize
+from constante import DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE, FIRST_BUTTON_STYLE
+import os
+import unicodedata
+import re
 
-class InfoDialog(PhotoBoothBaseWidget):
+def normalize_btn_name(btn_name):
+    name = btn_name.lower()
+    name = unicodedata.normalize('NFD', name).encode('ascii', 'ignore').decode('utf-8')
+    name = re.sub(r'[^a-z0-9]+', '_', name)
+    name = name.strip('_')
+    return name
+
+class InfoDialog(QDialog):
     def __init__(self, parent=None):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowTitle("Information")
         self.setFixedSize(600, 400)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -34,18 +43,43 @@ class InfoDialog(PhotoBoothBaseWidget):
         self.image_label.setStyleSheet("background: transparent;")
         self.image_label.setAlignment(Qt.AlignCenter)
         self.update_image()
-        self.overlay_layout.addWidget(self.image_label, 1, 0, 1, self.get_grid_width(), alignment=Qt.AlignCenter)
 
-        # Définition des boutons (anglais, sans caractères spéciaux)
+        # Placement image
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.image_label)
+
+        # Boutons navigation (anglais, sans caractères spéciaux)
         self.first_buttons = [
             ("previous", "previous_image"),
             ("close", "accept"),
             ("next", "next_image")
         ]
-        self.button_config = {}
-
-        self.setup_buttons_from_config()
+        self._setup_buttons_row(main_layout)
         self.update_buttons_state()
+
+    def _setup_buttons_row(self, layout):
+        row_layout = QHBoxLayout()
+        for btn_name, method_name in self.first_buttons:
+            btn = QPushButton()
+            btn.setStyleSheet(FIRST_BUTTON_STYLE)
+            btn.setFixedSize(48, 48)
+            icon_name = normalize_btn_name(btn_name)
+            icon_path = f"gui_template/btn_icons/{icon_name}.png"
+            if os.path.exists(icon_path):
+                icon = QIcon(icon_path)
+                btn.setIcon(icon)
+                btn.setIconSize(QSize(32, 32))  # Correction ici : utiliser QSize directement
+                btn.setText("")
+            else:
+                btn.setText(btn_name)
+            btn.clicked.connect(getattr(self, method_name))
+            if btn_name == "previous":
+                self.prev_btn = btn
+            elif btn_name == "next":
+                self.next_btn = btn
+            row_layout.addWidget(btn)
+        layout.addLayout(row_layout)
 
     def accept(self):
         self.close()
@@ -61,15 +95,8 @@ class InfoDialog(PhotoBoothBaseWidget):
             ))
 
     def update_buttons_state(self):
-        for btn in self.findChildren(QPushButton):
-            if btn.text() == "" and btn.icon():  # bouton icône uniquement
-                icon_name = btn.icon().name() if hasattr(btn.icon(), "name") else ""
-                # fallback: utilise l'ordre
-            elif btn.text() == "previous":
-                btn.setEnabled(self.current_index > 0)
-            elif btn.text() == "next":
-                btn.setEnabled(self.current_index < len(self.image_paths) - 1)
-            # "close" toujours activé
+        self.prev_btn.setEnabled(self.current_index > 0)
+        self.next_btn.setEnabled(self.current_index < len(self.image_paths) - 1)
 
     def previous_image(self):
         if self.current_index > 0:

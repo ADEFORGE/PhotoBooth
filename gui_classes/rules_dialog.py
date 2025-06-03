@@ -1,9 +1,18 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QLabel, QGraphicsBlurEffect
-from PySide6.QtCore import Qt
-from constante import DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE
+from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QHBoxLayout, QLabel, QGraphicsBlurEffect, QWidget, QPushButton, QDialog
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QSize
+from constante import DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE, FIRST_BUTTON_STYLE
+import os
+import unicodedata
+import re
 
-# Correction : importer QWidget explicitement
-from PySide6.QtWidgets import QWidget
+
+def normalize_btn_name(btn_name):
+    name = btn_name.lower()
+    name = unicodedata.normalize('NFD', name).encode('ascii', 'ignore').decode('utf-8')
+    name = re.sub(r'[^a-z0-9]+', '_', name)
+    name = name.strip('_')
+    return name
 
 
 class RulesDialog(QDialog):
@@ -44,17 +53,30 @@ class RulesDialog(QDialog):
         main_layout.addWidget(self.text_edit)
         self._load_rules_content()
 
-        # Boutons (nom anglais et sans caractères spéciaux)
-        btn_layout = QHBoxLayout()
-        accept_btn = QPushButton("accept")
-        accept_btn.setStyleSheet(DIALOG_ACTION_BUTTON_STYLE)
-        accept_btn.clicked.connect(self.accept)
-        btn_layout.addStretch()
-        btn_layout.addWidget(accept_btn)
-        btn_layout.addStretch()
-        main_layout.addLayout(btn_layout)
+        # Boutons (anglais, sans caractères spéciaux)
+        self.first_buttons = [("accept", "accept")]
+        self._setup_buttons_row(main_layout)
 
         self.setLayout(main_layout)
+
+    def _setup_buttons_row(self, layout):
+        row_layout = QHBoxLayout()
+        for btn_name, method_name in self.first_buttons:
+            btn = QPushButton()
+            btn.setStyleSheet(FIRST_BUTTON_STYLE)
+            btn.setFixedSize(48, 48)
+            icon_name = normalize_btn_name(btn_name)
+            icon_path = f"gui_template/btn_icons/{icon_name}.png"
+            if os.path.exists(icon_path):
+                icon = QIcon(icon_path)
+                btn.setIcon(icon)
+                btn.setIconSize(QSize(32, 32))  # Correction ici : utiliser QSize directement
+                btn.setText("")
+            else:
+                btn.setText(btn_name)
+            btn.clicked.connect(getattr(self, method_name))
+            row_layout.addWidget(btn)
+        layout.addLayout(row_layout)
 
     def accept(self):
         self.close()

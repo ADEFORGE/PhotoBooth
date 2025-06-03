@@ -8,5 +8,4 @@ class LoadingWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
         super().__init__()
         self.clear_buttons()
-        # Affiche un GIF animé dans le label central
         self.show_gif("./gui_template/load.gif")

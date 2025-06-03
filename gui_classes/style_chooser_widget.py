@@ -9,7 +9,7 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QButtonGroup
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import dico_styles
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 from constante import (
     BUTTON_STYLE
 )

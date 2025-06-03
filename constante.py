@@ -61,10 +61,10 @@ dico_styles = {
 
 # --- Fenêtre principale ---
 WINDOW_TITLE = "PhotoBooth"
-WINDOW_BG_COLOR = COLORS["orange"]
+WINDOW_BG_COLOR = "transparent"  # transparent au lieu d'une couleur
 WINDOW_STYLE = """
     QWidget {
-        background-color: %s;
+        background-color: transparent;
     }
     QLabel {
         background: transparent;
@@ -72,7 +72,7 @@ WINDOW_STYLE = """
     QPushButton {
         background-color: %s;
     }
-""" % (COLORS["orange"], COLORS["darkgray"])
+""" % (COLORS["darkgray"])
 
 # --- Police globale ---
 APP_FONT_FAMILY = "Arial"   

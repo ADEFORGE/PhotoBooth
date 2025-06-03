@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout, QPushButton, 
-                             QApplication, QSizePolicy, QHBoxLayout, QButtonGroup)
-from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon
+                             QApplication, QSizePolicy, QHBoxLayout, QButtonGroup, QVBoxLayout)
+from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize
 from gui_classes.more_info_box import InfoDialog
 from constante import (
     GRID_WIDTH, DISPLAY_LABEL_STYLE, BUTTON_STYLE,
     SPECIAL_BUTTON_STYLE, SPECIAL_BUTTON_NAMES, TITLE_LABEL_TEXT,
-    LOGO_SIZE, INFO_BUTTON_SIZE, INFO_BUTTON_STYLE,  # Ajoute ces imports
+    LOGO_SIZE, INFO_BUTTON_SIZE, INFO_BUTTON_STYLE,
     GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING,
     GRID_ROW_STRETCHES, DISPLAY_SIZE_RATIO
@@ -16,113 +16,101 @@ import sys
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.grid = QGridLayout(self)
-        self.setup_grid_layout()
+        # Utilise un layout vertical superposé
+        self._background_pixmap = None
+        self._background_movie = None
+        self._background_qimage = None
+
+        self.overlay_widget = QWidget(self)
+        self.overlay_layout = QGridLayout(self.overlay_widget)
+        self.overlay_layout.setContentsMargins(*GRID_LAYOUT_MARGINS)
+        self.overlay_layout.setSpacing(GRID_LAYOUT_SPACING)
+        self.overlay_layout.setVerticalSpacing(GRID_VERTICAL_SPACING)
+        self.overlay_layout.setHorizontalSpacing(GRID_HORIZONTAL_SPACING)
+
         self.setup_logos()
-        self.setup_info_button()  # Ajoute cette ligne
+        self.setup_info_button()
         self.setup_title()
-        self.setup_display()
         self.button_config = {}
+        self.first_buttons = []  # Nouvelle liste pour les boutons du haut
         self.setup_row_stretches()
-        self.setLayout(self.grid)
+        self.setLayout(QVBoxLayout())
+        self.layout().addWidget(self.overlay_widget)
+        self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
 
-    def setup_grid_layout(self):
-        """Configure les marges et l'espacement du grid layout."""
-        self.grid.setContentsMargins(*GRID_LAYOUT_MARGINS)
-        self.grid.setSpacing(GRID_LAYOUT_SPACING)
-        self.grid.setVerticalSpacing(GRID_VERTICAL_SPACING)
-        self.grid.setHorizontalSpacing(GRID_HORIZONTAL_SPACING)
+    def resizeEvent(self, event):
+        self.update()
+        super().resizeEvent(event)
 
-    def setup_logos(self):
-        """Place les logos en haut à gauche."""
-        logo_layout = QHBoxLayout()
-        logo1 = QLabel()
-        logo2 = QLabel()
-        
-        for logo, path in [(logo1, "gui_template/logo1.png"), (logo2, "gui_template/logo2.png")]:
-            pix = QPixmap(path)
-            logo.setPixmap(pix.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            logo.setAttribute(Qt.WA_TranslucentBackground)
-            logo.setStyleSheet("background: rgba(0,0,0,0);")
-            logo_layout.addWidget(logo)
-
-        logo_widget = QWidget()
-        logo_widget.setLayout(logo_layout)
-        logo_widget.setAttribute(Qt.WA_TranslucentBackground)
-        logo_widget.setStyleSheet("background: rgba(0,0,0,0);")
-        # Force les logos à rester au-dessus du titre
-        self.grid.addWidget(logo_widget, 0, 0, 1, 1, alignment=Qt.AlignLeft | Qt.AlignTop)
-        logo_widget.raise_()  # Ajoute cette ligne pour mettre les logos au premier plan
-
-    def setup_title(self):
-        """Configure et place le titre."""
-        self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
-        self.title_label.setStyleSheet("background: transparent;")
-        # Utilise toute la largeur du grid (0 à GRID_WIDTH)
-        self.grid.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
-
-    def setup_display(self):
-        """Configure et place la zone d'affichage principale."""
-        self.display_label = QLabel(alignment=Qt.AlignCenter)
-        self.display_label.setStyleSheet(DISPLAY_LABEL_STYLE)
-        self.display_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        
-        screen = QApplication.primaryScreen()
-        size = screen.size()
-        w = int(size.width() * DISPLAY_SIZE_RATIO[0])
-        h = int(size.height() * DISPLAY_SIZE_RATIO[1])
-        self.display_label.setFixedSize(w, h)
-        
-        self.grid.addWidget(self.display_label, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
-
-    def setup_row_stretches(self):
-        """Configure les proportions des lignes."""
-        for row, stretch in GRID_ROW_STRETCHES.items():
-            row_index = {"title": 0, "display": 1, "buttons": 2}[row]
-            self.grid.setRowStretch(row_index, stretch)
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        # Détermine la source à afficher
+        img = None
+        if self._background_pixmap:
+            img = self._background_pixmap
+        elif self._background_qimage:
+            img = QPixmap.fromImage(self._background_qimage)
+        elif self._background_movie:
+            img = self._background_movie.currentPixmap()
+        # Si une image est présente, on la dessine avec gestion du ratio
+        if img and not img.isNull():
+            widget_w = self.width()
+            widget_h = self.height()
+            img_w = img.width()
+            img_h = img.height()
+            # Redimensionne l'image pour que la hauteur corresponde à la fenêtre
+            scale = widget_h / img_h
+            scaled_w = int(img_w * scale)
+            scaled_h = widget_h
+            scaled_img = img.scaled(scaled_w, scaled_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            # Si l'image est plus large que la fenêtre, crop horizontalement
+            if scaled_w > widget_w:
+                x_offset = (scaled_w - widget_w) // 2
+                target_rect = self.rect()
+                source_rect = scaled_img.rect().adjusted(x_offset, 0, -x_offset, 0)
+                painter.drawPixmap(target_rect, scaled_img, source_rect)
+            else:
+                # Si l'image est moins large, fond noir et image centrée
+                painter.fillRect(self.rect(), Qt.black)
+                x = (widget_w - scaled_w) // 2
+                painter.drawPixmap(x, 0, scaled_w, scaled_h, scaled_img)
+        else:
+            # Si pas d'image, fond noir
+            painter.fillRect(self.rect(), Qt.black)
+        # ...ne pas appeler super().paintEvent(event) ici pour éviter d'effacer le fond...
 
     def show_image(self, qimage: QImage):
-        pix = QPixmap.fromImage(qimage)
-        self.display_label.setPixmap(pix.scaled(
-            self.display_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-        ))
+        self._background_qimage = qimage
+        self._background_pixmap = None
+        self._background_movie = None
+        self.update()
 
     def show_pixmap(self, pixmap: QPixmap):
-        self.display_label.setPixmap(pixmap.scaled(
-            self.display_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-        ))
+        self._background_pixmap = pixmap
+        self._background_qimage = None
+        self._background_movie = None
+        self.update()
 
     def show_gif(self, gif_path: str):
-        movie = QMovie(gif_path)
-        movie.start()  # Démarre le GIF pour avoir accès à sa taille réelle
-
-        # Attendre que le GIF soit chargé pour obtenir la taille d'origine
-        movie.jumpToFrame(0)
-        gif_size = movie.currentImage().size()
-        label_size = self.display_label.size()
-
-        # Calcul du ratio pour garder les proportions
-        gif_w, gif_h = gif_size.width(), gif_size.height()
-        label_w, label_h = label_size.width(), label_size.height()
-        if gif_w == 0 or gif_h == 0:
-            scaled_w, scaled_h = label_w, label_h
-        else:
-            ratio = min(label_w / gif_w, label_h / gif_h)
-            scaled_w = int(gif_w * ratio)
-            scaled_h = int(gif_h * ratio)
-
-        movie.setScaledSize(QSize(scaled_w, scaled_h))
-        self.display_label.setMovie(movie)
-        movie.start()
+        self._background_movie = QMovie(gif_path)
+        self._background_movie.frameChanged.connect(self.update)
+        self._background_movie.start()
+        self._background_pixmap = None
+        self._background_qimage = None
+        self.update()
 
     def clear_display(self):
-        self.display_label.clear()
+        self._background_pixmap = None
+        self._background_qimage = None
+        self._background_movie = None
+        self.update()
 
     def clear_buttons(self):
-        """Supprime tous les widgets (boutons) sous la ligne 0."""
-        for i in reversed(range(2, self.grid.rowCount())):  # Commence à 2 !
-            for j in range(self.grid.columnCount()):
-                item = self.grid.itemAtPosition(i, j)
+        # Supprime tous les widgets (boutons) sous la ligne 0 dans overlay_layout
+        for i in reversed(range(2, self.overlay_layout.rowCount())):
+            for j in range(self.overlay_layout.columnCount()):
+                item = self.overlay_layout.itemAtPosition(i, j)
                 if item:
                     w = item.widget()
                     if w:
@@ -131,31 +119,57 @@ class PhotoBoothBaseWidget(QWidget):
     def get_grid_width(self):
         return GRID_WIDTH
 
+    def setup_grid_layout(self):
+        # Non utilisé, remplacé par overlay_layout
+        pass
+
+    def setup_logos(self):
+        logo_layout = QHBoxLayout()
+        logo1 = QLabel()
+        logo2 = QLabel()
+        for logo, path in [(logo1, "gui_template/logo1.png"), (logo2, "gui_template/logo2.png")]:
+            pix = QPixmap(path)
+            logo.setPixmap(pix.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            logo.setAttribute(Qt.WA_TranslucentBackground)
+            logo.setStyleSheet("background: rgba(0,0,0,0);")
+            logo_layout.addWidget(logo)
+        logo_widget = QWidget()
+        logo_widget.setLayout(logo_layout)
+        logo_widget.setAttribute(Qt.WA_TranslucentBackground)
+        logo_widget.setStyleSheet("background: rgba(0,0,0,0);")
+        self.overlay_layout.addWidget(logo_widget, 0, 0, 1, 1, alignment=Qt.AlignLeft | Qt.AlignTop)
+        logo_widget.raise_()
+
+    def setup_title(self):
+        self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
+        self.title_label.setStyleSheet("background: transparent;")
+        self.overlay_layout.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+
+    def setup_row_stretches(self):
+        for row, stretch in GRID_ROW_STRETCHES.items():
+            row_index = {"title": 0, "display": 1, "buttons": 2}[row]
+            self.overlay_layout.setRowStretch(row_index, stretch)
+
     def setup_buttons_from_config(self):
-        """Place automatiquement les boutons selon self.button_config."""
         self.clear_buttons()
         self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
-        
         col_max = self.get_grid_width()
-        btn_names = list(self.button_config.items())
-        total_btns = len(btn_names)
-        col, row = 0, 2
-        i = 0
-        while i < total_btns:
-            btns_this_row = min(col_max, total_btns - i)
+
+        # --- Placement des boutons de first_buttons sur la première ligne de boutons (row=2) ---
+        row = 2
+        if hasattr(self, "first_buttons") and self.first_buttons:
+            btn_names = list(self.first_buttons.items()) if isinstance(self.first_buttons, dict) else list(self.first_buttons)
+            total_first = len(btn_names)
+            btns_this_row = min(col_max, total_first)
             start_col = (col_max - btns_this_row) // 2
             for j in range(btns_this_row):
-                btn_name, method_info = btn_names[i + j]
+                btn_name, method_info = btn_names[j]
                 btn = QPushButton(btn_name)
-                
-                # Applique le style approprié selon le nom du bouton
                 if btn_name in SPECIAL_BUTTON_NAMES:
                     btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
                 else:
                     btn.setStyleSheet(BUTTON_STYLE)
-                
-                # Gestion des boutons toggle
                 if isinstance(method_info, tuple):
                     method_name, is_toggle = method_info
                     if is_toggle:
@@ -167,32 +181,50 @@ class PhotoBoothBaseWidget(QWidget):
                     method_name = method_info
                     if method_name not in ("none", None) and hasattr(self, method_name):
                         btn.clicked.connect(getattr(self, method_name))
-                
-                self.grid.addWidget(btn, row, start_col + j)
+                self.overlay_layout.addWidget(btn, row, start_col + j)
+            row += 1  # Les autres boutons commencent à la ligne suivante
+
+        # --- Placement des autres boutons comme avant, à partir de row ---
+        btn_names = list(self.button_config.items())
+        total_btns = len(btn_names)
+        i = 0
+        while i < total_btns:
+            btns_this_row = min(col_max, total_btns - i)
+            start_col = (col_max - btns_this_row) // 2
+            for j in range(btns_this_row):
+                btn_name, method_info = btn_names[i + j]
+                btn = QPushButton(btn_name)
+                if btn_name in SPECIAL_BUTTON_NAMES:
+                    btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+                else:
+                    btn.setStyleSheet(BUTTON_STYLE)
+                if isinstance(method_info, tuple):
+                    method_name, is_toggle = method_info
+                    if is_toggle:
+                        btn.setCheckable(True)
+                        self.button_group.addButton(btn)
+                        btn.clicked.connect(lambda checked, name=btn_name: 
+                            self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
+                else:
+                    method_name = method_info
+                    if method_name not in ("none", None) and hasattr(self, method_name):
+                        btn.clicked.connect(getattr(self, method_name))
+                self.overlay_layout.addWidget(btn, row, start_col + j)
             i += btns_this_row
             row += 1
 
     def setup_info_button(self):
-        """Ajoute le bouton d'information à droite."""
         info_btn = QPushButton()
-        info_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)  # Utilise le style des boutons spéciaux
-        
-        # Configure l'icône
+        info_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
         icon = QPixmap("gui_template/moreinfo.png")
         info_btn.setIcon(QIcon(icon))
         info_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
-        info_btn.setFixedSize(INFO_BUTTON_SIZE + 20, INFO_BUTTON_SIZE + 20)  # Ajoute un peu d'espace autour de l'icône
-        
-        # Connecte le clic à l'ouverture du dialogue
+        info_btn.setFixedSize(INFO_BUTTON_SIZE + 20, INFO_BUTTON_SIZE + 20)
         info_btn.clicked.connect(self.show_info_dialog)
-        
-        # Place le bouton en haut à droite
-        self.grid.addWidget(info_btn, 0, GRID_WIDTH-1, 1, 1, 
-                           alignment=Qt.AlignRight | Qt.AlignTop)
+        self.overlay_layout.addWidget(info_btn, 0, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)
         info_btn.raise_()
 
     def show_info_dialog(self):
-        """Ouvre la boîte de dialogue d'information."""
         dialog = InfoDialog(self)
         dialog.exec()
 
@@ -225,22 +257,14 @@ class OutlinedLabel(QLabel):
         painter.setFont(font)
         rect = self.rect()
         text = self.text()
-
-        # Centrage vertical/horizontal
         metrics = painter.fontMetrics()
         x = (rect.width() - metrics.horizontalAdvance(text)) // 2
         y = (rect.height() + metrics.ascent() - metrics.descent()) // 2
-
-        # Chemin du texte
         path = QPainterPath()
         path.addText(x, y, font, text)
-
-        # Contour
         pen = QPen(self.outline_color)
         pen.setWidth(self.outline_width)
         painter.setPen(pen)
         painter.drawPath(path)
-
-        # Texte plein
         painter.setPen(self.text_color)
         painter.drawText(rect, Qt.AlignCenter, text)

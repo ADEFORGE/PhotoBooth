@@ -4,7 +4,7 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
-from constante import CAMERA_ID
+from constante import CAMERA_ID, dico_styles
 
 class CameraWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
@@ -12,10 +12,15 @@ class CameraWidget(PhotoBoothBaseWidget):
         self.cap = None
         self.timer = QTimer(self, timeout=self.update_frame)
 
-        self.button_config = {
-            "📸 Take Picture": "capture"
-        }
-        
+        # Bouton principal sur la première ligne
+        self.first_buttons = [
+            ("📸 Take Picture", "capture")
+        ]
+        # Boutons de style sur la seconde ligne
+        self.button_config = {}
+        for style in dico_styles:
+            self.button_config[style] = ("toggle_style", True)  # Toggle pour chaque style
+
         self.setup_buttons_from_config()
 
 
@@ -55,3 +60,8 @@ class CameraWidget(PhotoBoothBaseWidget):
         self.window().captured_image = qimg
         self.stop_camera()
         self.window().show_choose_style()
+
+    def on_toggle(self, checked: bool, style_name: str):
+        # Optionnel : gestion du style sélectionné si besoin
+        if checked:
+            self.selected_style = style_name

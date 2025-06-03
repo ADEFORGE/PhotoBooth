@@ -1,5 +1,6 @@
 # gui_main.py
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
+from PySide6.QtCore import Qt
 from gui_classes.camera_widget import CameraWidget
 from gui_classes.style_chooser_widget import StyleChooserWidget
 from gui_classes.result_widget import ResultWidget
@@ -11,6 +12,7 @@ class PhotoBoothApp(QWidget):
         super().__init__()
         self.setWindowTitle("PhotoBooth")
         self.setStyleSheet(WINDOW_STYLE)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.captured_image = None
         self.generated_image = None
 

@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
 from PySide6.QtCore import Qt
 from gui_classes.camera_widget import CameraWidget
-from gui_classes.style_chooser_widget import StyleChooserWidget
+from gui_classes.save_and_setting_widget import SaveAndSettingWidget
 from gui_classes.result_widget import ResultWidget
 from gui_classes.loading_widget import LoadingWidget
 from constante import WINDOW_STYLE
@@ -26,18 +26,18 @@ class PhotoBoothApp(QWidget):
         layout.addWidget(self.stack)
 
         self.camera_widget = CameraWidget(self)
-        self.choose_widget = StyleChooserWidget(self)
+        self.save_setting_widget = SaveAndSettingWidget(self)
         self.result_widget = ResultWidget(self)
         self.load_widget = LoadingWidget(self)
 
-        for w in [self.camera_widget, self.choose_widget, self.result_widget, self.load_widget]:
+        for w in [self.camera_widget, self.save_setting_widget, self.result_widget, self.load_widget]:
             self.stack.addWidget(w)
 
         self.set_view(0)
 
-    def show_choose_style(self):
+    def show_save_setting(self):
         self.set_view(1)
-        self.choose_widget.show_image()
+        self.save_setting_widget.show_image()
 
     def show_result(self):
         self.set_view(2)

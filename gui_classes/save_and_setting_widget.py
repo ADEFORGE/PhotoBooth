@@ -36,7 +36,7 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         self._thread = None
         self._worker = None
 
-        # Première ligne : boutons Validate et Refuse
+        # Première ligne : boutons Validate, Refuse (suppression du bouton take_selfie)
         self.first_buttons = [
             ("Validate", "validate"),
             ("Refuse", "refuse")

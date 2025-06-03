@@ -34,7 +34,7 @@ class CameraWidget(PhotoBoothBaseWidget):
 
         # Bouton principal sur la première ligne
         self.first_buttons = [
-            ("📸 Take Picture", "capture")
+            ("take_selfie", "capture")
         ]
         # Boutons de style sur la seconde ligne
         self.button_config = {}

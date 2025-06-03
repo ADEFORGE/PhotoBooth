@@ -43,8 +43,6 @@ class PhotoBoothBaseWidget(QWidget):
         self.overlay_layout.setHorizontalSpacing(GRID_HORIZONTAL_SPACING)
 
         self.setup_logos()
-        self.setup_info_button()
-        self.setup_rules_button()  # Ajout ici
         self.setup_title()
         self.button_config = {}
         self.first_buttons = []  # Nouvelle liste pour les boutons du haut
@@ -139,7 +137,13 @@ class PhotoBoothBaseWidget(QWidget):
         pass
 
     def setup_logos(self):
-        logo_layout = QVBoxLayout()  # <-- Changement ici : QVBoxLayout au lieu de QHBoxLayout
+        # Place les logos et les deux boutons (info/rules) dans un layout horizontal aligné en haut
+        top_bar = QHBoxLayout()
+        top_bar.setContentsMargins(0, 0, 0, 0)
+        top_bar.setSpacing(10)
+
+        # Logos à gauche (vertical)
+        logo_layout = QVBoxLayout()
         logo1 = QLabel()
         logo2 = QLabel()
         for logo, path in [(logo1, "gui_template/logo1.png"), (logo2, "gui_template/logo2.png")]:
@@ -152,8 +156,52 @@ class PhotoBoothBaseWidget(QWidget):
         logo_widget.setLayout(logo_layout)
         logo_widget.setAttribute(Qt.WA_TranslucentBackground)
         logo_widget.setStyleSheet("background: rgba(0,0,0,0);")
-        self.overlay_layout.addWidget(logo_widget, 0, 0, 1, 1, alignment=Qt.AlignLeft | Qt.AlignTop)
-        logo_widget.raise_()
+        top_bar.addWidget(logo_widget, alignment=Qt.AlignLeft | Qt.AlignTop)
+
+        # Espace au centre (expansif)
+        top_bar.addStretch(1)
+
+        # Boutons info/rules à droite (vertical)
+        btn_layout = QVBoxLayout()
+        btn_layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout.setSpacing(8)
+
+        # Bouton info
+        info_btn = QPushButton()
+        info_btn.setStyleSheet(ICON_BUTTON_STYLE)
+        icon = QPixmap("gui_template/moreinfo.png")
+        info_btn.setIcon(QIcon(icon))
+        info_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        info_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
+        info_btn.clicked.connect(self.show_info_dialog)
+        info_btn.raise_()
+        self._info_btn = info_btn
+
+        # Bouton rules
+        rules_btn = QPushButton()
+        rules_btn.setStyleSheet(ICON_BUTTON_STYLE)
+        rules_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
+        rules_icon = QPixmap("gui_template/rule_ico.png")
+        rules_btn.setIcon(QIcon(rules_icon))
+        rules_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        rules_btn.clicked.connect(self.show_rules_dialog)
+        self._rules_btn = rules_btn
+
+        btn_layout.addWidget(info_btn, alignment=Qt.AlignRight | Qt.AlignTop)
+        btn_layout.addWidget(rules_btn, alignment=Qt.AlignRight | Qt.AlignTop)
+        btn_layout.addStretch(1)
+        btn_widget = QWidget()
+        btn_widget.setLayout(btn_layout)
+        btn_widget.setAttribute(Qt.WA_TranslucentBackground)
+        btn_widget.setStyleSheet("background: rgba(0,0,0,0);")
+        top_bar.addWidget(btn_widget, alignment=Qt.AlignRight | Qt.AlignTop)
+
+        # Place le top_bar sur la première ligne de la grille, sur toute la largeur
+        container = QWidget()
+        container.setLayout(top_bar)
+        container.setAttribute(Qt.WA_TranslucentBackground)
+        container.setStyleSheet("background: rgba(0,0,0,0);")
+        self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
 
     def setup_title(self):
         self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
@@ -246,8 +294,8 @@ class PhotoBoothBaseWidget(QWidget):
                 self.on_toggle(checked, name) if hasattr(self, 'on_toggle') else None)
             if icon:
                 btn.setIcon(icon)
-                btn.setIconSize(QSize(40, 40))  # Taille réduite de l'icône style
-                btn.setText("")
+                btn.setIconSize(btn.size())
+                btn.setText("")  # Pas de texte si icône
             else:
                 btn.setText(btn_name)
         else:
@@ -255,7 +303,7 @@ class PhotoBoothBaseWidget(QWidget):
             btn.setFixedSize(48, 48)
             if icon:
                 btn.setIcon(icon)
-                btn.setIconSize(QSize(28, 28))  # Taille réduite de l'icône générique
+                btn.setIconSize(btn.size())
                 btn.setText("")
             else:
                 btn.setText(btn_name)
@@ -316,30 +364,6 @@ class PhotoBoothBaseWidget(QWidget):
                 col += 1
             i += btns_this_row
             row += 1
-
-    def setup_info_button(self):
-        info_btn = QPushButton()
-        info_btn.setStyleSheet(ICON_BUTTON_STYLE)
-        icon = QPixmap("gui_template/moreinfo.png")
-        info_btn.setIcon(QIcon(icon))
-        info_btn.setIconSize(QSize(24, 24))  # Taille réduite de l'icône info
-        info_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
-        info_btn.clicked.connect(self.show_info_dialog)
-        self.overlay_layout.addWidget(info_btn, 0, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)
-        info_btn.raise_()
-        self._info_btn = info_btn  # Pour positionner le bouton Rules juste en dessous
-
-    def setup_rules_button(self):
-        rules_btn = QPushButton()
-        rules_btn.setStyleSheet(ICON_BUTTON_STYLE)
-        rules_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
-        rules_icon = QPixmap("gui_template/rule_ico.png")
-        rules_btn.setIcon(QIcon(rules_icon))
-        rules_btn.setIconSize(QSize(24, 24))  # Taille réduite de l'icône rules
-        rules_btn.clicked.connect(self.show_rules_dialog)
-        # Place juste en dessous du bouton info
-        self.overlay_layout.addWidget(rules_btn, 1, GRID_WIDTH-1, 1, 1, alignment=Qt.AlignRight | Qt.AlignTop)
-        self._rules_btn = rules_btn
 
     def show_info_dialog(self):
         dialog = InfoDialog(self)

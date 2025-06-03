@@ -312,7 +312,7 @@ def get_style_button_style(style_name):
             f"background-image: url('{texture_path}');"
             "background-repeat: no-repeat;"
             "background-position: center;"
-            "background-size: cover;"
+            # "background-size: cover;"  # <-- Supprimé car non supporté par Qt
             "background-color: black;"
             "color: white;"
             "font-size: 18px;"

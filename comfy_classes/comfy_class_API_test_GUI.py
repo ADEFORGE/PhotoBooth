@@ -34,8 +34,8 @@ class ImageGeneratorAPIWrapper:
         pass
 
     def generate_image(self, output_prefix = "output_test"):
-        # Ne fait rien, simule un délai si besoin
-        pass
+        # Simule un délai pour tester le chargement
+        time.sleep(3)
 
     def _wait_for_image(self, timeout=30):
         # Ne fait rien

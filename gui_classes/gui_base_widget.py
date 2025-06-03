@@ -162,9 +162,14 @@ class PhotoBoothBaseWidget(QWidget):
             btn_names = list(self.first_buttons.items()) if isinstance(self.first_buttons, dict) else list(self.first_buttons)
             total_first = len(btn_names)
             btns_this_row = min(col_max, total_first)
-            # Correction du centrage : pour pair, le centre est entre les deux du milieu
-            start_col = (col_max - btns_this_row + 1) // 2 if btns_this_row % 2 == 0 else (col_max - btns_this_row) // 2
+            start_col = (col_max - btns_this_row) // 2
+            skip_central = btns_this_row % 2 == 0
+            central_col = col_max // 2 if skip_central else -1
+            col = start_col
             for j in range(btns_this_row):
+                # Si pair, on saute la colonne centrale et place le bouton restant juste après
+                if skip_central and col == central_col:
+                    col += 1
                 btn_name, method_info = btn_names[j]
                 btn = QPushButton(btn_name)
                 if btn_name in SPECIAL_BUTTON_NAMES:
@@ -182,7 +187,8 @@ class PhotoBoothBaseWidget(QWidget):
                     method_name = method_info
                     if method_name not in ("none", None) and hasattr(self, method_name):
                         btn.clicked.connect(getattr(self, method_name))
-                self.overlay_layout.addWidget(btn, row, start_col + j)
+                self.overlay_layout.addWidget(btn, row, col)
+                col += 1
             row += 1  # Les autres boutons commencent à la ligne suivante
 
         # --- Placement des autres boutons comme avant, à partir de row ---
@@ -191,8 +197,13 @@ class PhotoBoothBaseWidget(QWidget):
         i = 0
         while i < total_btns:
             btns_this_row = min(col_max, total_btns - i)
-            start_col = (col_max - btns_this_row + 1) // 2 if btns_this_row % 2 == 0 else (col_max - btns_this_row) // 2
+            start_col = (col_max - btns_this_row) // 2
+            skip_central = btns_this_row % 2 == 0
+            central_col = col_max // 2 if skip_central else -1
+            col = start_col
             for j in range(btns_this_row):
+                if skip_central and col == central_col:
+                    col += 1
                 btn_name, method_info = btn_names[i + j]
                 btn = QPushButton(btn_name)
                 if btn_name in SPECIAL_BUTTON_NAMES:
@@ -210,7 +221,8 @@ class PhotoBoothBaseWidget(QWidget):
                     method_name = method_info
                     if method_name not in ("none", None) and hasattr(self, method_name):
                         btn.clicked.connect(getattr(self, method_name))
-                self.overlay_layout.addWidget(btn, row, start_col + j)
+                self.overlay_layout.addWidget(btn, row, col)
+                col += 1
             i += btns_this_row
             row += 1
 

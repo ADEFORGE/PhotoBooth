@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QWidget, QHBoxLayout, QLabel, QGraphicsBlurEffect
 from PySide6.QtCore import Qt
-from constante import DIALOG_BOX_STYLE
+from constante import DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE
 
 
 class RulesDialog(QDialog):
@@ -44,6 +44,7 @@ class RulesDialog(QDialog):
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         accept_btn = QPushButton("Accept")
+        accept_btn.setStyleSheet(DIALOG_ACTION_BUTTON_STYLE)
         accept_btn.clicked.connect(self.accept)
         btn_layout.addWidget(accept_btn)
         btn_layout.addStretch()

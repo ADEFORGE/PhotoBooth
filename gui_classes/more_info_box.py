@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton,
                              QHBoxLayout, QWidget, QGraphicsBlurEffect)
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt
-from constante import SPECIAL_BUTTON_STYLE, COLORS, WINDOW_STYLE, DIALOG_BOX_STYLE
+from constante import SPECIAL_BUTTON_STYLE, COLORS, WINDOW_STYLE, DIALOG_BOX_STYLE, DIALOG_ACTION_BUTTON_STYLE
 
 class InfoDialog(QDialog):
     def __init__(self, parent=None):
@@ -48,17 +48,17 @@ class InfoDialog(QDialog):
         
         # Bouton précédent
         self.prev_btn = QPushButton("↤ Précédent")
-        self.prev_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+        self.prev_btn.setStyleSheet(DIALOG_ACTION_BUTTON_STYLE)
         self.prev_btn.clicked.connect(self.previous_image)
         
         # Bouton suivant
         self.next_btn = QPushButton("Suivant ↦")
-        self.next_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+        self.next_btn.setStyleSheet(DIALOG_ACTION_BUTTON_STYLE)
         self.next_btn.clicked.connect(self.next_image)
         
         # Bouton fermer
         close_btn = QPushButton("Fermer")
-        close_btn.setStyleSheet(SPECIAL_BUTTON_STYLE)
+        close_btn.setStyleSheet(DIALOG_ACTION_BUTTON_STYLE)
         close_btn.clicked.connect(self.accept)
         
         # Ajoute les boutons au layout de navigation

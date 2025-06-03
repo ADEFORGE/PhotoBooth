@@ -253,6 +253,28 @@ DIALOG_BOX_STYLE = (
     "}"
 )
 
+# --- Style pour les boutons d'action dans les boîtes de dialogue (InfoDialog & RulesDialog) ---
+DIALOG_ACTION_BUTTON_STYLE = (
+    "QPushButton {"
+    "background-color: rgba(180,180,180,0.35);"
+    "border: 2px solid #bbb;"
+    "border-radius: 24px;"
+    "min-width: 48px; min-height: 48px;"
+    "max-width: 48px; max-height: 48px;"
+    "font-size: 18px;"
+    "color: white;"
+    "font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "border: 2.5px solid white;"
+    "background-color: rgba(200,200,200,0.45);"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: rgba(220,220,220,0.55);"
+    "border: 3px solid #eee;"
+    "}"
+)
+
 # --- Icon Button Style (pour info/rules boutons ronds transparents) ---
 ICON_BUTTON_STYLE = (
     "QPushButton {"

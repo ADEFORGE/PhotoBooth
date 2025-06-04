@@ -308,27 +308,29 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
                 btn.setEnabled(enabled)
 
     def _cleanup_thread(self):
-        # Libère proprement les threads terminés pour éviter accumulation
+        # Correction : NE PAS supprimer la référence au thread tant qu'il tourne
+        # On ne touche pas au thread si il est encore running
         if self._thread is not None:
             try:
-                if self._thread.isRunning():
-                    self._thread.requestInterruption()
-                    self._thread.quit()
-                    self._thread.wait()
+                if not self._thread.isRunning():
+                    self._thread = None
+                    self._worker = None
+                # Sinon, on laisse Qt gérer la vie du thread (pas de suppression)
             except Exception:
                 pass
-            self._thread = None
-        self._worker = None
 
     def closeEvent(self, event):
-        # S'assure que le thread est bien arrêté lors de la fermeture du widget
+        # Ne tente pas d'arrêter brutalement le thread, laisse Qt le gérer
+        # On ne supprime pas la référence si le thread tourne encore
         self._cleanup_thread()
         super().closeEvent(event)
 
     def _on_thread_finished(self):
         # Nettoyage supplémentaire après la fin du thread
-        self._thread = None
-        self._worker = None
+        # On ne supprime la référence que si le thread est terminé
+        if self._thread and not self._thread.isRunning():
+            self._thread = None
+            self._worker = None
 
     def on_generation_finished(self, image_path):
         self._generation_in_progress = False

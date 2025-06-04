@@ -15,10 +15,12 @@ from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import dico_styles, VALIDATION_OVERLAY_MESSAGE  # Ajout de VALIDATION_OVERLAY_MESSAGE
 from gui_classes.more_info_box import InfoDialog
 from constante import BUTTON_STYLE
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.qrcode_utils import QRCodeGenerator
 from PySide6.QtGui import QImage
 import io
+from gui_classes.image_utils import ImageUtils
+from gui_classes.loading_overlay import LoadingOverlay
 
 class GenerationWorker(QObject):
     finished = Signal(str)  # path to generated image
@@ -221,11 +223,12 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         self.generated_image = None
         self._thread = None
         self._worker = None
+        self.loading_overlay = None
 
-        # Première ligne : boutons Validate, Refuse (suppression du bouton take_selfie)
+        # Première ligne : boutons accept/close pour utiliser les icônes existantes
         self.first_buttons = [
-            ("Validate", "validate"),   # Nom unique pour éviter tout conflit
-            ("Refuse", "refuse")
+            ("accept", "validate"),   # Utilise accept.png
+            ("close", "refuse")       # Utilise close.png
         ]
 
         # Seconde ligne : boutons de style (toggle)
@@ -241,12 +244,21 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         elif img := self.window().captured_image:
             super().show_image(img)
 
+    def show_loading(self):
+        if not self.loading_overlay:
+            self.loading_overlay = LoadingOverlay(self)
+        self.loading_overlay.show()
+        self.loading_overlay.raise_()
+
+    def hide_loading(self):
+        if self.loading_overlay:
+            self.loading_overlay.hide()
+
     def on_toggle(self, checked: bool, style_name: str):
         if checked:
             self.selected_style = style_name
-            # Lancer la génération d'image pour le nouveau style
             self.generated_image = None
-            self.show_gif("gui_template/load.gif")
+            self.show_loading()
             self._thread = QThread()
             self._worker = GenerationWorker(style_name)
             self._worker.moveToThread(self._thread)
@@ -258,9 +270,10 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
             self._thread.start()
 
     def on_generation_finished(self, image_path):
+        self.hide_loading()
         if image_path and os.path.exists(image_path):
             img = cv2.imread(image_path)
-            self.generated_image = self.cv_to_qimage(img)
+            self.generated_image = ImageUtils.cv_to_qimage(img)
         else:
             self.generated_image = None
         self.show_image()

@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout, QPushButton, 
                              QApplication, QSizePolicy, QHBoxLayout, QButtonGroup, QVBoxLayout)
 from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon, QPainter
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QPropertyAnimation, Property
 from gui_classes.more_info_box import InfoDialog
 from gui_classes.rules_dialog import RulesDialog
 from constante import (
@@ -51,6 +51,13 @@ class PhotoBoothBaseWidget(QWidget):
         self.layout().addWidget(self.overlay_widget)
         self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
 
+        # Supprimer toute gestion d'opacité/animation pour éviter de masquer la caméra
+        # self._opacity = 0.0
+        # self._fade_animation = QPropertyAnimation(self, b"opacity", self)
+        # self._fade_animation.setDuration(300)
+        # self._fade_animation.setStartValue(0.0)
+        # self._fade_animation.setEndValue(1.0)
+
     def resizeEvent(self, event):
         self.update()
         super().resizeEvent(event)
@@ -58,6 +65,8 @@ class PhotoBoothBaseWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        # painter.setOpacity(self._opacity)  # SUPPRIMER l'opacité
+
         # Détermine la source à afficher
         img = None
         if self._background_pixmap:
@@ -97,6 +106,8 @@ class PhotoBoothBaseWidget(QWidget):
         self._background_qimage = qimage
         self._background_pixmap = None
         self._background_movie = None
+        # self._fade_animation.stop()
+        # self._fade_animation.start()
         self.update()
 
     def show_pixmap(self, pixmap: QPixmap):

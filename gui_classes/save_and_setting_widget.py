@@ -224,6 +224,7 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         self._thread = None
         self._worker = None
         self.loading_overlay = None
+        self._generation_in_progress = False
 
         # Première ligne : boutons accept/close pour utiliser les icônes existantes
         self.first_buttons = [
@@ -244,6 +245,18 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         elif img := self.window().captured_image:
             super().show_image(img)
 
+    def showEvent(self, event):
+        # Synchronise le bouton de style sélectionné avec self.selected_style
+        super().showEvent(event)
+        if hasattr(self, 'button_group') and self.selected_style:
+            for btn in self.button_group.buttons():
+                btn.setChecked(btn.text() == self.selected_style)
+                # Réactive les boutons si besoin
+                btn.setEnabled(not self._generation_in_progress)
+        self.show_image()
+        # Nettoyage des threads terminés pour éviter fuite mémoire
+        self._cleanup_thread()
+
     def show_loading(self):
         if not self.loading_overlay:
             self.loading_overlay = LoadingOverlay(self)
@@ -255,10 +268,16 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
             self.loading_overlay.hide()
 
     def on_toggle(self, checked: bool, style_name: str):
+        if self._generation_in_progress:
+            return
         if checked:
             self.selected_style = style_name
             self.generated_image = None
+            self._set_style_buttons_enabled(False)
+            self._generation_in_progress = True
             self.show_loading()
+            # Nettoyage thread précédent si besoin
+            self._cleanup_thread()
             self._thread = QThread()
             self._worker = GenerationWorker(style_name)
             self._worker.moveToThread(self._thread)
@@ -267,10 +286,38 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
             self._worker.finished.connect(self._thread.quit)
             self._worker.finished.connect(self._worker.deleteLater)
             self._thread.finished.connect(self._thread.deleteLater)
+            self._thread.finished.connect(self._on_thread_finished)
             self._thread.start()
+        elif self._generation_in_progress:
+            self._set_style_buttons_enabled(False)
+
+    def _set_style_buttons_enabled(self, enabled: bool):
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                btn.setEnabled(enabled)
+
+    def _cleanup_thread(self):
+        # Libère proprement les threads terminés pour éviter accumulation
+        if self._thread is not None:
+            try:
+                self._thread.quit()
+                self._thread.wait(100)
+            except Exception:
+                pass
+            self._thread = None
+        self._worker = None
+
+    def _on_thread_finished(self):
+        # Nettoyage supplémentaire après la fin du thread
+        self._thread = None
+        self._worker = None
 
     def on_generation_finished(self, image_path):
+        self._generation_in_progress = False
+        self._set_style_buttons_enabled(True)
         self.hide_loading()
+        # Nettoyage thread après génération
+        self._on_thread_finished()
         if image_path and os.path.exists(image_path):
             img = cv2.imread(image_path)
             self.generated_image = ImageUtils.cv_to_qimage(img)

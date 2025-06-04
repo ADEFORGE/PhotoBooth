@@ -48,6 +48,13 @@ class CameraWidget(PhotoBoothBaseWidget):
 
     def on_toggle(self, checked: bool, style_name: str):
         """Gère la sélection du style"""
+        # Désactive tous les boutons si un thread de génération est en cours dans SaveAndSettingWidget
+        save_widget = getattr(self.window(), "save_setting_widget", None)
+        if save_widget and getattr(save_widget, "_generation_in_progress", False):
+            if hasattr(self, 'button_group'):
+                for btn in self.button_group.buttons():
+                    btn.setEnabled(False)
+            return
         if checked:
             self.selected_style = style_name
         else:
@@ -95,42 +102,25 @@ class CameraWidget(PhotoBoothBaseWidget):
         ret, frame = self.cap.read()
         if not ret:
             return
-            
-        # Sauvegarde l'image pour ComfyUI
+
         cv2.imwrite("../ComfyUI/input/input.png", frame)
-        
-        # Convertit pour l'affichage Qt
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
         qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
         self.window().captured_image = qimg
 
         if self.selected_style:
-            # Afficher l'overlay de chargement par-dessus la caméra active
-            self.show_loading()
-            self.thread = QThread()
-            self.worker = GenerationWorker(self.selected_style)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.worker.finished.connect(self.on_generation_finished)
-            self.worker.finished.connect(self.thread.quit)
-            self.worker.finished.connect(self.worker.deleteLater)
-            self.thread.finished.connect(self.thread.deleteLater)
-            self.thread.start()
+            # Synchronise le style sélectionné avec SaveAndSettingWidget
+            save_widget = self.window().save_setting_widget
+            save_widget.selected_style = self.selected_style
+            save_widget.generated_image = None
+            # Nettoyage thread précédent si besoin
+            if hasattr(save_widget, "_cleanup_thread"):
+                save_widget._cleanup_thread()
+            self.stop_camera()
+            self.window().show_save_setting()
         else:
-            # Pas de style sélectionné : arrêter la caméra et aller à la page de validation
             self.stop_camera()
             self.window().save_setting_widget.generated_image = None
             self.window().save_setting_widget.selected_style = None
             self.window().show_save_setting()
-
-    def on_generation_finished(self, image_path):
-        self.hide_loading()
-        self.stop_camera()
-        if image_path and os.path.exists(image_path):
-            img = cv2.imread(image_path)
-            qimg = ImageUtils.cv_to_qimage(img)
-            self.window().save_setting_widget.generated_image = qimg
-        else:
-            self.window().save_setting_widget.generated_image = None
-        self.window().show_save_setting()

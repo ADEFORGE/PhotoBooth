@@ -114,18 +114,21 @@ class CameraWidget(PhotoBoothBaseWidget):
         qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
         self.window().captured_image = qimg
 
+        save_widget = self.window().save_setting_widget
+
         if self.selected_style:
             # Synchronise le style sélectionné avec SaveAndSettingWidget
-            save_widget = self.window().save_setting_widget
             save_widget.selected_style = self.selected_style
             save_widget.generated_image = None
             # Nettoyage thread précédent si besoin
             if hasattr(save_widget, "_cleanup_thread"):
                 save_widget._cleanup_thread()
             self.stop_camera()
+            # Lance la génération d'image dans SaveAndSettingWidget
+            save_widget.on_toggle(True, self.selected_style)
             self.window().show_save_setting()
         else:
             self.stop_camera()
-            self.window().save_setting_widget.generated_image = None
-            self.window().save_setting_widget.selected_style = None
+            save_widget.generated_image = None
+            save_widget.selected_style = None
             self.window().show_save_setting()

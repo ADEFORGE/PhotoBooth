@@ -33,10 +33,28 @@ class PhotoBoothApp(QWidget):
         self.result_widget = ResultWidget(self)
         self.load_widget = LoadingWidget(self)
 
-        for w in [self.welcome_widget, self.camera_widget, self.save_setting_widget, self.result_widget, self.load_widget]:
+        self.widgets = [
+            self.welcome_widget,
+            self.camera_widget,
+            self.save_setting_widget,
+            self.result_widget,
+            self.load_widget
+        ]
+
+        for w in self.widgets:
             self.stack.addWidget(w)
 
         self.set_view(0)
+
+    def _cleanup_widget(self, widget):
+        # Nettoie threads et overlays pour chaque widget si la méthode existe
+        if hasattr(widget, "_cleanup_thread"):
+            widget._cleanup_thread()
+        if hasattr(widget, "loading_overlay") and getattr(widget, "loading_overlay", None):
+            widget.loading_overlay.hide()
+            widget.loading_overlay.deleteLater()
+            widget.loading_overlay = None
+        # Ajoute ici tout nettoyage spécifique d'overlay ou de ressources
 
     def show_save_setting(self):
         self.set_view(2)
@@ -50,16 +68,22 @@ class PhotoBoothApp(QWidget):
         self.set_view(4)
 
     def set_view(self, index: int):
-        # Correction : il faut que WelcomeWidget appelle set_view(1) pour la caméra,
-        # et que la caméra soit bien à l'index 1.
-        # On arrête la caméra seulement si on la quitte (currentIndex == 1 et index != 1)
-        # MAIS il faut aussi que window() dans WelcomeWidget retourne bien l'instance de PhotoBoothApp.
+        prev_index = self.stack.currentIndex()
+        prev_widget = self.widgets[prev_index] if 0 <= prev_index < len(self.widgets) else None
+        next_widget = self.widgets[index] if 0 <= index < len(self.widgets) else None
 
-        # Correction : forcer le parent de WelcomeWidget à être self (le PhotoBoothApp)
-        # et s'assurer que window() retourne bien self dans tous les widgets.
+        # Cas particulier : passage direct CameraWidget -> SaveAndSettingWidget (garde le thread)
+        if not (prev_index == 1 and index == 2):
+            # Nettoie la vue précédente (thread, overlay, etc.)
+            if prev_widget:
+                self._cleanup_widget(prev_widget)
 
-        if self.stack.currentIndex() == 1 and index != 1:
+        # Arrête la caméra seulement si on la quitte
+        if prev_index == 1 and index != 1:
             self.camera_widget.stop_camera()
+
         self.stack.setCurrentIndex(index)
+
+        # Démarre la caméra si besoin
         if index == 1:
             self.camera_widget.start_camera()

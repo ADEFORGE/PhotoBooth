@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 import glob
 import os
-from PySide6.QtCore import Qt, QThread, Signal, QObject
+import objgraph
+import gc
+from PySide6.QtCore import Qt, QThread, Signal, QObject, QEvent  # Ajout de QEvent
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QButtonGroup, QWidget, QLabel, QVBoxLayout, QPushButton, QTextEdit, QHBoxLayout, QSizePolicy, QGridLayout
 from PySide6.QtGui import QPixmap, QColor, QPainter, QBrush, QPen
@@ -21,22 +23,36 @@ import io
 from gui_classes.image_utils import ImageUtils
 from gui_classes.loading_overlay import LoadingOverlay
 
-class GenerationWorker(QObject):
-    finished = Signal(str)  # path to generated image
+DEBUG_MEM = False  # Passe à True pour activer objgraph/gc.collect()
 
-    def __init__(self, style):
-        super().__init__()
+class GenerationWorker(QObject):
+    finished = Signal(QImage)  # QImage prêt à afficher
+
+    def __init__(self, style, input_image=None, parent=None):
+        super().__init__(parent)
         self.style = style
         self.generator = ImageGeneratorAPIWrapper()
+        self.input_image = input_image  # QImage
 
     def run(self):
+        # Sauvegarde l'image d'entrée si fournie
+        if self.input_image is not None:
+            arr = ImageUtils.qimage_to_cv(self.input_image)
+            cv2.imwrite("../ComfyUI/input/input.png", arr)
         self.generator.set_style(self.style)
         self.generator.generate_image()
         images = self.generator.get_image_paths()
         if images:
-            self.finished.emit(images[0])
+            img = cv2.imread(images[0])
+            qimg = ImageUtils.cv_to_qimage(img)
+            # Redimensionne pour limiter la taille mémoire
+            qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.finished.emit(qimg)
         else:
-            self.finished.emit("")
+            self.finished.emit(QImage())
+
+    def __del__(self):
+        print(f"[DEL] GenerationWorker détruit: {id(self)}")
 
 class QRCodeWorker(QObject):
     finished = Signal(QImage)
@@ -67,6 +83,7 @@ class ValidationOverlay(QWidget):
                 parent.x() + (pw - w) // 2,
                 parent.y() + (ph - h) // 2 - y_offset
             )
+            parent.installEventFilter(self)
         else:
             self.setFixedSize(700, 700)
 
@@ -75,13 +92,13 @@ class ValidationOverlay(QWidget):
         grid.setContentsMargins(40, 32, 40, 32)
         grid.setSpacing(24)
         grid.setRowStretch(0, 0)
-        grid.setRowStretch(1, 2)  # Plus d'espace pour le QR code
-        grid.setRowStretch(2, 1)  # Moins d'espace pour le texte
+        grid.setRowStretch(1, 2)
+        grid.setRowStretch(2, 1)
         grid.setRowStretch(3, 0)
 
         row = 0
 
-        # --- Ajout du message configurable en haut ---
+        # Message configurable en haut
         if VALIDATION_OVERLAY_MESSAGE:
             msg_label = QLabel(VALIDATION_OVERLAY_MESSAGE, self)
             msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
@@ -89,16 +106,20 @@ class ValidationOverlay(QWidget):
             grid.addWidget(msg_label, row, 0, 1, 1, alignment=Qt.AlignCenter)
             row += 1
 
-        # Image centrée (sera remplacée dynamiquement)
+        # Image centrée (QR ou GIF)
         self.img_label = QLabel(self)
         self.img_label.setAlignment(Qt.AlignCenter)
-        self.img_label.setMinimumSize(220, 220)  # Réduit la taille minimale du QR code
-        self.img_label.setMaximumSize(260, 260)  # Limite la taille maximale aussi
+        self.img_label.setMinimumSize(220, 220)
+        self.img_label.setMaximumSize(260, 260)
         self.img_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         grid.addWidget(self.img_label, row, 0, 1, 1, alignment=Qt.AlignCenter)
         row += 1
 
-        # Texte (rules.txt) en dessous
+        # Précharge le QMovie une seule fois
+        self._movie = QMovie("gui_template/load.gif")
+        self.img_label.setMovie(self._movie)
+
+        # Texte (rules.txt)
         text_edit = QTextEdit(self)
         text_edit.setReadOnly(True)
         text_edit.setStyleSheet("background: transparent; color: black; font-size: 18px; border: none;")
@@ -135,7 +156,7 @@ class ValidationOverlay(QWidget):
         validate_icon = QPixmap("gui_template/btn_icons/accept.png")
         validate_btn.setIcon(QIcon(validate_icon))
         validate_btn.setIconSize(QSize(32, 32))
-        validate_btn.clicked.connect(self.go_to_camera)
+        validate_btn.clicked.connect(self.on_validate_clicked)  # Change ici
         btn_row.addWidget(validate_btn)
 
         refuse_btn = QPushButton(self)
@@ -153,58 +174,49 @@ class ValidationOverlay(QWidget):
         refuse_icon = QPixmap("gui_template/btn_icons/close.png")
         refuse_btn.setIcon(QIcon(refuse_icon))
         refuse_btn.setIconSize(QSize(32, 32))
-        refuse_btn.clicked.connect(self.go_to_camera)
+        refuse_btn.clicked.connect(self.on_refuse_clicked)
         btn_row.addWidget(refuse_btn)
 
         btn_container = QWidget(self)
         btn_container.setLayout(btn_row)
         grid.addWidget(btn_container, row, 0, 1, 1, alignment=Qt.AlignCenter)
 
-        self.show_gif_qrcode()
+    def show(self):
+        if self._movie:
+            self._movie.start()
+        super().show()
 
-    def go_to_camera(self):
-        self.close()
-        if self.parent() is not None:
-            self.parent().set_view(0)  # 0 = vue caméra
+    def hide(self):
+        if self._movie:
+            self._movie.stop()
+        super().hide()
+
+    def eventFilter(self, watched, event):
+        if watched is self.parent() and event.type() == QEvent.Resize:
+            pw, ph = watched.width(), watched.height()
+            w, h = max(int(pw * 0.7), 700), max(int(ph * 0.65), 700)
+            y_offset = int(ph * 0.08)
+            self.setFixedSize(w, h)
+            self.move(
+                watched.x() + (pw - w) // 2,
+                watched.y() + (ph - h) // 2 - y_offset
+            )
+        return super().eventFilter(watched, event)
 
     def show_default_image(self):
-        # Affiche le GIF de chargement par défaut
-        self._movie = QMovie("gui_template/load.gif")
-        self.img_label.setMovie(self._movie)
-        self._movie.start()
-
-    def start_qrcode_thread(self):
-        self.show_default_image()
-        self.qr_thread = QThread(self)
-        self.qr_worker = QRCodeWorker()
-        self.qr_worker.moveToThread(self.qr_thread)
-        self.qr_thread.started.connect(self.qr_worker.run)
-        self.qr_worker.finished.connect(self.display_qrcode)
-        self.qr_worker.finished.connect(self.qr_thread.quit)
-        self.qr_worker.finished.connect(self.qr_worker.deleteLater)
-        self.qr_thread.finished.connect(self.qr_thread.deleteLater)
-        self.qr_thread.start()
-
-    def show_gif_qrcode(self):
-        # Affiche le GIF puis lance le thread QR code automatiquement
-        self.show_default_image()
-        self.qr_thread = QThread(self)
-        self.qr_worker = QRCodeWorker()
-        self.qr_worker.moveToThread(self.qr_thread)
-        self.qr_thread.started.connect(self.qr_worker.run)
-        self.qr_worker.finished.connect(self.display_qrcode)
-        self.qr_worker.finished.connect(self.qr_thread.quit)
-        self.qr_worker.finished.connect(self.qr_worker.deleteLater)
-        self.qr_thread.finished.connect(self.qr_thread.deleteLater)
-        self.qr_thread.start()
+        # Affiche le GIF de chargement (préchargé)
+        if self._movie:
+            self.img_label.setMovie(self._movie)
+            self._movie.start()
 
     def display_qrcode(self, qimg: QImage):
+        # Stoppe le GIF et affiche le QR code
+        if self._movie:
+            self._movie.stop()
         self.img_label.setMovie(None)
-        self._movie = None
         if not qimg or qimg.isNull():
             self.img_label.setText("Erreur QR code")
             return
-        # Affiche le QR code à une taille réduite
         pix = QPixmap.fromImage(qimg)
         target_size = min(self.img_label.width(), self.img_label.height(), 240)
         self.img_label.setPixmap(pix.scaled(
@@ -217,24 +229,49 @@ class ValidationOverlay(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = self.rect().adjusted(10, 10, -10, -10)
-        # Fond blanc semi-transparent
-        painter.setBrush(QBrush(QColor(255, 255, 255, 220)))
-        painter.setPen(Qt.NoPen)
-        painter.drawRoundedRect(rect, 30, 30)
-        # Bord blanc opaque
-        pen = QPen(QColor(255, 255, 255, 255), 6)
+        painter.fillRect(rect, QColor(255, 255, 255, 220))
+        pen = QPen(QColor(255, 255, 255), 6)
         painter.setPen(pen)
         painter.setBrush(Qt.NoBrush)
         painter.drawRoundedRect(rect, 30, 30)
 
+    def closeEvent(self, event):
+        if self._movie:
+            self._movie.stop()
+        super().closeEvent(event)
+
+    def on_validate_clicked(self):
+        """Gère le clic sur le bouton valider"""
+        if self.parent():
+            self.parent().window().set_view(1)  # Retour à la caméra
+        self.close()
+        
+    def on_refuse_clicked(self):
+        """Gère le clic sur le bouton refuser"""
+        self.close()
+
+    def show_gif_qrcode(self):
+        """Affiche le GIF puis le QR code"""
+        self.show_default_image()
+        # Lance la génération du QR code en arrière-plan
+        self.qr_thread = QThread()
+        self.qr_worker = QRCodeWorker()
+        self.qr_worker.moveToThread(self.qr_thread)
+        self.qr_thread.started.connect(self.qr_worker.run)
+        self.qr_worker.finished.connect(self.display_qrcode)
+        self.qr_worker.finished.connect(self.qr_thread.quit)
+        self.qr_worker.finished.connect(self.qr_worker.deleteLater)
+        self.qr_thread.finished.connect(self.qr_thread.deleteLater)
+        self.qr_thread.start()
+
 class SaveAndSettingWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
-        super().__init__()
+        super().__init__(parent)
         self.selected_style = None
         self.generated_image = None
         self._thread = None
         self._worker = None
-        self.loading_overlay = None
+        self.loading_overlay = None  # On ne crée pas l'overlay ici
         self._generation_in_progress = False
 
         # Première ligne : boutons accept/close pour utiliser les icônes existantes
@@ -268,56 +305,53 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         # Nettoyage des threads terminés pour éviter fuite mémoire
         self._cleanup_thread()
 
-    def show_loading(self):
-        if not self.loading_overlay:
+    def _create_loading_overlay(self):
+        """Crée ou recrée l'overlay si nécessaire"""
+        if not hasattr(self, 'loading_overlay') or self.loading_overlay is None:
             self.loading_overlay = LoadingOverlay(self)
-        self.loading_overlay.show()
-        self.loading_overlay.raise_()
+            self.loading_overlay.hide()
+
+    def _ensure_overlay(self):
+        """Assure qu'un overlay valide existe"""
+        if self.loading_overlay is None:
+            self.loading_overlay = LoadingOverlay(self)
+            self.loading_overlay.resize(self.size())
+        return self.loading_overlay
+
+    def show_loading(self):
+        overlay = self._ensure_overlay()
+        overlay.resize(self.size())  # Force la taille
+        overlay.show()
+        overlay.raise_()
 
     def hide_loading(self):
-        if self.loading_overlay:
+        if self.loading_overlay is not None:
             self.loading_overlay.hide()
 
     def on_toggle(self, checked: bool, style_name: str):
-        if self._generation_in_progress:
-            return
-        if checked:
-            self.selected_style = style_name
+        # Appelle la méthode parente avec generate_image=True
+        super().on_toggle(checked, style_name, generate_image=True)
+
+    def on_generation_finished(self, qimg):
+        self._generation_in_progress = False
+        self._set_style_buttons_enabled(True)
+        self.hide_loading()
+        self.kill_generation_thread()  # <-- Ajout ici
+        if qimg and not qimg.isNull():
+            self.generated_image = qimg
+        else:
             self.generated_image = None
-            self._set_style_buttons_enabled(False)
-            self._generation_in_progress = True
-            self.show_loading()
-            # Nettoyage thread précédent si besoin
-            self._cleanup_thread()
-            self._thread = QThread()
-            self._worker = GenerationWorker(style_name)
-            self._worker.moveToThread(self._thread)
-            self._thread.started.connect(self._worker.run)
-            self._worker.finished.connect(self.on_generation_finished)
-            self._worker.finished.connect(self._thread.quit)
-            self._worker.finished.connect(self._worker.deleteLater)
-            self._thread.finished.connect(self._thread.deleteLater)
-            self._thread.finished.connect(self._on_thread_finished)
-            self._thread.start()
-        elif self._generation_in_progress:
-            self._set_style_buttons_enabled(False)
+        self.show_image()
 
-    def _set_style_buttons_enabled(self, enabled: bool):
-        if hasattr(self, 'button_group'):
-            for btn in self.button_group.buttons():
-                btn.setEnabled(enabled)
-
-    def _cleanup_thread(self):
-        # Correction : NE PAS supprimer la référence au thread tant qu'il tourne
-        # On ne touche pas au thread si il est encore running
-        if self._thread is not None:
-            try:
-                if not self._thread.isRunning():
-                    self._thread = None
-                    self._worker = None
-                # Sinon, on laisse Qt gérer la vie du thread (pas de suppression)
-            except Exception:
-                pass
+    def cleanup_all_threads_and_overlays(self):
+        print("[CLEANUP] Nettoyage threads/overlays SaveAndSettingWidget")
+        if self.loading_overlay is not None:
+            self.hide_loading()
+        # ...autres nettoyages (thread, worker, etc.)...
+        if DEBUG_MEM:
+            import gc, objgraph
+            gc.collect()
+            objgraph.show_growth(limit=10)
 
     def closeEvent(self, event):
         # Ne tente pas d'arrêter brutalement le thread, laisse Qt le gérer
@@ -332,27 +366,126 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
             self._thread = None
             self._worker = None
 
-    def on_generation_finished(self, image_path):
-        self._generation_in_progress = False
-        self._set_style_buttons_enabled(True)
-        self.hide_loading()
-        # Nettoyage thread après génération
-        self._on_thread_finished()
-        if image_path and os.path.exists(image_path):
-            img = cv2.imread(image_path)
-            self.generated_image = ImageUtils.cv_to_qimage(img)
-        else:
-            self.generated_image = None
-        self.show_image()
-
     def validate(self):
-        # Arrête le thread de génération si en cours avant d'afficher l'overlay
         self._cleanup_thread()
         overlay = ValidationOverlay(self.window())
         overlay.show_gif_qrcode()
         overlay.show()
 
     def refuse(self):
-        # Arrête le thread de génération si en cours avant de retourner à la caméra
-        self._cleanup_thread()
+        # Nettoyage radical sur refuse
+        self.cleanup_all_threads_and_overlays()
         self.window().set_view(0)
+
+    def _set_style_buttons_enabled(self, enabled: bool):
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                btn.setEnabled(enabled)
+
+    def _cleanup_thread(self):
+        if hasattr(self, "_thread") and self._thread is not None:
+            try:
+                print(f"[CLEANUP] _cleanup_thread: thread running? {self._thread.isRunning()}")
+                if not self._thread.isRunning():
+                    print(f"[CLEANUP] Thread terminé, suppression références")
+                    self._thread = None
+                    self._worker = None
+            except Exception as e:
+                print(f"[CLEANUP] Exception in _cleanup_thread: {e}")
+
+    def cleanup(self):
+        print("[CLEANUP] SaveAndSettingWidget: Début du nettoyage")
+
+        # Déconnecte les signaux des boutons si besoin
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                try:
+                    btn.clicked.disconnect()
+                except TypeError:
+                    pass
+
+        # Déconnecte les signaux du worker/thread si besoin
+        if hasattr(self, "_worker") and self._worker:
+            try:
+                self._worker.finished.disconnect()
+            except Exception:
+                pass
+
+        # Arrête le thread de génération s'il existe
+        if hasattr(self, "_thread") and self._thread and self._thread.isRunning():
+            print("[CLEANUP] Tentative d'arrêt du thread de génération...")
+            self._thread.quit()
+            self._thread.wait(2000)
+            self._thread.deleteLater()
+            if self._thread.isRunning():
+                print("[CLEANUP] Échec d'arrêt du thread.")
+            else:
+                print("[CLEANUP] Thread arrêté avec succès.")
+
+        # Ne pas supprimer l'overlay, juste le cacher
+        if hasattr(self, "loading_overlay") and self.loading_overlay:
+            self.loading_overlay.hide()
+            
+        # Libère les autres références
+        self._thread = None
+        self._worker = None
+        # Ne pas mettre loading_overlay à None
+        
+        # Forcer le garbage collector et inspecter les références
+        import gc, objgraph
+        gc.collect()
+        overlays = objgraph.by_type('LoadingOverlay')
+        if overlays:
+            objgraph.show_backrefs([overlays[-1]], max_depth=3, filename='refs_loading_overlay.png')
+            print("[DEBUG] Graphique généré: refs_loading_overlay.png")
+
+        print("[CLEANUP] SaveAndSettingWidget: Nettoyage terminé")
+
+        # Forcer le garbage collector et afficher la croissance des objets
+        gc.collect()
+        objgraph.show_growth(limit=10)
+
+        # Traque des overlays orphelins
+        overlays = objgraph.by_type('LoadingOverlay')
+        if overlays:
+            print(f"[DEBUG] Nombre de LoadingOverlay vivants: {len(overlays)}")
+            objgraph.show_backrefs([overlays[-1]], max_depth=3, filename='loading_overlay_refs.png')
+            print("[DEBUG] Graphique généré: loading_overlay_refs.png")
+
+    def __del__(self):
+        print(f"[DEL] SaveAndSettingWidget détruit: {id(self)}")
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                try:
+                    btn.clicked.disconnect()
+                except Exception:
+                    pass
+        if hasattr(self, "_worker") and self._worker:
+            try:
+                self._worker.finished.disconnect()
+            except Exception:
+                pass
+
+    def kill_generation_thread(self):
+        """Tente d'arrêter et de supprimer complètement le thread de génération."""
+        print("[THREAD] Tentative de kill du thread de génération")
+        if hasattr(self, "_thread") and self._thread:
+            try:
+                if self._thread.isRunning():
+                    print("[THREAD] Thread encore actif, on quitte...")
+                    self._thread.quit()
+                    self._thread.wait(2000)
+                self._thread.deleteLater()
+            except Exception as e:
+                print(f"[THREAD] Exception lors du kill: {e}")
+            finally:
+                self._thread = None
+        if hasattr(self, "_worker") and self._worker:
+            try:
+                self._worker.deleteLater()
+            except Exception:
+                pass
+            self._worker = None
+        import gc
+        gc.collect()
+        print("[THREAD] Thread et worker supprimés et GC forcé")

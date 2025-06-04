@@ -9,23 +9,36 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QButtonGroup
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import dico_styles
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 from constante import (
     BUTTON_STYLE
 )
+from gui_classes.image_utils import ImageUtils
 
 
 class Worker(QObject):
-    finished = Signal()
-    result = Signal(str)
+    finished = Signal(QImage)
 
-    def __init__(self, generator):
+    def __init__(self, generator, input_image=None):
         super().__init__()
         self.generator = generator
+        self.input_image = input_image
 
     def run(self):
+        if self.input_image is not None:
+            arr = ImageUtils.qimage_to_cv(self.input_image)
+            cv2.imwrite("../ComfyUI/input/input.png", arr)
         self.generator.generate_image()
-        self.finished.emit()
+        png_files = glob.glob("../ComfyUI/output/*.png")
+        if png_files:
+            processed = cv2.imread(png_files[0])
+            qimg = ImageUtils.cv_to_qimage(processed)
+            qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.finished.emit(qimg)
+            os.remove(png_files[0])
+            os.remove("../ComfyUI/input/input.png")
+        else:
+            self.finished.emit(QImage())
 
 
 class StyleChooserWidget(PhotoBoothBaseWidget):
@@ -59,13 +72,10 @@ class StyleChooserWidget(PhotoBoothBaseWidget):
     def apply_style(self):
         if not self.selected_style:
             return
-        cv2_img = self.qimage_to_cv(self.window().captured_image)
-        cv2.imwrite("../ComfyUI/input/input.png", cv2_img)
-
+        input_img = self.window().captured_image
         self.window().show_load_widget()
-
         self.thread = QThread()
-        self.worker = Worker(self.generator)
+        self.worker = Worker(self.generator, input_img)
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.on_generation_finished)
@@ -74,26 +84,7 @@ class StyleChooserWidget(PhotoBoothBaseWidget):
         self.thread.finished.connect(self.thread.deleteLater)
         self.thread.start()
 
-    def on_generation_finished(self):
-        png_files = glob.glob("../ComfyUI/output/*.png")
-        if png_files:
-            processed = cv2.imread(png_files[0])
-            self.window().generated_image = self.cv_to_qimage(processed)
+    def on_generation_finished(self, qimg):
+        if qimg and not qimg.isNull():
+            self.window().generated_image = qimg
             self.window().show_result()
-            os.remove(png_files[0])
-            os.remove("../ComfyUI/input/input.png")
-        
-
-    @staticmethod
-    def qimage_to_cv(qimg: QImage) -> np.ndarray:
-        qimg = qimg.convertToFormat(QImage.Format_RGB888)
-        w, h = qimg.width(), qimg.height()
-        buffer = qimg.bits().tobytes()
-        arr = np.frombuffer(buffer, np.uint8).reshape((h, w, 3))
-        return cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
-
-    @staticmethod
-    def cv_to_qimage(cv_img: np.ndarray) -> QImage:
-        rgb = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
-        h, w, ch = rgb.shape
-        return QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()

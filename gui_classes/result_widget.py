@@ -43,4 +43,7 @@ class ResultWidget(PhotoBoothBaseWidget):
 
     def set_view_camera(self):
         """Retourne à la vue caméra."""
+        # Nettoyage radical si méthode dispo
+        if hasattr(self.window().save_setting_widget, "cleanup_all_threads_and_overlays"):
+            self.window().save_setting_widget.cleanup_all_threads_and_overlays()
         self.window().set_view(0)

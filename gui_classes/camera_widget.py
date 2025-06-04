@@ -9,6 +9,7 @@ from constante import CAMERA_ID, dico_styles
 from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 from gui_classes.image_utils import ImageUtils  # Add this import
 from gui_classes.loading_overlay import LoadingOverlay
+import objgraph
 
 class GenerationWorker(QObject):
     finished = Signal(str)  # path to generated image
@@ -59,6 +60,8 @@ class CameraWidget(PhotoBoothBaseWidget):
             self.selected_style = style_name
         else:
             self.selected_style = None
+        # Appelle la méthode parente avec generate_image=False
+        super().on_toggle(checked, style_name, generate_image=False)
 
     def start_camera(self):
         if self.cap is None or not self.cap.isOpened():
@@ -112,19 +115,18 @@ class CameraWidget(PhotoBoothBaseWidget):
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
         qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
+        # Redimensionne avant de stocker
+        qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.window().captured_image = qimg
 
         save_widget = self.window().save_setting_widget
 
         if self.selected_style:
-            # Synchronise le style sélectionné avec SaveAndSettingWidget
             save_widget.selected_style = self.selected_style
             save_widget.generated_image = None
-            # Nettoyage thread précédent si besoin
-            if hasattr(save_widget, "_cleanup_thread"):
-                save_widget._cleanup_thread()
+            if hasattr(save_widget, "cleanup_all_threads_and_overlays"):
+                save_widget.cleanup_all_threads_and_overlays()
             self.stop_camera()
-            # Lance la génération d'image dans SaveAndSettingWidget
             save_widget.on_toggle(True, self.selected_style)
             self.window().show_save_setting()
         else:

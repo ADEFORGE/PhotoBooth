@@ -1,34 +1,39 @@
-from PySide6.QtWidgets import QWidget, QLabel
-from PySide6.QtGui import QMovie
+from PySide6.QtWidgets import QWidget, QLabel 
 from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QMovie, QPainter, QColor
 
 class LoadingOverlay(QWidget):
-    def __init__(self, parent=None, gif_path="gui_template/load.gif"):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint)
         
-        self.label = QLabel(self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.movie = QMovie(gif_path)
-        self.movie.setScaledSize(QSize(400, 400))  # Doublé de 200 à 400
-        self.label.setMovie(self.movie)
-        self.movie.start()
-
-        # Positionnement manuel du label au centre
-        self.label.setGeometry(0, 0, 400, 400)  # Doublé de 200 à 400
-
-    def update_overlay_geometry(self):
-        if self.parentWidget():
-            pw = self.parentWidget().width()
-            ph = self.parentWidget().height()
-            self.setGeometry(0, 0, pw, ph)
-            # Centre le label
-            x = (pw - 400) // 2  # Doublé de 200 à 400
-            y = (ph - 400) // 2  # Doublé de 200 à 400
-            self.label.setGeometry(x, y, 400, 400)  # Doublé de 200 à 400
+        # Configuration basique
+        self.img_label = QLabel(self)
+        self.img_label.setAlignment(Qt.AlignCenter)
+        self._movie = QMovie("gui_template/load.gif")
+        self._movie.setScaledSize(QSize(64, 64))
+        self.img_label.setMovie(self._movie)
+        self.img_label.setFixedSize(64, 64)
 
     def showEvent(self, event):
-        self.update_overlay_geometry()
         super().showEvent(event)
+        # Centre le GIF
+        self.img_label.move(
+            (self.width() - self.img_label.width()) // 2,
+            (self.height() - self.img_label.height()) // 2
+        )
+        # Démarre l'animation
+        if self._movie and not self._movie.isValid():
+            self._movie.setFileName("gui_template/load.gif")
+        if self._movie:
+            self._movie.start()
+
+    def hideEvent(self, event):
+        if self._movie:
+            self._movie.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 128))

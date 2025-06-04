@@ -1,9 +1,12 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout, QPushButton, 
                              QApplication, QSizePolicy, QHBoxLayout, QButtonGroup, QVBoxLayout)
 from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon, QPainter
-from PySide6.QtCore import Qt, QSize, QPropertyAnimation, Property
-from gui_classes.more_info_box import InfoDialog
-from gui_classes.rules_dialog import RulesDialog
+from PySide6.QtCore import Qt, QSize, QPropertyAnimation, Property, QElapsedTimer, QThread, Signal, QObject
+import cv2  # Ajout de l'import manquant
+from gui_classes.image_utils import ImageUtils
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from gui_classes.loading_overlay import LoadingOverlay
+
 from constante import (
     GRID_WIDTH, DISPLAY_LABEL_STYLE, BUTTON_STYLE,
     SPECIAL_BUTTON_STYLE, SPECIAL_BUTTON_NAMES, TITLE_LABEL_TEXT,
@@ -27,9 +30,39 @@ def normalize_btn_name(btn_name):
     name = name.strip('_')
     return name
 
+class GenerationWorker(QObject):
+    finished = Signal(QImage)  # QImage prêt à afficher
+
+    def __init__(self, style, input_image=None, parent=None):
+        super().__init__(parent)
+        self.style = style
+        self.generator = ImageGeneratorAPIWrapper()
+        self.input_image = input_image  # QImage
+
+    def run(self):
+        if self.input_image is not None:
+            arr = ImageUtils.qimage_to_cv(self.input_image)
+            cv2.imwrite("../ComfyUI/input/input.png", arr)
+        self.generator.set_style(self.style)
+        self.generator.generate_image()
+        images = self.generator.get_image_paths()
+        if images:
+            img = cv2.imread(images[0])
+            qimg = ImageUtils.cv_to_qimage(img)
+            qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.finished.emit(qimg)
+        else:
+            self.finished.emit(QImage())
+
 class PhotoBoothBaseWidget(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._thread = None
+        self._worker = None
+        self._generation_in_progress = False
+        self.loading_overlay = None
+        self.selected_style = None
+        self.generated_image = None
         # Utilise un layout vertical superposé
         self._background_pixmap = None
         self._background_movie = None
@@ -103,11 +136,12 @@ class PhotoBoothBaseWidget(QWidget):
         # ...ne pas appeler super().paintEvent(event) ici pour éviter d'effacer le fond...
 
     def show_image(self, qimage: QImage):
+        # Redimensionne pour limiter la taille mémoire
+        if qimage and not qimage.isNull():
+            qimage = qimage.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self._background_qimage = qimage
         self._background_pixmap = None
         self._background_movie = None
-        # self._fade_animation.stop()
-        # self._fade_animation.start()
         self.update()
 
     def show_pixmap(self, pixmap: QPixmap):
@@ -138,7 +172,10 @@ class PhotoBoothBaseWidget(QWidget):
                 if item:
                     w = item.widget()
                     if w:
+                        print(f"[CLEANUP] Suppression bouton {w}")
                         w.setParent(None)
+        import objgraph
+        objgraph.show_most_common_types(limit=10)
 
     def get_grid_width(self):
         return GRID_WIDTH
@@ -383,6 +420,106 @@ class PhotoBoothBaseWidget(QWidget):
     def show_rules_dialog(self):
         dialog = RulesDialog(self)
         dialog.exec()
+
+    def profile_slot(self, func, *args, **kwargs):
+        timer = QElapsedTimer()
+        timer.start()
+        result = func(*args, **kwargs)
+        elapsed_ms = timer.elapsed()
+        print(f"[PROFILE] {func.__name__} executed in {elapsed_ms} ms")
+        return result
+
+    def __del__(self):
+        print(f"[DEL] SaveAndSettingWidget détruit: {id(self)}")
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                try:
+                    btn.clicked.disconnect()
+                except Exception:
+                    pass
+        if hasattr(self, "_worker") and self._worker:
+            try:
+                self._worker.finished.disconnect()
+            except Exception:
+                pass
+
+    def _ensure_overlay(self):
+        """Assure qu'un overlay valide existe"""
+        if not hasattr(self, 'loading_overlay') or self.loading_overlay is None:
+            self.loading_overlay = LoadingOverlay(self)
+            self.loading_overlay.resize(self.size())
+        return self.loading_overlay
+
+    def show_loading(self):
+        """Affiche l'overlay de chargement"""
+        overlay = self._ensure_overlay()
+        overlay.resize(self.size())
+        overlay.show()
+        overlay.raise_()
+
+    def hide_loading(self):
+        """Cache l'overlay de chargement"""
+        if hasattr(self, 'loading_overlay') and self.loading_overlay:
+            self.loading_overlay.hide()
+
+    def on_toggle(self, checked: bool, style_name: str, generate_image: bool = False):
+        """
+        Gère la sélection d'un style
+        :param checked: État du bouton toggle
+        :param style_name: Nom du style sélectionné
+        :param generate_image: Si True, lance la génération d'image
+        """
+        if self._generation_in_progress:
+            return
+
+        if checked:
+            self.selected_style = style_name
+            
+            if generate_image:
+                self._set_style_buttons_enabled(False)
+                self._generation_in_progress = True
+                self.generated_image = None
+                self.show_loading()
+                self._cleanup_thread()
+                
+                # Crée et configure le thread de génération
+                self._thread = QThread()
+                input_img = getattr(self.window(), "captured_image", None)
+                self._worker = GenerationWorker(style_name, input_img)
+                self._worker.moveToThread(self._thread)
+                self._thread.started.connect(self._worker.run)
+                self._worker.finished.connect(self.on_generation_finished)
+                self._worker.finished.connect(self._thread.quit)
+                self._worker.finished.connect(self._worker.deleteLater)
+                self._thread.finished.connect(self._thread.deleteLater)
+                self._thread.finished.connect(self._on_thread_finished)
+                self._thread.start()
+
+    def on_generation_finished(self, qimg):
+        self._generation_in_progress = False
+        self._set_style_buttons_enabled(True)
+        self.hide_loading()
+        if qimg and not qimg.isNull():
+            self.generated_image = qimg
+            self.show_image(qimg)
+        else:
+            self.generated_image = None
+
+    def _set_style_buttons_enabled(self, enabled: bool):
+        """Active/désactive les boutons de style"""
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                btn.setEnabled(enabled)
+
+    def _cleanup_thread(self):
+        """Nettoie le thread de génération"""
+        if hasattr(self, "_thread") and self._thread is not None:
+            try:
+                if not self._thread.isRunning():
+                    self._thread = None
+                    self._worker = None
+            except Exception as e:
+                print(f"[CLEANUP] Exception in _cleanup_thread: {e}")
 
 from PySide6.QtWidgets import QLabel
 from PySide6.QtGui import QPainter, QPen, QColor, QFont, QPainterPath

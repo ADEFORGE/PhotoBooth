@@ -4,8 +4,7 @@ import glob
 import os
 from PySide6.QtCore import Qt, QThread, Signal, QObject
 from PySide6.QtGui import QImage
-from PySide6.QtWidgets import QButtonGroup, QWidget, QLabel, QVBoxLayout, QPushButton, QTextEdit, QHBoxLayout
-from PySide6.QtWidgets import QSizePolicy  # <-- Ajouté ici
+from PySide6.QtWidgets import QButtonGroup, QWidget, QLabel, QVBoxLayout, QPushButton, QTextEdit, QHBoxLayout, QSizePolicy, QGridLayout
 from PySide6.QtGui import QPixmap, QColor, QPainter, QBrush, QPen
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
@@ -58,46 +57,55 @@ class ValidationOverlay(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
 
-        # Taille = 60% de la fenêtre parente, minimum 600x600 pour le QR code
+        # Taille = 70% largeur, 65% hauteur de la fenêtre parente, minimum 700x700
         if parent:
             pw, ph = parent.width(), parent.height()
-            w, h = max(int(pw * 0.6), 600), max(int(ph * 0.6), 600)
+            w, h = max(int(pw * 0.7), 700), max(int(ph * 0.65), 700)
+            y_offset = int(ph * 0.08)
             self.setFixedSize(w, h)
             self.move(
                 parent.x() + (pw - w) // 2,
-                parent.y() + (ph - h) // 2
+                parent.y() + (ph - h) // 2 - y_offset
             )
         else:
-            self.setFixedSize(600, 600)
+            self.setFixedSize(700, 700)
 
-        # Layout principal
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(20)
-        layout.setAlignment(Qt.AlignCenter)
+        # Layout principal en grille avec marges
+        grid = QGridLayout(self)
+        grid.setContentsMargins(40, 32, 40, 32)
+        grid.setSpacing(24)
+        grid.setRowStretch(0, 0)
+        grid.setRowStretch(1, 2)  # Plus d'espace pour le QR code
+        grid.setRowStretch(2, 1)  # Moins d'espace pour le texte
+        grid.setRowStretch(3, 0)
+
+        row = 0
 
         # --- Ajout du message configurable en haut ---
         if VALIDATION_OVERLAY_MESSAGE:
             msg_label = QLabel(VALIDATION_OVERLAY_MESSAGE, self)
             msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
             msg_label.setAlignment(Qt.AlignCenter)
-            layout.addWidget(msg_label, alignment=Qt.AlignCenter)
+            grid.addWidget(msg_label, row, 0, 1, 1, alignment=Qt.AlignCenter)
+            row += 1
 
         # Image centrée (sera remplacée dynamiquement)
         self.img_label = QLabel(self)
         self.img_label.setAlignment(Qt.AlignCenter)
-        # Largeur/hauteur minimum augmentée pour le QR code
-        self.img_label.setMinimumSize(350, 350)
-        layout.addWidget(self.img_label, alignment=Qt.AlignCenter)
-        self._movie = None
+        self.img_label.setMinimumSize(220, 220)  # Réduit la taille minimale du QR code
+        self.img_label.setMaximumSize(260, 260)  # Limite la taille maximale aussi
+        self.img_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        grid.addWidget(self.img_label, row, 0, 1, 1, alignment=Qt.AlignCenter)
+        row += 1
 
         # Texte (rules.txt) en dessous
         text_edit = QTextEdit(self)
         text_edit.setReadOnly(True)
         text_edit.setStyleSheet("background: transparent; color: black; font-size: 18px; border: none;")
-        text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        text_edit.setMinimumHeight(int(self.height() * 0.18))
-        text_edit.setMinimumWidth(int(self.width() * 0.8))
+        text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        text_edit.setMinimumHeight(80)
+        text_edit.setMaximumHeight(180)
+        text_edit.setMinimumWidth(int(self.width() * 0.85))
         try:
             with open("rules.txt", "r") as f:
                 rules_text = f.read()
@@ -105,13 +113,13 @@ class ValidationOverlay(QWidget):
                 text_edit.setHtml(html)
         except Exception as e:
             text_edit.setText(f"Error loading rules: {str(e)}")
-        layout.addWidget(text_edit, stretch=2, alignment=Qt.AlignCenter)
+        grid.addWidget(text_edit, row, 0, 1, 1)
+        row += 1
 
         # Boutons en ligne (Valider + Fermer)
         btn_row = QHBoxLayout()
-        btn_row.setSpacing(24)
+        btn_row.setSpacing(32)
 
-        # Bouton valider (passe à la caméra)
         validate_btn = QPushButton(self)
         validate_btn.setFixedSize(56, 56)
         validate_btn.setStyleSheet(
@@ -130,7 +138,6 @@ class ValidationOverlay(QWidget):
         validate_btn.clicked.connect(self.go_to_camera)
         btn_row.addWidget(validate_btn)
 
-        # Bouton refuser (retour caméra)
         refuse_btn = QPushButton(self)
         refuse_btn.setFixedSize(56, 56)
         refuse_btn.setStyleSheet(
@@ -149,7 +156,9 @@ class ValidationOverlay(QWidget):
         refuse_btn.clicked.connect(self.go_to_camera)
         btn_row.addWidget(refuse_btn)
 
-        layout.addLayout(btn_row)
+        btn_container = QWidget(self)
+        btn_container.setLayout(btn_row)
+        grid.addWidget(btn_container, row, 0, 1, 1, alignment=Qt.AlignCenter)
 
         self.show_gif_qrcode()
 
@@ -195,9 +204,11 @@ class ValidationOverlay(QWidget):
         if not qimg or qimg.isNull():
             self.img_label.setText("Erreur QR code")
             return
+        # Affiche le QR code à une taille réduite
         pix = QPixmap.fromImage(qimg)
+        target_size = min(self.img_label.width(), self.img_label.height(), 240)
         self.img_label.setPixmap(pix.scaled(
-            int(self.width() * 0.5), int(self.height() * 0.5),
+            target_size, target_size,
             Qt.KeepAspectRatio, Qt.SmoothTransformation
         ))
         self.img_label.repaint()
@@ -300,12 +311,19 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         # Libère proprement les threads terminés pour éviter accumulation
         if self._thread is not None:
             try:
-                self._thread.quit()
-                self._thread.wait(100)
+                if self._thread.isRunning():
+                    self._thread.requestInterruption()
+                    self._thread.quit()
+                    self._thread.wait()
             except Exception:
                 pass
             self._thread = None
         self._worker = None
+
+    def closeEvent(self, event):
+        # S'assure que le thread est bien arrêté lors de la fermeture du widget
+        self._cleanup_thread()
+        super().closeEvent(event)
 
     def _on_thread_finished(self):
         # Nettoyage supplémentaire après la fin du thread
@@ -326,11 +344,13 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         self.show_image()
 
     def validate(self):
-        # Affiche le GIF de chargement dans l'overlay principal (pas dans l'affichage principal)
+        # Arrête le thread de génération si en cours avant d'afficher l'overlay
+        self._cleanup_thread()
         overlay = ValidationOverlay(self.window())
-        overlay.show_gif_qrcode()  # Lance le GIF + thread QR code dans l'overlay directement
+        overlay.show_gif_qrcode()
         overlay.show()
 
     def refuse(self):
-        # Retourne à la caméra (CameraWidget)
+        # Arrête le thread de génération si en cours avant de retourner à la caméra
+        self._cleanup_thread()
         self.window().set_view(0)

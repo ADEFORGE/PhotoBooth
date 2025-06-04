@@ -66,10 +66,15 @@ class CameraWidget(PhotoBoothBaseWidget):
             self.timer.start(30)
 
     def stop_camera(self):
+        # Arrête la caméra et tout thread éventuel de génération dans SaveAndSettingWidget
         if self.cap and self.cap.isOpened():
             self.timer.stop()
             self.cap.release()
             self.cap = None
+        # Arrête aussi le thread de génération du widget de sauvegarde si actif
+        save_widget = getattr(self.window(), "save_setting_widget", None)
+        if save_widget and hasattr(save_widget, "_cleanup_thread"):
+            save_widget._cleanup_thread()
 
     def update_frame(self):
         if not self.cap:

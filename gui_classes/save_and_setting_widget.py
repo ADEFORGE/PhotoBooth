@@ -16,7 +16,7 @@ from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import dico_styles, VALIDATION_OVERLAY_MESSAGE  # Ajout de VALIDATION_OVERLAY_MESSAGE
 from gui_classes.more_info_box import InfoDialog
 from constante import BUTTON_STYLE
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.qrcode_utils import QRCodeGenerator
 from PySide6.QtGui import QImage
 import io

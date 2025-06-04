@@ -6,7 +6,7 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import CAMERA_ID, dico_styles
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.image_utils import ImageUtils  # Add this import
 from gui_classes.loading_overlay import LoadingOverlay
 import objgraph

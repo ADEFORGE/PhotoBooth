@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize, QPropertyAnimation, Property, QElapsedTimer, QThread, Signal, QObject
 import cv2  # Ajout de l'import manquant
 from gui_classes.image_utils import ImageUtils
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.loading_overlay import LoadingOverlay
 
 from constante import (
@@ -31,28 +31,37 @@ def normalize_btn_name(btn_name):
     return name
 
 class GenerationWorker(QObject):
-    finished = Signal(QImage)  # QImage prêt à afficher
+    finished = Signal(QImage)
 
-    def __init__(self, style, input_image=None, parent=None):
-        super().__init__(parent)
+    def __init__(self, style, input_image=None):
+        super().__init__()
         self.style = style
+        self.input_image = input_image
         self.generator = ImageGeneratorAPIWrapper()
-        self.input_image = input_image  # QImage
 
     def run(self):
-        if self.input_image is not None:
-            arr = ImageUtils.qimage_to_cv(self.input_image)
-            cv2.imwrite("../ComfyUI/input/input.png", arr)
-        self.generator.set_style(self.style)
-        self.generator.generate_image()
-        images = self.generator.get_image_paths()
-        if images:
-            img = cv2.imread(images[0])
-            qimg = ImageUtils.cv_to_qimage(img)
-            qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.finished.emit(qimg)
-        else:
+        try:
+            print("[GENERATION] Début génération")
+            # L'image a déjà été sauvegardée dans ../ComfyUI/input/input.png
+            self.generator.set_style(self.style)
+            self.generator.generate_image()
+            images = self.generator.get_image_paths()
+            print(f"[GENERATION] Images générées: {images}")
+            
+            if images and os.path.exists(images[0]):
+                img = cv2.imread(images[0])
+                if img is not None:
+                    qimg = ImageUtils.cv_to_qimage(img)
+                    print("[GENERATION] Image convertie avec succès")
+                    self.finished.emit(qimg)
+                    os.remove(images[0])
+                    return
+            print("[GENERATION] Échec génération")
             self.finished.emit(QImage())
+        except Exception as e:
+            print(f"[ERROR] Erreur génération: {str(e)}")
+            self.finished.emit(QImage())
+
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self, parent=None):

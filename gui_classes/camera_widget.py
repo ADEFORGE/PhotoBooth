@@ -4,29 +4,13 @@ import os
 from PySide6.QtCore import QTimer, Qt, QThread, Signal, QObject
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
 from constante import CAMERA_ID, dico_styles
 from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.image_utils import ImageUtils  # Add this import
 from gui_classes.loading_overlay import LoadingOverlay
 import objgraph
 
-class GenerationWorker(QObject):
-    finished = Signal(str)  # path to generated image
-
-    def __init__(self, style):
-        super().__init__()
-        self.style = style
-        self.generator = ImageGeneratorAPIWrapper()
-
-    def run(self):
-        self.generator.set_style(self.style)
-        self.generator.generate_image()
-        images = self.generator.get_image_paths()
-        if images:
-            self.finished.emit(images[0])
-        else:
-            self.finished.emit("")
 
 class CameraWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
@@ -111,26 +95,42 @@ class CameraWidget(PhotoBoothBaseWidget):
         if not ret:
             return
 
-        cv2.imwrite("../ComfyUI/input/input.png", frame)
+        # Sauvegarder l'image capturée avant tout
+        input_path = "../ComfyUI/input/input.png"
+        cv2.imwrite(input_path, frame)
+
+        # Convertir pour l'affichage
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
         qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
-        # Redimensionne avant de stocker
-        qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.window().captured_image = qimg
 
         save_widget = self.window().save_setting_widget
-
+        
         if self.selected_style:
-            save_widget.selected_style = self.selected_style
-            save_widget.generated_image = None
-            if hasattr(save_widget, "cleanup_all_threads_and_overlays"):
-                save_widget.cleanup_all_threads_and_overlays()
-            self.stop_camera()
-            save_widget.on_toggle(True, self.selected_style)
-            self.window().show_save_setting()
+            self.show_loading()
+            self._thread = QThread()
+            self._worker = GenerationWorker(self.selected_style)  # Ne pas passer l'image
+            self._worker.moveToThread(self._thread)
+            self._thread.started.connect(self._worker.run)
+            self._worker.finished.connect(self.on_generation_finished)
+            self._worker.finished.connect(self.hide_loading)
+            self._worker.finished.connect(self._thread.quit)
+            self._worker.finished.connect(self._worker.deleteLater)
+            self._thread.finished.connect(self._thread.deleteLater)
+            self._thread.start()
         else:
             self.stop_camera()
             save_widget.generated_image = None
             save_widget.selected_style = None
             self.window().show_save_setting()
+
+    def on_generation_finished(self, qimg):
+        self.stop_camera()
+        if qimg and not qimg.isNull():
+            self.window().save_setting_widget.generated_image = qimg
+            self.window().save_setting_widget.selected_style = self.selected_style
+        else:
+            self.window().save_setting_widget.generated_image = None
+            self.window().save_setting_widget.selected_style = None
+        self.window().show_save_setting()

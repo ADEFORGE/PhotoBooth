@@ -12,7 +12,7 @@ from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtGui import QMovie  # <-- Ajouté ici
 
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
 from constante import dico_styles, VALIDATION_OVERLAY_MESSAGE  # Ajout de VALIDATION_OVERLAY_MESSAGE
 from gui_classes.more_info_box import InfoDialog
 from constante import BUTTON_STYLE
@@ -23,36 +23,8 @@ import io
 from gui_classes.image_utils import ImageUtils
 from gui_classes.loading_overlay import LoadingOverlay
 
+
 DEBUG_MEM = False  # Passe à True pour activer objgraph/gc.collect()
-
-class GenerationWorker(QObject):
-    finished = Signal(QImage)  # QImage prêt à afficher
-
-    def __init__(self, style, input_image=None, parent=None):
-        super().__init__(parent)
-        self.style = style
-        self.generator = ImageGeneratorAPIWrapper()
-        self.input_image = input_image  # QImage
-
-    def run(self):
-        # Sauvegarde l'image d'entrée si fournie
-        if self.input_image is not None:
-            arr = ImageUtils.qimage_to_cv(self.input_image)
-            cv2.imwrite("../ComfyUI/input/input.png", arr)
-        self.generator.set_style(self.style)
-        self.generator.generate_image()
-        images = self.generator.get_image_paths()
-        if images:
-            img = cv2.imread(images[0])
-            qimg = ImageUtils.cv_to_qimage(img)
-            # Redimensionne pour limiter la taille mémoire
-            qimg = qimg.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.finished.emit(qimg)
-        else:
-            self.finished.emit(QImage())
-
-    def __del__(self):
-        print(f"[DEL] GenerationWorker détruit: {id(self)}")
 
 class QRCodeWorker(QObject):
     finished = Signal(QImage)

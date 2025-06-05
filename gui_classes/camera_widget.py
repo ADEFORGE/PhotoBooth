@@ -27,8 +27,8 @@ class CameraWidget(PhotoBoothBaseWidget):
         self.setup_buttons(
             style1_names=["take_selfie"],
             style2_names=list(dico_styles.keys()),
-            slot_style1="capture",
-            slot_style2="on_toggle"
+            slot_style1=self.capture,
+            slot_style2=lambda checked, btn=None: self.on_toggle(checked, btn.text() if btn else None)
         )
         self.overlay_widget.raise_()
         self.btns.raise_()  # Force les boutons au premier plan

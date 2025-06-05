@@ -378,22 +378,24 @@ VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de con
 # --- Styles personnalisables pour les boutons ---
 BTN_STYLE_ONE = (
     "QPushButton {"
-    "background-color: rgba(255, 128, 0, 0.95);"  # Orange plus visible
-    "border: 4px solid white;"                    # Bordure plus épaisse
-    "border-radius: 40px;"                        # Plus arrondi
-    "min-width: 80px; min-height: 80px;"         # Taille plus grande
+    "background-color: rgba(80,80,80,0.18);"
+    "border: 2.5px solid #888;"
+    "border-radius: 40px;"
+    "min-width: 80px; min-height: 80px;"
     "max-width: 80px; max-height: 80px;"
     "font-size: 24px;"
-    "color: white;"
+    "color: #eee;"
     "font-weight: bold;"
     "}"
     "QPushButton:hover {"
-    "background-color: rgba(255, 160, 0, 1.0);"
-    "border: 5px solid white;"
+    "border: 3px solid #bbb;"
+    "background-color: rgba(120,120,120,0.22);"
+    "color: #fff;"
     "}"
-    "QPushButton:pressed {"
-    "background-color: rgba(255, 200, 0, 1.0);"
-    "border: 6px solid white;"
+    "QPushButton:pressed, QPushButton:checked {"
+    "background-color: rgba(220,220,220,0.32);"
+    "border: 3.5px solid #fff;"
+    "color: #222;"
     "}"
 )
 

@@ -114,14 +114,30 @@ class Btns:
         col_max = layout.columnCount() if hasattr(layout, "columnCount") else 7
         n1 = len(self.style1_btns)
         if n1 > 0:
-            col1 = (col_max - n1) // 2
-            for i, btn in enumerate(self.style1_btns):
-                btn.place(layout, start_row, col1 + i)
+            # Si pair, on saute la colonne centrale
+            if n1 % 2 == 0:
+                mid = col_max // 2
+                left = (col_max - n1 - 1) // 2
+                for i, btn in enumerate(self.style1_btns):
+                    col = left + i if i < n1 // 2 else left + i + 1
+                    btn.place(layout, start_row, col)
+            else:
+                col1 = (col_max - n1) // 2
+                for i, btn in enumerate(self.style1_btns):
+                    btn.place(layout, start_row, col1 + i)
         n2 = len(self.style2_btns)
         if n2 > 0:
-            col2 = (col_max - n2) // 2
-            for i, btn in enumerate(self.style2_btns):
-                btn.place(layout, start_row + 1, col2 + i)
+            # Si pair, on saute la colonne centrale
+            if n2 % 2 == 0:
+                mid = col_max // 2
+                left = (col_max - n2 - 1) // 2
+                for i, btn in enumerate(self.style2_btns):
+                    col = left + i if i < n2 // 2 else left + i + 1
+                    btn.place(layout, start_row + 1, col)
+            else:
+                col2 = (col_max - n2) // 2
+                for i, btn in enumerate(self.style2_btns):
+                    btn.place(layout, start_row + 1, col2 + i)
 
     def cleanup(self):
         for btn in self.style1_btns + self.style2_btns:

@@ -89,7 +89,7 @@ class PhotoBoothApp(QWidget):
             widget.loading_overlay.deleteLater()
             widget.loading_overlay = None
             
-            # Force le garbage collector
+            # Force le garbage collectorIG RRNNR    GHGH    GÀ
             gc.collect()
             
             # Vérifie s'il reste des overlays en mémoire
@@ -116,32 +116,38 @@ class PhotoBoothApp(QWidget):
 
     def set_view(self, index: int):
         print(f"[MEM] Avant set_view({index})")
-        import gc, objgraph
         gc.collect()
         objgraph.show_growth(limit=10)
         prev_index = self.stack.currentIndex()
         prev_widget = self.widgets[prev_index] if 0 <= prev_index < len(self.widgets) else None
-        next_widget = self.widgets[index] if 0 <= index < len(self.widgets) else None
 
-        # Appelle cleanup si dispo
-        if prev_widget and hasattr(prev_widget, "cleanup"):
-            prev_widget.cleanup()
+        # Nettoyage complet du widget précédent
+        if prev_widget:
+            if hasattr(prev_widget, "cleanup"):
+                prev_widget.cleanup()
+            self._cleanup_widget(prev_widget)
+            self.stack.removeWidget(prev_widget)
+            prev_widget.setParent(None)
+            self.widgets[prev_index] = None
 
-        # Cas particulier : passage direct CameraWidget -> SaveAndSettingWidget (garde le thread)
-        if not (prev_index == 1 and index == 2):
-            if prev_widget:
-                self._cleanup_widget(prev_widget)
+        # Création du widget cible si besoin
+        if index == 0:
+            new_widget = WelcomeWidget(self)
+        elif index == 1:
+            new_widget = CameraWidget(self)
+        elif index == 2:
+            new_widget = SaveAndSettingWidget(self)
+        else:
+            raise ValueError(f"Vue inconnue: {index}")
 
-        if prev_index == 1 and index != 1:
-            self.camera_widget.stop_camera()
-
+        self.widgets[index] = new_widget
+        self.stack.insertWidget(index, new_widget)
         self.stack.setCurrentIndex(index)
+        if index == 1:
+            new_widget.start_camera()
         print(f"[MEM] Après set_view({index})")
         gc.collect()
         objgraph.show_growth(limit=10)
-
-        if index == 1:
-            self.camera_widget.start_camera()
 
     def log_resource_usage(self):
         # Affiche les 20 types d'objets les plus courants

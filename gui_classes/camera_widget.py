@@ -6,7 +6,7 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
 from constante import CAMERA_ID, dico_styles
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.image_utils import ImageUtils  # Add this import
 from gui_classes.loading_overlay import LoadingOverlay
 from gui_classes.btn import Btns
@@ -110,17 +110,9 @@ class CameraWidget(PhotoBoothBaseWidget):
         save_widget = self.window().save_setting_widget
         
         if self.selected_style:
-            self.show_loading()
-            self._thread = QThread()
-            self._worker = GenerationWorker(self.selected_style)  # Ne pas passer l'image
-            self._worker.moveToThread(self._thread)
-            self._thread.started.connect(self._worker.run)
-            self._worker.finished.connect(self.on_generation_finished)
-            self._worker.finished.connect(self.hide_loading)
-            self._worker.finished.connect(self._thread.quit)
-            self._worker.finished.connect(self._worker.deleteLater)
-            self._thread.finished.connect(self._thread.deleteLater)
-            self._thread.start()
+            # Lance la génération d'image dans SaveAndSettingWidget
+            save_widget.on_toggle(True, self.selected_style)
+            self.window().show_save_setting()
         else:
             self.stop_camera()
             save_widget.generated_image = None

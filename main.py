@@ -8,7 +8,7 @@ from gui_mainwindow import PhotoBoothApp
 def main():
     app = QApplication(sys.argv)
     win = PhotoBoothApp()
-    win.showFullScreen()
+    win.showFullScreen()  # Affichage plein écran
     sys.exit(app.exec())
 
 if __name__ == "__main__":

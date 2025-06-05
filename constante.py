@@ -375,3 +375,50 @@ GENERIC_BUTTON_STYLE = FIRST_BUTTON_STYLE  # ou personnalise si besoin
 # --- Message affiché en haut de l'overlay de validation ---
 VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de continuer."  # Personnalisez ici
 
+# --- Styles personnalisables pour les boutons ---
+BTN_STYLE_ONE = (
+    "QPushButton {"
+    "background-color: rgba(255, 128, 0, 0.95);"  # Orange plus visible
+    "border: 4px solid white;"                    # Bordure plus épaisse
+    "border-radius: 40px;"                        # Plus arrondi
+    "min-width: 80px; min-height: 80px;"         # Taille plus grande
+    "max-width: 80px; max-height: 80px;"
+    "font-size: 24px;"
+    "color: white;"
+    "font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "background-color: rgba(255, 160, 0, 1.0);"
+    "border: 5px solid white;"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: rgba(255, 200, 0, 1.0);"
+    "border: 6px solid white;"
+    "}"
+)
+
+BTN_STYLE_TWO = (
+    "QPushButton {{"
+    "border: 2px solid black;"
+    "border-radius: 8px;"
+    "background-image: url('{texture}');"
+    "background-repeat: no-repeat;"
+    "background-position: center;"
+    "background-color: black;"
+    "color: white;"
+    "font-size: 18px;"
+    "font-weight: bold;"
+    "}}"
+    "QPushButton:checked {{"
+    "background-color: #f7811a;"
+    "border: 3px solid #fff;"
+    "color: #fff;"
+    "}}"
+    "QPushButton:hover {{"
+    "border: 2px solid gray;"
+    "}}"
+    "QPushButton:pressed {{"
+    "border: 4px solid white;"
+    "}}"
+)
+

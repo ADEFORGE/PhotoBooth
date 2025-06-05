@@ -2,3 +2,5 @@ PySide6
 opencv-python
 numpy
 requests
+qrcode
+objgraph

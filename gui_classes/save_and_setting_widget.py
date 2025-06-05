@@ -16,12 +16,13 @@ from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
 from constante import dico_styles, VALIDATION_OVERLAY_MESSAGE  # Ajout de VALIDATION_OVERLAY_MESSAGE
 from gui_classes.more_info_box import InfoDialog
 from constante import BUTTON_STYLE
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 from gui_classes.qrcode_utils import QRCodeGenerator
 from PySide6.QtGui import QImage
 import io
 from gui_classes.image_utils import ImageUtils
 from gui_classes.loading_overlay import LoadingOverlay
+from gui_classes.btn import Btns
 
 
 DEBUG_MEM = False  # Passe à True pour activer objgraph/gc.collect()
@@ -115,6 +116,7 @@ class ValidationOverlay(QWidget):
 
         validate_btn = QPushButton(self)
         validate_btn.setFixedSize(56, 56)
+        validate_btn.setObjectName("accept")  # <-- Ajouté ici
         validate_btn.setStyleSheet(
             "QPushButton {"
             "background-color: rgba(255,255,255,0.7);"
@@ -128,11 +130,12 @@ class ValidationOverlay(QWidget):
         validate_icon = QPixmap("gui_template/btn_icons/accept.png")
         validate_btn.setIcon(QIcon(validate_icon))
         validate_btn.setIconSize(QSize(32, 32))
-        validate_btn.clicked.connect(self.on_validate_clicked)  # Change ici
+        validate_btn.clicked.connect(self.on_validate_clicked)
         btn_row.addWidget(validate_btn)
 
         refuse_btn = QPushButton(self)
         refuse_btn.setFixedSize(56, 56)
+        refuse_btn.setObjectName("close")  # <-- Ajouté ici
         refuse_btn.setStyleSheet(
             "QPushButton {"
             "background-color: rgba(255,255,255,0.7);"
@@ -214,13 +217,20 @@ class ValidationOverlay(QWidget):
 
     def on_validate_clicked(self):
         """Gère le clic sur le bouton valider"""
-        if self.parent():
-            self.parent().window().set_view(1)  # Retour à la caméra
         self.close()
-        
+        if self.parent():
+            # Utilise .window() pour garantir l'accès à la fenêtre principale
+            win = self.window()
+            if hasattr(win, "set_view"):
+                win.set_view(1)
+
     def on_refuse_clicked(self):
         """Gère le clic sur le bouton refuser"""
         self.close()
+        if self.parent():
+            win = self.window()
+            if hasattr(win, "set_view"):
+                win.set_view(0)
 
     def show_gif_qrcode(self):
         """Affiche le GIF puis le QR code"""
@@ -237,27 +247,36 @@ class ValidationOverlay(QWidget):
         self.qr_thread.start()
 
 class SaveAndSettingWidget(PhotoBoothBaseWidget):
+    def handle_action(self, checked=False):
+        sender = self.sender()
+        print(f"[DEBUG] Bouton, sender={sender}, objectName={getattr(sender, 'objectName', lambda: None)() if sender else None}")
+        if sender:
+            name = sender.objectName()
+            if name == "accept":
+                print(f"[DEBUG] Bouton accept cliqué")
+                self.validate()
+            elif name == "close":
+                print(f"[DEBUG] Bouton close cliqué")
+                self.refuse()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.selected_style = None
         self.generated_image = None
         self._thread = None
         self._worker = None
-        self.loading_overlay = None  # On ne crée pas l'overlay ici
+        self.loading_overlay = None
         self._generation_in_progress = False
 
-        # Première ligne : boutons accept/close pour utiliser les icônes existantes
-        self.first_buttons = [
-            ("accept", "validate"),   # Utilise accept.png
-            ("close", "refuse")       # Utilise close.png
-        ]
-
-        # Seconde ligne : boutons de style (toggle)
-        self.button_config = {}
-        for style in dico_styles:
-            self.button_config[style] = ("toggle_style", True)
-
-        self.setup_buttons_from_config()
+        from constante import dico_styles
+        self.setup_buttons(
+            style1_names=["accept", "close"],
+            style2_names=list(dico_styles.keys()),
+            slot_style1=self.handle_action,
+            slot_style2=lambda checked, btn=None: self.on_toggle(checked, btn.text() if btn else None)
+        )
+        self.overlay_widget.raise_()
+        self.btns.raise_()
 
     def show_image(self):
         if self.generated_image is not None:
@@ -300,8 +319,8 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
         if self.loading_overlay is not None:
             self.loading_overlay.hide()
 
-    def on_toggle(self, checked: bool, style_name: str):
-        # Appelle la méthode parente avec generate_image=True
+    def on_toggle(self, checked, style_name):
+        # Correction : toujours appeler la méthode parente avec generate_image=True
         super().on_toggle(checked, style_name, generate_image=True)
 
     def on_generation_finished(self, qimg):
@@ -366,8 +385,9 @@ class SaveAndSettingWidget(PhotoBoothBaseWidget):
                 print(f"[CLEANUP] Exception in _cleanup_thread: {e}")
 
     def cleanup(self):
-        print("[CLEANUP] SaveAndSettingWidget: Début du nettoyage")
-
+        if hasattr(self, "btns") and self.btns:
+            self.btns.cleanup()
+            self.btns = None
         # Déconnecte les signaux des boutons si besoin
         if hasattr(self, 'button_group'):
             for btn in self.button_group.buttons():

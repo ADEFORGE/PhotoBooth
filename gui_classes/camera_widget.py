@@ -6,9 +6,10 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QPushButton, QApplication
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
 from constante import CAMERA_ID, dico_styles
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 from gui_classes.image_utils import ImageUtils  # Add this import
 from gui_classes.loading_overlay import LoadingOverlay
+from gui_classes.btn import Btns
 import objgraph
 
 
@@ -20,16 +21,17 @@ class CameraWidget(PhotoBoothBaseWidget):
         self.selected_style = None  # Style sélectionné
         self.loading_overlay = None
 
-        # Bouton principal sur la première ligne
-        self.first_buttons = [
-            ("take_selfie", "capture")
-        ]
-        # Boutons de style sur la seconde ligne
-        self.button_config = {}
-        for style in dico_styles:
-            self.button_config[style] = ("toggle_style", True)  # Toggle pour chaque style
-
-        self.setup_buttons_from_config()
+        # Utilisation de Btns pour les boutons
+        from constante import dico_styles
+        # Configure les boutons avec les styles disponibles
+        self.setup_buttons(
+            style1_names=["take_selfie"],
+            style2_names=list(dico_styles.keys()),
+            slot_style1="capture",
+            slot_style2="on_toggle"
+        )
+        self.overlay_widget.raise_()
+        self.btns.raise_()  # Force les boutons au premier plan
 
     def on_toggle(self, checked: bool, style_name: str):
         """Gère la sélection du style"""
@@ -134,3 +136,14 @@ class CameraWidget(PhotoBoothBaseWidget):
             self.window().save_setting_widget.generated_image = None
             self.window().save_setting_widget.selected_style = None
         self.window().show_save_setting()
+
+    def cleanup(self):
+        if hasattr(self, "btns") and self.btns:
+            self.btns.cleanup()
+            self.btns = None
+        # ...existing cleanup code...
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.btns:
+            self.btns.raise_()  # S'assure que les boutons sont visibles

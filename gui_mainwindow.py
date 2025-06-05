@@ -3,7 +3,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
 from PySide6.QtCore import Qt
 from gui_classes.camera_widget import CameraWidget
 from gui_classes.save_and_setting_widget import SaveAndSettingWidget
-from gui_classes.result_widget import ResultWidget
 from gui_classes.loading_widget import LoadingWidget
 from gui_classes.welcome_widget import WelcomeWidget
 from constante import WINDOW_STYLE
@@ -34,21 +33,27 @@ class PhotoBoothApp(QWidget):
         self.welcome_widget = WelcomeWidget(self)
         self.camera_widget = CameraWidget(self)
         self.save_setting_widget = SaveAndSettingWidget(self)
-        self.result_widget = ResultWidget(self)
         self.load_widget = LoadingWidget(self)
 
         self.widgets = [
             self.welcome_widget,
             self.camera_widget,
             self.save_setting_widget,
-            self.result_widget,
             self.load_widget
         ]
 
         for w in self.widgets:
             self.stack.addWidget(w)
+        # Appelle la vue d'accueil sans cleanup
+        self.firstview(0)
 
-        self.set_view(0)
+    def firstview(self, index: int):
+        """Affiche la vue d'accueil sans cleanup (pour éviter la destruction immédiate des boutons)."""
+        print(f"[FIRSTVIEW] Affichage initial de la vue {index} sans cleanup")
+        self.stack.setCurrentIndex(index)
+        # Démarre la caméra si besoin
+        if index == 1:
+            self.camera_widget.start_camera()
 
     def _cleanup_widget(self, widget):
         # --- 3. Vérification des objets suspects avec objgraph ---
@@ -111,6 +116,7 @@ class PhotoBoothApp(QWidget):
 
     def set_view(self, index: int):
         print(f"[MEM] Avant set_view({index})")
+        import gc, objgraph
         gc.collect()
         objgraph.show_growth(limit=10)
         prev_index = self.stack.currentIndex()
@@ -123,11 +129,9 @@ class PhotoBoothApp(QWidget):
 
         # Cas particulier : passage direct CameraWidget -> SaveAndSettingWidget (garde le thread)
         if not (prev_index == 1 and index == 2):
-            # Nettoie la vue précédente (thread, overlay, etc.)
             if prev_widget:
                 self._cleanup_widget(prev_widget)
 
-        # Arrête la caméra seulement si on la quitte
         if prev_index == 1 and index != 1:
             self.camera_widget.stop_camera()
 
@@ -136,7 +140,6 @@ class PhotoBoothApp(QWidget):
         gc.collect()
         objgraph.show_growth(limit=10)
 
-        # Démarre la caméra si besoin
         if index == 1:
             self.camera_widget.start_camera()
 

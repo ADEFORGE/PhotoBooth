@@ -66,7 +66,7 @@ class InfiniteScrollView(QGraphicsView):
         orig_w = sample_pixmap.width()
         orig_h = sample_pixmap.height()
 
-        raw_cols = (screen_width / orig_w) * 1.5
+        raw_cols = (screen_width / orig_w) * 2.5
         int_cols = max(1, int(raw_cols))
         column_count = int_cols if abs(raw_cols - int_cols) < 1e-6 else int_cols + 1
 

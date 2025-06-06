@@ -15,11 +15,11 @@ class Overlay(QWidget):
         self.setVisible(False)
         from constante import GRID_WIDTH
         self.GRID_WIDTH = GRID_WIDTH
-        if center_on_screen:
-            self.center_overlay()
+        self._center_on_screen = center_on_screen
+        self._centered_once = False
 
     def center_overlay(self):
-        # Centre l'overlay sur l'écran principal
+        # Centre l'overlay sur l'écran principal en tenant compte de sa taille réelle
         screen = self.screen() if hasattr(self, 'screen') and self.screen() else None
         if screen is None:
             from PySide6.QtWidgets import QApplication
@@ -31,32 +31,12 @@ class Overlay(QWidget):
             y = geometry.y() + (geometry.height() - h) // 2
             self.move(x, y)
 
-    def show_overlay(self):
-        self.setVisible(True)
-        self.raise_()
-
-    def hide_overlay(self):
-        self.setVisible(False)
-
-    def clear_buttons(self):
-        if hasattr(self, 'btns') and self.btns:
-            self.btns.cleanup()
-            self.btns = None
-
-    def cleanup(self):
-        self.clear_buttons()
-        self.hide_overlay()
-        self.setParent(None)
-        self.deleteLater()
-        # Supprime toutes les références d'attributs utilisateur
-        for attr in list(self.__dict__.keys()):
-            setattr(self, attr, None)
-        # Force le garbage collector
-        import gc
-        gc.collect()
-
     def showEvent(self, event):
         super().showEvent(event)
+        # Centre l'overlay à l'affichage, pour tenir compte de la taille réelle
+        if self._center_on_screen and not self._centered_once:
+            self.center_overlay()
+            self._centered_once = True
         # Any additional logic for when overlay is shown can go here
 
     def hideEvent(self, event):
@@ -86,6 +66,14 @@ class Overlay(QWidget):
             self.btns.setup_buttons_style_2(style2_names, slot_style2, layout=self.overlay_layout, start_row=start_row)
             self.overlay_widget.raise_()
             self.raise_()
+
+    def show_overlay(self):
+        self.setVisible(True)
+        self.raise_()
+
+    def hide_overlay(self):
+        self.setVisible(False)
+        self._centered_once = False  # Permet de recentrer si on réaffiche plus tard
 
 class OverlayLoading(Overlay):
     def __init__(self, parent=None):
@@ -128,15 +116,26 @@ class OverlayLoading(Overlay):
             self._movie.stop()
         super().cleanup()
 
+class OverlayGray(Overlay):
+    def __init__(self, parent=None, center_on_screen=True):
+        super().__init__(parent, center_on_screen)
+        self.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px; border: 3px solid black;")
+
 class OverlayWhite(Overlay):
     def __init__(self, parent=None, center_on_screen=True):
         super().__init__(parent, center_on_screen)
         self.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px; border: 3px solid white;")
 
+class OverlayTransparent(Overlay):
+    def __init__(self, parent=None, center_on_screen=True):
+        super().__init__(parent, center_on_screen)
+        self.setStyleSheet("background: transparent;")
+
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None):
         super().__init__(parent)
         from constante import GRID_WIDTH
+        self.setFixedSize(700, 540)  # Ensure overlay is large and consistent
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(40, 32, 40, 32)
@@ -146,19 +145,19 @@ class OverlayRules(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        center_col = self.GRID_WIDTH // 2
+        # All widgets span the full grid width for proper centering
         if VALIDATION_OVERLAY_MESSAGE:
             msg_label = QLabel(VALIDATION_OVERLAY_MESSAGE, self.overlay_widget)
             msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
             msg_label.setAlignment(Qt.AlignCenter)
-            self.overlay_layout.addWidget(msg_label, row, center_col, 1, 1, alignment=Qt.AlignCenter)
+            self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
             row += 1
         self.img_label = QLabel(self.overlay_widget)
         self.img_label.setAlignment(Qt.AlignCenter)
         self.img_label.setMinimumSize(220, 220)
         self.img_label.setMaximumSize(260, 260)
         self.img_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.overlay_layout.addWidget(self.img_label, row, center_col, 1, 1, alignment=Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.img_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self._movie = QMovie("gui_template/load.gif")
         self.img_label.setMovie(self._movie)
@@ -176,9 +175,9 @@ class OverlayRules(OverlayWhite):
                 self.text_edit.setHtml(html)
         except Exception as e:
             self.text_edit.setText(f"Error loading rules: {str(e)}")
-        self.overlay_layout.addWidget(self.text_edit, row, center_col, 1, 1)
+        self.overlay_layout.addWidget(self.text_edit, row, 0, 1, self.GRID_WIDTH)
         row += 1
-        # Utilise le wrapper pour placer les boutons à la dernière ligne
+        # Place the buttons on the last row, spanning the full width
         self.btns = Btns(self, [], [], None, None)
         self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close, start_row=row)
         layout = QVBoxLayout(self)
@@ -226,6 +225,7 @@ class OverlayInfo(OverlayGray):
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(0, 0, 0, 0)
         self.overlay_layout.setSpacing(0)
+        # Correction du centrage : calcul de la colonne centrale
         center_col = self.GRID_WIDTH // 2
         # Fond filtré
         bg = QLabel(self.overlay_widget)
@@ -245,7 +245,9 @@ class OverlayInfo(OverlayGray):
         self.image_label.setStyleSheet("background: transparent;")
         self.image_label.setAlignment(Qt.AlignCenter)
         self.update_image()
-        self.overlay_layout.addWidget(self.image_label, 0, center_col, 1, 1, alignment=Qt.AlignCenter)
+        # Place l'image centrée sur la grille, sur toute la largeur
+        self.overlay_layout.addWidget(self.image_label, 0, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        # Place les boutons centrés sur la ligne suivante, sur toute la largeur
         self.btns = Btns(self, [], [], None, None)
         self.setup_buttons_style_1(['previous', 'close', 'next'], slot_style1=self._on_info_btn, start_row=1)
         layout = QVBoxLayout(self)
@@ -282,8 +284,3 @@ class OverlayInfo(OverlayGray):
     def update_buttons_state(self):
         # Optionnel : désactive les boutons si besoin
         pass
-
-class OverlayGray(Overlay):
-    def __init__(self, parent=None, center_on_screen=True):
-        super().__init__(parent, center_on_screen)
-        self.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px; border: 3px solid black;")

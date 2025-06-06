@@ -1,9 +1,7 @@
 # gui_main.py
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
 from PySide6.QtCore import Qt
-from gui_classes.camera_widget import CameraWidget
-from gui_classes.save_and_setting_widget import SaveAndSettingWidget
-from gui_classes.loading_widget import LoadingWidget
+from gui_classes.photobooth import PhotoBooth
 from gui_classes.welcome_widget import WelcomeWidget
 from constante import WINDOW_STYLE
 import gc
@@ -11,7 +9,7 @@ import objgraph
 import psutil
 import os
 
-class PhotoBoothApp(QWidget):
+class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhotoBooth")
@@ -31,15 +29,11 @@ class PhotoBoothApp(QWidget):
 
         # Ajoute WelcomeWidget comme vue 0
         self.welcome_widget = WelcomeWidget(self)
-        self.camera_widget = CameraWidget(self)
-        self.save_setting_widget = SaveAndSettingWidget(self)
-        self.load_widget = LoadingWidget(self)
+        self.camera_widget = PhotoBooth(self)
 
         self.widgets = [
             self.welcome_widget,
-            self.camera_widget,
-            self.save_setting_widget,
-            self.load_widget
+            self.camera_widget
         ]
 
         for w in self.widgets:
@@ -134,9 +128,7 @@ class PhotoBoothApp(QWidget):
         if index == 0:
             new_widget = WelcomeWidget(self)
         elif index == 1:
-            new_widget = CameraWidget(self)
-        elif index == 2:
-            new_widget = SaveAndSettingWidget(self)
+            new_widget = PhotoBooth(self)
         else:
             raise ValueError(f"Vue inconnue: {index}")
 
@@ -184,12 +176,3 @@ class PhotoBoothApp(QWidget):
         print("[DEBUG] gc.get_referrers SaveAndSettingWidget:", gc.get_referrers(self.save_setting_widget))
         print("[DEBUG] gc.get_referrers LoadingWidget:", gc.get_referrers(self.load_widget))
 
-    def debug_loadingwidget_refs(self):
-        import gc, objgraph
-        gc.collect()
-        print("[DEBUG] LoadingWidget backrefs (PNG):")
-        objgraph.show_backrefs([self.load_widget], max_depth=3, filename="loadingwidget_backrefs.png")
-        print("[DEBUG] Fichier généré: loadingwidget_backrefs.png")
-        print("[DEBUG] gc.get_referrers LoadingWidget:")
-        refs = gc.get_referrers(self.load_widget)
-        print(refs)

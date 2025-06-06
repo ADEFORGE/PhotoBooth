@@ -3,11 +3,11 @@ import sys
 import cProfile
 import pstats
 from PySide6.QtWidgets import QApplication
-from gui_mainwindow import PhotoBoothApp
+from gui_mainwindow import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    win = PhotoBoothApp()
+    win = MainWindow()
     win.showFullScreen()  # Affichage plein écran
     sys.exit(app.exec())
 

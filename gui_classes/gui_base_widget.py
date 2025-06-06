@@ -5,11 +5,9 @@ from PySide6.QtGui import QPixmap, QMovie, QImage, QFont, QIcon, QPainter, QPen,
 from PySide6.QtCore import Qt, QSize, QThread, Signal, QObject
 import cv2
 import os
-import unicodedata
-import re
-from gui_classes.loading_overlay import LoadingOverlay
-from gui_classes.image_utils import ImageUtils
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from gui_classes.overlay import OverlayLoading, OverlayRules, OverlayInfo
+from gui_classes.toolbox import ImageUtils, normalize_btn_name
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 from constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
@@ -19,16 +17,6 @@ from constante import (
     TITLE_LABEL_BORDER_WIDTH, LOGO_SIZE, INFO_BUTTON_SIZE
 )
 from gui_classes.btn import Btns
-from gui_classes.more_info_box import InfoDialog
-from gui_classes.rules_dialog import RulesDialog
-
-def normalize_btn_name(btn_name):
-    # Enlève accents, met en minuscule, remplace espaces et caractères spéciaux par _
-    name = btn_name.lower()
-    name = unicodedata.normalize('NFD', name).encode('ascii', 'ignore').decode('utf-8')
-    name = re.sub(r'[^a-z0-9]+', '_', name)
-    name = name.strip('_')
-    return name
 
 class GenerationWorker(QObject):
     finished = Signal(QImage)
@@ -58,36 +46,6 @@ class GenerationWorker(QObject):
         except Exception as e:
             print(f"[ERROR] Erreur génération: {str(e)}")
             self.finished.emit(QImage())
-
-class OutlinedLabel(QLabel):
-    def __init__(self, text='', parent=None):
-        super().__init__(text, parent)
-        self.outline_color = QColor(TITLE_LABEL_BORDER_COLOR)
-        self.text_color = QColor(TITLE_LABEL_COLOR)
-        self.outline_width = TITLE_LABEL_BORDER_WIDTH
-        font = QFont(TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE)
-        font.setBold(TITLE_LABEL_BOLD)
-        font.setItalic(TITLE_LABEL_ITALIC)
-        self.setFont(font)
-        self.setAlignment(Qt.AlignCenter)
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        font = self.font()
-        painter.setFont(font)
-        rect = self.rect()
-        text = self.text()
-        metrics = painter.fontMetrics()
-        x = (rect.width() - metrics.horizontalAdvance(text)) // 2
-        y = (rect.height() + metrics.ascent() - metrics.descent()) // 2
-        path = QPainterPath()
-        path.addText(x, y, font, text)
-        pen = QPen(self.outline_color)
-        pen.setWidth(self.outline_width)
-        painter.setPen(pen)
-        painter.drawPath(path)
-        painter.setPen(self.text_color)
-        painter.drawText(rect, Qt.AlignCenter, text)
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self, parent=None):
@@ -272,8 +230,13 @@ class PhotoBoothBaseWidget(QWidget):
         self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
 
     def setup_title(self):
-        self.title_label = OutlinedLabel(TITLE_LABEL_TEXT)
+        self.title_label = QLabel(TITLE_LABEL_TEXT)
         self.title_label.setStyleSheet("background: transparent;")
+        font = QFont(TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE)
+        font.setBold(TITLE_LABEL_BOLD)
+        font.setItalic(TITLE_LABEL_ITALIC)
+        self.title_label.setFont(font)
+        self.title_label.setAlignment(Qt.AlignCenter)
         self.overlay_layout.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
     def setup_row_stretches(self):
@@ -297,7 +260,7 @@ class PhotoBoothBaseWidget(QWidget):
 
     def _ensure_overlay(self):
         if not hasattr(self, 'loading_overlay') or self.loading_overlay is None:
-            self.loading_overlay = LoadingOverlay(self)
+            self.loading_overlay = OverlayLoading(self)
             self.loading_overlay.resize(self.size())
         return self.loading_overlay
 
@@ -345,14 +308,24 @@ class PhotoBoothBaseWidget(QWidget):
             self.generated_image = None
 
     def setup_buttons(self, style1_names, style2_names, slot_style1=None, slot_style2=None):
-        """Initialise et place les boutons via Btns, en commençant à la ligne 3 pour ne pas écraser les boutons info/rules"""
         if self.btns:
             self.btns.cleanup()
-        self.btns = Btns(self, style1_names, style2_names, slot_style1, slot_style2)
-        self.btns.place(self.overlay_layout, start_row=3)
-        # S'assure que les boutons sont toujours au-dessus du fond et sous les boutons info/rules
+        self.btns = Btns(self, [], [], None, None)
+        self.btns.setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self.overlay_layout, start_row=3)
         self.overlay_widget.raise_()
         self.raise_()
+
+    def setup_buttons_style_1(self, style1_names, slot_style1=None):
+        if self.btns:
+            self.btns.setup_buttons_style_1(style1_names, slot_style1, layout=self.overlay_layout, start_row=3)
+            self.overlay_widget.raise_()
+            self.raise_()
+
+    def setup_buttons_style_2(self, style2_names, slot_style2=None):
+        if self.btns:
+            self.btns.setup_buttons_style_2(style2_names, slot_style2, layout=self.overlay_layout, start_row=4)
+            self.overlay_widget.raise_()
+            self.raise_()
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -371,11 +344,11 @@ class PhotoBoothBaseWidget(QWidget):
         # ...existing code...
 
     def show_info_dialog(self):
-        """Affiche la boîte de dialogue d'informations"""
-        dialog = InfoDialog(self)
-        dialog.exec()
+        """Affiche la boîte d'information via OverlayInfo"""
+        overlay = OverlayInfo(self)
+        overlay.show_overlay()
 
     def show_rules_dialog(self):
-        """Affiche la boîte de dialogue des règles"""
-        dialog = RulesDialog(self)
-        dialog.exec()
+        """Affiche la boîte de dialogue des règles via OverlayRules"""
+        overlay = OverlayRules(self)
+        overlay.show_overlay()

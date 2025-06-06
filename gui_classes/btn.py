@@ -93,30 +93,94 @@ class Btns:
         self.style2_btns = []
         self.button_group = QButtonGroup(overlay)
         self.button_group.setExclusive(True)
-        for name in style1_names:
-            btn = BtnStyleOne(name, parent=overlay)
-            # Correction : pour slot_style1 (accept/close), connecte le slot SANS argument
-            if slot_style1 and isinstance(slot_style1, str):
-                btn.connect_by_name(parent, slot_style1)
-            elif callable(slot_style1):
-                btn.clicked.connect(slot_style1)
-            self.style1_btns.append(btn)
-        for name in style2_names:
-            btn = BtnStyleTwo(name, parent=overlay)
-            if slot_style2 and isinstance(slot_style2, str):
-                btn.connect_by_name(parent, slot_style2)
-            elif callable(slot_style2):
-                btn.clicked.connect(lambda checked, b=btn: slot_style2(checked, b))
-            self.button_group.addButton(btn)
-            self.style2_btns.append(btn)
+        self.setup_buttons(style1_names, style2_names, slot_style1, slot_style2)
 
-    def place(self, layout, start_row=3):
+    def lower_(self):
+        for btn in self.style1_btns + self.style2_btns:
+            btn.setVisible(False)
+
+    def setup_buttons(self, style1_names, style2_names, slot_style1=None, slot_style2=None, layout=None, start_row=3):
+        self.lower_()
+        self.clear_style1_btns()
+        self.clear_style2_btns()
+        for name in style1_names:
+            self.add_style1_btn(name, slot_style1)
+        for name in style2_names:
+            self.add_style2_btn(name, slot_style2)
+        if layout:
+            self.place_all(layout, start_row)
+        self.raise_()
+
+    def setup_buttons_style_1(self, style1_names, slot_style1=None, layout=None, start_row=3):
+        self.lower_()
+        self.clear_style1_btns()
+        for name in style1_names:
+            self.add_style1_btn(name, slot_style1)
+        if layout:
+            self.place_style1(layout, start_row)
+        self.raise_()
+
+    def setup_buttons_style_2(self, style2_names, slot_style2=None, layout=None, start_row=4):
+        self.lower_()
+        self.clear_style2_btns()
+        for name in style2_names:
+            self.add_style2_btn(name, slot_style2)
+        if layout:
+            self.place_style2(layout, start_row)
+        self.raise_()
+
+    def add_style1_btn(self, name, slot_style1=None):
+        overlay = getattr(self.parent, "overlay_widget", self.parent)
+        btn = BtnStyleOne(name, parent=overlay)
+        if slot_style1 and isinstance(slot_style1, str):
+            btn.connect_by_name(self.parent, slot_style1)
+        elif callable(slot_style1):
+            btn.clicked.connect(slot_style1)
+        self.style1_btns.append(btn)
+        return btn
+
+    def add_style2_btn(self, name, slot_style2=None):
+        overlay = getattr(self.parent, "overlay_widget", self.parent)
+        btn = BtnStyleTwo(name, parent=overlay)
+        if slot_style2 and isinstance(slot_style2, str):
+            btn.connect_by_name(self.parent, slot_style2)
+        elif callable(slot_style2):
+            btn.clicked.connect(lambda checked, b=btn: slot_style2(checked, b))
+        self.button_group.addButton(btn)
+        self.style2_btns.append(btn)
+        return btn
+
+    def remove_style1_btn(self, name):
+        for btn in self.style1_btns:
+            if btn.name == name:
+                btn.cleanup()
+                self.style1_btns.remove(btn)
+                break
+
+    def remove_style2_btn(self, name):
+        for btn in self.style2_btns:
+            if btn.name == name:
+                btn.cleanup()
+                self.button_group.removeButton(btn)
+                self.style2_btns.remove(btn)
+                break
+
+    def clear_style1_btns(self):
+        for btn in self.style1_btns:
+            btn.cleanup()
+        self.style1_btns.clear()
+
+    def clear_style2_btns(self):
+        for btn in self.style2_btns:
+            btn.cleanup()
+            self.button_group.removeButton(btn)
+        self.style2_btns.clear()
+
+    def place_style1(self, layout, start_row=3):
         col_max = layout.columnCount() if hasattr(layout, "columnCount") else 7
         n1 = len(self.style1_btns)
         if n1 > 0:
-            # Si pair, on saute la colonne centrale
             if n1 % 2 == 0:
-                mid = col_max // 2
                 left = (col_max - n1 - 1) // 2
                 for i, btn in enumerate(self.style1_btns):
                     col = left + i if i < n1 // 2 else left + i + 1
@@ -125,19 +189,42 @@ class Btns:
                 col1 = (col_max - n1) // 2
                 for i, btn in enumerate(self.style1_btns):
                     btn.place(layout, start_row, col1 + i)
+
+    def place_style2(self, layout, start_row=4):
+        col_max = layout.columnCount() if hasattr(layout, "columnCount") else 7
         n2 = len(self.style2_btns)
         if n2 > 0:
-            # Si pair, on saute la colonne centrale
             if n2 % 2 == 0:
-                mid = col_max // 2
                 left = (col_max - n2 - 1) // 2
                 for i, btn in enumerate(self.style2_btns):
                     col = left + i if i < n2 // 2 else left + i + 1
-                    btn.place(layout, start_row + 1, col)
+                    btn.place(layout, start_row, col)
             else:
                 col2 = (col_max - n2) // 2
                 for i, btn in enumerate(self.style2_btns):
-                    btn.place(layout, start_row + 1, col2 + i)
+                    btn.place(layout, start_row, col2 + i)
+
+    def place_all(self, layout, start_row=3):
+        self.place_style1(layout, start_row)
+        self.place_style2(layout, start_row + 1)
+
+    def set_style1_btns(self, names, slot_style1=None, layout=None, start_row=3):
+        self.clear_style1_btns()
+        for name in names:
+            self.add_style1_btn(name, slot_style1)
+        if layout:
+            self.place_style1(layout, start_row)
+
+    def set_style2_btns(self, names, slot_style2=None, layout=None, start_row=4):
+        self.clear_style2_btns()
+        for name in names:
+            self.add_style2_btn(name, slot_style2)
+        if layout:
+            self.place_style2(layout, start_row)
+
+    def set_all_btns(self, style1_names, style2_names, slot_style1=None, slot_style2=None, layout=None, start_row=3):
+        self.set_style1_btns(style1_names, slot_style1, layout, start_row)
+        self.set_style2_btns(style2_names, slot_style2, layout, start_row + 1)
 
     def cleanup(self):
         for btn in self.style1_btns + self.style2_btns:

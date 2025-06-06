@@ -349,6 +349,6 @@ class PhotoBoothBaseWidget(QWidget):
         overlay.show_overlay()
 
     def show_rules_dialog(self):
-        """Affiche la boîte de dialogue des règles via OverlayRules"""
-        overlay = OverlayRules(self)
-        overlay.show_overlay()
+        """Affiche la boîte de dialogue des règles via OverlayRules avec QR code"""
+        from gui_classes.toolbox import QRCodeUtils
+        QRCodeUtils.show_qrcode_overlay()

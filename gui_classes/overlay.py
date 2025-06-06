@@ -133,6 +133,7 @@ class OverlayTransparent(Overlay):
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None):
+        print("[OverlayRules] __init__ called")
         super().__init__(parent)
         from constante import GRID_WIDTH
         self.setFixedSize(700, 540)  # Ensure overlay is large and consistent
@@ -191,19 +192,37 @@ class OverlayRules(OverlayWhite):
             self._movie.start()
 
     def display_qrcode(self, qimg: QImage):
+        print(f"[OverlayRules] display_qrcode called with: {type(qimg)} isNull={getattr(qimg, 'isNull', lambda: 'no isNull')()}")
+        # Stop and remove the movie
         if self._movie:
             self._movie.stop()
+        self.img_label.clear()
         self.img_label.setMovie(None)
+        self.img_label.setStyleSheet("background: #eee; border: 1px solid #888;")  # fond temporaire pour debug
+        self.img_label.setFixedSize(240, 240)
         if not qimg or qimg.isNull():
-            self.img_label.setText("Erreur QR code")
+            self.img_label.setText("Erreur QR code (image vide)")
+            self.img_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
+            print("[OverlayRules] QImage fourni au QR code est vide ou invalide.")
             return
+        # Conversion explicite pour éviter les bugs d'affichage
+        if qimg.format() not in (QImage.Format_ARGB32, QImage.Format_RGB32, QImage.Format_RGB888):
+            qimg = qimg.convertToFormat(QImage.Format_ARGB32)
+        print(f"[OverlayRules] QImage size: {qimg.width()}x{qimg.height()} format: {qimg.format()}")
         pix = QPixmap.fromImage(qimg)
-        target_size = min(self.img_label.width(), self.img_label.height(), 240)
-        self.img_label.setPixmap(pix.scaled(
-            target_size, target_size,
-            Qt.KeepAspectRatio, Qt.SmoothTransformation
-        ))
+        if pix.isNull():
+            self.img_label.setText("Erreur QR code (pixmap null)")
+            self.img_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
+            print("[OverlayRules] QPixmap converti depuis QImage est null.")
+            return
+        scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.img_label.setPixmap(scaled_pix)
+        self.img_label.setAlignment(Qt.AlignCenter)
         self.img_label.repaint()
+        self.img_label.update()
+        self.overlay_layout.update()
+        self.overlay_widget.update()
+        print("[OverlayRules] QR code affiché sur l'overlay.")
 
     def _on_accept_close(self):
         sender = self.sender()
@@ -213,6 +232,23 @@ class OverlayRules(OverlayWhite):
         elif sender and sender.objectName() == 'close':
             if self.window() and hasattr(self.window(), 'set_view'):
                 self.window().set_view(0)
+
+    @staticmethod
+    def test_show_qrcode():
+        from PySide6.QtWidgets import QApplication
+        from gui_classes.toolbox import QRCodeGenerator
+        import io
+        # Génère le QImage du QR code
+        img = QRCodeGenerator.generate_qrcode("https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX")
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        qimg = QImage.fromData(buf.getvalue())
+        # Crée et affiche l'overlay
+        app = QApplication.instance()
+        parent = app.activeWindow() if app else None
+        overlay = OverlayRules(parent)
+        overlay.show_overlay()
+        overlay.display_qrcode(qimg)
 
 class OverlayInfo(OverlayGray):
     def __init__(self, parent=None):

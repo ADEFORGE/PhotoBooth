@@ -1,16 +1,17 @@
-import cv2
-import numpy as np
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QImage
+from PySide6.QtWidgets import QLabel
+import cv2
+import os
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 import unicodedata
 import re
 import io
-from PySide6.QtCore import QObject, Signal
-import qrcode
-from PIL import Image
-from PySide6.QtWidgets import QLabel
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPainter, QPen, QColor, QPainterPath
 from constante import TITLE_LABEL_BORDER_COLOR, TITLE_LABEL_COLOR, TITLE_LABEL_BORDER_WIDTH, TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE, TITLE_LABEL_BOLD, TITLE_LABEL_ITALIC
+import numpy as np
+from PIL import Image
 
 class ImageUtils:
     @staticmethod
@@ -35,10 +36,10 @@ def normalize_btn_name(btn_name):
     name = name.strip('_')
     return name
 
-# QRCodeGenerator (moved from qrcode_utils.py)
-class QRCodeGenerator:
+class QRCodeUtils:
     @staticmethod
     def generate_qrcode(data: str, box_size: int = 10, border: int = 4) -> Image.Image:
+        import qrcode
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -50,15 +51,34 @@ class QRCodeGenerator:
         img = qr.make_image(fill_color="black", back_color="white")
         return img
 
-class QRCodeWorker(QObject):
-    finished = Signal(QImage)
-
-    def run(self):
-        img = QRCodeGenerator.generate_qrcode("https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX")
+    @staticmethod
+    def pil_to_qimage(pil_img) -> QImage:
+        import io
         buf = io.BytesIO()
-        img.save(buf, format='PNG')
-        qimg = QImage.fromData(buf.getvalue())
-        self.finished.emit(qimg)
+        pil_img.save(buf, format='PNG')
+        return QImage.fromData(buf.getvalue())
+
+    class Worker(QObject):
+        finished = Signal(QImage)
+        def __init__(self, data: str):
+            super().__init__()
+            self.data = data
+        def run(self):
+            img = QRCodeUtils.generate_qrcode(self.data)
+            qimg = QRCodeUtils.pil_to_qimage(img)
+            self.finished.emit(qimg)
+
+    @staticmethod
+    def show_qrcode_overlay(data: str = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"):
+        from gui_classes.overlay import OverlayRules
+        from PySide6.QtWidgets import QApplication
+        pil_img = QRCodeUtils.generate_qrcode(data)
+        qimg = QRCodeUtils.pil_to_qimage(pil_img)
+        app = QApplication.instance()
+        parent = app.activeWindow() if app else None
+        overlay = OverlayRules(parent)
+        overlay.show_overlay()
+        overlay.display_qrcode(qimg)
 
 class OutlinedLabel(QLabel):
     def __init__(self, text='', parent=None):
@@ -90,13 +110,6 @@ class OutlinedLabel(QLabel):
         painter.drawPath(path)
         painter.setPen(self.text_color)
         painter.drawText(rect, Qt.AlignCenter, text)
-
-from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QImage
-import cv2
-import os
-from gui_classes.toolbox import ImageUtils
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
 
 class GenerationWorker(QObject):
     finished = Signal(QImage)

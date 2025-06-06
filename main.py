@@ -8,7 +8,7 @@ from gui_mainwindow import MainWindow
 def main():
     app = QApplication(sys.argv)
     win = MainWindow()
-    win.showFullScreen()  # Affichage plein écran
+    win.showFullScreen() 
     sys.exit(app.exec())
 
 if __name__ == "__main__":
@@ -18,6 +18,7 @@ if __name__ == "__main__":
     try:
         main()
     finally:
-        profiler.disable()
-        stats = pstats.Stats(profiler)
-        stats.sort_stats("cumulative").print_stats(50)
+        #profiler.disable()
+        #stats = pstats.Stats(profiler)
+        #stats.sort_stats("cumulative").print_stats(50)
+        pass

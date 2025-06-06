@@ -68,18 +68,6 @@ class QRCodeUtils:
             qimg = QRCodeUtils.pil_to_qimage(img)
             self.finished.emit(qimg)
 
-    @staticmethod
-    def show_qrcode_overlay(data: str = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"):
-        from gui_classes.overlay import OverlayRules
-        from PySide6.QtWidgets import QApplication
-        pil_img = QRCodeUtils.generate_qrcode(data)
-        qimg = QRCodeUtils.pil_to_qimage(pil_img)
-        app = QApplication.instance()
-        parent = app.activeWindow() if app else None
-        overlay = OverlayRules(parent)
-        overlay.show_overlay()
-        overlay.display_qrcode(qimg)
-
 class OutlinedLabel(QLabel):
     def __init__(self, text='', parent=None):
         super().__init__(text, parent)

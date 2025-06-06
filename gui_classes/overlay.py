@@ -17,6 +17,7 @@ class Overlay(QWidget):
         self.GRID_WIDTH = GRID_WIDTH
         self._center_on_screen = center_on_screen
         self._centered_once = False
+        self._disabled_widgets = set()
 
     def center_overlay(self):
         # Centre l'overlay sur l'écran principal en tenant compte de sa taille réelle
@@ -37,11 +38,11 @@ class Overlay(QWidget):
         if self._center_on_screen and not self._centered_once:
             self.center_overlay()
             self._centered_once = True
-        # Any additional logic for when overlay is shown can go here
+        self._disable_all_buttons_except_overlay()
 
     def hideEvent(self, event):
         super().hideEvent(event)
-        # Any additional logic for when overlay is hidden can go here
+        self._reenable_all_buttons()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -70,10 +71,44 @@ class Overlay(QWidget):
     def show_overlay(self):
         self.setVisible(True)
         self.raise_()
+        self._disable_all_buttons_except_overlay()
 
     def hide_overlay(self):
         self.setVisible(False)
-        self._centered_once = False  # Permet de recentrer si on réaffiche plus tard
+        self._centered_once = False
+        self._reenable_all_buttons()
+
+    def clean_overlay(self):
+        self.setVisible(False)
+        self._centered_once = False
+        self._reenable_all_buttons()
+        self.deleteLater()
+
+    def _disable_all_buttons_except_overlay(self):
+        from PySide6.QtWidgets import QApplication, QPushButton
+        app = QApplication.instance()
+        if not app:
+            return
+        self._disabled_widgets.clear()
+        for widget in app.allWidgets():
+            if isinstance(widget, QPushButton):
+                if not self.isAncestorOf(widget):
+                    if widget.isEnabled():
+                        widget.setEnabled(False)
+                        self._disabled_widgets.add(widget)
+        # Enable overlay's own buttons
+        if hasattr(self, 'btns'):
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                btn.setEnabled(True)
+
+    def _reenable_all_buttons(self):
+        from PySide6.QtWidgets import QApplication, QPushButton
+        app = QApplication.instance()
+        if app:
+            for widget in app.allWidgets():
+                if isinstance(widget, QPushButton):
+                    widget.setEnabled(True)
+        self._disabled_widgets.clear()
 
 class OverlayLoading(Overlay):
     def __init__(self, parent=None):
@@ -132,11 +167,10 @@ class OverlayTransparent(Overlay):
         self.setStyleSheet("background: transparent;")
 
 class OverlayRules(OverlayWhite):
-    def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None):
-        print("[OverlayRules] __init__ called")
+    def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None, on_validate=None, on_close=None):
         super().__init__(parent)
         from constante import GRID_WIDTH
-        self.setFixedSize(700, 540)  # Ensure overlay is large and consistent
+        self.setFixedSize(700, 540)
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(40, 32, 40, 32)
@@ -146,22 +180,12 @@ class OverlayRules(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        # All widgets span the full grid width for proper centering
         if VALIDATION_OVERLAY_MESSAGE:
             msg_label = QLabel(VALIDATION_OVERLAY_MESSAGE, self.overlay_widget)
             msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
             msg_label.setAlignment(Qt.AlignCenter)
             self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
             row += 1
-        self.img_label = QLabel(self.overlay_widget)
-        self.img_label.setAlignment(Qt.AlignCenter)
-        self.img_label.setMinimumSize(220, 220)
-        self.img_label.setMaximumSize(260, 260)
-        self.img_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.overlay_layout.addWidget(self.img_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-        row += 1
-        self._movie = QMovie("gui_template/load.gif")
-        self.img_label.setMovie(self._movie)
         self.text_edit = QTextEdit(self.overlay_widget)
         self.text_edit.setReadOnly(True)
         self.text_edit.setStyleSheet("background: transparent; color: black; font-size: 18px; border: none;")
@@ -178,77 +202,80 @@ class OverlayRules(OverlayWhite):
             self.text_edit.setText(f"Error loading rules: {str(e)}")
         self.overlay_layout.addWidget(self.text_edit, row, 0, 1, self.GRID_WIDTH)
         row += 1
-        # Place the buttons on the last row, spanning the full width
         self.btns = Btns(self, [], [], None, None)
+        self._on_validate = on_validate
+        self._on_close = on_close
         self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close, start_row=row)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)
         self.setLayout(layout)
 
-    def show_default_image(self):
-        if self._movie:
-            self.img_label.setMovie(self._movie)
-            self._movie.start()
-
-    def display_qrcode(self, qimg: QImage):
-        print(f"[OverlayRules] display_qrcode called with: {type(qimg)} isNull={getattr(qimg, 'isNull', lambda: 'no isNull')()}")
-        # Stop and remove the movie
-        if self._movie:
-            self._movie.stop()
-        self.img_label.clear()
-        self.img_label.setMovie(None)
-        self.img_label.setStyleSheet("background: #eee; border: 1px solid #888;")  # fond temporaire pour debug
-        self.img_label.setFixedSize(240, 240)
-        if not qimg or qimg.isNull():
-            self.img_label.setText("Erreur QR code (image vide)")
-            self.img_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
-            print("[OverlayRules] QImage fourni au QR code est vide ou invalide.")
-            return
-        # Conversion explicite pour éviter les bugs d'affichage
-        if qimg.format() not in (QImage.Format_ARGB32, QImage.Format_RGB32, QImage.Format_RGB888):
-            qimg = qimg.convertToFormat(QImage.Format_ARGB32)
-        print(f"[OverlayRules] QImage size: {qimg.width()}x{qimg.height()} format: {qimg.format()}")
-        pix = QPixmap.fromImage(qimg)
-        if pix.isNull():
-            self.img_label.setText("Erreur QR code (pixmap null)")
-            self.img_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
-            print("[OverlayRules] QPixmap converti depuis QImage est null.")
-            return
-        scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.img_label.setPixmap(scaled_pix)
-        self.img_label.setAlignment(Qt.AlignCenter)
-        self.img_label.repaint()
-        self.img_label.update()
-        self.overlay_layout.update()
-        self.overlay_widget.update()
-        print("[OverlayRules] QR code affiché sur l'overlay.")
-
     def _on_accept_close(self):
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
-            if self.window() and hasattr(self.window(), 'set_view'):
-                self.window().set_view(1)
+            if self._on_validate:
+                self._on_validate()
+            OverlayManager().request_close(self)
         elif sender and sender.objectName() == 'close':
-            if self.window() and hasattr(self.window(), 'set_view'):
-                self.window().set_view(0)
+            if self._on_close:
+                self._on_close()
+            OverlayManager().request_close(self)
 
-    @staticmethod
-    def test_show_qrcode():
-        from PySide6.QtWidgets import QApplication
-        from gui_classes.toolbox import QRCodeGenerator
-        import io
-        # Génère le QImage du QR code
-        img = QRCodeGenerator.generate_qrcode("https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX")
-        buf = io.BytesIO()
-        img.save(buf, format='PNG')
-        qimg = QImage.fromData(buf.getvalue())
-        # Crée et affiche l'overlay
-        app = QApplication.instance()
-        parent = app.activeWindow() if app else None
-        overlay = OverlayRules(parent)
-        overlay.show_overlay()
-        overlay.display_qrcode(qimg)
+class OverlayQrcode(OverlayWhite):
+    def __init__(self, parent=None, title_text=None, qimage=None, subtitle_text=None, on_close=None):
+        super().__init__(parent)
+        from constante import TITLE_LABEL_STYLE, GRID_WIDTH
+        self.setFixedSize(700, 540)
+        self.overlay_widget = QWidget(self)
+        self.overlay_layout = QGridLayout(self.overlay_widget)
+        self.overlay_layout.setContentsMargins(40, 32, 40, 32)
+        self.overlay_layout.setSpacing(24)
+        self.overlay_layout.setRowStretch(0, 0)
+        self.overlay_layout.setRowStretch(1, 2)
+        self.overlay_layout.setRowStretch(2, 1)
+        self.overlay_layout.setRowStretch(3, 0)
+        row = 0
+        # Title
+        if title_text:
+            title_label = QLabel(title_text, self.overlay_widget)
+            title_label.setStyleSheet(TITLE_LABEL_STYLE)
+            title_label.setAlignment(Qt.AlignCenter)
+            self.overlay_layout.addWidget(title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+            row += 1
+        # QR code
+        self.qr_label = QLabel(self.overlay_widget)
+        self.qr_label.setAlignment(Qt.AlignCenter)
+        self.qr_label.setMinimumSize(220, 220)
+        self.qr_label.setMaximumSize(260, 260)
+        self.qr_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        if qimage and not qimage.isNull():
+            pix = QPixmap.fromImage(qimage)
+            scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.qr_label.setPixmap(scaled_pix)
+        else:
+            self.qr_label.setText("Erreur QR code")
+            self.qr_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
+        self.overlay_layout.addWidget(self.qr_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
+        # Subtitle
+        if subtitle_text:
+            subtitle_label = QLabel(subtitle_text, self.overlay_widget)
+            subtitle_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
+            subtitle_label.setAlignment(Qt.AlignCenter)
+            self.overlay_layout.addWidget(subtitle_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+            row += 1
+        # Close button
+        self.btns = Btns(self, [], [], None, None)
+        self._on_close = on_close
+        self.setup_buttons_style_1(['close'], slot_style1=self._on_close_btn, start_row=row)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.overlay_widget)
+        self.setLayout(layout)
+
+    def _on_close_btn(self):
+        OverlayManager().request_close(self)
 
 class OverlayInfo(OverlayGray):
     def __init__(self, parent=None):

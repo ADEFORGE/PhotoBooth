@@ -1,6 +1,6 @@
 # gui_classes/overlay.py
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, QGraphicsBlurEffect
-from PySide6.QtCore import Qt, QSize, QEvent, QThread
+from PySide6.QtCore import Qt, QSize, QEvent, QThread, Signal, QObject, QTimer
 from PySide6.QtGui import QMovie, QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from constante import DIALOG_BOX_STYLE, FIRST_BUTTON_STYLE
 from gui_classes.btn import Btns
@@ -349,3 +349,86 @@ class OverlayInfo(OverlayGray):
     def update_buttons_state(self):
         # Optionnel : désactive les boutons si besoin
         pass
+
+class OverlayCountdown(Overlay):
+    def __init__(self, parent=None, start=None):
+        super().__init__(parent)
+        from constante import COUNTDOWN_START, COUNTDOWN_FONT_STYLE
+        from PySide6.QtWidgets import QGraphicsDropShadowEffect
+        self.setWindowTitle("Countdown")
+        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        # Widget principal qui occupe tout l'écran
+        self.overlay_widget = QWidget(self)
+        self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
+        self.overlay_layout = QVBoxLayout(self.overlay_widget)
+        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self.overlay_layout.setSpacing(0)
+        # Label géant centré
+        self.label = QLabel("", self.overlay_widget)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setStyleSheet(COUNTDOWN_FONT_STYLE)
+        self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # Ajoute un effet d'ombre blanche (contour)
+        shadow = QGraphicsDropShadowEffect(self.label)
+        shadow.setBlurRadius(8)
+        shadow.setColor(QColor("white"))
+        shadow.setOffset(0, 0)
+        self.label.setGraphicsEffect(shadow)
+        self.overlay_layout.addWidget(self.label, alignment=Qt.AlignCenter)
+        # Layout principal
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.overlay_widget)
+        self.setLayout(layout)
+        self._anim_timer = QTimer(self)
+        self._anim_timer.setSingleShot(True)
+        self._anim_timer.timeout.connect(self._hide_number)
+        # Appel à showFullScreen APRÈS la création des widgets
+        self.showFullScreen()
+        # Force la géométrie à l'écran principal
+        from PySide6.QtWidgets import QApplication
+        screen = QApplication.primaryScreen()
+        if screen:
+            geometry = screen.geometry()
+            self.setGeometry(geometry)
+            self.overlay_widget.setGeometry(self.rect())
+
+    def center_overlay(self):
+        # Désactive le centrage hérité (sinon recadre sur une petite taille)
+        pass
+
+    def resizeEvent(self, event):
+        # S'assure que l'overlay_widget occupe tout l'espace
+        self.overlay_widget.setGeometry(self.rect())
+        super().resizeEvent(event)
+
+    def show_overlay(self):
+        super().show_overlay()
+        self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
+        self.label.setVisible(False)
+
+    def show_number(self, value):
+        self.label.setText(str(value))
+        opacity = 0.65 if value > 0 else 1.0
+        self.overlay_widget.setStyleSheet(f"background-color: rgba(255,255,255,{int(opacity*255)});")
+        self.label.setVisible(True)
+        self._anim_timer.start(500)  # Show the number for 0.5s
+
+    def _hide_number(self):
+        if self.label.text() != "0":
+            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
+        self.label.setVisible(False)
+
+    def set_full_white(self):
+        self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,1);")
+        self.label.setVisible(False)
+
+    def clean_overlay(self):
+        self._anim_timer.stop()
+        super().clean_overlay()
+
+    def hide_overlay(self):
+        self._anim_timer.stop()
+        super().hide_overlay()

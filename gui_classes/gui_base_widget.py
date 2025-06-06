@@ -159,13 +159,33 @@ class PhotoBoothBaseWidget(QWidget):
         self.update()
 
     def clear_buttons(self):
+        """Clear all buttons with proper cleanup."""
+        print("[WIDGET] Clearing buttons")
+        if hasattr(self, 'button_group'):
+            for btn in self.button_group.buttons():
+                btn.setParent(None)
+                btn.deleteLater()
+            self.button_group = None
+            
+        # Clean up style buttons
+        if hasattr(self, 'btns') and self.btns:
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                if btn is not None:
+                    btn.hide()
+                    btn.setParent(None)
+                    btn.deleteLater()
+            
+        # Remove items from layout
         for i in reversed(range(2, self.overlay_layout.rowCount())):
             for j in range(self.overlay_layout.columnCount()):
                 item = self.overlay_layout.itemAtPosition(i, j)
                 if item:
-                    w = item.widget()
-                    if w:
-                        w.setParent(None)
+                    widget = item.widget()
+                    if widget:
+                        widget.hide()
+                        widget.setParent(None)
+                        widget.deleteLater()
+                    self.overlay_layout.removeItem(item)
 
     def get_grid_width(self):
         return GRID_WIDTH
@@ -308,11 +328,33 @@ class PhotoBoothBaseWidget(QWidget):
             self.generated_image = None
 
     def setup_buttons(self, style1_names, style2_names, slot_style1=None, slot_style2=None):
-        if self.btns:
+        """Set up buttons with improved cleanup."""
+        print("[WIDGET] Setting up buttons")
+        # Clean up existing buttons first
+        self.clear_buttons()
+        
+        if hasattr(self, 'btns') and self.btns:
             self.btns.cleanup()
+            self.btns = None
+            
+        # Create new buttons
+        from gui_classes.btn import Btns
         self.btns = Btns(self, [], [], None, None)
-        self.btns.setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self.overlay_layout, start_row=3)
+        self.btns.setup_buttons(
+            style1_names, 
+            style2_names, 
+            slot_style1, 
+            slot_style2, 
+            layout=self.overlay_layout, 
+            start_row=3
+        )
+        
+        # Ensure proper Z-order
         self.overlay_widget.raise_()
+        if self.btns:
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                btn.raise_()
+                btn.show()
         self.raise_()
 
     def setup_buttons_style_1(self, style1_names, slot_style1=None):
@@ -337,11 +379,43 @@ class PhotoBoothBaseWidget(QWidget):
         # ...autres actions showEvent si besoin...
 
     def cleanup(self):
-        # ...autres nettoyages éventuels...
+        """Perform thorough cleanup of resources"""
+        # Clean up thread and worker
+        if hasattr(self, '_thread') and self._thread:
+            if self._thread.isRunning():
+                self._thread.quit()
+                self._thread.wait()
+            self._thread.deleteLater()
+            self._thread = None
+            
+        if hasattr(self, '_worker') and self._worker:
+            self._worker.deleteLater()
+            self._worker = None
+            
+        # Clean up loading overlay
+        if hasattr(self, 'loading_overlay') and self.loading_overlay:
+            self.loading_overlay.hide()
+            self.loading_overlay.setParent(None)
+            self.loading_overlay.deleteLater()
+            self.loading_overlay = None
+            
+        # Clean up buttons
         if hasattr(self, "btns") and self.btns:
             self.btns.cleanup()
             self.btns = None
-        # ...existing code...
+            
+        # Clean up images
+        self._background_pixmap = None
+        self._background_qimage = None
+        if self._background_movie:
+            self._background_movie.stop()
+            self._background_movie = None
+            
+        # Clear display
+        self.clear_display()
+        
+        # Clear generation status
+        self._generation_in_progress = False
 
     def show_info_dialog(self):
         """Affiche la boîte d'information via OverlayInfo"""

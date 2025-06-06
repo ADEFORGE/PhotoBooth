@@ -441,3 +441,7 @@ TOOLTIP_STYLE = (
     "}"
 )
 
+# --- Countdown Overlay ---
+COUNTDOWN_START = 5  # Valeur de départ du compteur (modifiable)
+COUNTDOWN_FONT_STYLE = "font-size: 120px; font-weight: bold; color: #fff; font-family: Arial, sans-serif; background: transparent;"
+

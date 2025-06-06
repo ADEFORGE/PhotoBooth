@@ -41,6 +41,13 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         if hasattr(self, "cleanup") and hasattr(self.cleanup, "__code__") and "ignoré" in self.cleanup.__code__.co_consts:
             del self.cleanup
 
+        # Démarre le thread caméra dès l'accueil
+        try:
+            if self.window() and hasattr(self.window(), "camera_widget"):
+                self.window().camera_widget.start_camera()
+        except Exception as e:
+            print(f"[WELCOME] Erreur démarrage caméra: {e}")
+
     def resizeEvent(self, event):
         self.scroll_view.setGeometry(self.rect())
         self.overlay_widget.setGeometry(self.rect())
@@ -63,3 +70,9 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         super().showEvent(event)
         if self.btns:
             self.btns.raise_()
+        # Démarre le thread caméra si ce n'est pas déjà fait
+        try:
+            if self.window() and hasattr(self.window(), "camera_widget"):
+                self.window().camera_widget.start_camera()
+        except Exception as e:
+            print(f"[WELCOME] Erreur démarrage caméra (showEvent): {e}")

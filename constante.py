@@ -424,3 +424,20 @@ BTN_STYLE_TWO = (
     "}}"
 )
 
+# --- Tooltip duration for take photo button (in milliseconds) ---
+TOOLTIP_DURATION_MS = 3000  # Default: 3 seconds
+
+# --- Tooltip Style (infobulle) ---
+TOOLTIP_STYLE = (
+    "QToolTip {"
+    "background-color: rgba(255,255,255,0.65);"  # Blanc plus transparent
+    "color: #111;"  # Texte noir
+    "border: 2.5px solid #fff;"  # Bordure blanche opaque
+    "border-radius: 12px;"  # Coins arrondis plus petits
+    "font-size: 18px;"  # Taille réduite
+    "padding: 6px 12px;"  # Padding réduit
+    "font-family: Arial, sans-serif;"
+    "font-weight: bold;"
+    "}"
+)
+

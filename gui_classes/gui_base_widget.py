@@ -349,25 +349,30 @@ class PhotoBoothBaseWidget(QWidget):
         overlay.show_overlay()
 
     def show_rules_dialog(self):
-        """Affiche la boîte de dialogue des règles via OverlayRules puis QR code"""
+        """Affiche la boîte de dialogue des règles via OverlayRules puis QR code uniquement si une image a été générée. Sinon, ferme simplement l'overlay."""
         from constante import VALIDATION_OVERLAY_MESSAGE
         from gui_classes.overlay import OverlayRules, OverlayQrcode
         from gui_classes.toolbox import QRCodeUtils
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
         parent = app.activeWindow() if app else self
+
         def show_qrcode_overlay():
-            data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"  # TODO: Replace with real data if needed
-            pil_img = QRCodeUtils.generate_qrcode(data)
-            qimg = QRCodeUtils.pil_to_qimage(pil_img)
-            overlay_qr = OverlayQrcode(
-                parent=parent,
-                title_text="Scannez le QR code pour continuer",
-                qimage=qimg,
-                subtitle_text="Merci d'avoir accepté les règles.",
-                on_close=None
-            )
-            overlay_qr.show_overlay()
+            # Vérifie si une image a été générée
+            if getattr(self, 'generated_image', None) is not None:
+                data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"  # TODO: Replace with real data if needed
+                pil_img = QRCodeUtils.generate_qrcode(data)
+                qimg = QRCodeUtils.pil_to_qimage(pil_img)
+                overlay_qr = OverlayQrcode(
+                    parent=parent,
+                    title_text="Scannez le QR code pour continuer",
+                    qimage=qimg,
+                    subtitle_text="Merci d'avoir accepté les règles.",
+                    on_close=None
+                )
+                overlay_qr.show_overlay()
+            # Sinon, ne rien faire (l'OverlayRules sera fermé par défaut)
+
         overlay = OverlayRules(
             parent=parent,
             VALIDATION_OVERLAY_MESSAGE=VALIDATION_OVERLAY_MESSAGE,

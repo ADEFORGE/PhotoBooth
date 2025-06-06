@@ -216,11 +216,11 @@ class OverlayRules(OverlayWhite):
         if sender and sender.objectName() == 'accept':
             if self._on_validate:
                 self._on_validate()
-            OverlayManager().request_close(self)
+            self.hide_overlay()
         elif sender and sender.objectName() == 'close':
             if self._on_close:
                 self._on_close()
-            OverlayManager().request_close(self)
+            self.hide_overlay()
 
 class OverlayQrcode(OverlayWhite):
     def __init__(self, parent=None, title_text=None, qimage=None, subtitle_text=None, on_close=None):
@@ -275,7 +275,9 @@ class OverlayQrcode(OverlayWhite):
         self.setLayout(layout)
 
     def _on_close_btn(self):
-        OverlayManager().request_close(self)
+        if self._on_close:
+            self._on_close()
+        self.hide_overlay()
 
 class OverlayInfo(OverlayGray):
     def __init__(self, parent=None):

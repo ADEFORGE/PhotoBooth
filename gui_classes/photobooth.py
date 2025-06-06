@@ -27,6 +27,29 @@ class PhotoBooth(CameraViewer):
         super().on_toggle(checked, style_name, generate_image=False)
 
     def _on_take_selfie(self):
+        from constante import TOOLTIP_DURATION_MS, TOOLTIP_STYLE
+        # Trouve le bouton take_selfie
+        take_selfie_btn = None
+        if self.btns:
+            for btn in self.btns.style1_btns:
+                if btn.objectName() == "take_selfie":
+                    take_selfie_btn = btn
+                    break
+        if not self.selected_style:
+            # Applique le style QToolTip à l'application sans écraser le style global
+            if take_selfie_btn:
+                from PySide6.QtWidgets import QToolTip, QApplication
+                from PySide6.QtCore import QPoint
+                app = QApplication.instance()
+                if app is not None:
+                    old_style = app.styleSheet() or ""
+                    # Supprime tout ancien bloc QToolTip pour éviter les doublons
+                    import re
+                    new_style = re.sub(r"QToolTip\s*\{[^}]*\}", "", old_style)
+                    app.setStyleSheet(new_style + "\n" + TOOLTIP_STYLE)
+                global_pos = take_selfie_btn.mapToGlobal(take_selfie_btn.rect().center())
+                QToolTip.showText(global_pos, "Select a style first", take_selfie_btn, take_selfie_btn.rect(), TOOLTIP_DURATION_MS)
+            return
         self.capture_photo(self.selected_style)
 
     def showEvent(self, event):

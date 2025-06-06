@@ -12,9 +12,7 @@ class Overlay(QWidget):
         super().__init__(parent)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setStyleSheet("background: rgba(0, 0, 0, 128);")
         self.setVisible(False)
-        # Largeur de la grille par défaut
         from constante import GRID_WIDTH
         self.GRID_WIDTH = GRID_WIDTH
         if center_on_screen:
@@ -130,7 +128,12 @@ class OverlayLoading(Overlay):
             self._movie.stop()
         super().cleanup()
 
-class OverlayRules(Overlay):
+class OverlayWhite(Overlay):
+    def __init__(self, parent=None, center_on_screen=True):
+        super().__init__(parent, center_on_screen)
+        self.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px; border: 3px solid white;")
+
+class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None):
         super().__init__(parent)
         from constante import GRID_WIDTH
@@ -212,13 +215,12 @@ class OverlayRules(Overlay):
             if self.window() and hasattr(self.window(), 'set_view'):
                 self.window().set_view(0)
 
-class OverlayInfo(Overlay):
+class OverlayInfo(OverlayGray):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Information")
         self.setFixedSize(600, 400)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setStyleSheet(DIALOG_BOX_STYLE)
         from constante import GRID_WIDTH
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
@@ -280,3 +282,8 @@ class OverlayInfo(Overlay):
     def update_buttons_state(self):
         # Optionnel : désactive les boutons si besoin
         pass
+
+class OverlayGray(Overlay):
+    def __init__(self, parent=None, center_on_screen=True):
+        super().__init__(parent, center_on_screen)
+        self.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px; border: 3px solid black;")

@@ -17,35 +17,7 @@ from constante import (
     TITLE_LABEL_BORDER_WIDTH, LOGO_SIZE, INFO_BUTTON_SIZE
 )
 from gui_classes.btn import Btns
-
-class GenerationWorker(QObject):
-    finished = Signal(QImage)
-
-    def __init__(self, style, input_image=None):
-        super().__init__()
-        self.style = style
-        self.input_image = input_image
-        self.generator = ImageGeneratorAPIWrapper()
-
-    def run(self):
-        try:
-            if self.input_image is not None:
-                arr = ImageUtils.qimage_to_cv(self.input_image)
-                cv2.imwrite("../ComfyUI/input/input.png", arr)
-            self.generator.set_style(self.style)
-            self.generator.generate_image()
-            images = self.generator.get_image_paths()
-            if images and os.path.exists(images[0]):
-                img = cv2.imread(images[0])
-                if img is not None:
-                    qimg = ImageUtils.cv_to_qimage(img)
-                    self.finished.emit(qimg)
-                    os.remove(images[0])
-                    return
-            self.finished.emit(QImage())
-        except Exception as e:
-            print(f"[ERROR] Erreur génération: {str(e)}")
-            self.finished.emit(QImage())
+from gui_classes.toolbox import GenerationWorker
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self, parent=None):

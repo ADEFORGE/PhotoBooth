@@ -18,6 +18,7 @@ from constante import (
 )
 from gui_classes.btn import Btns
 from gui_classes.toolbox import GenerationWorker
+from gui_classes.background_manager import BackgroundManager
 
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self, parent=None):
@@ -50,6 +51,7 @@ class PhotoBoothBaseWidget(QWidget):
         self.layout().addWidget(self.overlay_widget)
         self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.btns = None
+        self.background_manager = BackgroundManager(self)
 
         # Connecte les boutons info/rules
         self._info_btn.clicked.connect(self.show_info_dialog)
@@ -74,13 +76,14 @@ class PhotoBoothBaseWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        bg = self.background_manager.get_background()
         img = None
-        if self._background_pixmap:
-            img = self._background_pixmap
-        elif self._background_qimage:
-            img = QPixmap.fromImage(self._background_qimage)
-        elif self._background_movie:
-            img = self._background_movie.currentPixmap()
+        if isinstance(bg, QImage):
+            img = QPixmap.fromImage(bg)
+        elif isinstance(bg, QPixmap):
+            img = bg
+        elif isinstance(bg, QMovie):
+            img = bg.currentPixmap()
         if img and not img.isNull():
             widget_w = self.width()
             widget_h = self.height()
@@ -102,32 +105,21 @@ class PhotoBoothBaseWidget(QWidget):
         else:
             painter.fillRect(self.rect(), Qt.black)
 
+    # Wrappers simples pour le background_manager
     def show_image(self, qimage: QImage):
-        if qimage and not qimage.isNull():
-            qimage = qimage.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self._background_qimage = qimage
-        self._background_pixmap = None
-        self._background_movie = None
+        self.background_manager.set_captured_image(qimage)
         self.update()
 
     def show_pixmap(self, pixmap: QPixmap):
-        self._background_pixmap = pixmap
-        self._background_qimage = None
-        self._background_movie = None
+        self.background_manager.set_camera_pixmap(pixmap)
         self.update()
 
-    def show_gif(self, gif_path: str):
-        self._background_movie = QMovie(gif_path)
-        self._background_movie.frameChanged.connect(self.update)
-        self._background_movie.start()
-        self._background_pixmap = None
-        self._background_qimage = None
+    def show_generated_image(self, qimage: QImage):
+        self.background_manager.set_generated_image(qimage)
         self.update()
 
     def clear_display(self):
-        self._background_pixmap = None
-        self._background_qimage = None
-        self._background_movie = None
+        self.background_manager.clear_all()
         self.update()
 
     def clear_buttons(self):
@@ -271,41 +263,7 @@ class PhotoBoothBaseWidget(QWidget):
             return
         if checked:
             self.selected_style = style_name
-            if generate_image:
-                self._set_style_buttons_enabled(False)
-                self._generation_in_progress = True
-                self.generated_image = None
-                # Utilise le manager de génération si disponible
-                if hasattr(self, "generation_overlay_manager"):
-                    input_img = getattr(self.window(), "captured_image", None)
-                    self.generation_overlay_manager.start_generation(
-                        GenerationWorker(style_name, input_img),
-                        self.on_generation_finished
-                    )
-                else:
-                    self.show_loading()
-                    self._cleanup_thread()
-                    self._thread = QThread()
-                    input_img = getattr(self.window(), "captured_image", None)
-                    self._worker = GenerationWorker(style_name, input_img)
-                    self._worker.moveToThread(self._thread)
-                    self._thread.started.connect(self._worker.run)
-                    self._worker.finished.connect(self.on_generation_finished)
-                    self._worker.finished.connect(self._thread.quit)
-                    self._worker.finished.connect(self._worker.deleteLater)
-                    self._thread.finished.connect(self._thread.deleteLater)
-                    self._thread.finished.connect(self._on_thread_finished)
-                    self._thread.start()
-
-    def on_generation_finished(self, qimg):
-        self._generation_in_progress = False
-        self._set_style_buttons_enabled(True)
-        self.hide_loading()
-        if qimg and not qimg.isNull():
-            self.generated_image = qimg
-            self.show_image(qimg)
-        else:
-            self.generated_image = None
+            # La génération d'image et la gestion de thread sont déléguées ailleurs
 
     def setup_buttons(self, style1_names, style2_names, slot_style1=None, slot_style2=None):
         """Set up buttons with improved cleanup."""

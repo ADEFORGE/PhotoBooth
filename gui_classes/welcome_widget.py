@@ -22,6 +22,13 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         self.scroll_view.setGeometry(self.rect())
         self.scroll_view.lower()  # Met au fond
 
+        # Utilise le BackgroundManager pour le fond de veille
+        if hasattr(self, 'background_manager'):
+            # On prend un screenshot du scroll_view pour le fond
+            pixmap = self.scroll_view.grab()
+            self.background_manager.set_scroll_pixmap(pixmap)
+            self.update()
+
         print("[WELCOME] Appel setup_buttons")
         # Bouton style 1 avec icône (camera.png)
         self.setup_buttons(

@@ -3,6 +3,7 @@ from PySide6.QtCore import QTimer, QThread
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
 from constante import CAMERA_ID
 from gui_classes.camera_viewer import CameraViewer
+from PySide6.QtGui import QPixmap
 
 
 class PhotoBooth(CameraViewer):
@@ -221,10 +222,15 @@ class PhotoBooth(CameraViewer):
         self.update_frame()
 
     def update_frame(self):
-        """Met à jour l'affichage avec l'image générée ou la photo originale."""
-        print("[PHOTOBOOTH] Mise à jour de l'affichage")
+        """Met à jour l'affichage avec la bonne source via le BackgroundManager."""
+        print("[PHOTOBOOTH] Mise à jour de l'affichage (BackgroundManager)")
+        # Priorité : image générée > photo originale > frame caméra
         if self.generated_image and not isinstance(self.generated_image, str):
-            self.show_image(self.generated_image)
+            self.background_manager.set_generated_image(self.generated_image)
         elif self.original_photo:
-            self.show_image(self.original_photo)
+            self.background_manager.set_captured_image(self.original_photo)
+        elif self._last_frame:
+            self.background_manager.set_camera_pixmap(QPixmap.fromImage(self._last_frame))
+        else:
+            self.background_manager.clear_all()
         self.update()

@@ -157,22 +157,18 @@ class CameraViewer(PhotoBoothBaseWidget):
         if isinstance(qimg, str):
             print(f"[ERROR] Reçu une chaîne au lieu d'une QImage: {qimg}")
             return
-            
         try:
             if not isinstance(qimg, QImage):
                 print(f"[ERROR] Type d'image invalide: {type(qimg)}")
                 return
-                
             if qimg.isNull():
                 print("[WARNING] Image nulle reçue")
                 return
-                
             self._last_frame = qimg
-            
             if self._capture_connected:
-                self.show_image(qimg)
+                # Utilise le BackgroundManager pour la caméra
+                self.background_manager.set_camera_pixmap(QPixmap.fromImage(qimg))
                 self.update()
-                
         except Exception as e:
             print(f"[ERROR] Erreur lors du traitement de l'image: {e}")
             
@@ -192,16 +188,15 @@ class CameraViewer(PhotoBoothBaseWidget):
         if self._last_frame is None:
             print("[ERROR] Pas de frame disponible pour la capture")
             return
-            
         try:
             # Faire une copie profonde de l'image
             qimg = QImage(self._last_frame)
             if qimg.isNull():
                 print("[ERROR] Échec de la copie de l'image")
                 return
-                
             self.original_photo = qimg  # Sauvegarde la photo originale
-            
+            # Met à jour le fond via BackgroundManager
+            self.background_manager.set_captured_image(qimg)
             if style_name:
                 # Si un style est spécifié, lance la génération
                 self.show_loading()
@@ -219,7 +214,6 @@ class CameraViewer(PhotoBoothBaseWidget):
                 # Sinon affiche directement la photo capturée
                 self.generated_image = qimg
                 self.update_frame()
-                
         except Exception as e:
             print(f"[ERROR] Erreur lors de la capture: {e}")
             self.hide_loading()
@@ -231,8 +225,11 @@ class CameraViewer(PhotoBoothBaseWidget):
         self.stop_camera()
         if qimg and not qimg.isNull():
             self.generated_image = qimg
+            self.background_manager.set_generated_image(qimg)
         else:
             self.generated_image = self.original_photo
+            if self.original_photo:
+                self.background_manager.set_captured_image(self.original_photo)
         self.update_frame()
 
     def cleanup(self):

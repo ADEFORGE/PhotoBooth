@@ -200,9 +200,10 @@ class CameraViewer(PhotoBoothBaseWidget):
                 print("[ERROR] Échec de la copie de l'image")
                 return
                 
-            self.original_photo = qimg
+            self.original_photo = qimg  # Sauvegarde la photo originale
             
             if style_name:
+                # Si un style est spécifié, lance la génération
                 self.show_loading()
                 self._generation_in_progress = True
                 self._thread = QThread()
@@ -215,6 +216,7 @@ class CameraViewer(PhotoBoothBaseWidget):
                 self._thread.finished.connect(self._thread.deleteLater)
                 self._thread.start()
             else:
+                # Sinon affiche directement la photo capturée
                 self.generated_image = qimg
                 self.update_frame()
                 

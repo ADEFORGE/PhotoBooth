@@ -102,22 +102,29 @@ class PhotoBooth(CameraViewer):
 
     def _start_countdown_thread_and_capture(self):
         """Démarre le compte à rebours et capture la photo à la fin."""
+        print("[DEBUG] Démarrage du countdown")
         from constante import COUNTDOWN_START
-        self.countdown_overlay_manager.start_countdown(self.capture_photo_callback, start_value=COUNTDOWN_START)
+        self.countdown_overlay_manager.start(self.capture_photo_callback, start_value=COUNTDOWN_START)
 
     def capture_photo_callback(self):
+        """Callback appelé à la fin du countdown - appelle simplement capture_photo"""
+        print("[DEBUG] Callback du countdown appelé")
+        print(f"[DEBUG] Style sélectionné: {self.selected_style}")
+        print(f"[DEBUG] Last frame disponible: {self._last_frame is not None}")
         self.capture_photo(self.selected_style)
 
     def showEvent(self, event):
         super().showEvent(event)
-        # Ne pas rappeler set_state_default ici !
 
     def on_generation_finished(self, qimg):
+        print("[DEBUG] Génération terminée")
         self._generation_in_progress = False
         self.stop_camera()
         if qimg and not qimg.isNull():
+            print("[DEBUG] Image générée valide")
             self.generated_image = qimg
         else:
+            print("[DEBUG] Pas d'image générée")
             self.generated_image = None
         self.update_frame()
         self.set_state_validation()

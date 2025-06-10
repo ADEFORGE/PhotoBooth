@@ -42,8 +42,7 @@ class PhotoBoothBaseWidget(QWidget):
         self.overlay_widget.setVisible(True)
         self.overlay_widget.setGeometry(0, 0, 1920, 1080)  # Force une taille très grande
         self.overlay_widget.raise_()
-        self.setup_logos()
-        self.setup_title()
+        self.setupcontainer()
         self.button_config = {}
         self.first_buttons = []
         self.setup_row_stretches()
@@ -154,10 +153,7 @@ class PhotoBoothBaseWidget(QWidget):
     def get_grid_width(self):
         return GRID_WIDTH
 
-    def setup_logos(self):
-        top_bar = QHBoxLayout()
-        top_bar.setContentsMargins(0, 0, 0, 0)
-        top_bar.setSpacing(10)
+    def setup_logo(self):
         logo_layout = QVBoxLayout()
         logo1 = QLabel()
         logo2 = QLabel()
@@ -171,9 +167,9 @@ class PhotoBoothBaseWidget(QWidget):
         logo_widget.setLayout(logo_layout)
         logo_widget.setAttribute(Qt.WA_TranslucentBackground)
         logo_widget.setStyleSheet("background: rgba(0,0,0,0);")
-        top_bar.addWidget(logo_widget, alignment=Qt.AlignLeft | Qt.AlignTop)
-        top_bar.addStretch(1)
+        return logo_widget
 
+    def setup_interaction_btn(self):
         # Setup des boutons info et rules avec stockage des références
         info_btn = QPushButton()
         info_btn.setStyleSheet(ICON_BUTTON_STYLE)
@@ -193,7 +189,6 @@ class PhotoBoothBaseWidget(QWidget):
         rules_btn.raise_()
         self._rules_btn = rules_btn  # Stockage référence
 
-        # Ajout des boutons au layout
         btn_layout = QVBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.setSpacing(8)
@@ -205,13 +200,23 @@ class PhotoBoothBaseWidget(QWidget):
         btn_widget.setLayout(btn_layout)
         btn_widget.setAttribute(Qt.WA_TranslucentBackground)
         btn_widget.setStyleSheet("background: rgba(0,0,0,0);")
-        top_bar.addWidget(btn_widget, alignment=Qt.AlignRight | Qt.AlignTop)
+        return btn_widget
 
+    def setupcontainer(self):
+        top_bar = QHBoxLayout()
+        top_bar.setContentsMargins(0, 0, 0, 0)
+        top_bar.setSpacing(10)
+        top_bar.addWidget(self.setup_logo(), alignment=Qt.AlignLeft | Qt.AlignTop)
+        top_bar.addStretch(1)
+        top_bar.addWidget(self.setup_interaction_btn(), alignment=Qt.AlignRight | Qt.AlignTop)
         container = QWidget()
         container.setLayout(top_bar)
         container.setAttribute(Qt.WA_TranslucentBackground)
         container.setStyleSheet("background: rgba(0,0,0,0);")
+        # Ajout du container (barre du haut)
         self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
+        # Ajout du titre juste en dessous
+        self.setup_title()
 
     def setup_title(self):
         self.title_label = QLabel(TITLE_LABEL_TEXT)

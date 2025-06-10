@@ -118,21 +118,35 @@ class OverlayLoading(Overlay):
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(0, 0, 0, 0)
         self.overlay_layout.setSpacing(0)
-        # Centrer l'image sur la grille
-        center_col = self.GRID_WIDTH // 2
+        # Centrer le GIF sur la grille
         self.img_label = QLabel(self.overlay_widget)
         self.img_label.setAlignment(Qt.AlignCenter)
         self._movie = QMovie("gui_template/load.gif")
-        self._movie.setScaledSize(QSize(64, 64))
+        # Taille du GIF = 50% de la taille de l'overlay (carré)
+        self._gif_size = int(min(self.width() or 700, self.height() or 540) * 0.5)
+        if self._gif_size < 64:
+            self._gif_size = 128  # fallback si width/height pas encore set
+        self._movie.setScaledSize(QSize(self._gif_size, self._gif_size))
         self.img_label.setMovie(self._movie)
-        self.img_label.setFixedSize(64, 64)
-        self.overlay_layout.addWidget(self.img_label, 0, center_col, 1, 1, alignment=Qt.AlignCenter)
-        self.btns = Btns(self, [], [], None, None)
-        self.setup_buttons_style_1(['close'], start_row=1)
+        self.img_label.setFixedSize(self._gif_size, self._gif_size)
+        self.overlay_layout.addWidget(self.img_label, 0, 0, 1, 1, alignment=Qt.AlignCenter)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.overlay_widget)
+        layout.addStretch(1)
+        layout.addWidget(self.overlay_widget, alignment=Qt.AlignCenter)
+        layout.addStretch(1)
         self.setLayout(layout)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)  # Non interactif, bloque les clics
+        self.setFocusPolicy(Qt.NoFocus)
+
+    def resizeEvent(self, event):
+        # Redimensionne le GIF à 50% de la taille de l'overlay
+        size = int(min(self.width(), self.height()) * 0.5)
+        if size < 64:
+            size = 128
+        self._movie.setScaledSize(QSize(size, size))
+        self.img_label.setFixedSize(size, size)
+        super().resizeEvent(event)
 
     def showEvent(self, event):
         super().showEvent(event)

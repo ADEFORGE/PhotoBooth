@@ -110,48 +110,75 @@ class Overlay(QWidget):
                     widget.setEnabled(True)
         self._disabled_widgets.clear()
 
-class OverlayLoading(Overlay):
+class OverlayGray(Overlay):
+    def __init__(self, parent=None, center_on_screen=True):
+        super().__init__(parent, center_on_screen)
+        self.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px; border: 3px solid black;")
+
+class OverlayWhite(Overlay):
+    def __init__(self, parent=None, center_on_screen=True):
+        super().__init__(parent, center_on_screen)
+        self.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px; border: 3px solid white;")
+
+class OverlayLoading(OverlayWhite):
     def __init__(self, parent=None):
-        super().__init__(parent)
-        from constante import GRID_WIDTH
+        from PySide6.QtWidgets import QApplication
+        super().__init__(parent, center_on_screen=False)  # Désactive le centrage auto
+        
+        # Force l'overlay à occuper tout l'écran
+        screen = QApplication.primaryScreen()
+        if screen:
+            self.setGeometry(screen.geometry())
+        
+        self.setWindowState(Qt.WindowFullScreen)
+        self.setStyleSheet("background-color: rgba(255,255,255,0.85);")  # Override le style de OverlayWhite pour enlever les bordures
+        
+        # Widget principal qui occupe tout l'écran
         self.overlay_widget = QWidget(self)
+        self.overlay_widget.setGeometry(self.rect())
+        
+        # Layout pour centrer le GIF
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self.overlay_layout.setSpacing(0)
-        # Centrer le GIF sur la grille
-        self.img_label = QLabel(self.overlay_widget)
+        
+        # GIF centré avec fond transparent
+        self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignCenter)
+        self.img_label.setStyleSheet("background: transparent;")
         self._movie = QMovie("gui_template/load.gif")
-        # Taille du GIF = 50% de la taille de l'overlay (carré)
-        self._gif_size = int(min(self.width() or 700, self.height() or 540) * 0.5)
+        
+        # Taille du GIF = 50% de l'écran
+        screen_size = min(screen.geometry().width(), screen.geometry().height())
+        self._gif_size = int(screen_size * 0.5)
         if self._gif_size < 64:
-            self._gif_size = 128  # fallback si width/height pas encore set
+            self._gif_size = 128
+            
         self._movie.setScaledSize(QSize(self._gif_size, self._gif_size))
         self.img_label.setMovie(self._movie)
         self.img_label.setFixedSize(self._gif_size, self._gif_size)
-        self.overlay_layout.addWidget(self.img_label, 0, 0, 1, 1, alignment=Qt.AlignCenter)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addStretch(1)
-        layout.addWidget(self.overlay_widget, alignment=Qt.AlignCenter)
-        layout.addStretch(1)
-        self.setLayout(layout)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)  # Non interactif, bloque les clics
+        
+        # Centre le GIF
+        self.overlay_layout.addWidget(self.img_label, 0, 0, alignment=Qt.AlignCenter)
+        
+        # Layout principal plein écran
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.overlay_widget)
+        
         self.setFocusPolicy(Qt.NoFocus)
 
     def resizeEvent(self, event):
-        # Redimensionne le GIF à 50% de la taille de l'overlay
-        size = int(min(self.width(), self.height()) * 0.5)
-        if size < 64:
-            size = 128
-        self._movie.setScaledSize(QSize(size, size))
-        self.img_label.setFixedSize(size, size)
+        screen = self.screen()
+        if screen:
+            self.setGeometry(screen.geometry())
+            self.overlay_widget.setGeometry(self.rect())
         super().resizeEvent(event)
 
     def showEvent(self, event):
         super().showEvent(event)
-        if self._movie and not self._movie.isValid():
-            self._movie.setFileName("gui_template/load.gif")
+        screen = self.screen()
+        if screen:
+            self.setGeometry(screen.geometry())
         if self._movie:
             self._movie.start()
 
@@ -164,21 +191,6 @@ class OverlayLoading(Overlay):
         if self._movie:
             self._movie.stop()
         super().cleanup()
-
-class OverlayGray(Overlay):
-    def __init__(self, parent=None, center_on_screen=True):
-        super().__init__(parent, center_on_screen)
-        self.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px; border: 3px solid black;")
-
-class OverlayWhite(Overlay):
-    def __init__(self, parent=None, center_on_screen=True):
-        super().__init__(parent, center_on_screen)
-        self.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px; border: 3px solid white;")
-
-class OverlayTransparent(Overlay):
-    def __init__(self, parent=None, center_on_screen=True):
-        super().__init__(parent, center_on_screen)
-        self.setStyleSheet("background: transparent;")
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None, on_validate=None, on_close=None):

@@ -275,19 +275,27 @@ class PhotoBoothBaseWidget(QWidget):
                 self._set_style_buttons_enabled(False)
                 self._generation_in_progress = True
                 self.generated_image = None
-                self.show_loading()
-                self._cleanup_thread()
-                self._thread = QThread()
-                input_img = getattr(self.window(), "captured_image", None)
-                self._worker = GenerationWorker(style_name, input_img)
-                self._worker.moveToThread(self._thread)
-                self._thread.started.connect(self._worker.run)
-                self._worker.finished.connect(self.on_generation_finished)
-                self._worker.finished.connect(self._thread.quit)
-                self._worker.finished.connect(self._worker.deleteLater)
-                self._thread.finished.connect(self._thread.deleteLater)
-                self._thread.finished.connect(self._on_thread_finished)
-                self._thread.start()
+                # Utilise le manager de génération si disponible
+                if hasattr(self, "generation_overlay_manager"):
+                    input_img = getattr(self.window(), "captured_image", None)
+                    self.generation_overlay_manager.start_generation(
+                        GenerationWorker(style_name, input_img),
+                        self.on_generation_finished
+                    )
+                else:
+                    self.show_loading()
+                    self._cleanup_thread()
+                    self._thread = QThread()
+                    input_img = getattr(self.window(), "captured_image", None)
+                    self._worker = GenerationWorker(style_name, input_img)
+                    self._worker.moveToThread(self._thread)
+                    self._thread.started.connect(self._worker.run)
+                    self._worker.finished.connect(self.on_generation_finished)
+                    self._worker.finished.connect(self._thread.quit)
+                    self._worker.finished.connect(self._worker.deleteLater)
+                    self._thread.finished.connect(self._thread.deleteLater)
+                    self._thread.finished.connect(self._on_thread_finished)
+                    self._thread.start()
 
     def on_generation_finished(self, qimg):
         self._generation_in_progress = False

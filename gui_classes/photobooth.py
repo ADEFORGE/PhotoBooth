@@ -8,6 +8,9 @@ from gui_classes.camera_viewer import CameraViewer
 class PhotoBooth(CameraViewer):
     def __init__(self, parent=None):
         super().__init__(parent)
+        from gui_classes.overlay_manager import CountdownOverlayManager, GenerationOverlayManager
+        self.countdown_overlay_manager = CountdownOverlayManager(self)
+        self.generation_overlay_manager = GenerationOverlayManager(self)
         # Ne pas démarrer la caméra ici
 
     def on_enter(self):
@@ -50,6 +53,8 @@ class PhotoBooth(CameraViewer):
             self._countdown_overlay.clean_overlay()
             self._countdown_overlay = None
             
+        self.countdown_overlay_manager.clear_all()
+
     def cleanup(self):
         """Full cleanup when widget is being destroyed."""
         print("[PHOTOBOOTH] Full cleanup")
@@ -61,7 +66,15 @@ class PhotoBooth(CameraViewer):
             self.selected_style = style_name
         else:
             self.selected_style = None
+        # Remplace le thread/generation direct par le manager si generate_image=True
         super().on_toggle(checked, style_name, generate_image=False)
+
+    def start_image_generation(self, style_name, input_image):
+        """Démarre la génération d'image via le manager."""
+        from gui_classes.gui_base_widget import GenerationWorker
+        worker = GenerationWorker(style_name, input_image)
+        self._generation_in_progress = True
+        self.generation_overlay_manager.start_generation(worker, self.on_generation_finished)
 
     def _on_take_selfie(self):
         from constante import TOOLTIP_DURATION_MS, TOOLTIP_STYLE, COUNTDOWN_START
@@ -88,74 +101,12 @@ class PhotoBooth(CameraViewer):
         self._start_countdown_thread_and_capture()
 
     def _start_countdown_thread_and_capture(self):
-        """Start countdown with improved cleanup."""
+        """Démarre le compte à rebours et capture la photo à la fin."""
         from constante import COUNTDOWN_START
-        from PySide6.QtCore import QThread, Signal
-        import time
-        from gui_classes.overlay import OverlayCountdown
-        
-        # Clean up any existing countdown
-        if hasattr(self, '_countdown_thread') and self._countdown_thread:
-            self._countdown_thread.stop()
-            self._countdown_thread.wait()
-            self._countdown_thread = None
-            
-        if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
-            self._countdown_overlay.clean_overlay()
-            self._countdown_overlay = None
-            
-        class CountdownThread(QThread):
-            tick = Signal(int)
-            finished = Signal()
-            
-            def __init__(self, start):
-                super().__init__()
-                self._start = start
-                self._running = True
-                
-            def run(self):
-                count = self._start
-                while self._running and count >= 0:
-                    self.tick.emit(count)
-                    time.sleep(1)
-                    count -= 1
-                if self._running:  # Only emit if not stopped
-                    self.finished.emit()
-                    
-            def stop(self):
-                self._running = False
-                
-        # Create new countdown overlay
-        self._countdown_overlay = OverlayCountdown(self.window(), start=COUNTDOWN_START)
-        self._countdown_overlay.show_overlay()
-        
-        # Setup countdown thread
-        self._countdown_thread = CountdownThread(COUNTDOWN_START)
-        
-        def on_tick(value):
-            if self._countdown_overlay:  # Check if overlay still exists
-                if value > 0:
-                    self._countdown_overlay.show_number(value)
-                elif value == 0:
-                    self._countdown_overlay.show_number(0)
-                    self._countdown_overlay.set_full_white()
-                    
-        def on_finished():
-            # Clean up overlay
-            if self._countdown_overlay:
-                self._countdown_overlay.clean_overlay()
-                self._countdown_overlay = None
-            
-            # Clean up thread
-            if self._countdown_thread:
-                self._countdown_thread = None
-                
-            # Take the photo
-            self.capture_photo(self.selected_style)
-            
-        self._countdown_thread.tick.connect(on_tick)
-        self._countdown_thread.finished.connect(on_finished)
-        self._countdown_thread.start()
+        self.countdown_overlay_manager.start_countdown(self.capture_photo_callback, start_value=COUNTDOWN_START)
+
+    def capture_photo_callback(self):
+        self.capture_photo(self.selected_style)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -163,7 +114,6 @@ class PhotoBooth(CameraViewer):
 
     def on_generation_finished(self, qimg):
         self._generation_in_progress = False
-        self.hide_loading()
         self.stop_camera()
         if qimg and not qimg.isNull():
             self.generated_image = qimg

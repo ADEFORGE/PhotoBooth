@@ -140,15 +140,26 @@ class PhotoBooth(CameraViewer):
             if qimg.isNull():
                 print("[ERROR] Échec de la copie de l'image")
                 return
+            
             self.original_photo = qimg
             self.background_manager.set_captured_image(qimg)
+            
             if style_name:
-                self.start_image_generation(style_name, qimg)
+                print(f"[DEBUG] Démarrage génération avec style {style_name}")
+                self._generation_in_progress = True
+                self.image_generation_manager.run_generation(
+                    style_name, 
+                    qimg.copy(),  # Important : faire une copie
+                    callback_name="on_image_generated_callback"
+                )
             else:
                 self.generated_image = qimg
                 self.update_frame()
+                
         except Exception as e:
             print(f"[ERROR] Erreur lors de la capture: {e}")
+            import traceback
+            traceback.print_exc()
             self._generation_in_progress = False
 
     def on_generation_finished(self, qimg):

@@ -11,9 +11,8 @@ class PhotoBooth(CameraViewer):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.countdown_overlay_manager = CountdownOverlayManager(self)
-        self._generation_thread = None
         self._generation_task = None
-        self._generation_in_progress = False
+        self._generation_in_progress = False  # Ajout du flag
 
     def on_enter(self):
         """Called when PhotoBooth view becomes active."""
@@ -22,7 +21,6 @@ class PhotoBooth(CameraViewer):
         self.generated_image = None
         self.original_photo = None
         self.selected_style = None
-        self._generation_in_progress = False
         
         # Reset UI to default state
         self._capture_connected = True
@@ -44,11 +42,8 @@ class PhotoBooth(CameraViewer):
         self.stop_camera()
         
         # Clean up any ongoing operations
-        if self._generation_in_progress:
-            if self._thread and self._thread.isRunning():
-                self._thread.quit()
-                self._thread.wait()
-        
+        self.clean()
+
         # Hide any overlays
         self.hide_loading()
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
@@ -56,33 +51,39 @@ class PhotoBooth(CameraViewer):
             self._countdown_overlay = None
             
         self.countdown_overlay_manager.clear_all()
-        self._cleanup_generation()
 
+    def clean(self):
+        """Wrapper: délègue le cleanup à ImageGenerationTask."""
+        self._generation_in_progress = False
+        if self._generation_task:
+            # Disconnect signals first
+            if hasattr(self._generation_task, 'finished'):
+                try:
+                    self._generation_task.finished.disconnect()
+                except:
+                    pass
+            self._generation_task.clean()
+            self._generation_task = None
+            
     def cleanup(self):
         """Full cleanup when widget is being destroyed."""
         print("[PHOTOBOOTH] Full cleanup")
+        self.clean()  # Clean generation task first
         self.on_leave()  # Make sure we've stopped the camera
-        super().cleanup()  # Call parent cleanup for thorough resource cleanup
+        super().cleanup()  # Call parent cleanup
 
-    def _cleanup_generation(self):
+    def start(self, style_name, input_image):
+        """Wrapper: démarre la génération via ImageGenerationTask."""
+        self.show_loading()  # Affiche explicitement l'overlay de loading
+        from gui_classes.overlay_manager import ImageGenerationTask
+        self._generation_task = ImageGenerationTask(style=style_name, input_image=input_image, parent=self)
+        self._generation_task.finished.connect(self._on_image_generated_callback)
+        self._generation_task.start()
+
+    def finish(self):
+        """Wrapper: termine la génération via ImageGenerationTask."""
         if self._generation_task:
-            print("[PHOTOBOOTH] Arrêt du task de génération")
-            self._generation_task.stop()
-        # Correction : attendre l'arrêt du thread AVANT de deleteLater le task
-        if self._generation_thread and self._generation_thread.isRunning():
-            print("[PHOTOBOOTH] Arrêt du thread de génération")
-            self._generation_thread.quit()
-            self._generation_thread.wait(5000)  # attendre jusqu'à 5s
-        # Correction : deleteLater du task SEULEMENT si le thread n'est plus running
-        if self._generation_task:
-            if not self._generation_thread or not self._generation_thread.isRunning():
-                print("[PHOTOBOOTH] Suppression du task de génération")
-                self._generation_task.deleteLater()
-            else:
-                print("[PHOTOBOOTH] ATTENTION: tentative de suppression du task alors que le thread tourne encore")
-        self._generation_thread = None
-        self._generation_task = None
-        self._generation_in_progress = False
+            self._generation_task.finish()
 
     def _on_style_toggle(self, checked, style_name):
         if checked:
@@ -119,48 +120,42 @@ class PhotoBooth(CameraViewer):
     def _after_countdown_finish(self):
         """Callback appelé quand le compte à rebours est terminé"""
         print("[DEBUG] Compte à rebours terminé, capture de l'image")
+        if self._generation_in_progress:
+            print("[DEBUG] Génération déjà en cours, on ignore ce callback")
+            return
+        self._generation_in_progress = True
         if self._last_frame is None:
             print("[ERROR] Pas de frame disponible")
+            self._generation_in_progress = False
             return
-            
+
         qimg = QImage(self._last_frame)
         if qimg.isNull():
             print("[ERROR] Échec de la capture")
+            self._generation_in_progress = False
             return
-            
+
         self.original_photo = qimg
         self.background_manager.set_captured_image(qimg)
-        
+
+        # Fermer explicitement l'overlay de capture (compte à rebours) AVANT la génération
+        if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
+            self._countdown_overlay.clean_overlay()
+            self._countdown_overlay = None
+        self.countdown_overlay_manager.clear_overlay("countdown")
+
         # Lance la génération avec le style sélectionné
         if self.selected_style:
             print(f"[DEBUG] Lancement génération avec style {self.selected_style}")
-            self._generation_in_progress = True
-            self._start_image_generation(self.selected_style, qimg.copy())
-
-    def _start_image_generation(self, style_name, input_image):
-        self._cleanup_generation()
-        from gui_classes.overlay_manager import ImageGenerationTask
-        from PySide6.QtCore import QThread
-
-        self.show_loading()
-        self._generation_thread = QThread()
-        self._generation_task = ImageGenerationTask(style=style_name, input_image=input_image)
-        self._generation_task.moveToThread(self._generation_thread)
-        self._generation_thread.started.connect(self._generation_task.run)
-        self._generation_task.finished.connect(self._on_image_generated_callback)
-        # Correction : deleteLater du task seulement quand le thread est fini
-        def cleanup_task():
-            print("[PHOTOBOOTH] deleteLater sur task (thread fini)")
-            self._generation_task.deleteLater()
-        self._generation_thread.finished.connect(cleanup_task)
-        self._generation_thread.finished.connect(self._generation_thread.deleteLater)
-        self._generation_thread.start()
+            self.start(self.selected_style, qimg.copy())
+        else:
+            self._generation_in_progress = False
 
     def _on_image_generated_callback(self, qimg):
+        """Wrapper: callback appelé par ImageGenerationTask."""
         print("[DEBUG] Callback _on_image_generated_callback appelé")
         self._generation_in_progress = False
         self.stop_camera()
-        self.hide_loading()
         if qimg and not qimg.isNull():
             print("[DEBUG] Image générée valide (callback)")
             self.generated_image = qimg
@@ -169,8 +164,6 @@ class PhotoBooth(CameraViewer):
             self.generated_image = None
         self.update_frame()
         self.set_state_validation()
-        # Correction : cleanup après le callback, pour éviter de tuer le thread trop tôt
-        self._cleanup_generation()
 
     def _on_accept_close(self):
         sender = self.sender()

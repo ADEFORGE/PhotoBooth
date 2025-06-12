@@ -155,7 +155,6 @@ class OverlayWhite(Overlay):
 
 class OverlayLoading(OverlayWhite):
     def __init__(self, parent=None):
-        from PySide6.QtWidgets import QApplication
         super().__init__(parent, center_on_screen=False)  # Désactive le centrage auto
         
         # Force l'overlay à occuper tout l'écran
@@ -257,6 +256,14 @@ class OverlayLoading(OverlayWhite):
         QApplication.processEvents()
         super().clean_overlay()
 
+    def stop_animation(self):
+        """Arrête toutes les animations et timers."""
+        print(f"[OverlayLoading] stop_animation: arrêt des animations pour {self}")
+        # Arrête le QMovie si utilisé
+        if self._movie is not None:
+            self._movie.stop()
+            self._movie = None
+        
     def hide_overlay(self):
         print("[DEBUG] OverlayLoading.hide_overlay appelée")
         if hasattr(self, '_movie') and self._movie:

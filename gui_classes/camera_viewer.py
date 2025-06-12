@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt, QTimer, QThread, Signal, QObject
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from gui_classes.overlay import OverlayLoading
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 import cv2
 import time
 
@@ -184,52 +184,40 @@ class CameraViewer(PhotoBoothBaseWidget):
             self.loading_overlay.hide()
 
     def capture_photo(self, style_name=None):
-        """Capture une photo avec vérification."""
+        """Capture une photo avec vérification et lance la génération si style."""
         if self._last_frame is None:
             print("[ERROR] Pas de frame disponible pour la capture")
             return
         try:
-            # Faire une copie profonde de l'image
             qimg = QImage(self._last_frame)
             if qimg.isNull():
                 print("[ERROR] Échec de la copie de l'image")
                 return
-            self.original_photo = qimg  # Sauvegarde la photo originale
-            # Met à jour le fond via BackgroundManager
+            self.original_photo = qimg
             self.background_manager.set_captured_image(qimg)
             if style_name:
-                # Si un style est spécifié, lance la génération
-                self.show_loading()
-                self._generation_in_progress = True
-                self._thread = QThread()
-                self._worker = GenerationWorker(qimg, style_name)
-                self._worker.moveToThread(self._thread)
-                self._thread.started.connect(self._worker.run)
-                self._worker.finished.connect(self.on_generation_finished)
-                self._worker.finished.connect(self._thread.quit)
-                self._worker.finished.connect(self._worker.deleteLater)
-                self._thread.finished.connect(self._thread.deleteLater)
-                self._thread.start()
+                # Utilise run_generation si disponible
+                if hasattr(self, 'image_generation_manager'):
+                    self.image_generation_manager.run_generation(style_name, qimg, callback_name="on_image_generated_callback")
+                else:
+                    print("[ERROR] image_generation_manager non trouvé sur ce widget")
             else:
-                # Sinon affiche directement la photo capturée
                 self.generated_image = qimg
                 self.update_frame()
         except Exception as e:
             print(f"[ERROR] Erreur lors de la capture: {e}")
-            self.hide_loading()
             self._generation_in_progress = False
 
-    def on_generation_finished(self, qimg):
+    def on_image_generated_callback(self, qimg):
+        print("[DEBUG] Callback on_image_generated_callback appelé (CameraViewer)")
         self._generation_in_progress = False
-        self.hide_loading()
         self.stop_camera()
         if qimg and not qimg.isNull():
+            print("[DEBUG] Image générée valide (callback CameraViewer)")
             self.generated_image = qimg
-            self.background_manager.set_generated_image(qimg)
         else:
-            self.generated_image = self.original_photo
-            if self.original_photo:
-                self.background_manager.set_captured_image(self.original_photo)
+            print("[DEBUG] Pas d'image générée (callback CameraViewer)")
+            self.generated_image = None
         self.update_frame()
 
     def cleanup(self):

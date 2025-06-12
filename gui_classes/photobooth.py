@@ -1,17 +1,17 @@
 # gui_classes/photobooth.py
 from PySide6.QtCore import QTimer, QThread
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget, GenerationWorker
+from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import CAMERA_ID
 from gui_classes.camera_viewer import CameraViewer
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QImage
+from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationManager
 
 
 class PhotoBooth(CameraViewer):
     def __init__(self, parent=None):
         super().__init__(parent)
-        from gui_classes.overlay_manager import CountdownOverlayManager, GenerationOverlayManager
         self.countdown_overlay_manager = CountdownOverlayManager(self)
-        self.generation_overlay_manager = GenerationOverlayManager(self)
+        self.image_generation_manager = ImageGenerationManager(self)
         # Ne pas démarrer la caméra ici
 
     def on_enter(self):
@@ -71,11 +71,22 @@ class PhotoBooth(CameraViewer):
         super().on_toggle(checked, style_name, generate_image=False)
 
     def start_image_generation(self, style_name, input_image):
-        """Démarre la génération d'image via le manager."""
-        from gui_classes.gui_base_widget import GenerationWorker
-        worker = GenerationWorker(style_name, input_image)
+        """Démarre la génération d'image via le nouveau manager avec callback par nom."""
         self._generation_in_progress = True
-        self.generation_overlay_manager.start_generation(worker, self.on_generation_finished)
+        self.image_generation_manager.run_generation(style_name, input_image, callback_name="on_image_generated_callback")
+
+    def on_image_generated_callback(self, qimg):
+        print("[DEBUG] Callback on_image_generated_callback appelé")
+        self._generation_in_progress = False
+        self.stop_camera()
+        if qimg and not qimg.isNull():
+            print("[DEBUG] Image générée valide (callback)")
+            self.generated_image = qimg
+        else:
+            print("[DEBUG] Pas d'image générée (callback)")
+            self.generated_image = None
+        self.update_frame()
+        self.set_state_validation()
 
     def _on_take_selfie(self):
         from constante import TOOLTIP_DURATION_MS, TOOLTIP_STYLE, COUNTDOWN_START
@@ -117,8 +128,29 @@ class PhotoBooth(CameraViewer):
     def showEvent(self, event):
         super().showEvent(event)
 
+    def capture_photo(self, style_name=None):
+        """Capture une photo avec vérification et lance la génération si style."""
+        if self._last_frame is None:
+            print("[ERROR] Pas de frame disponible pour la capture")
+            return
+        try:
+            qimg = QImage(self._last_frame)
+            if qimg.isNull():
+                print("[ERROR] Échec de la copie de l'image")
+                return
+            self.original_photo = qimg
+            self.background_manager.set_captured_image(qimg)
+            if style_name:
+                self.start_image_generation(style_name, qimg)
+            else:
+                self.generated_image = qimg
+                self.update_frame()
+        except Exception as e:
+            print(f"[ERROR] Erreur lors de la capture: {e}")
+            self._generation_in_progress = False
+
     def on_generation_finished(self, qimg):
-        print("[DEBUG] Génération terminée")
+        print("[DEBUG] Génération terminée (nouveau manager)")
         self._generation_in_progress = False
         self.stop_camera()
         if qimg and not qimg.isNull():

@@ -1,5 +1,12 @@
 from gui_classes.overlay import OverlayCountdown, OverlayLoading
 from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtGui import QImage
+from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from constante import dico_styles
+import os
+import glob
+import cv2
+from gui_classes.toolbox import ImageUtils
 import time
 
 class CountdownOverlayManager(QObject):
@@ -99,44 +106,168 @@ class CountdownOverlayManager(QObject):
             self._thread = None
             self._user_on_finished = None
 
-class GenerationOverlayManager(QObject):
+class ImageGenerationManager(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
         self.overlays = {}
         self._thread = None
-        self._worker = None
         self._user_on_finished = None
+        self.input_image = None  # QImage
+        self.output_image = None  # QImage
+        self.style = list(dico_styles.keys())[0] if dico_styles else None
+        self.has_generated = False
+        self.api = ImageGeneratorAPIWrapper()
+        print(f"[DEBUG] ImageGenerationManager initialisé avec style par défaut: {self.style}")
 
-    def start(self, worker, on_finished):
-        """Affiche l'overlay de chargement, lance le worker dans un thread, appelle on_finished(result) à la fin."""
-        self.show_overlay(worker, on_finished=on_finished)
+    def set_input_image(self, qimage):
+        print("[DEBUG] set_input_image appelé")
+        self.input_image = qimage
+        self.output_image = qimage.copy() if qimage else None
+        self.has_generated = False
+        print(f"[DEBUG] Image input définie, output copiée, has_generated={self.has_generated}")
 
-    def show_overlay(self, worker, on_finished=None):
+    def set_style(self, style_name):
+        print(f"[DEBUG] set_style appelé avec: {style_name}")
+        try:
+            self.api.set_style(style_name)
+            self.style = style_name
+            print(f"[DEBUG] Style défini: {self.style}")
+        except Exception as e:
+            print(f"[ERROR] Impossible de définir le style: {e}")
+
+    def save_input_image_to_comfyui(self) -> bool:
+        print("[DEBUG] save_input_image_to_comfyui appelé")
+        try:
+            if self.input_image is None:
+                print("[ERROR] Pas d'image input à sauvegarder")
+                return False
+            arr = ImageUtils.qimage_to_cv(self.input_image)
+            os.makedirs("../ComfyUI/input", exist_ok=True)
+            cv2.imwrite("../ComfyUI/input/input.png", arr)
+            print("[DEBUG] Image input sauvegardée dans ../ComfyUI/input/input.png")
+            return True
+        except Exception as e:
+            print(f"[ERROR] Erreur lors de la sauvegarde de l'image input: {e}")
+            return False
+
+    def start_generation(self, on_finished=None):
+        print("[DEBUG] start_generation appelé")
+        if not self.save_input_image_to_comfyui():
+            print("[ERROR] Impossible de sauvegarder l'image input, annulation génération")
+            if on_finished:
+                on_finished(None)
+            return
+        self.set_style(self.style)
+        self.has_generated = False
+        self._user_on_finished = on_finished
+        self._thread = QThread()
+        self._thread.run = self._generation_thread
+        print("[DEBUG] Connexion signaux overlay/thread")
+        self.show_overlay()
+        self._thread.start()
+
+    def _generation_thread(self):
+        try:
+            print("[DEBUG] Thread de génération lancé")
+            self.api.generate_image()
+            print("[DEBUG] Génération terminée, extraction de l'image générée")
+            qimg = self.extract_generated_image()
+            self.output_image = qimg
+            self.has_generated = qimg is not None and not qimg.isNull()
+            print(f"[DEBUG] has_generated={self.has_generated}")
+            if self._user_on_finished:
+                self._user_on_finished(qimg)
+        except Exception as e:
+            print(f"[ERROR] Erreur dans le thread de génération: {e}")
+            if self._user_on_finished:
+                self._user_on_finished(None)
+        finally:
+            self.hide_overlay()
+            self._thread = None
+
+    def show_overlay(self):
+        print("[DEBUG] Affichage de l'overlay de chargement")
         self.clear_overlay("loading")
         overlay = OverlayLoading(self.parent)
         overlay.show_overlay()
         self.overlays["loading"] = overlay
 
-        self._thread = QThread()
-        self._worker = worker
-        self._worker.moveToThread(self._thread)
-        self._thread.started.connect(self._worker.run)
-        self._worker.finished.connect(self._on_worker_finished)
-        self._worker.finished.connect(self._thread.quit)
-        self._worker.finished.connect(self._worker.deleteLater)
-        self._thread.finished.connect(self._thread.deleteLater)
-
-        self._user_on_finished = on_finished
-        self._thread.start()
-
-    def _on_worker_finished(self, result):
+    def hide_overlay(self):
+        print("[DEBUG] Masquage de l'overlay de chargement")
         self.clear_overlay("loading")
-        if self._user_on_finished:
-            self._user_on_finished(result)
-        self._thread = None
-        self._worker = None
-        self._user_on_finished = None
+
+    def extract_generated_image(self) -> QImage:
+        print("[DEBUG] extract_generated_image appelé")
+        try:
+            latest_file = self._find_latest_output_file()
+            if not latest_file:
+                print("[ERROR] Aucun fichier de sortie trouvé")
+                return None
+            qimg = self._load_output_image(latest_file)
+            self._cleanup_input_output_files(latest_file)
+            print("[DEBUG] Image générée extraite et nettoyée")
+            return qimg
+        except Exception as e:
+            print(f"[ERROR] Erreur lors de l'extraction de l'image générée: {e}")
+            return None
+
+    def _find_latest_output_file(self):
+        print("[DEBUG] Recherche du fichier de sortie le plus récent")
+        try:
+            output_dir = os.path.abspath("../ComfyUI/output")
+            files = glob.glob(os.path.join(output_dir, "*.png"))
+            if not files:
+                print("[ERROR] Aucun fichier PNG trouvé dans le dossier output")
+                return None
+            latest = max(files, key=os.path.getmtime)
+            print(f"[DEBUG] Fichier le plus récent: {latest}")
+            return latest
+        except Exception as e:
+            print(f"[ERROR] Erreur lors de la recherche du fichier de sortie: {e}")
+            return None
+
+    def _load_output_image(self, filepath):
+        print(f"[DEBUG] Chargement de l'image générée depuis {filepath}")
+        try:
+            img = cv2.imread(filepath)
+            if img is None:
+                print("[ERROR] Impossible de lire l'image générée")
+                return None
+            qimg = ImageUtils.cv_to_qimage(img)
+            print("[DEBUG] Image générée chargée en QImage")
+            return qimg
+        except Exception as e:
+            print(f"[ERROR] Erreur lors du chargement de l'image générée: {e}")
+            return None
+
+    def _cleanup_input_output_files(self, output_file):
+        print("[DEBUG] Nettoyage des fichiers input/output")
+        try:
+            input_path = os.path.abspath("../ComfyUI/input/input.png")
+            if os.path.exists(input_path):
+                os.remove(input_path)
+                print(f"[DEBUG] Fichier input supprimé: {input_path}")
+            if output_file and os.path.exists(output_file):
+                os.remove(output_file)
+                print(f"[DEBUG] Fichier output supprimé: {output_file}")
+        except Exception as e:
+            print(f"[ERROR] Erreur lors du nettoyage des fichiers: {e}")
+
+    def setup(self, qimage, style=None):
+        print("[DEBUG] setup appelé")
+        self.set_input_image(qimage)
+        if style:
+            self.set_style(style)
+        print(f"[DEBUG] Setup terminé avec style={self.style}")
+
+    def start(self, on_finished=None):
+        print("[DEBUG] start appelé")
+        self.start_generation(on_finished=on_finished)
+
+    def finish(self):
+        print("[DEBUG] finish appelé")
+        return self.output_image
 
     def clear_overlay(self, name):
         overlay = self.overlays.get(name)
@@ -155,3 +286,45 @@ class GenerationOverlayManager(QObject):
         self._thread = None
         self._worker = None
         self._user_on_finished = None
+
+    def setup_signals(self):
+        """Connecte les signaux nécessaires pour le fonctionnement du manager."""
+        print("[DEBUG] Configuration des signaux")
+        # Connecter les signaux ici si nécessaire
+
+    def convert_image(self, image: QImage):
+        """Convertit une image au format requis par le worker."""
+        print("[DEBUG] Conversion de l'image")
+        # Logique de conversion ici
+
+    def extract_results(self, result):
+        """Extrait et traite les résultats du worker."""
+        print("[DEBUG] Extraction des résultats")
+        # Logique d'extraction ici
+
+    def debug_info(self):
+        """Affiche des informations de débogage sur l'état actuel du manager."""
+        print("[DEBUG] Informations de débogage:")
+        print(f"  Thread en cours: {self._thread.isRunning() if self._thread else 'Aucun'}")
+        print(f"  Worker: {self._worker}")
+        print(f"  Overlays: {self.overlays.keys()}")
+        print(f"  User on finished: {self._user_on_finished}")
+
+    def run_generation(self, style, image, callback_name=None):
+        """Initialise et lance la génération d'image, puis appelle le callback nommé à la fin."""
+        print(f"[DEBUG] run_generation appelé avec style={style}, callback={callback_name}")
+        self.setup(image, style=style)
+        def finished_callback(qimg):
+            print(f"[DEBUG] finished_callback appelé pour {callback_name}")
+            if callback_name and hasattr(self.parent, callback_name):
+                getattr(self.parent, callback_name)(qimg)
+            else:
+                print(f"[WARNING] Callback {callback_name} non trouvé sur {self.parent}")
+        self.start(on_finished=finished_callback)
+
+    def _call_callback(self, callback_name, qimg):
+        print(f"[DEBUG] _call_callback: {callback_name}")
+        if callback_name and hasattr(self.parent, callback_name):
+            getattr(self.parent, callback_name)(qimg)
+        else:
+            print(f"[WARNING] Callback {callback_name} non trouvé sur {self.parent}")

@@ -17,7 +17,6 @@ from constante import (
     TITLE_LABEL_BORDER_WIDTH, LOGO_SIZE, INFO_BUTTON_SIZE
 )
 from gui_classes.btn import Btns
-from gui_classes.toolbox import GenerationWorker
 from gui_classes.background_manager import BackgroundManager
 
 class PhotoBoothBaseWidget(QWidget):

@@ -5,10 +5,11 @@ from gui_classes.overlay import OverlayLoading
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 import cv2
 import time
+from constante import GRID_SIZE
 
 class CameraCaptureThread(QThread):
     frame_ready = Signal(QImage)
-    def __init__(self, camera_id=0, parent=None):
+    def __init__(self, camera_id=GRID_SIZE, parent=None):
         super().__init__(parent)
         self.camera_id = camera_id
         self._running = True  # Initialisation à True dès le début

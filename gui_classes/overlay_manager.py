@@ -131,17 +131,21 @@ class ImageGenerationTask(QObject):
         print("[GEN_TASK] show_loading: création et affichage de l'overlay de loading")
         # S'il existe déjà un overlay, le supprimer proprement
         if self._loading_overlay:
-            print("[GEN_TASK] show_loading: overlay déjà existant, suppression")
+            print(f"[GEN_TASK] show_loading: overlay déjà existant, suppression {self._loading_overlay}")
             self._loading_overlay.hide()
+            print(f"[GEN_TASK] show_loading: hide() appelé sur {self._loading_overlay}")
             self._loading_overlay.deleteLater()
+            print(f"[GEN_TASK] show_loading: deleteLater() appelé sur {self._loading_overlay}")
             self._loading_overlay.setParent(None)
+            print(f"[GEN_TASK] show_loading: setParent(None) appelé sur {self._loading_overlay}")
             QApplication.processEvents()
+            print(f"[GEN_TASK] show_loading: QApplication.processEvents() après suppression overlay")
             self._loading_overlay = None
         if self.parent():
             self._loading_overlay = OverlayLoading(self.parent())
             print(f"[GEN_TASK] show_loading: OverlayLoading instance créée {self._loading_overlay} parent={self.parent()}")
             self._loading_overlay.show()
-            print("[GEN_TASK] show_loading: OverlayLoading affiché")
+            print(f"[GEN_TASK] show_loading: OverlayLoading affiché {self._loading_overlay}")
             self._loading_overlay.raise_()
         else:
             print("[GEN_TASK] show_loading: pas de parent pour OverlayLoading")
@@ -151,19 +155,20 @@ class ImageGenerationTask(QObject):
         if self._loading_overlay:
             print(f"[GEN_TASK] hide_loading: overlay instance = {self._loading_overlay}")
             if hasattr(self._loading_overlay, "stop_animation"):
-                print("[GEN_TASK] hide_loading: appel stop_animation() sur OverlayLoading")
+                print(f"[GEN_TASK] hide_loading: appel stop_animation() sur {self._loading_overlay}")
                 self._loading_overlay.stop_animation()
             else:
-                print("[GEN_TASK] hide_loading: pas de stop_animation() sur OverlayLoading")
+                print(f"[GEN_TASK] hide_loading: pas de stop_animation() sur {self._loading_overlay}")
             self._loading_overlay.hide()
-            print("[GEN_TASK] hide_loading: OverlayLoading caché (hide() appelé)")
-            self._loading_overlay.setVisible(False)  # Force la disparition
+            print(f"[GEN_TASK] hide_loading: hide() appelé sur {self._loading_overlay}")
+            self._loading_overlay.setVisible(False)
+            print(f"[GEN_TASK] hide_loading: setVisible(False) appelé sur {self._loading_overlay}")
             self._loading_overlay.deleteLater()
-            print("[GEN_TASK] hide_loading: OverlayLoading deleteLater() appelé")
+            print(f"[GEN_TASK] hide_loading: deleteLater() appelé sur {self._loading_overlay}")
             self._loading_overlay.setParent(None)
-            print("[GEN_TASK] hide_loading: OverlayLoading setParent(None) appelé")
+            print(f"[GEN_TASK] hide_loading: setParent(None) appelé sur {self._loading_overlay}")
             QApplication.processEvents()
-            print("[GEN_TASK] hide_loading: QApplication.processEvents() appelé")
+            print(f"[GEN_TASK] hide_loading: QApplication.processEvents() appelé après suppression overlay")
             self._loading_overlay = None
         else:
             print("[GEN_TASK] hide_loading: aucun overlay à cacher")
@@ -287,19 +292,34 @@ class ImageGenerationTask(QObject):
         print("[GEN_TASK] start: thread started")
 
     def _on_worker_finished(self, result):
+        print("[GEN_TASK] _on_worker_finished: called")
         self.finished.emit(result)
-        self._worker.deleteLater()
-        self._worker = None
+        # On arrête explicitement le worker ici
+        if self._worker:
+            print(f"[GEN_TASK] _on_worker_finished: deleteLater sur worker {self._worker}")
+            try:
+                self._worker.deleteLater()
+            except Exception as e:
+                print(f"[GEN_TASK] _on_worker_finished: Exception during worker.deleteLater(): {e}")
+            self._worker = None
+        # NE PAS arrêter le thread ici, laisser _on_thread_finished_hide_overlay gérer le thread
 
     def _on_thread_finished_hide_overlay(self):
         print("[GEN_TASK] _on_thread_finished_hide_overlay: thread terminé, on cache l'overlay")
         self.hide_loading()
-
-    def finish(self, *args, **kwargs):
-        """Termine proprement la génération (wrapper pour callback/cleanup)."""
-        print("[GEN_TASK] finish called")
-        self.clean()
-
-    def stop(self):
-        print("[GEN_TASK] stop called")
-        self._running = False
+        # On s'assure que le thread est bien arrêté et supprimé ici, et ici SEULEMENT
+        # Correction : vérifier que self._thread existe et n'est pas déjà supprimé
+        thread = self._thread
+        self._thread = None  # On enlève la référence AVANT toute opération
+        if thread:
+            try:
+                if thread.isRunning():
+                    print("[GEN_TASK] _on_thread_finished_hide_overlay: thread encore running, quit/wait")
+                    thread.quit()
+                    thread.wait()
+                print("[GEN_TASK] _on_thread_finished_hide_overlay: deleteLater sur thread")
+                thread.deleteLater()
+            except RuntimeError as e:
+                print(f"[GEN_TASK] _on_thread_finished_hide_overlay: RuntimeError (probablement déjà deleted): {e}")
+            except Exception as e:
+                print(f"[GEN_TASK] _on_thread_finished_hide_overlay: Exception during thread.deleteLater(): {e}")

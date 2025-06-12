@@ -210,6 +210,7 @@ class OverlayLoading(OverlayWhite):
         super().resizeEvent(event)
 
     def showEvent(self, event):
+        print(f"[OverlayLoading] showEvent appelée pour {self}")
         super().showEvent(event)
         screen = self.screen()
         if screen:
@@ -218,7 +219,7 @@ class OverlayLoading(OverlayWhite):
             self._movie.start()
 
     def hideEvent(self, event):
-        print(f"[DEBUG] OverlayLoading.hideEvent appelée pour {self}")
+        print(f"[OverlayLoading] hideEvent appelée pour {self}")
         if hasattr(self, '_movie') and self._movie:
             self._movie.stop()
         if hasattr(self, 'img_label'):
@@ -272,6 +273,9 @@ class OverlayLoading(OverlayWhite):
         self.overlay_widget.hide()
         QApplication.processEvents()
         super().hide_overlay()
+
+    def __del__(self):
+        print(f"[OverlayLoading] __del__ appelée pour {self}")
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None, on_validate=None, on_close=None):

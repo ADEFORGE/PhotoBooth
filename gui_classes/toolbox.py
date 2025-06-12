@@ -3,7 +3,7 @@ from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QLabel
 import cv2
 import os
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 import unicodedata
 import re
 import io

@@ -73,12 +73,14 @@ class PhotoBooth(CameraViewer):
     def start_image_generation(self, style_name, input_image):
         """Démarre la génération d'image via le nouveau manager avec callback par nom."""
         self._generation_in_progress = True
+        self.show_loading()  # Affiche l'overlay de chargement
         self.image_generation_manager.run_generation(style_name, input_image, callback_name="on_image_generated_callback")
 
     def on_image_generated_callback(self, qimg):
         print("[DEBUG] Callback on_image_generated_callback appelé")
         self._generation_in_progress = False
         self.stop_camera()
+        self.hide_loading()  # Toujours cacher l'overlay de chargement
         if qimg and not qimg.isNull():
             print("[DEBUG] Image générée valide (callback)")
             self.generated_image = qimg

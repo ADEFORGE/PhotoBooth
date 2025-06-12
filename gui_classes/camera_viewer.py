@@ -5,11 +5,11 @@ from gui_classes.overlay import OverlayLoading
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 import cv2
 import time
-from constante import GRID_SIZE
+from constante import CAMERA_ID
 
 class CameraCaptureThread(QThread):
     frame_ready = Signal(QImage)
-    def __init__(self, camera_id=GRID_SIZE, parent=None):
+    def __init__(self, camera_id=CAMERA_ID, parent=None):
         super().__init__(parent)
         self.camera_id = camera_id
         self._running = True  # Initialisation à True dès le début
@@ -213,6 +213,7 @@ class CameraViewer(PhotoBoothBaseWidget):
         print("[DEBUG] Callback on_image_generated_callback appelé (CameraViewer)")
         self._generation_in_progress = False
         self.stop_camera()
+        self.hide_loading()  # Toujours cacher l'overlay de chargement
         if qimg and not qimg.isNull():
             print("[DEBUG] Image générée valide (callback CameraViewer)")
             self.generated_image = qimg

@@ -6,6 +6,7 @@ from constante import DIALOG_BOX_STYLE, FIRST_BUTTON_STYLE
 from gui_classes.btn import Btns
 from gui_classes.toolbox import normalize_btn_name
 import os
+from PySide6.QtWidgets import QApplication
 
 class Overlay(QWidget):
     def __init__(self, parent=None, center_on_screen=True):
@@ -79,27 +80,59 @@ class Overlay(QWidget):
         self._reenable_all_buttons()
 
     def clean_overlay(self):
-        self.setVisible(False)
-        self._centered_once = False
-        self._reenable_all_buttons()
-        self.deleteLater()
+        """Clean up overlay resources thoroughly."""
+        print(f"[DEBUG] Base Overlay.clean_overlay appelée pour {self}")
+        try:
+            # Hide and cleanup main widget
+            self.setVisible(False)
+            self._centered_once = False
+            
+            # Re-enable any disabled buttons
+            self._reenable_all_buttons()
+            
+            # Clean up overlay widget if it exists
+            if hasattr(self, 'overlay_widget'):
+                self.overlay_widget.hide()
+                self.overlay_widget.setParent(None)
+                self.overlay_widget.deleteLater()
+            
+            # Reset state
+            self._disabled_widgets.clear()
+            
+            # Schedule this widget for deletion
+            self.deleteLater()
+            
+            # Force UI update
+            QApplication.processEvents()
+        except Exception as e:
+            print(f"[ERROR] Exception in base Overlay.clean_overlay: {e}")
 
     def _disable_all_buttons_except_overlay(self):
+        """Disable all buttons in the application except those in this overlay."""
         from PySide6.QtWidgets import QApplication, QPushButton
         app = QApplication.instance()
         if not app:
             return
+            
+        # Clear previously disabled widgets
         self._disabled_widgets.clear()
-        for widget in app.allWidgets():
-            if isinstance(widget, QPushButton):
-                if not self.isAncestorOf(widget):
-                    if widget.isEnabled():
-                        widget.setEnabled(False)
-                        self._disabled_widgets.add(widget)
-        # Enable overlay's own buttons
-        if hasattr(self, 'btns'):
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
-                btn.setEnabled(True)
+        
+        try:
+            # Disable all buttons except those in this overlay
+            for widget in app.allWidgets():
+                if isinstance(widget, QPushButton):
+                    if not self.isAncestorOf(widget):
+                        if widget.isEnabled():
+                            widget.setEnabled(False)
+                            self._disabled_widgets.add(widget)
+            
+            # Re-enable this overlay's buttons
+            if hasattr(self, 'btns'):
+                for btn in self.btns.style1_btns + self.btns.style2_btns:
+                    btn.setEnabled(True)
+                    btn.raise_()
+        except Exception as e:
+            print(f"[ERROR] Exception in _disable_all_buttons_except_overlay: {e}")
 
     def _reenable_all_buttons(self):
         from PySide6.QtWidgets import QApplication, QPushButton
@@ -131,10 +164,13 @@ class OverlayLoading(OverlayWhite):
             self.setGeometry(screen.geometry())
         
         self.setWindowState(Qt.WindowFullScreen)
-        self.setStyleSheet("background-color: rgba(255,255,255,0.85);")  # Override le style de OverlayWhite pour enlever les bordures
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setStyleSheet("background-color: rgba(255,255,255,0.85);")
         
         # Widget principal qui occupe tout l'écran
         self.overlay_widget = QWidget(self)
+        self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.overlay_widget.setGeometry(self.rect())
         
         # Layout pour centrer le GIF
@@ -183,14 +219,52 @@ class OverlayLoading(OverlayWhite):
             self._movie.start()
 
     def hideEvent(self, event):
-        if self._movie:
+        print(f"[DEBUG] OverlayLoading.hideEvent appelée pour {self}")
+        if hasattr(self, '_movie') and self._movie:
             self._movie.stop()
+        if hasattr(self, 'img_label'):
+            self.img_label.clear()
+            self.img_label.hide()
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.hide()
+        self.hide()
+        QApplication.processEvents()
         super().hideEvent(event)
 
-    def cleanup(self):
-        if self._movie:
+    def clean_overlay(self):
+        print("[DEBUG] OverlayLoading.clean_overlay appelée")
+        # Stop and clear the movie
+        if hasattr(self, '_movie') and self._movie:
             self._movie.stop()
-        super().cleanup()
+            self._movie.deleteLater()
+            self._movie = None
+        
+        # Clear and hide the label
+        if hasattr(self, 'img_label'):
+            self.img_label.clear()
+            self.img_label.hide()
+            self.img_label.setParent(None)
+            self.img_label.deleteLater()
+        
+        # Hide and cleanup the overlay widget
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.hide()
+            self.overlay_widget.setParent(None)
+            self.overlay_widget.deleteLater()
+            
+        self.hide()
+        self.setParent(None)
+        QApplication.processEvents()
+        super().clean_overlay()
+
+    def hide_overlay(self):
+        print("[DEBUG] OverlayLoading.hide_overlay appelée")
+        if hasattr(self, '_movie') and self._movie:
+            self._movie.stop()
+        self.hide()
+        self.overlay_widget.hide()
+        QApplication.processEvents()
+        super().hide_overlay()
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None, on_validate=None, on_close=None):

@@ -1,7 +1,7 @@
 from gui_classes.overlay import OverlayCountdown, OverlayLoading
 from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtGui import QImage
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from constante import dico_styles
 import os
 import glob
@@ -88,12 +88,18 @@ class CountdownOverlayManager(QObject):
     def clear_overlay(self, name):
         overlay = self.overlays.get(name)
         if overlay:
+            print(f"[DEBUG] clear_overlay: appel clean_overlay sur {overlay}")
+            overlay.hide()
             overlay.clean_overlay()
+            overlay.setParent(None)
+            overlay.deleteLater()
+            QApplication.processEvents()
             self.overlays[name] = None
-        if name == "countdown" and self._thread:
-            self._thread.stop()
-            self._thread.wait()
-            self._thread = None
+        else:
+            print(f"[DEBUG] clear_overlay: aucun overlay à nettoyer pour {name}")
+        # Correction : ne pas mettre self._thread = None pour 'loading' ici, sinon le thread de génération ne démarre jamais
+        if name == "loading":
+            self._worker = None
             self._user_on_finished = None
 
     def clear_all(self):
@@ -107,6 +113,7 @@ class CountdownOverlayManager(QObject):
             self._user_on_finished = None
 
 class ImageGenerationManager(QObject):
+    generationFinished = Signal(object)  # QImage ou None
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
@@ -119,6 +126,7 @@ class ImageGenerationManager(QObject):
         self.has_generated = False
         self.api = ImageGeneratorAPIWrapper()
         print(f"[DEBUG] ImageGenerationManager initialisé avec style par défaut: {self.style}")
+        self.generationFinished.connect(self._on_generation_finished)
 
     def set_input_image(self, qimage):
         print("[DEBUG] set_input_image appelé")
@@ -165,9 +173,16 @@ class ImageGenerationManager(QObject):
         self._thread.run = self._generation_thread
         print("[DEBUG] Connexion signaux overlay/thread")
         self.show_overlay()
-        self._thread.start()
+        if self._thread is not None:
+            self._thread.start()
+        else:
+            print("[ERROR] self._thread est None au moment de l'appel à start(). On ferme l'overlay et on appelle le callback d'échec.")
+            self.hide_overlay()
+            if self._user_on_finished:
+                self._user_on_finished(None)
 
     def _generation_thread(self):
+        import sys
         try:
             print("[DEBUG] Thread de génération lancé")
             self.api.generate_image()
@@ -176,15 +191,31 @@ class ImageGenerationManager(QObject):
             self.output_image = qimg
             self.has_generated = qimg is not None and not qimg.isNull()
             print(f"[DEBUG] has_generated={self.has_generated}")
-            if self._user_on_finished:
-                self._user_on_finished(qimg)
+            sys.stdout.flush()
+            # Émettre le signal (toujours dans le thread worker, mais le slot sera dans le thread GUI)
+            self.generationFinished.emit(qimg)
         except Exception as e:
             print(f"[ERROR] Erreur dans le thread de génération: {e}")
-            if self._user_on_finished:
-                self._user_on_finished(None)
-        finally:
-            self.hide_overlay()
+            sys.stdout.flush()
+            self.generationFinished.emit(None)
+
+    def _on_generation_finished(self, qimg):
+        print("[DEBUG] _on_generation_finished (thread GUI)")
+        # Appeler le callback utilisateur si défini
+        if self._user_on_finished:
+            try:
+                self._user_on_finished(qimg)
+            except Exception as e:
+                print(f"[ERROR] Exception dans le callback utilisateur: {e}")
+        self.hide_overlay()
+        # Arrêter proprement le thread
+        if self._thread is not None:
+            if self._thread.isRunning():
+                self._thread.quit()
+                self._thread.wait()
             self._thread = None
+        self._user_on_finished = None
+        self._worker = None
 
     def show_overlay(self):
         print("[DEBUG] Affichage de l'overlay de chargement")
@@ -272,10 +303,17 @@ class ImageGenerationManager(QObject):
     def clear_overlay(self, name):
         overlay = self.overlays.get(name)
         if overlay:
+            print(f"[DEBUG] clear_overlay: appel clean_overlay sur {overlay}")
+            overlay.hide()
             overlay.clean_overlay()
+            overlay.setParent(None)
+            overlay.deleteLater()
+            QApplication.processEvents()
             self.overlays[name] = None
+        else:
+            print(f"[DEBUG] clear_overlay: aucun overlay à nettoyer pour {name}")
+        # Correction : ne pas mettre self._thread = None pour 'loading' ici, sinon le thread de génération ne démarre jamais
         if name == "loading":
-            self._thread = None
             self._worker = None
             self._user_on_finished = None
 

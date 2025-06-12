@@ -5,6 +5,8 @@ import time
 import datetime
 import random
 from constante import dico_styles
+import numpy as np
+import cv2
 
 class ImageGeneratorAPIWrapper:
     def __init__(self, server_url="http://127.0.0.1:8188"):
@@ -36,13 +38,22 @@ class ImageGeneratorAPIWrapper:
     def generate_image(self, output_prefix = "output_test"):
         # Simule un délai pour tester le chargement
         time.sleep(3)
+        # Crée une fausse image de sortie pour le test
+        os.makedirs(self._output_folder, exist_ok=True)
+        fake_img_path = os.path.join(self._output_folder, f"{output_prefix}_fake.png")
+        img = np.zeros((512, 512, 3), dtype=np.uint8)
+        cv2.putText(img, self._style, (50, 256), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
+        cv2.imwrite(fake_img_path, img)
+        self._last_fake_img = fake_img_path
 
     def _wait_for_image(self, timeout=30):
         # Ne fait rien
         pass
 
     def get_image_paths(self):
-        # Retourne une liste vide ou un faux chemin pour test
+        # Retourne le chemin de la fausse image générée
+        if hasattr(self, '_last_fake_img') and os.path.exists(self._last_fake_img):
+            return [self._last_fake_img]
         return []
 
 

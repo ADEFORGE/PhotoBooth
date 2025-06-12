@@ -7,7 +7,7 @@ import cv2
 import os
 from gui_classes.overlay import OverlayLoading, OverlayRules, OverlayInfo
 from gui_classes.toolbox import ImageUtils, normalize_btn_name
-from comfy_classes.comfy_class_API_test_GUI import ImageGeneratorAPIWrapper
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,

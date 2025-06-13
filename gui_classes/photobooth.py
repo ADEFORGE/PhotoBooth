@@ -253,7 +253,7 @@ class PhotoBooth(CameraViewer):
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
                 overlay_qr = OverlayQrcode(
                     parent=self.window(),
-                    qimage=qimage,
+                    qimage=qimg,  # Correction ici : qimage -> qimg
                     on_close=on_qrcode_close
                 )
                 overlay_qr.show_overlay()

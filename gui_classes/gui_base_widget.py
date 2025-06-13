@@ -214,21 +214,12 @@ class PhotoBoothBaseWidget(QWidget):
         container.setStyleSheet("background: rgba(0,0,0,0);")
         # Ajout du container (barre du haut)
         self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
-        # Ajout du titre juste en dessous
-        self.setup_title()
-
-    def setup_title(self):
-        self.title_label = QLabel(TITLE_LABEL_TEXT)
-        self.title_label.setStyleSheet("background: transparent;")
-        font = QFont(TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE)
-        font.setBold(TITLE_LABEL_BOLD)
-        font.setItalic(TITLE_LABEL_ITALIC)
-        self.title_label.setFont(font)
-        self.title_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(self.title_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
 
     def setup_row_stretches(self):
         for row, stretch in GRID_ROW_STRETCHES.items():
+            # On saute la ligne 'title' (0) car il n'y a plus de titre
+            if row == 'title':
+                continue
             row_index = {"title": 0, "display": 1, "buttons": 2}[row]
             self.overlay_layout.setRowStretch(row_index, stretch)
 
@@ -366,7 +357,6 @@ class PhotoBoothBaseWidget(QWidget):
 
     def show_rules_dialog(self):
         """Affiche la boîte de dialogue des règles via OverlayRules puis QR code uniquement si une image a été générée. Sinon, ferme simplement l'overlay."""
-        from constante import VALIDATION_OVERLAY_MESSAGE
         from gui_classes.overlay import OverlayRules, OverlayQrcode
         from gui_classes.toolbox import QRCodeUtils
         from PySide6.QtWidgets import QApplication
@@ -376,14 +366,13 @@ class PhotoBoothBaseWidget(QWidget):
         def show_qrcode_overlay():
             # Vérifie si une image a été générée
             if getattr(self, 'generated_image', None) is not None:
+                from gui_classes.overlay import UI_TEXTS
                 data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"  # TODO: Replace with real data if needed
                 pil_img = QRCodeUtils.generate_qrcode(data)
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
                 overlay_qr = OverlayQrcode(
                     parent=parent,
-                    title_text="Scannez le QR code pour continuer",
                     qimage=qimg,
-                    subtitle_text="Merci d'avoir accepté les règles.",
                     on_close=None
                 )
                 overlay_qr.show_overlay()
@@ -391,7 +380,6 @@ class PhotoBoothBaseWidget(QWidget):
 
         overlay = OverlayRules(
             parent=parent,
-            VALIDATION_OVERLAY_MESSAGE=VALIDATION_OVERLAY_MESSAGE,
             on_validate=show_qrcode_overlay,
             on_close=None
         )

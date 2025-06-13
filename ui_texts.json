@@ -1,0 +1,14 @@
+{
+  "OverlayRules": {
+    "title": "Règles d'utilisation",
+    "content_file": "rules.txt",
+    "accept": "J'accepte",
+    "close": "Fermer",
+    "validation_message": "Merci de lire et d'accepter les règles pour continuer."
+  },
+  "OverlayQrcode": {
+    "title": "Scannez le QR code pour continuer",
+    "subtitle": "Merci d'avoir accepté les règles.",
+    "error": "Erreur QR code"
+  }
+}

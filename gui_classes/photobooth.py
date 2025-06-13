@@ -19,7 +19,7 @@ class PhotoBooth(CameraViewer):
 
     def on_enter(self):
         """Called when PhotoBooth view becomes active."""
-        print("[PHOTOBOOTH] Entering view")
+        # print("[PHOTOBOOTH] Entering view")  # Suppression de l'affichage du titre
         # Clear any previous state
         self.generated_image = None
         self.original_photo = None

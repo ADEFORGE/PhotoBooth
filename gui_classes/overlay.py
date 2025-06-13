@@ -1,12 +1,15 @@
 # gui_classes/overlay.py
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, QGraphicsBlurEffect
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, QGraphicsBlurEffect, QApplication
 from PySide6.QtCore import Qt, QSize, QEvent, QThread, Signal, QObject, QTimer
 from PySide6.QtGui import QMovie, QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from constante import DIALOG_BOX_STYLE, FIRST_BUTTON_STYLE
 from gui_classes.btn import Btns
 from gui_classes.toolbox import normalize_btn_name
+import json
 import os
-from PySide6.QtWidgets import QApplication
+UI_TEXTS_PATH = os.path.join(os.path.dirname(__file__), '..', 'ui_texts.json')
+with open(UI_TEXTS_PATH, 'r', encoding='utf-8') as f:
+    UI_TEXTS = json.load(f)
 
 class Overlay(QWidget):
     def __init__(self, parent=None, center_on_screen=True):
@@ -199,6 +202,7 @@ class OverlayLoading(OverlayWhite):
         # Layout pour centrer le GIF
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self.overlay_layout.setSpacing(0)
         
         # GIF centré avec fond transparent
         self.img_label = QLabel()
@@ -302,7 +306,7 @@ class OverlayLoading(OverlayWhite):
         print(f"[OverlayLoading] __del__ appelée pour {self}")
 
 class OverlayRules(OverlayWhite):
-    def __init__(self, parent=None, VALIDATION_OVERLAY_MESSAGE=None, on_validate=None, on_close=None):
+    def __init__(self, parent=None, on_validate=None, on_close=None):
         super().__init__(parent)
         from constante import GRID_WIDTH
         self.setFixedSize(700, 540)
@@ -315,12 +319,13 @@ class OverlayRules(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        if VALIDATION_OVERLAY_MESSAGE:
-            msg_label = QLabel(VALIDATION_OVERLAY_MESSAGE, self.overlay_widget)
-            msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
-            msg_label.setAlignment(Qt.AlignCenter)
-            self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-            row += 1
+        # Utilisation du JSON pour le titre et le message de validation
+        rules_texts = UI_TEXTS["OverlayRules"]
+        msg_label = QLabel(rules_texts["validation_message"], self.overlay_widget)
+        msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
+        msg_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
         self.text_edit = QTextEdit(self.overlay_widget)
         self.text_edit.setReadOnly(True)
         self.text_edit.setStyleSheet("background: transparent; color: black; font-size: 18px; border: none;")
@@ -328,8 +333,9 @@ class OverlayRules(OverlayWhite):
         self.text_edit.setMinimumHeight(80)
         self.text_edit.setMaximumHeight(180)
         self.text_edit.setMinimumWidth(int(self.width() * 0.85))
+        # Charger le contenu depuis le fichier indiqué dans le JSON
         try:
-            with open("rules.txt", "r") as f:
+            with open(rules_texts["content_file"], "r", encoding="utf-8") as f:
                 rules_text = f.read()
                 html = f'<div align="center">{rules_text.replace(chr(10), "<br>")}</div>'
                 self.text_edit.setHtml(html)
@@ -340,7 +346,10 @@ class OverlayRules(OverlayWhite):
         self.btns = Btns(self, [], [], None, None)
         self._on_validate = on_validate
         self._on_close = on_close
-        self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close, start_row=row)
+        self.setup_buttons_style_1([
+            rules_texts["accept"],
+            rules_texts["close"]
+        ], slot_style1=self._on_accept_close, start_row=row)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)
@@ -358,7 +367,7 @@ class OverlayRules(OverlayWhite):
             self.hide_overlay()
 
 class OverlayQrcode(OverlayWhite):
-    def __init__(self, parent=None, title_text=None, qimage=None, subtitle_text=None, on_close=None):
+    def __init__(self, parent=None, qimage=None, on_close=None):
         super().__init__(parent)
         from constante import TITLE_LABEL_STYLE, GRID_WIDTH
         self.setFixedSize(700, 540)
@@ -371,13 +380,13 @@ class OverlayQrcode(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        # Title
-        if title_text:
-            title_label = QLabel(title_text, self.overlay_widget)
-            title_label.setStyleSheet(TITLE_LABEL_STYLE)
-            title_label.setAlignment(Qt.AlignCenter)
-            self.overlay_layout.addWidget(title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-            row += 1
+        # Utilisation du JSON pour le titre et le sous-titre
+        qr_texts = UI_TEXTS["OverlayQrcode"]
+        title_label = QLabel(qr_texts["title"], self.overlay_widget)
+        title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
+        title_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
         # QR code
         self.qr_label = QLabel(self.overlay_widget)
         self.qr_label.setAlignment(Qt.AlignCenter)
@@ -389,17 +398,16 @@ class OverlayQrcode(OverlayWhite):
             scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.qr_label.setPixmap(scaled_pix)
         else:
-            self.qr_label.setText("Erreur QR code")
+            self.qr_label.setText(qr_texts["error"])
             self.qr_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
         self.overlay_layout.addWidget(self.qr_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         # Subtitle
-        if subtitle_text:
-            subtitle_label = QLabel(subtitle_text, self.overlay_widget)
-            subtitle_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
-            subtitle_label.setAlignment(Qt.AlignCenter)
-            self.overlay_layout.addWidget(subtitle_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-            row += 1
+        subtitle_label = QLabel(qr_texts["subtitle"], self.overlay_widget)
+        subtitle_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
+        subtitle_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(subtitle_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
         # Close button
         self.btns = Btns(self, [], [], None, None)
         self._on_close = on_close

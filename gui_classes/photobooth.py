@@ -253,9 +253,7 @@ class PhotoBooth(CameraViewer):
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
                 overlay_qr = OverlayQrcode(
                     parent=self.window(),
-                    title_text="Scannez le QR code pour continuer",
-                    qimage=qimg,
-                    subtitle_text="Merci d'avoir accepté les règles.",
+                    qimage=qimage,
                     on_close=on_qrcode_close
                 )
                 overlay_qr.show_overlay()
@@ -263,7 +261,6 @@ class PhotoBooth(CameraViewer):
                 self.set_state_default()
             overlay = OverlayRules(
                 parent=self.window(),
-                VALIDATION_OVERLAY_MESSAGE=VALIDATION_OVERLAY_MESSAGE,
                 on_validate=on_rules_validated,
                 on_close=on_rules_refused
             )
@@ -328,6 +325,8 @@ class PhotoBooth(CameraViewer):
             for btn in self.btns.style1_btns:
                 btn.show()
                 btn.setEnabled(True)
+            self.btns.set_disabled_bw_style2()  # Désactive et grise les boutons style2 (N&B, non cliquables)
+            # Suppression de l'appel à disable_style2_btns, car set_disabled_bw_style2 suffit
         self.update_frame()
 
     def set_state_wait(self):
@@ -335,6 +334,8 @@ class PhotoBooth(CameraViewer):
         self._capture_connected = False
         self.stop_camera()
         if hasattr(self, 'btns'):
+            self.btns.set_disabled_bw_style2()
+ 
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.hide()
         self.update_frame()

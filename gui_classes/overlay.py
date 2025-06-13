@@ -319,37 +319,31 @@ class OverlayRules(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        # Utilisation du JSON pour le titre et le message de validation
         rules_texts = UI_TEXTS["OverlayRules"]
-        msg_label = QLabel(rules_texts["validation_message"], self.overlay_widget)
-        msg_label.setStyleSheet("color: black; font-size: 22px; font-weight: bold; background: transparent;")
+        # Title
+        title_label = QLabel(rules_texts["title"], self.overlay_widget)
+        title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
+        title_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
+        # Message
+        msg_label = QLabel(rules_texts["message"], self.overlay_widget)
+        msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
         msg_label.setAlignment(Qt.AlignCenter)
         self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-        row += 1
-        self.text_edit = QTextEdit(self.overlay_widget)
-        self.text_edit.setReadOnly(True)
-        self.text_edit.setStyleSheet("background: transparent; color: black; font-size: 18px; border: none;")
-        self.text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.text_edit.setMinimumHeight(80)
-        self.text_edit.setMaximumHeight(180)
-        self.text_edit.setMinimumWidth(int(self.width() * 0.85))
-        # Charger le contenu depuis le fichier indiqué dans le JSON
-        try:
-            with open(rules_texts["content_file"], "r", encoding="utf-8") as f:
-                rules_text = f.read()
-                html = f'<div align="center">{rules_text.replace(chr(10), "<br>")}</div>'
-                self.text_edit.setHtml(html)
-        except Exception as e:
-            self.text_edit.setText(f"Error loading rules: {str(e)}")
-        self.overlay_layout.addWidget(self.text_edit, row, 0, 1, self.GRID_WIDTH)
         row += 1
         self.btns = Btns(self, [], [], None, None)
         self._on_validate = on_validate
         self._on_close = on_close
-        self.setup_buttons_style_1([
-            rules_texts["accept"],
-            rules_texts["close"]
-        ], slot_style1=self._on_accept_close, start_row=row)
+        # Utilise setup_buttons pour la création/placement
+        self.setup_buttons(
+            style1_names=["accept", "close"],
+            style2_names=[],
+            slot_style1=self._on_accept_close,
+            slot_style2=None,
+            start_row=row
+        )
+        # Bloc setText supprimé ici
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)
@@ -380,8 +374,8 @@ class OverlayQrcode(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        # Utilisation du JSON pour le titre et le sous-titre
         qr_texts = UI_TEXTS["OverlayQrcode"]
+        # Title
         title_label = QLabel(qr_texts["title"], self.overlay_widget)
         title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
         title_label.setAlignment(Qt.AlignCenter)
@@ -398,20 +392,26 @@ class OverlayQrcode(OverlayWhite):
             scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.qr_label.setPixmap(scaled_pix)
         else:
-            self.qr_label.setText(qr_texts["error"])
-            self.qr_label.setStyleSheet("background: #fcc; color: #a00; border: 1px solid #a00;")
+            self.qr_label.setText("")
         self.overlay_layout.addWidget(self.qr_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        # Subtitle
-        subtitle_label = QLabel(qr_texts["subtitle"], self.overlay_widget)
-        subtitle_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
-        subtitle_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(subtitle_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        # Message
+        msg_label = QLabel(qr_texts["message"], self.overlay_widget)
+        msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
+        msg_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        # Close button
         self.btns = Btns(self, [], [], None, None)
         self._on_close = on_close
-        self.setup_buttons_style_1(['close'], slot_style1=self._on_close_btn, start_row=row)
+        # Utilise setup_buttons pour la création/placement
+        self.setup_buttons(
+            style1_names=["close"],
+            style2_names=[],
+            slot_style1=self._on_close_btn,
+            slot_style2=None,
+            start_row=row
+        )
+        # Bloc setText supprimé ici
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)
@@ -457,7 +457,10 @@ class OverlayInfo(OverlayGray):
         self.overlay_layout.addWidget(self.image_label, 0, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         # Place les boutons centrés sur la ligne suivante, sur toute la largeur
         self.btns = Btns(self, [], [], None, None)
-        self.setup_buttons_style_1(['previous', 'close', 'next'], slot_style1=self._on_info_btn, start_row=1)
+        btn_previous = self.btns.add_style1_btn('previous', self._on_info_btn)
+        btn_close = self.btns.add_style1_btn('close', self._on_info_btn)
+        btn_next = self.btns.add_style1_btn('next', self._on_info_btn)
+        self.btns.place_style1(self.overlay_layout, 1)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)

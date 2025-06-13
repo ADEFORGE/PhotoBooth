@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QPixmap, QImage
 from PySide6.QtCore import QSize, Qt
 import os
+from PIL import Image, ImageQt
+import io
 
 from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
 
@@ -50,6 +52,90 @@ class Btn(QPushButton):
         if self.parent():
             self.setParent(None)
         self.deleteLater()
+
+    def set_disabled_bw(self):
+        """
+        Désactive complètement le bouton et force un affichage noir et blanc.
+        - Garde les textures mais les convertit en noir et blanc avec PIL
+        - Garde les bordures noires comme en état normal
+        - Supprime toutes les interactions (hover, pressed, checked)
+        """
+        # Désactive les interactions
+        self.setEnabled(False)
+        self.blockSignals(True)
+        self.setCheckable(False)
+        self.setChecked(False)
+        self.setFocusPolicy(Qt.NoFocus)
+
+        def convert_to_bw(image_path):
+            """Convertit une image en noir et blanc avec PIL"""
+            if os.path.exists(image_path):
+                with Image.open(image_path) as img:
+                    # Utilise convert('L') pour une vraie conversion en niveaux de gris
+                    bw_img = img.convert('L')
+                    # Convertit l'image PIL en QPixmap
+                    buffer = io.BytesIO()
+                    bw_img.save(buffer, format='PNG')
+                    buffer.seek(0)
+                    return QPixmap.fromImage(QImage.fromData(buffer.getvalue()))
+            return None
+
+        # Convertit l'icône en noir et blanc si présente pour BtnStyleOne
+        if isinstance(self, BtnStyleOne):
+            icon_path = f"gui_template/btn_icons/{self.name}.png"
+            bw_pixmap = convert_to_bw(icon_path)
+            if bw_pixmap:
+                self.setIcon(QIcon(bw_pixmap))
+
+        # Convertit la texture en noir et blanc pour BtnStyleTwo
+        elif isinstance(self, BtnStyleTwo):
+            texture_path = f"gui_template/btn_textures copy/{self.name}.png"
+            bw_pixmap = convert_to_bw(texture_path)
+            if bw_pixmap:
+                # Sauvegarde temporaire de l'image N&B
+                temp_path = f"/tmp/bw_{self.name}.png"
+                bw_pixmap.save(temp_path)
+                
+                # Style avec bordure noire et texture N&B pour tous les états
+                style = """
+                    QPushButton {
+                        border: 2px solid black;
+                        border-radius: 5px;
+                        background-image: url(%s);
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        color: black;
+                    }
+                    QPushButton:disabled {
+                        border: 2px solid black;
+                        border-radius: 5px;
+                        background-image: url(%s);
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        color: black;
+                    }
+                    QPushButton:hover:disabled,
+                    QPushButton:pressed:disabled,
+                    QPushButton:checked:disabled {
+                        border: 2px solid black;
+                        border-radius: 5px;
+                        background-image: url(%s);
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        color: black;
+                    }
+                """ % (temp_path, temp_path, temp_path)
+                self.setStyleSheet(style)
+
+    def set_enabled_color(self):
+        """Réactive le bouton et restaure l'icône couleur."""
+        self.setEnabled(True)
+        # Recharge l'icône couleur d'origine si possible
+        icon_path = f"gui_template/btn_icons/{self.name}.png"
+        if os.path.exists(icon_path):
+            self.setIcon(QIcon(icon_path))
+        # Restaure l'opacité
+        self.setStyleSheet(self.styleSheet().replace(";opacity:0.5;", ""))
 
 class BtnStyleOne(Btn):
     def __init__(self, name, parent=None):
@@ -225,6 +311,36 @@ class Btns:
     def set_all_btns(self, style1_names, style2_names, slot_style1=None, slot_style2=None, layout=None, start_row=3):
         self.set_style1_btns(style1_names, slot_style1, layout, start_row)
         self.set_style2_btns(style2_names, slot_style2, layout, start_row + 1)
+
+    def set_all_disabled_bw(self):
+        """Désactive et met tous les boutons du groupe en noir et blanc."""
+        for btn in self.style1_btns + self.style2_btns:
+            btn.set_disabled_bw()
+
+    def set_all_enabled_color(self):
+        """Réactive et remet tous les boutons du groupe en couleur."""
+        for btn in self.style1_btns + self.style2_btns:
+            btn.set_enabled_color()
+
+    def set_disabled_bw_style1(self):
+        """Désactive et met en noir et blanc uniquement les boutons style 1."""
+        for btn in self.style1_btns:
+            btn.set_disabled_bw()
+
+    def set_disabled_bw_style2(self):
+        """Désactive et met en noir et blanc uniquement les boutons style 2."""
+        for btn in self.style2_btns:
+            btn.set_disabled_bw()
+
+    def set_enabled_color_style1(self):
+        """Réactive et remet en couleur uniquement les boutons style 1."""
+        for btn in self.style1_btns:
+            btn.set_enabled_color()
+
+    def set_enabled_color_style2(self):
+        """Réactive et remet en couleur uniquement les boutons style 2."""
+        for btn in self.style2_btns:
+            btn.set_enabled_color()
 
     def cleanup(self):
         for btn in self.style1_btns + self.style2_btns:

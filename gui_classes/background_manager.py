@@ -1,5 +1,5 @@
-from PySide6.QtGui import QPixmap, QImage
-from PySide6.QtCore import QObject, QMutex
+from PySide6.QtGui import QPixmap, QImage, QPainter, QColor, QLinearGradient
+from PySide6.QtCore import QObject, QMutex, Qt, QPoint, QPointF
 
 class BackgroundManager(QObject):
     """
@@ -128,23 +128,62 @@ class BackgroundManager(QObject):
         finally:
             self._mutex.unlock()
 
+    def apply_bottom_gradient(self, image):
+        """
+        Applique un dégradé vertical du bas vers le haut sur l'image.
+        Le dégradé va de noir opaque en bas à transparent en haut,
+        sur 20% de la hauteur de l'image depuis le bas.
+        """
+        if isinstance(image, QImage):
+            pixmap = QPixmap.fromImage(image)
+        elif isinstance(image, QPixmap):
+            pixmap = image
+        else:
+            return None
+
+        # Crée un pixmap avec la même taille
+        result = QPixmap(pixmap.size())
+        result.fill(Qt.transparent)
+
+        # Dessine l'image originale
+        painter = QPainter(result)
+        painter.drawPixmap(0, 0, pixmap)
+
+        # Calcule la zone de dégradé (20% de la hauteur depuis le bas)
+        height = pixmap.height()
+        gradient_height = int(height * 0.2)
+        gradient_start = height - gradient_height
+
+        # Crée le dégradé linéaire avec une opacité plus forte
+        gradient = QLinearGradient(QPointF(0, gradient_start), QPointF(0, height))
+        gradient.setColorAt(0, QColor(0, 0, 0, 0))  # Transparent en haut
+        gradient.setColorAt(0.4, QColor(0, 0, 0, 100))  # Semi-transparent au milieu
+        gradient.setColorAt(0.7, QColor(0, 0, 0, 200))  # Plus opaque
+        gradient.setColorAt(1, QColor(0, 0, 0, 255))  # Complètement opaque en bas
+
+        # Applique le dégradé
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        painter.fillRect(0, gradient_start, pixmap.width(), gradient_height, gradient)
+        painter.end()
+
+        return result
+
     def get_background(self):
-        # print("[BG_MANAGER] get_background called")
+        """Met à jour l'affichage avec la bonne source et applique le dégradé."""
         self._mutex.lock()
         try:
+            background = None
             if self.generated_image is not None:
-                # print("[BG_MANAGER] get_background: returning generated_image")
-                return self.generated_image
-            if self.captured_image is not None:
-                # print("[BG_MANAGER] get_background: returning captured_image")
-                return self.captured_image
-            if self.camera_pixmap is not None:
-                # print("[BG_MANAGER] get_background: returning camera_pixmap")
-                return self.camera_pixmap
-            if self.scroll_pixmap is not None:
-                # print("[BG_MANAGER] get_background: returning scroll_pixmap")
-                return self.scroll_pixmap
-            # print("[BG_MANAGER] get_background: returning None")
+                background = QPixmap.fromImage(self.generated_image)
+            elif self.captured_image is not None:
+                background = QPixmap.fromImage(self.captured_image)
+            elif self.camera_pixmap is not None:
+                background = self.camera_pixmap
+            elif self.scroll_pixmap is not None:
+                background = self.scroll_pixmap
+
+            if background is not None:
+                return self.apply_bottom_gradient(background)
             return None
         finally:
             self._mutex.unlock()

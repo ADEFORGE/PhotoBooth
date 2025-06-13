@@ -9,9 +9,10 @@ import re
 import io
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPainter, QPen, QColor, QPainterPath
-from constante import TITLE_LABEL_BORDER_COLOR, TITLE_LABEL_COLOR, TITLE_LABEL_BORDER_WIDTH, TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE, TITLE_LABEL_BOLD, TITLE_LABEL_ITALIC
+from constante import TITLE_LABEL_BORDER_COLOR, TITLE_LABEL_COLOR, TITLE_LABEL_BORDER_WIDTH, TITLE_LABEL_FONT_FAMILY, TITLE_LABEL_FONT_SIZE, TITLE_LABEL_BOLD, TITLE_LABEL_ITALIC, DEBUG
 import numpy as np
 from PIL import Image
+
 
 class ImageUtils:
     @staticmethod
@@ -28,13 +29,14 @@ class ImageUtils:
         h, w, ch = rgb.shape
         return QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
 
-# Utility function for button name normalization (used in multiple dialogs)
+
 def normalize_btn_name(btn_name):
     name = btn_name.lower()
     name = unicodedata.normalize('NFD', name).encode('ascii', 'ignore').decode('utf-8')
     name = re.sub(r'[^a-z0-9]+', '_', name)
     name = name.strip('_')
     return name
+
 
 class QRCodeUtils:
     @staticmethod
@@ -60,13 +62,16 @@ class QRCodeUtils:
 
     class Worker(QObject):
         finished = Signal(QImage)
+
         def __init__(self, data: str):
             super().__init__()
             self.data = data
+
         def run(self):
             img = QRCodeUtils.generate_qrcode(self.data)
             qimg = QRCodeUtils.pil_to_qimage(img)
             self.finished.emit(qimg)
+
 
 class OutlinedLabel(QLabel):
     def __init__(self, text='', parent=None):
@@ -98,32 +103,3 @@ class OutlinedLabel(QLabel):
         painter.drawPath(path)
         painter.setPen(self.text_color)
         painter.drawText(rect, Qt.AlignCenter, text)
-
-class GenerationWorker(QObject):
-    finished = Signal(QImage)
-
-    def __init__(self, style, input_image=None):
-        super().__init__()
-        self.style = style
-        self.input_image = input_image
-        self.generator = ImageGeneratorAPIWrapper()
-
-    def run(self):
-        try:
-            if self.input_image is not None:
-                arr = ImageUtils.qimage_to_cv(self.input_image)
-                cv2.imwrite("../ComfyUI/input/input.png", arr)
-            self.generator.set_style(self.style)
-            self.generator.generate_image()
-            images = self.generator.get_image_paths()
-            if images and os.path.exists(images[0]):
-                img = cv2.imread(images[0])
-                if img is not None:
-                    qimg = ImageUtils.cv_to_qimage(img)
-                    self.finished.emit(qimg)
-                    os.remove(images[0])
-                    return
-            self.finished.emit(QImage())
-        except Exception as e:
-            print(f"[ERROR] Erreur génération: {str(e)}")
-            self.finished.emit(QImage())

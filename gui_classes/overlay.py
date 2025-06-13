@@ -11,6 +11,9 @@ from PySide6.QtWidgets import QApplication
 class Overlay(QWidget):
     def __init__(self, parent=None, center_on_screen=True):
         super().__init__(parent)
+        self._is_visible = False
+        self._is_alive = True
+        print(f"[FLAG] Overlay created: _is_alive={self._is_alive}, _is_visible={self._is_visible}")
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setVisible(False)
@@ -19,6 +22,14 @@ class Overlay(QWidget):
         self._center_on_screen = center_on_screen
         self._centered_once = False
         self._disabled_widgets = set()
+
+    def setVisible(self, visible):
+        if not self._is_alive:
+            print(f"[PROTECT] setVisible({visible}) ignoré car _is_alive=False pour {self}")
+            return
+        super().setVisible(visible)
+        self._is_visible = visible
+        print(f"[FLAG] setVisible({visible}) called: _is_visible={self._is_visible}")
 
     def center_overlay(self):
         # Centre l'overlay sur l'écran principal en tenant compte de sa taille réelle
@@ -35,6 +46,8 @@ class Overlay(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
+        self._is_visible = True
+        print(f"[FLAG] showEvent: _is_visible={self._is_visible}")
         # Centre l'overlay à l'affichage, pour tenir compte de la taille réelle
         if self._center_on_screen and not self._centered_once:
             self.center_overlay()
@@ -43,6 +56,8 @@ class Overlay(QWidget):
 
     def hideEvent(self, event):
         super().hideEvent(event)
+        self._is_visible = False
+        print(f"[FLAG] hideEvent: _is_visible={self._is_visible}")
         self._reenable_all_buttons()
 
     def paintEvent(self, event):
@@ -70,42 +85,51 @@ class Overlay(QWidget):
             self.raise_()
 
     def show_overlay(self):
+        if not self._is_alive:
+            print(f"[PROTECT] show_overlay ignoré car _is_alive=False pour {self}")
+            return
+        if self._is_visible:
+            print(f"[PROTECT] show_overlay ignoré car déjà visible pour {self}")
+            return
         self.setVisible(True)
         self.raise_()
         self._disable_all_buttons_except_overlay()
 
     def hide_overlay(self):
+        if not self._is_alive:
+            print(f"[PROTECT] hide_overlay ignoré car _is_alive=False pour {self}")
+            return
+        if not self._is_visible:
+            print(f"[PROTECT] hide_overlay ignoré car déjà caché pour {self}")
+            return
         self.setVisible(False)
         self._centered_once = False
         self._reenable_all_buttons()
 
     def clean_overlay(self):
-        """Clean up overlay resources thoroughly."""
+        if not self._is_alive:
+            print(f"[PROTECT] clean_overlay ignoré car déjà détruit pour {self}")
+            return
         print(f"[DEBUG] Base Overlay.clean_overlay appelée pour {self}")
         try:
-            # Hide and cleanup main widget
-            self.setVisible(False)
+            self.hide_overlay()
             self._centered_once = False
-            
-            # Re-enable any disabled buttons
             self._reenable_all_buttons()
-            
-            # Clean up overlay widget if it exists
             if hasattr(self, 'overlay_widget'):
                 self.overlay_widget.hide()
                 self.overlay_widget.setParent(None)
                 self.overlay_widget.deleteLater()
-            
-            # Reset state
             self._disabled_widgets.clear()
-            
-            # Schedule this widget for deletion
+            self._is_alive = False
+            print(f"[FLAG] clean_overlay: _is_alive={self._is_alive}")
             self.deleteLater()
-            
-            # Force UI update
             QApplication.processEvents()
         except Exception as e:
             print(f"[ERROR] Exception in base Overlay.clean_overlay: {e}")
+
+    def __del__(self):
+        self._is_alive = False
+        print(f"[FLAG] __del__ called: _is_alive={self._is_alive}")
 
     def _disable_all_buttons_except_overlay(self):
         """Disable all buttons in the application except those in this overlay."""

@@ -173,17 +173,6 @@ class CameraViewer(PhotoBoothBaseWidget):
         except Exception as e:
             print(f"[ERROR] Erreur lors du traitement de l'image: {e}")
             
-    def show_loading(self):
-        if not self.loading_overlay:
-            self.loading_overlay = OverlayLoading(self)
-            self.loading_overlay.setGeometry(self.rect())
-        self.loading_overlay.show()
-        self.loading_overlay.raise_()
-
-    def hide_loading(self):
-        if self.loading_overlay:
-            self.loading_overlay.hide()
-
     def capture_photo(self, style_name=None):
         """Capture une photo avec vérification et lance la génération si style."""
         if self._last_frame is None:
@@ -213,7 +202,7 @@ class CameraViewer(PhotoBoothBaseWidget):
         print("[DEBUG] Callback on_image_generated_callback appelé (CameraViewer)")
         self._generation_in_progress = False
         self.stop_camera()
-        self.hide_loading()  # Toujours cacher l'overlay de chargement
+        # self.hide_loading()  # Toujours cacher l'overlay de chargement, géré par overlay_manager.py
         if qimg and not qimg.isNull():
             print("[DEBUG] Image générée valide (callback CameraViewer)")
             self.generated_image = qimg

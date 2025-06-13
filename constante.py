@@ -445,3 +445,19 @@ TOOLTIP_STYLE = (
 COUNTDOWN_START = 2  # Valeur de départ du compteur (modifiable)
 COUNTDOWN_FONT_STYLE = "font-size: 120px; font-weight: bold; color: #fff; font-family: Arial, sans-serif; background: transparent;"
 
+# DEBUG constant for controlling debug prints
+DEBUG = True
+
+# Tooltip configuration
+TOOLTIP_DURATION_MS = 3000  # Duration in milliseconds
+TOOLTIP_STYLE = """
+QToolTip {
+    background-color: #2a2a2a;
+    color: white;
+    border: 1px solid white;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 12px;
+}
+"""
+

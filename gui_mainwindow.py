@@ -1,12 +1,13 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QApplication
 from PySide6.QtCore import Qt, QEvent
 from gui_classes.photobooth import PhotoBooth
 from gui_classes.welcome_widget import WelcomeWidget
-from constante import WINDOW_STYLE
+from constante import WINDOW_STYLE, DEBUG
 import gc
 import objgraph
 import psutil
 import os
+import sys
 
 
 class MainWindow(QWidget):
@@ -38,29 +39,26 @@ class MainWindow(QWidget):
         self.set_view(0, initial=True)
 
     def set_view(self, index: int, initial=False):
-        """Gère la transition entre les vues Welcome et PhotoBooth."""
-        print(f"[MAINWINDOW] Changement vers la vue {index}")
-
+        """Handle the transition between Welcome and PhotoBooth views."""
+        if DEBUG:
+            print(f"[MAINWINDOW] Switching to view {index}")
         if not initial:
             current_index = self.stack.currentIndex()
             if current_index == index:
                 return
             current_widget = self.widgets.get(current_index)
             if current_widget:
-                print(f"[MAINWINDOW] Nettoyage de la vue {current_index}")
+                if DEBUG:
+                    print(f"[MAINWINDOW] Cleaning up view {current_index}")
                 if hasattr(current_widget, "on_leave"):
                     current_widget.on_leave()
                 if hasattr(current_widget, "cleanup"):
                     current_widget.cleanup()
-                # Supprime l'ancien widget si on ne veut pas le réutiliser
-                # sinon, commente ces lignes pour garder en cache
                 if index not in self.widgets or not isinstance(self.widgets[index], type(current_widget)):
                     current_widget.setParent(None)
                     current_widget.deleteLater()
                     del self.widgets[current_index]
-
         try:
-            # Créer ou récupérer le widget approprié
             if not initial:
                 if index == 0:
                     if not isinstance(self.widgets.get(0), WelcomeWidget):
@@ -79,25 +77,25 @@ class MainWindow(QWidget):
                             del self.widgets[1]
                         self.widgets[1] = PhotoBooth(self)
                 else:
-                    print(f"[ERROR] Index de vue invalide: {index}")
+                    if DEBUG:
+                        print(f"[ERROR] Invalid view index: {index}")
                     return
                 new_widget = self.widgets[index]
-                # Si pas déjà dans la stack, l'ajoute
                 if self.stack.indexOf(new_widget) == -1:
                     self.stack.addWidget(new_widget)
             else:
                 new_widget = self.widgets[index]
-
-            # Activer la nouvelle vue
             self.stack.setCurrentWidget(new_widget)
-            print(f"[MAINWINDOW] Configuration de la nouvelle vue {index}")
+            if DEBUG:
+                print(f"[MAINWINDOW] Configuring new view {index}")
             if hasattr(new_widget, "on_enter"):
                 new_widget.on_enter()
         except Exception as e:
-            print(f"[ERROR] Erreur lors du changement de vue: {e}")
+            if DEBUG:
+                print(f"[ERROR] Error while switching view: {e}")
             import traceback; traceback.print_exc()
-
-        print("[MAINWINDOW] Changement de vue terminé")
+        if DEBUG:
+            print("[MAINWINDOW] View switch complete")
 
     def _cleanup_widget(self, widget):
         # Méthode d'analyse/debug, non appelée en production
@@ -172,3 +170,14 @@ class MainWindow(QWidget):
             print("Graphique généré: loading_widget_backrefs.png")
         print("[DEBUG] gc.get_referrers SaveAndSettingWidget:", gc.get_referrers(getattr(self, 'save_setting_widget', None)))
         print("[DEBUG] gc.get_referrers LoadingWidget:", gc.get_referrers(getattr(self, 'load_widget', None)))
+
+
+def main():
+    app = QApplication(sys.argv)
+    win = MainWindow()
+    win.showFullScreen()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

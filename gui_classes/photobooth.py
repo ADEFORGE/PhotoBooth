@@ -1,7 +1,7 @@
 # gui_classes/photobooth.py
 from PySide6.QtCore import QTimer, QThread
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
-from constante import CAMERA_ID
+from constante import CAMERA_ID, DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
 from gui_classes.camera_viewer import CameraViewer
 from PySide6.QtGui import QPixmap, QImage
 from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationTask
@@ -10,9 +10,12 @@ from gui_classes.overlay_manager import CountdownOverlayManager, ImageGeneration
 class PhotoBooth(CameraViewer):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.countdown_overlay_manager = CountdownOverlayManager(self)
+        self.countdown_overlay_manager = CountdownOverlayManager(self, 3)  # Correction ici
         self._generation_task = None
-        self._generation_in_progress = False  # Ajout du flag
+        self._generation_in_progress = False
+        self._countdown_callback_active = False  # Anti-reentrance flag
+        if DEBUG:
+            print("[INIT] Generation task and flags initialized")
 
     def on_enter(self):
         """Called when PhotoBooth view becomes active."""
@@ -46,25 +49,38 @@ class PhotoBooth(CameraViewer):
 
         # Hide any overlays
         self.hide_loading()
+        # Robust overlay cleanup with protection and debug prints
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
-            self._countdown_overlay.clean_overlay()
+            try:
+                if getattr(self._countdown_overlay, '_is_alive', True):
+                    print(f"[DEBUG] Cleaning countdown overlay: {self._countdown_overlay}")
+                    self._countdown_overlay.clean_overlay()
+                else:
+                    print(f"[PROTECT] Countdown overlay already destroyed: {self._countdown_overlay}")
+            except Exception as e:
+                print(f"[ERROR] Exception during countdown overlay cleanup: {e}")
             self._countdown_overlay = None
-            
         self.countdown_overlay_manager.clear_all()
 
     def clean(self):
         """Wrapper: délègue le cleanup à ImageGenerationTask."""
+        if DEBUG:
+            print(f"[GEN] Cleaning up - in_progress: {self._generation_in_progress}, task: {self._generation_task}")
         self._generation_in_progress = False
         if self._generation_task:
-            # Disconnect signals first
             if hasattr(self._generation_task, 'finished'):
                 try:
+                    if DEBUG:
+                        print("[GEN] Disconnecting previous task signals")
                     self._generation_task.finished.disconnect()
-                except:
-                    pass
+                except Exception as e:
+                    if DEBUG:
+                        print(f"[GEN] Warning: Could not disconnect signals: {e}")
             self._generation_task.clean()
             self._generation_task = None
-            
+        if DEBUG:
+            print("[GEN] Cleanup complete")
+
     def cleanup(self):
         """Full cleanup when widget is being destroyed."""
         print("[PHOTOBOOTH] Full cleanup")
@@ -73,11 +89,22 @@ class PhotoBooth(CameraViewer):
         super().cleanup()  # Call parent cleanup
 
     def start(self, style_name, input_image):
-        """Wrapper: démarre la génération via ImageGenerationTask."""
-        self.show_loading()  # Affiche explicitement l'overlay de loading
+        """Start image generation via ImageGenerationTask. Ne force plus le flag et ne gère plus l'overlay ici."""
+        if DEBUG:
+            print(f"[GEN] Starting generation with style: {style_name}")
+            print(f"[GEN] Current state - in_progress: {self._generation_in_progress}, task: {self._generation_task}")
+        # self.show_loading()  # SUPPRIMÉ : overlay de loading géré uniquement par overlay_manager.py
         from gui_classes.overlay_manager import ImageGenerationTask
+        # Toujours nettoyer l'ancienne tâche, même si in_progress
+        if self._generation_task:
+            if DEBUG:
+                print("[GEN] WARNING: Previous generation task exists, cleaning up first")
+            self.clean()
+        # On force la création d'une nouvelle tâche, même si l'état précédent n'est pas propre
         self._generation_task = ImageGenerationTask(style=style_name, input_image=input_image, parent=self)
         self._generation_task.finished.connect(self._on_image_generated_callback)
+        if DEBUG:
+            print("[GEN] New generation task created and connected")
         self._generation_task.start()
 
     def finish(self):
@@ -118,51 +145,97 @@ class PhotoBooth(CameraViewer):
         self.countdown_overlay_manager.start(self._after_countdown_finish)
 
     def _after_countdown_finish(self):
-        """Callback appelé quand le compte à rebours est terminé"""
-        print("[DEBUG] Compte à rebours terminé, capture de l'image")
-        if self._generation_in_progress:
-            print("[DEBUG] Génération déjà en cours, on ignore ce callback")
-            return
-        self._generation_in_progress = True
-        if self._last_frame is None:
-            print("[ERROR] Pas de frame disponible")
-            self._generation_in_progress = False
-            return
-
-        qimg = QImage(self._last_frame)
-        if qimg.isNull():
-            print("[ERROR] Échec de la capture")
-            self._generation_in_progress = False
+        from constante import DEBUG
+        import threading
+        print(f"[TRACE] _after_countdown_finish called. Thread: {threading.current_thread().name}, id(self): {id(self)}, flag: {self._countdown_callback_active}")
+        print(f"[DEBUG_FLAGS] _after_countdown_finish: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}, _last_frame={'OK' if self._last_frame is not None else 'None'}")
+        if self._countdown_callback_active:
+            print(f"[TRACE] _after_countdown_finish: Already running, skipping. Thread: {threading.current_thread().name}, id(self): {id(self)}")
+            if DEBUG:
+                print("[GEN] _after_countdown_finish: Already running, skipping reentrant call.")
             return
 
-        self.original_photo = qimg
-        self.background_manager.set_captured_image(qimg)
+        self._countdown_callback_active = True
+        try:
+            if DEBUG:
+                print(f"[GEN] Countdown finished - in_progress: {self._generation_in_progress}")
+                print(f"[GEN] Selected style: {self.selected_style}")
+            print(f"[TRACE] _after_countdown_finish: Entered main logic. Thread: {threading.current_thread().name}, id(self): {id(self)}")
+            print(f"[DEBUG_FLAGS] Entered main logic: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}, _last_frame={'OK' if self._last_frame is not None else 'None'}")
 
-        # Fermer explicitement l'overlay de capture (compte à rebours) AVANT la génération
-        if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
-            self._countdown_overlay.clean_overlay()
-            self._countdown_overlay = None
-        self.countdown_overlay_manager.clear_overlay("countdown")
+            self.clean()  # This will set _generation_in_progress to False
 
-        # Lance la génération avec le style sélectionné
-        if self.selected_style:
-            print(f"[DEBUG] Lancement génération avec style {self.selected_style}")
-            self.start(self.selected_style, qimg.copy())
-        else:
-            self._generation_in_progress = False
+            if self._last_frame is None:
+                print(f"[TRACE] _after_countdown_finish: No frame available. Thread: {threading.current_thread().name}, id(self): {id(self)}")
+                if DEBUG:
+                    print("[GEN] Error: No frame available")
+                self._countdown_callback_active = False
+                print(f"[DEBUG_FLAGS] Early return: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
+                return
+
+            qimg = QImage(self._last_frame)
+            if qimg.isNull():
+                print(f"[TRACE] _after_countdown_finish: QImage is null. Thread: {threading.current_thread().name}, id(self): {id(self)}")
+                if DEBUG:
+                    print("[GEN] Error: Failed to capture image")
+                self._countdown_callback_active = False
+                print(f"[DEBUG_FLAGS] Early return: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
+                return
+
+            self.original_photo = qimg
+            self.background_manager.set_captured_image(qimg)
+
+            # Ne pas nettoyer l'overlay countdown ici ! Le manager s'en occupe.
+            print(f"[TRACE] _after_countdown_finish: Clearing countdown overlay via manager.")
+            try:
+                self.countdown_overlay_manager.clear_overlay("countdown")
+            except Exception as e:
+                print(f"[ERROR] Exception during countdown overlay manager cleanup: {e}")
+
+            # CORRECTION: Only allow generation if not already in progress
+            if self.selected_style and not self._generation_in_progress:
+                print(f"[TRACE] _after_countdown_finish: Starting generation with style: {self.selected_style}")
+                if DEBUG:
+                    print(f"[GEN] Starting generation with style: {self.selected_style}")
+                # self._generation_in_progress = True  # SUPPRIMÉ : le flag est géré dans le callback de génération
+                print(f"[DEBUG_FLAGS] Before start: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
+                self.start(self.selected_style, qimg.copy())
+            else:
+                print(f"[TRACE] _after_countdown_finish: Generation already in progress or no style selected. Skipping start.")
+        except Exception as e:
+            import traceback
+            print(f"[TRACE] _after_countdown_finish: Exception: {e}")
+            traceback.print_exc()
+            if DEBUG:
+                print(f"[GEN] Exception in _after_countdown_finish: {e}")
+        finally:
+            print(f"[TRACE] _after_countdown_finish: Resetting flag. Thread: {threading.current_thread().name}, id(self): {id(self)}")
+            print(f"[DEBUG_FLAGS] Finally: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
+            self._countdown_callback_active = False
 
     def _on_image_generated_callback(self, qimg):
-        """Wrapper: callback appelé par ImageGenerationTask."""
-        print("[DEBUG] Callback _on_image_generated_callback appelé")
-        self._generation_in_progress = False
+        """Callback when image generation is complete."""
+        from constante import DEBUG
+        if DEBUG:
+            print(f"[GEN] Generation callback - in_progress: {self._generation_in_progress}")
+            print(f"[GEN] Generated image valid: {qimg and not qimg.isNull()}")
+        
+        # Reset generation state
+        self._generation_task = None
+        self._generation_in_progress = False  # Important: reset flag here
+        
         self.stop_camera()
         if qimg and not qimg.isNull():
-            print("[DEBUG] Image générée valide (callback)")
+            if DEBUG:
+                print("[GEN] Valid image generated, updating display")
             self.generated_image = qimg
         else:
-            print("[DEBUG] Pas d'image générée (callback)")
+            if DEBUG:
+                print("[GEN] No valid image generated")
             self.generated_image = None
         self.update_frame()
+        if DEBUG:
+            print("[GEN] Moving to validation state")
         self.set_state_validation()
 
     def _on_accept_close(self):
@@ -198,18 +271,28 @@ class PhotoBooth(CameraViewer):
         else:
             self.set_state_default()
 
+    def reset_generation_state(self):
+        """Reset the generation state and related flags."""
+        from constante import DEBUG
+        if DEBUG:
+            print("[PHOTOBOOTH] Resetting generation state and flags")
+        self._generation_in_progress = False
+        self._generation_task = None
+        self.generated_image = None
+        self.original_photo = None
+
     def reset_to_default_state(self):
         self.set_state_default()
 
     def set_state_default(self):
         """État d'accueil : webcam, bouton take_selfie, boutons de styles."""
-        print("[PHOTOBOOTH] Retour à l'état par défaut")
-        # Nettoyer l'état précédent
+        from constante import DEBUG
+        if DEBUG:
+            print("[PHOTOBOOTH] Back to default state")
+        # Reset generation state and flags
+        self.reset_generation_state()
         self.selected_style = None
-        self.generated_image = None
-        self.original_photo = None
         self._last_frame = None
-        
         # Nettoyer l'affichage
         self.clear_display()
         

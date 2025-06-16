@@ -1,7 +1,7 @@
 # gui_classes/overlay.py
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, QGraphicsBlurEffect, QApplication
 from PySide6.QtCore import Qt, QSize, QEvent, QThread, Signal, QObject, QTimer
-from PySide6.QtGui import QMovie, QPixmap, QIcon, QImage, QPainter, QColor, QPen
+from PySide6.QtGui import QMovie, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QPainterPath
 from constante import DIALOG_BOX_STYLE, FIRST_BUTTON_STYLE
 from gui_classes.btn import Btns
 from gui_classes.toolbox import normalize_btn_name
@@ -25,6 +25,11 @@ class Overlay(QWidget):
         self._center_on_screen = center_on_screen
         self._centered_once = False
         self._disabled_widgets = set()
+        # Correction : fond transparent sur overlay_widget si présent
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.setAttribute(Qt.WA_TranslucentBackground)
+            self.overlay_widget.setStyleSheet("background: transparent; border-radius: 18px;")
+        self.setStyleSheet("background: transparent;")
 
     def setVisible(self, visible):
         if not self._is_alive:
@@ -65,7 +70,12 @@ class Overlay(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor(0, 0, 0, 128))
+        painter.setRenderHint(QPainter.Antialiasing)
+        # Fond arrondi semi-transparent
+        path = QPainterPath()
+        radius = 18
+        path.addRoundedRect(self.rect(), radius, radius)
+        painter.fillPath(path, QColor(0, 0, 0, 128))
 
     def setup_buttons(self, style1_names, style2_names, slot_style1=None, slot_style2=None, start_row=3):
         if hasattr(self, 'btns') and self.btns:
@@ -173,12 +183,16 @@ class Overlay(QWidget):
 class OverlayGray(Overlay):
     def __init__(self, parent=None, center_on_screen=True):
         super().__init__(parent, center_on_screen)
-        self.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px; border: 3px solid black;")
+        self.setStyleSheet("background: transparent;")
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
 
 class OverlayWhite(Overlay):
     def __init__(self, parent=None, center_on_screen=True):
         super().__init__(parent, center_on_screen)
-        self.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px; border: 3px solid white;")
+        self.setStyleSheet("background: transparent;")
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
 
 class OverlayLoading(OverlayWhite):
     def __init__(self, parent=None):

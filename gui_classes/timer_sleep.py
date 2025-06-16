@@ -21,8 +21,11 @@ class TimerSleep:
         """Restore the main window to the WelcomeWidget view."""
         if DEBUG:
             print("[TIMER_SLEEP] Timer triggered: restoring WelcomeWidget")
+            print(f"[DEBUG][TIMER_SLEEP] Calling set_view(0) on main_window={self.main_window}")
         if hasattr(self.main_window, 'set_view'):
             self.main_window.set_view(0)  # 0 = WelcomeWidget (convention)
+        else:
+            print("[DEBUG][TIMER_SLEEP] main_window has no set_view method!")
 
     def set_timer(self, seconds):
         """Set the timer duration in seconds."""

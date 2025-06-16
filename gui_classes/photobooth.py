@@ -26,6 +26,8 @@ class PhotoBooth(CameraViewer):
             print("[INIT] Generation task and flags initialized")
 
     def on_enter(self):
+        print("[DEBUG][PHOTOBOOTH] on_enter called")
+        print(f"[DEBUG][PHOTOBOOTH] generated_image={self.generated_image}, original_photo={self.original_photo}, selected_style={self.selected_style}")
         """Called when PhotoBooth view becomes active."""
         # print("[PHOTOBOOTH] Entering view")  # Suppression de l'affichage du titre
         # Clear any previous state
@@ -45,9 +47,12 @@ class PhotoBooth(CameraViewer):
             self.show_image(self._last_frame)
             self.update()
             
+        print("[DEBUG][PHOTOBOOTH] on_enter finished")
+
     def on_leave(self):
+        print("[DEBUG][PHOTOBOOTH] on_leave called")
+        print(f"[DEBUG][PHOTOBOOTH] _capture_connected={self._capture_connected}, overlays={hasattr(self, '_countdown_overlay')}, background_source={getattr(self, 'background_manager', None) and self.background_manager.get_source()}")
         """Called when leaving PhotoBooth view."""
-        print("[PHOTOBOOTH] Leaving view")
         # Stop camera first
         self._capture_connected = False
         self.stop_camera()
@@ -70,7 +75,10 @@ class PhotoBooth(CameraViewer):
             self._countdown_overlay = None
         self.countdown_overlay_manager.clear_all()
 
+        print("[DEBUG][PHOTOBOOTH] on_leave finished")
+
     def clean(self):
+        print("[DEBUG][PHOTOBOOTH] clean called")
         """Wrapper: délègue le cleanup à ImageGenerationTask."""
         if DEBUG:
             print(f"[GEN] Cleaning up - in_progress: {self._generation_in_progress}, task: {self._generation_task}")
@@ -88,13 +96,16 @@ class PhotoBooth(CameraViewer):
             self._generation_task = None
         if DEBUG:
             print("[GEN] Cleanup complete")
+        print("[DEBUG][PHOTOBOOTH] clean finished")
 
     def cleanup(self):
+        print("[DEBUG][PHOTOBOOTH] cleanup called")
         """Full cleanup when widget is being destroyed."""
         print("[PHOTOBOOTH] Full cleanup")
         self.clean()  # Clean generation task first
         self.on_leave()  # Make sure we've stopped the camera
         super().cleanup()  # Call parent cleanup
+        print("[DEBUG][PHOTOBOOTH] cleanup finished")
 
     def start(self, style_name, input_image):
         """Start image generation via ImageGenerationTask. Ne force plus le flag et ne gère plus l'overlay ici."""
@@ -292,6 +303,7 @@ class PhotoBooth(CameraViewer):
     def set_state_default(self):
         """État d'accueil : webcam, bouton take_selfie, boutons de styles."""
         from constante import DEBUG
+        print("[DEBUG][PHOTOBOOTH] set_state_default called")
         if DEBUG:
             print("[PHOTOBOOTH] Back to default state")
         # Reset generation state and flags
@@ -327,8 +339,10 @@ class PhotoBooth(CameraViewer):
         if self._timer_sleep:
             self._timer_sleep.set_timer_from_constante()
             self._timer_sleep.start()
+        print("[DEBUG][PHOTOBOOTH] set_state_default finished")
 
     def set_state_validation(self):
+        print("[DEBUG][PHOTOBOOTH] set_state_validation called")
         """État validation : image/photo affichée, boutons accept/close (style1), plus de boutons de styles."""
         self._capture_connected = False
         self.stop_camera()
@@ -345,8 +359,10 @@ class PhotoBooth(CameraViewer):
         # Stop the inactivity timer when entering validation state
         if self._timer_sleep:
             self._timer_sleep.stop()
+        print("[DEBUG][PHOTOBOOTH] set_state_validation finished")
 
     def set_state_wait(self):
+        print("[DEBUG][PHOTOBOOTH] set_state_wait called")
         """État attente : image/photo affichée, aucun bouton style1 ni style2."""
         self._capture_connected = False
         self.stop_camera()
@@ -360,10 +376,11 @@ class PhotoBooth(CameraViewer):
         # Stop the inactivity timer when entering wait state
         if self._timer_sleep:
             self._timer_sleep.stop()
+        print("[DEBUG][PHOTOBOOTH] set_state_wait finished")
 
     def update_frame(self):
+        print("[DEBUG][PHOTOBOOTH] update_frame called")
         """Met à jour l'affichage avec la bonne source via le BackgroundManager."""
-        print("[PHOTOBOOTH] Mise à jour de l'affichage (BackgroundManager)")
         # Priorité : image générée > photo originale > frame caméra
         if self.generated_image and not isinstance(self.generated_image, str):
             self.background_manager.set_generated_image(self.generated_image)
@@ -374,6 +391,7 @@ class PhotoBooth(CameraViewer):
         else:
             self.background_manager.clear_all()
         self.update()
+        print("[DEBUG][PHOTOBOOTH] update_frame finished")
 
     def user_activity(self):
         # Call this on any user activity to reset the timer

@@ -5,6 +5,7 @@ from constante import CAMERA_ID, DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
 from gui_classes.camera_viewer import CameraViewer
 from PySide6.QtGui import QPixmap, QImage
 from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationTask
+from gui_classes.timer_sleep import TimerSleep
 
 
 class PhotoBooth(CameraViewer):
@@ -14,6 +15,13 @@ class PhotoBooth(CameraViewer):
         self._generation_task = None
         self._generation_in_progress = False
         self._countdown_callback_active = False  # Anti-reentrance flag
+        # --- TimerSleep integration ---
+        from gui_mainwindow import MainWindow
+        self._timer_sleep = None
+        if isinstance(parent, MainWindow):
+            self._timer_sleep = TimerSleep(parent)
+        elif hasattr(parent, 'set_view'):
+            self._timer_sleep = TimerSleep(parent)
         if DEBUG:
             print("[INIT] Generation task and flags initialized")
 
@@ -315,6 +323,11 @@ class PhotoBooth(CameraViewer):
         self._capture_connected = True
         self.start_camera()
 
+        # Start the inactivity timer when entering default state
+        if self._timer_sleep:
+            self._timer_sleep.set_timer_from_constante()
+            self._timer_sleep.start()
+
     def set_state_validation(self):
         """État validation : image/photo affichée, boutons accept/close (style1), plus de boutons de styles."""
         self._capture_connected = False
@@ -329,6 +342,10 @@ class PhotoBooth(CameraViewer):
             # Suppression de l'appel à disable_style2_btns, car set_disabled_bw_style2 suffit
         self.update_frame()
 
+        # Stop the inactivity timer when entering validation state
+        if self._timer_sleep:
+            self._timer_sleep.stop()
+
     def set_state_wait(self):
         """État attente : image/photo affichée, aucun bouton style1 ni style2."""
         self._capture_connected = False
@@ -339,6 +356,10 @@ class PhotoBooth(CameraViewer):
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.hide()
         self.update_frame()
+
+        # Stop the inactivity timer when entering wait state
+        if self._timer_sleep:
+            self._timer_sleep.stop()
 
     def update_frame(self):
         """Met à jour l'affichage avec la bonne source via le BackgroundManager."""
@@ -353,3 +374,9 @@ class PhotoBooth(CameraViewer):
         else:
             self.background_manager.clear_all()
         self.update()
+
+    def user_activity(self):
+        # Call this on any user activity to reset the timer
+        if self._timer_sleep:
+            self._timer_sleep.set_timer_from_constante()
+            self._timer_sleep.start()

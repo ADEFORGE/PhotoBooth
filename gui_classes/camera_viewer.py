@@ -27,6 +27,8 @@ class CameraCaptureThread(QThread):
             print(f"[CAMERA] Essai index {idx}...")
             self.cap = cv2.VideoCapture(idx)
             if self.cap.isOpened():
+                self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+                self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
                 print(f"[CAMERA] Caméra trouvée sur index {idx}")
                 break
             else:
@@ -50,6 +52,7 @@ class CameraCaptureThread(QThread):
             if not ret or frame is None:
                 print("[CAMERA] Frame invalide")
                 continue
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, ch = rgb.shape
             qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()

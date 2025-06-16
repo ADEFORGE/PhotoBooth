@@ -68,14 +68,18 @@ class Overlay(QWidget):
         print(f"[FLAG] hideEvent: _is_visible={self._is_visible}")
         self._reenable_all_buttons()
 
+    def get_overlay_bg_color(self):
+        # Par défaut, transparent
+        return QColor(0, 0, 0, 0)
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        # Fond arrondi semi-transparent
+        # Fond arrondi selon le type d'overlay
         path = QPainterPath()
         radius = 18
         path.addRoundedRect(self.rect(), radius, radius)
-        painter.fillPath(path, QColor(0, 0, 0, 128))
+        painter.fillPath(path, self.get_overlay_bg_color())
 
     def setup_buttons(self, style1_names, style2_names, slot_style1=None, slot_style2=None, start_row=3):
         if hasattr(self, 'btns') and self.btns:
@@ -186,6 +190,8 @@ class OverlayGray(Overlay):
         self.setStyleSheet("background: transparent;")
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
+    def get_overlay_bg_color(self):
+        return QColor(24,24,24,210)  # gris foncé arrondi
 
 class OverlayWhite(Overlay):
     def __init__(self, parent=None, center_on_screen=True):
@@ -193,6 +199,8 @@ class OverlayWhite(Overlay):
         self.setStyleSheet("background: transparent;")
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
+    def get_overlay_bg_color(self):
+        return QColor(255,255,255,217)  # blanc arrondi, alpha=0.85*255
 
 class OverlayLoading(OverlayWhite):
     def __init__(self, parent=None):

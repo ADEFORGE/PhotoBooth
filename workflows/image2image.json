@@ -1,82 +1,370 @@
 {
   "3": {
     "inputs": {
-      "seed": 0,
-      "steps": 20,
-      "cfg": 8,
-      "sampler_name": "dpmpp_2m",
-      "scheduler": "normal",
-      "denoise": 0.8700000000000001,
-      "model": [
-        "14",
-        0
-      ],
-      "positive": [
-        "6",
-        0
-      ],
-      "negative": [
-        "7",
-        0
-      ],
-      "latent_image": [
-        "12",
+      "image": [
+        "16",
         0
       ]
     },
-    "class_type": "KSampler",
+    "class_type": "GetImageSize",
     "_meta": {
-      "title": "KSampler"
+      "title": "Get Image Size"
+    }
+  },
+  "4": {
+    "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "38",
+        0
+      ],
+      "image": [
+        "54",
+        0
+      ],
+      "cnet_stack": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
+    }
+  },
+  "5": {
+    "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "39",
+        0
+      ],
+      "image": [
+        "55",
+        0
+      ],
+      "cnet_stack": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
     }
   },
   "6": {
     "inputs": {
-      "text": "photograph of victorian woman with wings, sky clouds, meadow grass\n",
-      "clip": [
-        "14",
-        1
+      "images": [
+        "31",
+        5
       ]
     },
-    "class_type": "CLIPTextEncode",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "Preview Image"
     }
   },
   "7": {
     "inputs": {
-      "text": "watermark, text\n",
-      "clip": [
-        "14",
-        1
+      "images": [
+        "17",
+        0
       ]
     },
-    "class_type": "CLIPTextEncode",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "Preview Image"
     }
   },
   "8": {
     "inputs": {
-      "samples": [
-        "3",
+      "images": [
+        "17",
         0
-      ],
-      "vae": [
-        "14",
-        2
       ]
     },
-    "class_type": "VAEDecode",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "Preview Image"
     }
   },
   "9": {
     "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "37",
+        0
+      ],
+      "image": [
+        "53",
+        0
+      ],
+      "cnet_stack": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
+    }
+  },
+  "10": {
+    "inputs": {
+      "images": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "11": {
+    "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "36",
+        0
+      ],
+      "image": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
+    }
+  },
+  "15": {
+    "inputs": {},
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "16": {
+    "inputs": {
+      "image": "WIN_20250616_10_47_56_Pro.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "17": {
+    "inputs": {
+      "width": [
+        "3",
+        0
+      ],
+      "height": [
+        "3",
+        0
+      ],
+      "x": 0,
+      "y": 0,
+      "image": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "ImageCrop",
+    "_meta": {
+      "title": "Image Crop"
+    }
+  },
+  "18": {
+    "inputs": {
+      "images": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "31": {
+    "inputs": {
+      "seed": 659544562517336,
+      "steps": 6,
+      "cfg": 5,
+      "sampler_name": "lcm",
+      "scheduler": "normal",
+      "denoise": 1,
+      "preview_method": "auto",
+      "vae_decode": "true",
+      "model": [
+        "33",
+        0
+      ],
+      "positive": [
+        "33",
+        1
+      ],
+      "negative": [
+        "33",
+        2
+      ],
+      "latent_image": [
+        "33",
+        3
+      ],
+      "optional_vae": [
+        "33",
+        4
+      ],
+      "script": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "KSampler (Efficient)",
+    "_meta": {
+      "title": "KSampler (Efficient)"
+    }
+  },
+  "33": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors",
+      "vae_name": "Baked VAE",
+      "clip_skip": -1,
+      "lora_name": "None",
+      "lora_model_strength": 1,
+      "lora_clip_strength": 1,
+      "positive": "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style, intricate facial details, soft chiseled edges, polished marble texture, standing on a stone pedestal in a grand museum hall, soft ambient lighting, blurred museum background, exhibition setting, timeless and elegant",
+      "negative": "embedding:BadDream, embedding:UnrealisticDream, ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
+      "token_normalization": "mean",
+      "weight_interpretation": "comfy",
+      "empty_latent_width": 512,
+      "empty_latent_height": 512,
+      "batch_size": 1,
+      "lora_stack": [
+        "46",
+        0
+      ],
+      "cnet_stack": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "Efficient Loader",
+    "_meta": {
+      "title": "Efficient Loader"
+    }
+  },
+  "36": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "37": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11p_sd15_normalbae_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "38": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11f1p_sd15_depth_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "39": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11p_sd15_openpose_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "40": {
+    "inputs": {
+      "images": [
+        "31",
+        5
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "46": {
+    "inputs": {
+      "input_mode": "simple",
+      "lora_count": 1,
+      "lora_name_1": "SD1.5\\lcm\\pytorch_lora_weights.safetensors",
+      "lora_wt_1": 1,
+      "model_str_1": 1,
+      "clip_str_1": 1,
+      "lora_name_2": "None",
+      "lora_wt_2": 1,
+      "model_str_2": 1,
+      "clip_str_2": 1,
+      "lora_name_3": "None",
+      "lora_wt_3": 1,
+      "model_str_3": 1,
+      "clip_str_3": 1
+    },
+    "class_type": "LoRA Stacker",
+    "_meta": {
+      "title": "LoRA Stacker"
+    }
+  },
+  "47": {
+    "inputs": {
+      "upscale_type": "latent",
+      "hires_ckpt_name": "(use same)",
+      "latent_upscaler": "nearest-exact",
+      "pixel_upscaler": "8x_NMKD-Superscale_150000_G.pth",
+      "upscale_by": 1.2500000000000002,
+      "use_same_seed": false,
+      "seed": 921858188633,
+      "hires_steps": 12,
+      "denoise": 0.8100000000000002,
+      "iterations": 1,
+      "use_controlnet": false,
+      "control_net_name": "1.5\\control_v11f1p_sd15_depth_fp16.safetensors",
+      "strength": 1,
+      "preprocessor": "DepthAnythingV2Preprocessor",
+      "preprocessor_imgs": false
+    },
+    "class_type": "HighRes-Fix Script",
+    "_meta": {
+      "title": "HighRes-Fix Script"
+    }
+  },
+  "51": {
+    "inputs": {
       "filename_prefix": "ComfyUI",
       "images": [
-        "8",
-        0
+        "31",
+        5
       ]
     },
     "class_type": "SaveImage",
@@ -84,38 +372,60 @@
       "title": "Save Image"
     }
   },
-  "10": {
+  "52": {
     "inputs": {
-      "image": "example.png"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Image"
-    }
-  },
-  "12": {
-    "inputs": {
-      "pixels": [
-        "10",
+      "preprocessor": "CannyEdgePreprocessor",
+      "resolution": 512,
+      "image": [
+        "17",
         0
-      ],
-      "vae": [
-        "14",
-        2
       ]
     },
-    "class_type": "VAEEncode",
+    "class_type": "AIO_Preprocessor",
     "_meta": {
-      "title": "VAE Encode"
+      "title": "AIO Aux Preprocessor"
     }
   },
-  "14": {
+  "53": {
     "inputs": {
-      "ckpt_name": "v1-5-pruned-emaonly-fp16.safetensors"
+      "preprocessor": "DSINE-NormalMapPreprocessor",
+      "resolution": 512,
+      "image": [
+        "17",
+        0
+      ]
     },
-    "class_type": "CheckpointLoaderSimple",
+    "class_type": "AIO_Preprocessor",
     "_meta": {
-      "title": "Load Checkpoint"
+      "title": "AIO Aux Preprocessor"
+    }
+  },
+  "54": {
+    "inputs": {
+      "preprocessor": "DepthAnythingV2Preprocessor",
+      "resolution": 512,
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "AIO Aux Preprocessor"
+    }
+  },
+  "55": {
+    "inputs": {
+      "preprocessor": "OpenposePreprocessor",
+      "resolution": 512,
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "AIO Aux Preprocessor"
     }
   }
 }

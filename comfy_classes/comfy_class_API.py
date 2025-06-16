@@ -56,10 +56,13 @@ class ImageGeneratorAPIWrapper:
                     node["inputs"]["text"] = self._styles_prompts[self._style]
                 elif node_id == "7":  # negative prompt node
                     node["inputs"]["text"] = self._negative_prompt
-            elif node["class_type"] == "KSampler":
+            if node["class_type"] == "Efficient Loader":
+                    node["inputs"]["positive"] = self._styles_prompts[self._style]
+            elif node["class_type"] == "KSampler" or node["class_type"] == "KSampler (Efficient)":
                 node["inputs"]["seed"] = random.randint(0, 1000000000)
-                node["inputs"]["cfg"] = 2.0
-                node["inputs"]["denoise"] = 0.500000000000001
+                node["inputs"]["steps"] = 6
+                node["inputs"]["cfg"] = 5.0
+                node["inputs"]["denoise"] = 1
             elif node["class_type"] == "LoadImage":
                 node["inputs"]["image"] = "input.png"
             elif node["class_type"] == "SaveImage":
@@ -77,7 +80,7 @@ class ImageGeneratorAPIWrapper:
         # Optional: Wait for output image to appear
         self._wait_for_image()
 
-    def _wait_for_image(self, timeout=30):
+    def _wait_for_image(self, timeout=300):
         print("Waiting for image to appear...")
         start = time.time()
         while time.time() - start < timeout:

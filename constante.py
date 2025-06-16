@@ -461,3 +461,6 @@ QToolTip {
 }
 """
 
+# --- Timer for auto-sleep/restore to welcome screen ---
+SLEEP_TIMER_SECONDS = 15  # Default inactivity timeout in seconds (can be changed)
+

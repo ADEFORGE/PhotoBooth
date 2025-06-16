@@ -39,22 +39,28 @@ class MainWindow(QWidget):
         self.set_view(0, initial=True)
 
     def set_view(self, index: int, initial=False):
-        """Handle the transition between Welcome and PhotoBooth views."""
+        print(f"[DEBUG][MAINWINDOW] set_view(index={index}, initial={initial}) called")
         if DEBUG:
             print(f"[MAINWINDOW] Switching to view {index}")
         if not initial:
             current_index = self.stack.currentIndex()
-            if current_index == index:
-                return
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex()={self.stack.currentIndex()}, widget at index={type(self.stack.currentWidget())}")
+            # Diagnostic : affiche tous les widgets et leurs index
+            for i in range(self.stack.count()):
+                print(f"[DEBUG][MAINWINDOW] stack index {i}: {type(self.stack.widget(i))}")
             current_widget = self.widgets.get(current_index)
+            print(f"[DEBUG][MAINWINDOW] current_widget={type(current_widget)}")
             if current_widget:
                 if DEBUG:
                     print(f"[MAINWINDOW] Cleaning up view {current_index}")
                 if hasattr(current_widget, "on_leave"):
+                    print(f"[DEBUG][MAINWINDOW] Calling on_leave on {type(current_widget)}")
                     current_widget.on_leave()
                 if hasattr(current_widget, "cleanup"):
+                    print(f"[DEBUG][MAINWINDOW] Calling cleanup on {type(current_widget)}")
                     current_widget.cleanup()
                 if index not in self.widgets or not isinstance(self.widgets[index], type(current_widget)):
+                    print(f"[DEBUG][MAINWINDOW] Deleting current_widget instance {type(current_widget)}")
                     current_widget.setParent(None)
                     current_widget.deleteLater()
                     del self.widgets[current_index]
@@ -64,6 +70,7 @@ class MainWindow(QWidget):
                     if not isinstance(self.widgets.get(0), WelcomeWidget):
                         old = self.widgets.get(0)
                         if old:
+                            print(f"[DEBUG][MAINWINDOW] Replacing WelcomeWidget instance {type(old)}")
                             old.setParent(None)
                             old.deleteLater()
                             del self.widgets[0]
@@ -72,6 +79,7 @@ class MainWindow(QWidget):
                     if not isinstance(self.widgets.get(1), PhotoBooth):
                         old = self.widgets.get(1)
                         if old:
+                            print(f"[DEBUG][MAINWINDOW] Replacing PhotoBooth instance {type(old)}")
                             old.setParent(None)
                             old.deleteLater()
                             del self.widgets[1]
@@ -82,13 +90,19 @@ class MainWindow(QWidget):
                     return
                 new_widget = self.widgets[index]
                 if self.stack.indexOf(new_widget) == -1:
+                    print(f"[DEBUG][MAINWINDOW] Adding new_widget {type(new_widget)} to stack")
                     self.stack.addWidget(new_widget)
             else:
                 new_widget = self.widgets[index]
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex() before set: {self.stack.currentIndex()}")
+            print(f"[DEBUG][MAINWINDOW] indexOf(new_widget): {self.stack.indexOf(new_widget)}")
             self.stack.setCurrentWidget(new_widget)
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex() after set: {self.stack.currentIndex()}")
+            print(f"[DEBUG][MAINWINDOW] currentWidget after set: {type(self.stack.currentWidget())}")
             if DEBUG:
                 print(f"[MAINWINDOW] Configuring new view {index}")
             if hasattr(new_widget, "on_enter"):
+                print(f"[DEBUG][MAINWINDOW] Calling on_enter on {type(new_widget)}")
                 new_widget.on_enter()
         except Exception as e:
             if DEBUG:
@@ -96,6 +110,7 @@ class MainWindow(QWidget):
             import traceback; traceback.print_exc()
         if DEBUG:
             print("[MAINWINDOW] View switch complete")
+        print(f"[DEBUG][MAINWINDOW] set_view finished for index={index}")
 
     def _cleanup_widget(self, widget):
         # Méthode d'analyse/debug, non appelée en production

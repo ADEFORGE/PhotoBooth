@@ -117,12 +117,16 @@ class PhotoBoothBaseWidget(QWidget):
         self.update()
 
     def clear_display(self):
+        print("[DEBUG][BASEWIDGET] clear_display called")
+        if hasattr(self, 'background_manager'):
+            print(f"[DEBUG][BASEWIDGET] background_manager source before clear: {self.background_manager.get_source()}")
         self.background_manager.clear_all()
         self.update()
+        print("[DEBUG][BASEWIDGET] clear_display finished")
 
     def clear_buttons(self):
+        print("[DEBUG][BASEWIDGET] clear_buttons called")
         """Clear all buttons with proper cleanup."""
-        print("[WIDGET] Clearing buttons")
         if hasattr(self, 'button_group'):
             for btn in self.button_group.buttons():
                 btn.setParent(None)
@@ -148,6 +152,7 @@ class PhotoBoothBaseWidget(QWidget):
                         widget.setParent(None)
                         widget.deleteLater()
                     self.overlay_layout.removeItem(item)
+        print("[DEBUG][BASEWIDGET] clear_buttons finished")
 
     def get_grid_width(self):
         return GRID_WIDTH
@@ -312,6 +317,7 @@ class PhotoBoothBaseWidget(QWidget):
         # ...autres actions showEvent si besoin...
 
     def cleanup(self):
+        print("[DEBUG][BASEWIDGET] cleanup called")
         """Perform thorough cleanup of resources"""
         # Clean up thread and worker
         if hasattr(self, '_thread') and self._thread:
@@ -349,6 +355,7 @@ class PhotoBoothBaseWidget(QWidget):
         
         # Clear generation status
         self._generation_in_progress = False
+        print("[DEBUG][BASEWIDGET] cleanup finished")
 
     def show_info_dialog(self):
         """Affiche la boîte d'information via OverlayInfo"""

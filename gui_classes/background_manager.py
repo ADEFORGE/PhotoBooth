@@ -51,12 +51,12 @@ class BackgroundManager(QObject):
             self._mutex.unlock()
 
     def set_scroll_pixmap(self, pixmap):
-        # print("[BG_MANAGER] set_scroll_pixmap called")
+        print("[DEBUG][BGMANAGER] set_scroll_pixmap called")
         self._mutex.lock()
         try:
             self.scroll_pixmap = pixmap
             self.current_source = 'scroll'
-            # print("[BG_MANAGER] set_scroll_pixmap: source set to 'scroll'")
+            print(f"[DEBUG][BGMANAGER] set_scroll_pixmap: source set to 'scroll'")
         finally:
             self._mutex.unlock()
 
@@ -169,7 +169,6 @@ class BackgroundManager(QObject):
         return result
 
     def get_background(self):
-        """Met à jour l'affichage avec la bonne source et applique le dégradé."""
         self._mutex.lock()
         try:
             background = None
@@ -183,7 +182,8 @@ class BackgroundManager(QObject):
                 background = self.scroll_pixmap
 
             if background is not None:
-                return self.apply_bottom_gradient(background)
+                result = self.apply_bottom_gradient(background)
+                return result
             return None
         finally:
             self._mutex.unlock()
@@ -193,6 +193,7 @@ class BackgroundManager(QObject):
         return self.current_source
 
     def clear_all(self):
+        print("[DEBUG][BGMANAGER] clear_all called")
         # print("[BG_MANAGER] clear_all called")
         self._mutex.lock()
         try:
@@ -202,5 +203,6 @@ class BackgroundManager(QObject):
             self.scroll_pixmap = None
             self.current_source = None
             # print("[BG_MANAGER] clear_all: all sources cleared")
+            print("[DEBUG][BGMANAGER] clear_all: all sources cleared")
         finally:
             self._mutex.unlock()

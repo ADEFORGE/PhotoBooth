@@ -73,7 +73,7 @@ class PhotoBooth(CameraViewer):
             except Exception as e:
                 print(f"[ERROR] Exception during countdown overlay cleanup: {e}")
             self._countdown_overlay = None
-        self.countdown_overlay_manager.clear_all()
+        self.countdown_overlay_manager.clear_overlay("countdown")
 
         print("[DEBUG][PHOTOBOOTH] on_leave finished")
 
@@ -99,13 +99,12 @@ class PhotoBooth(CameraViewer):
         print("[DEBUG][PHOTOBOOTH] clean finished")
 
     def cleanup(self):
-        print("[DEBUG][PHOTOBOOTH] cleanup called")
-        """Full cleanup when widget is being destroyed."""
-        print("[PHOTOBOOTH] Full cleanup")
-        self.clean()  # Clean generation task first
-        self.on_leave()  # Make sure we've stopped the camera
-        super().cleanup()  # Call parent cleanup
-        print("[DEBUG][PHOTOBOOTH] cleanup finished")
+        print("[PHOTOBOOTH][DEBUG] cleanup start (reset state, not destruction)")
+        # Reset state, clear overlays, stop timers, etc. but do not delete the widget
+        if hasattr(self, 'clean'):
+            self.clean()
+        # Optionally clear display, overlays, etc.
+        print("[PHOTOBOOTH][DEBUG] cleanup end (widget kept alive)")
 
     def start(self, style_name, input_image):
         """Start image generation via ImageGenerationTask. Ne force plus le flag et ne gère plus l'overlay ici."""

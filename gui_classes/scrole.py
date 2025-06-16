@@ -15,6 +15,7 @@ from PySide6.QtCore import Qt, QTimer
 
 class InfiniteScrollView(QGraphicsView):
     def __init__(self, folder_path, scroll_speed=1, tilt_angle=30, parent=None):
+        print("[SCROLE][DEBUG] __init__ start")
         super().__init__(parent)
         self.folder_path = folder_path
         self.scroll_speed = scroll_speed
@@ -40,6 +41,27 @@ class InfiniteScrollView(QGraphicsView):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._scroll_step)
         self.timer.start(30)
+        print(f"[SCROLE][DEBUG] __init__ end, timer isActive={self.timer.isActive()}")
+
+    def showEvent(self, event):
+        print(f"[SCROLE][DEBUG] showEvent: isVisible={self.isVisible()} geometry={self.geometry()} scene={self.scene} populated={self._populated}")
+        super().showEvent(event)
+
+    def hideEvent(self, event):
+        print(f"[SCROLE][DEBUG] hideEvent: isVisible={self.isVisible()} scene={self.scene}")
+        super().hideEvent(event)
+
+    def paintEvent(self, event):
+        print(f"[SCROLE][DEBUG] paintEvent: isVisible={self.isVisible()} scene={self.scene} populated={self._populated}")
+        super().paintEvent(event)
+
+    def resizeEvent(self, event):
+        print(f"[SCROLE][DEBUG] resizeEvent: size={self.size()} populated={self._populated}")
+        super().resizeEvent(event)
+        if not self._populated and self.viewport().width() > 0:
+            print("[SCROLE][DEBUG] resizeEvent: calling _populate_scene")
+            self._populate_scene()
+            self._populated = True
 
     def _load_image_paths(self, folder_path):
         valid_exts = {".png", ".jpg", ".jpeg", ".bmp", ".gif"}
@@ -50,13 +72,12 @@ class InfiniteScrollView(QGraphicsView):
             if os.path.splitext(f.lower())[1] in valid_exts
         ]
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        if not self._populated and self.viewport().width() > 0:
-            self._populate_scene()
-            self._populated = True
-
     def _populate_scene(self):
+        print(f"[SCROLE][DEBUG] _populate_scene: called, scene={self.scene} populated={self._populated}")
+        if self.scene is None:
+            print("[SCROLE][DEBUG] _populate_scene: scene is None, recreating scene")
+            self.scene = QGraphicsScene(self)
+            self.setScene(self.scene)
         screen = QGuiApplication.screenAt(self.mapToGlobal(self.rect().center()))
         screen_size = screen.size()
         screen_width = screen_size.width()
@@ -114,7 +135,7 @@ class InfiniteScrollView(QGraphicsView):
         # 🎯 Centrage personnalisé : centre scène - moitié largeur colonnes
         scene_center = self.scene.sceneRect().center()
 
-        offset_x = (scaled_w * column_count) / 3
+        offset_x = 0#(scaled_w * column_count) / 3
         custom_center_x = scene_center.x() - offset_x
         custom_center_y = scene_center.y()
 
@@ -124,6 +145,7 @@ class InfiniteScrollView(QGraphicsView):
         transform = QTransform()
         transform.rotate(self.tilt_angle)
         self.setTransform(transform)
+        print(f"[SCROLE][DEBUG] _populate_scene: scene populated, item count={len(self.scene.items())} columns={len(self.columns)}")
 
     def _scroll_step(self):
         for col_data in self.columns:
@@ -142,6 +164,29 @@ class InfiniteScrollView(QGraphicsView):
 
     def wheelEvent(self, event):
         event.ignore()
+
+    def stop(self):
+        print("[SCROLE][DEBUG] stop() called")
+        if hasattr(self, 'timer') and self.timer.isActive():
+            print("[SCROLE][DEBUG] Stopping scroll timer")
+            self.timer.stop()
+        else:
+            print("[SCROLE][DEBUG] Timer already stopped or missing")
+        if hasattr(self, 'timer'):
+            print(f"[SCROLE][DEBUG] Timer object: {self.timer}")
+        # Clean up graphics items and scene
+        if hasattr(self, 'scene') and self.scene is not None:
+            print("[SCROLE][DEBUG] Cleaning up graphics scene")
+            for item in self.scene.items():
+                self.scene.removeItem(item)
+            self.columns.clear()
+            self.scene.clear()
+            self.scene.deleteLater()
+            self.scene = None
+        else:
+            print("[SCROLE][DEBUG] No scene to clean")
+        self._populated = False
+        print(f"[SCROLE][DEBUG] stop() end: scene={self.scene} populated={self._populated}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget
 from PySide6.QtGui import QIcon, QPixmap, QImage
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QEvent
 import os
 from PIL import Image, ImageQt
 import io
@@ -13,6 +13,43 @@ class Btn(QPushButton):
         self.name = name
         self._connected_slots = []
         self.setObjectName(name)
+        self._setup_timer_sleep_events()
+
+    def _setup_timer_sleep_events(self):
+        # Cherche le TimerSleep dans la hiérarchie parentale
+        parent = self.parent()
+        timer_sleep = None
+        while parent is not None:
+            if hasattr(parent, '_timer_sleep') and parent._timer_sleep:
+                timer_sleep = parent._timer_sleep
+                break
+            parent = parent.parent() if hasattr(parent, 'parent') else None
+        self._timer_sleep = timer_sleep
+        # Installe les events si timer trouvé
+        if self._timer_sleep:
+            self.installEventFilter(self)
+            self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
+
+    def eventFilter(self, obj, event):
+        if obj is self and self._timer_sleep:
+            if event.type() == QEvent.Enter:
+                # Hover: reset le timer
+                if hasattr(self._timer_sleep, 'set_and_start'):
+                    self._timer_sleep.set_and_start()
+            elif event.type() == QEvent.MouseButtonPress:
+                # Click: reset puis stop le timer
+                if hasattr(self._timer_sleep, 'set_and_start'):
+                    self._timer_sleep.set_and_start()
+                if hasattr(self._timer_sleep, 'stop'):
+                    self._timer_sleep.stop()
+        return super().eventFilter(obj, event)
+
+    def _on_btn_clicked_reset_stop_timer(self):
+        if self._timer_sleep:
+            if hasattr(self._timer_sleep, 'set_and_start'):
+                self._timer_sleep.set_and_start()
+            if hasattr(self._timer_sleep, 'stop'):
+                self._timer_sleep.stop()
 
     def initialize(self, style=None, icon_path=None, size=None, checkable=False):
         if style:

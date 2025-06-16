@@ -16,7 +16,7 @@ PhotoBooth/
 ├── comfy_classes/
 │   └── comfy_class_API.py      # API wrapper for ComfyUI
 ├── gui_classes/
-│   ├── camerawidget.py         # Camera capture widget
+│   ├── photobooth_app.py         # Camera capture widget
 │   ├── choosestylewidget.py    # Style selection widget
 │   ├── resultwidget.py         # Result display widget
 │   └── loadwidget.py           # Loading animation widget

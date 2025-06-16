@@ -61,10 +61,10 @@ dico_styles = {
 
 # --- Fenêtre principale ---
 WINDOW_TITLE = "PhotoBooth"
-WINDOW_BG_COLOR = COLORS["orange"]
+WINDOW_BG_COLOR = "transparent"  # transparent au lieu d'une couleur
 WINDOW_STYLE = """
     QWidget {
-        background-color: %s;
+        background-color: transparent;
     }
     QLabel {
         background: transparent;
@@ -72,7 +72,7 @@ WINDOW_STYLE = """
     QPushButton {
         background-color: %s;
     }
-""" % (COLORS["orange"], COLORS["darkgray"])
+""" % (COLORS["darkgray"])
 
 # --- Police globale ---
 APP_FONT_FAMILY = "Arial"   
@@ -218,4 +218,246 @@ INFO_BUTTON_STYLE = (
     f"background-color: rgba(0, 0, 0, 0.1);"
     f"}}"
 )
+
+# --- Dialog Box Style (InfoDialog & RulesDialog) ---
+DIALOG_BOX_STYLE = (
+    "QDialog {"
+    "background-color: rgba(24, 24, 24, 0.82);"  # gris très foncé, bien transparent
+    "border-radius: 18px;"
+    # "backdrop-filter: blur(6px);"  # <-- SUPPRIMÉ car non supporté par Qt
+    "}"
+    "QLabel {"
+    "background: transparent;"
+    "color: white;"
+    "font-size: 18px;"
+    "}"
+    "QTextEdit {"
+    "background: transparent;"
+    "color: white;"
+    "font-size: 16px;"
+    "border: none;"
+    "}"
+    "QPushButton {"
+    "background-color: #444;"
+    "color: white;"
+    "font-size: 16px;"
+    "border-radius: 10px;"
+    "padding: 8px 24px;"
+    "margin-top: 12px;"
+    "}"
+    "QPushButton:hover {"
+    "background-color: #666;"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: #222;"
+    "}"
+)
+
+# --- Style pour les boutons d'action dans les boîtes de dialogue (InfoDialog & RulesDialog) ---
+DIALOG_ACTION_BUTTON_STYLE = (
+    "QPushButton {"
+    "background-color: rgba(180,180,180,0.35);"
+    "border: 2px solid #bbb;"
+    "border-radius: 24px;"
+    "min-width: 48px; min-height: 48px;"
+    "max-width: 48px; max-height: 48px;"
+    "font-size: 18px;"
+    "color: white;"
+    "font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "border: 2.5px solid white;"
+    "background-color: rgba(200,200,200,0.45);"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: rgba(220,220,220,0.55);"
+    "border: 3px solid #eee;"
+    "}"
+)
+
+# --- Icon Button Style (pour info/rules boutons ronds transparents) ---
+ICON_BUTTON_STYLE = (
+    "QPushButton {"
+    "background-color: rgba(180,180,180,0.35);"
+    "border: 2px solid #bbb;"
+    "border-radius: 24px;"
+    "min-width: 48px; min-height: 48px;"
+    "max-width: 48px; max-height: 48px;"
+    "}"
+    "QPushButton:hover {"
+    "border: 2.5px solid white;"
+    "}"
+    "QPushButton:pressed {"
+    "background-color: rgba(220,220,220,0.55);"
+    "border: 3px solid #eee;"
+    "}"
+)
+
+# --- Style pour les boutons de style (TOGGLE, AVEC OU SANS TEXTURE) ---
+def get_style_button_style(style_name):
+    import os
+    texture_path = f"gui_template/styles_textures/{style_name}.png"
+    checked = (
+        "QPushButton:checked {"
+        "background-color: #f7811a;"
+        "border: 3px solid #fff;"
+        "color: #fff;"
+        "}"
+    )
+    if os.path.exists(texture_path):
+        return (
+            "QPushButton {"
+            "border: 2px solid black;"
+            "border-radius: 16px;"
+            f"background-image: url('{texture_path}');"
+            "background-repeat: no-repeat;"
+            "background-position: center;"
+            # "background-size: cover;"  # <-- Supprimé car non supporté par Qt
+            "background-color: black;"
+            "color: white;"
+            "font-size: 18px;"
+            "font-weight: bold;"
+            "min-width: 80px; min-height: 80px;"
+            "max-width: 120px; max-height: 120px;"
+            "}"
+            "QPushButton:hover {"
+            "border: 2px solid gray;"
+            "}"
+            "QPushButton:pressed {"
+            "border: 4px solid white;"
+            "}"
+            + checked
+        )
+    else:
+        return (
+            "QPushButton {"
+            "border: 2px solid black;"
+            "border-radius: 16px;"
+            "background-color: black;"
+            "color: white;"
+            "font-size: 18px;"
+            "font-weight: bold;"
+            "min-width: 80px; min-height: 80px;"
+            "max-width: 120px; max-height: 120px;"
+            "}"
+            "QPushButton:hover {"
+            "border: 2px solid gray;"
+            "}"
+            "QPushButton:pressed {"
+            "border: 4px solid white;"
+            "}"
+            + checked
+        )
+
+# --- Style pour les boutons "first_buttons" (icônes ronds) ---
+FIRST_BUTTON_STYLE = (
+    "QPushButton {"
+    "background-color: rgba(180,180,180,0.5);"
+    "border: 2px solid #888;"
+    "border-radius: 24px;"
+    "min-width: 48px; min-height: 48px;"
+    "max-width: 48px; max-height: 48px;"
+    "font-size: 22px;"
+    "color: white;"
+    "font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "border: 2.5px solid white;"
+    "}"
+    "QPushButton:pressed {"
+    "border: 3px solid black;"
+    "}"
+)
+
+# --- Style pour les boutons génériques (autres que styles et first_buttons) ---
+GENERIC_BUTTON_STYLE = FIRST_BUTTON_STYLE  # ou personnalise si besoin
+
+# --- Message affiché en haut de l'overlay de validation ---
+VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de continuer."  # Personnalisez ici
+
+# --- Styles personnalisables pour les boutons ---
+BTN_STYLE_ONE = (
+    "QPushButton {"
+    "background-color: rgba(80,80,80,0.18);"
+    "border: 2.5px solid #888;"
+    "border-radius: 40px;"
+    "min-width: 80px; min-height: 80px;"
+    "max-width: 80px; max-height: 80px;"
+    "font-size: 24px;"
+    "color: #eee;"
+    "font-weight: bold;"
+    "}"
+    "QPushButton:hover {"
+    "border: 3px solid #bbb;"
+    "background-color: rgba(120,120,120,0.22);"
+    "color: #fff;"
+    "}"
+    "QPushButton:pressed, QPushButton:checked {"
+    "background-color: rgba(220,220,220,0.32);"
+    "border: 3.5px solid #fff;"
+    "color: #222;"
+    "}"
+)
+
+BTN_STYLE_TWO = (
+    "QPushButton {{"
+    "border: 2px solid black;"
+    "border-radius: 8px;"
+    "background-image: url('{texture}');"
+    "background-repeat: no-repeat;"
+    "background-position: center;"
+    "background-color: black;"
+    "color: white;"
+    "font-size: 18px;"
+    "font-weight: bold;"
+    "}}"
+    "QPushButton:checked {{"
+    "background-color: #f7811a;"
+    "border: 3px solid #fff;"
+    "color: #fff;"
+    "}}"
+    "QPushButton:hover {{"
+    "border: 2px solid gray;"
+    "}}"
+    "QPushButton:pressed {{"
+    "border: 4px solid white;"
+    "}}"
+)
+
+# --- Tooltip duration for take photo button (in milliseconds) ---
+TOOLTIP_DURATION_MS = 3000  # Default: 3 seconds
+
+# --- Tooltip Style (infobulle) ---
+TOOLTIP_STYLE = (
+    "QToolTip {"
+    "background-color: rgba(255,255,255,0.65);"  # Blanc plus transparent
+    "color: #111;"  # Texte noir
+    "border: 2.5px solid #fff;"  # Bordure blanche opaque
+    "border-radius: 12px;"  # Coins arrondis plus petits
+    "font-size: 18px;"  # Taille réduite
+    "padding: 6px 12px;"  # Padding réduit
+    "font-family: Arial, sans-serif;"
+    "font-weight: bold;"
+    "}"
+)
+
+# --- Countdown Overlay ---
+COUNTDOWN_START = 2  # Valeur de départ du compteur (modifiable)
+COUNTDOWN_FONT_STYLE = "font-size: 120px; font-weight: bold; color: #fff; font-family: Arial, sans-serif; background: transparent;"
+
+# DEBUG constant for controlling debug prints
+DEBUG = True
+
+# Tooltip configuration
+TOOLTIP_DURATION_MS = 3000  # Duration in milliseconds
+TOOLTIP_STYLE = """
+QToolTip {
+    background-color: #2a2a2a;
+    color: white;
+    border: 1px solid white;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 12px;
+}
+"""
 

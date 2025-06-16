@@ -49,10 +49,10 @@ GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
 
 # --- Styles disponibles ---
 dico_styles = {
-    "anime": "anime style illustration, vibrant colors, dynamic poses",
-    "photo": "photograph, high quality",
-    "comic": "comic style illustration, stylized, vibrant colors",
-    "oil paint": "oil painting, classic art style, rich textures, brush strokes",
+    "cyberpunk": "A futuristic cyberpunk portrait of a person, neon lighting in vibrant magentas, cyans, and electric blues, high-tech facial implants and holographic interfaces, reflective urban textures, dark cityscape background with glowing advertisements, cinematic atmosphere, rain-slick surfaces, detailed cybernetic elements, inspired by Blade Runner and Ghost in the Shell",
+    "comic": "A dynamic comic book-style portrait of a person, bold inking, clean line art, vivid cel-shading, high contrast colors, expressive facial features, dramatic lighting, graphic novel aesthetics, detailed costume elements, heroic composition, inspired by Marvel and DC comic book art",
+    "oil paint": "A portrait of a person in the style of a traditional oil painting, soft natural lighting, expressive brush strokes, realistic skin textures, warm color palette, classic painterly aesthetic, elegant and timeless composition, highly detailed, canvas texture visible, inspired by old master techniques",
+    "statue" : "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style, intricate facial details, soft chiseled edges, polished marble texture, standing on a stone pedestal in a grand museum hall, soft ambient lighting, blurred museum background, exhibition setting, timeless and elegant"
 }
 
 # =========================

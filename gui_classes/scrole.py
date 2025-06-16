@@ -36,7 +36,7 @@ class InfiniteScrollView(QGraphicsView):
         self.setBackgroundBrush(Qt.black)
 
         self.columns = []
-        self._populated = False
+        self._populated = False  # NE PAS appeler _populate_scene ici
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._scroll_step)
@@ -58,8 +58,13 @@ class InfiniteScrollView(QGraphicsView):
     def resizeEvent(self, event):
         print(f"[SCROLE][DEBUG] resizeEvent: size={self.size()} populated={self._populated}")
         super().resizeEvent(event)
-        if not self._populated and self.viewport().width() > 0:
-            print("[SCROLE][DEBUG] resizeEvent: calling _populate_scene")
+        # Toujours repopuler la scène si la taille a changé (même si déjà peuplée)
+        if self.viewport().width() > 0 and self.viewport().height() > 0:
+            print(f"[SCROLE][DEBUG] resizeEvent: force _populate_scene (avant clear)")
+            if self.scene is not None:
+                self.scene.clear()
+            self.columns.clear()
+            self._populated = False
             self._populate_scene()
             self._populated = True
 

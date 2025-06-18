@@ -1,67 +1,18 @@
 {
   "3": {
     "inputs": {
-      "image": [
-        "16",
-        0
-      ]
+      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
     },
-    "class_type": "GetImageSize",
+    "class_type": "ControlNetLoader",
     "_meta": {
-      "title": "Get Image Size"
-    }
-  },
-  "4": {
-    "inputs": {
-      "strength": 1,
-      "start_percent": 0,
-      "end_percent": 1,
-      "control_net": [
-        "38",
-        0
-      ],
-      "image": [
-        "54",
-        0
-      ],
-      "cnet_stack": [
-        "9",
-        0
-      ]
-    },
-    "class_type": "Control Net Stacker",
-    "_meta": {
-      "title": "Control Net Stacker"
-    }
-  },
-  "5": {
-    "inputs": {
-      "strength": 1,
-      "start_percent": 0,
-      "end_percent": 1,
-      "control_net": [
-        "39",
-        0
-      ],
-      "image": [
-        "55",
-        0
-      ],
-      "cnet_stack": [
-        "4",
-        0
-      ]
-    },
-    "class_type": "Control Net Stacker",
-    "_meta": {
-      "title": "Control Net Stacker"
+      "title": "Load ControlNet Model"
     }
   },
   "6": {
     "inputs": {
       "images": [
-        "31",
-        5
+        "17",
+        0
       ]
     },
     "class_type": "PreviewImage",
@@ -72,20 +23,8 @@
   "7": {
     "inputs": {
       "images": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "8": {
-    "inputs": {
-      "images": [
-        "17",
-        0
+        "23",
+        5
       ]
     },
     "class_type": "PreviewImage",
@@ -95,217 +34,24 @@
   },
   "9": {
     "inputs": {
-      "strength": 1,
-      "start_percent": 0,
-      "end_percent": 1,
-      "control_net": [
-        "37",
+      "upscale_model": [
+        "14",
         0
       ],
       "image": [
-        "53",
-        0
-      ],
-      "cnet_stack": [
-        "11",
-        0
+        "23",
+        5
       ]
     },
-    "class_type": "Control Net Stacker",
+    "class_type": "ImageUpscaleWithModel",
     "_meta": {
-      "title": "Control Net Stacker"
-    }
-  },
-  "10": {
-    "inputs": {
-      "images": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
+      "title": "Upscale Image (using Model)"
     }
   },
   "11": {
     "inputs": {
-      "strength": 1,
-      "start_percent": 0,
-      "end_percent": 1,
-      "control_net": [
-        "36",
-        0
-      ],
-      "image": [
-        "52",
-        0
-      ]
-    },
-    "class_type": "Control Net Stacker",
-    "_meta": {
-      "title": "Control Net Stacker"
-    }
-  },
-  "15": {
-    "inputs": {},
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "16": {
-    "inputs": {
-      "image": "WIN_20250616_10_47_56_Pro.jpg"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Image"
-    }
-  },
-  "17": {
-    "inputs": {
-      "width": [
-        "3",
-        0
-      ],
-      "height": [
-        "3",
-        0
-      ],
-      "x": 0,
-      "y": 0,
-      "image": [
-        "16",
-        0
-      ]
-    },
-    "class_type": "ImageCrop",
-    "_meta": {
-      "title": "Image Crop"
-    }
-  },
-  "18": {
-    "inputs": {
       "images": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "31": {
-    "inputs": {
-      "seed": 659544562517336,
-      "steps": 6,
-      "cfg": 5,
-      "sampler_name": "lcm",
-      "scheduler": "normal",
-      "denoise": 1,
-      "preview_method": "auto",
-      "vae_decode": "true",
-      "model": [
-        "33",
-        0
-      ],
-      "positive": [
-        "33",
-        1
-      ],
-      "negative": [
-        "33",
-        2
-      ],
-      "latent_image": [
-        "33",
-        3
-      ],
-      "optional_vae": [
-        "33",
-        4
-      ],
-      "script": [
-        "47",
-        0
-      ]
-    },
-    "class_type": "KSampler (Efficient)",
-    "_meta": {
-      "title": "KSampler (Efficient)"
-    }
-  },
-  "33": {
-    "inputs": {
-      "ckpt_name": "dreamshaper_8.safetensors",
-      "vae_name": "Baked VAE",
-      "clip_skip": -1,
-      "lora_name": "None",
-      "lora_model_strength": 1,
-      "lora_clip_strength": 1,
-      "positive": "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style, intricate facial details, soft chiseled edges, polished marble texture, standing on a stone pedestal in a grand museum hall, soft ambient lighting, blurred museum background, exhibition setting, timeless and elegant",
-      "negative": "embedding:BadDream, embedding:UnrealisticDream, ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
-      "token_normalization": "mean",
-      "weight_interpretation": "comfy",
-      "empty_latent_width": 512,
-      "empty_latent_height": 512,
-      "batch_size": 1,
-      "lora_stack": [
-        "46",
-        0
-      ],
-      "cnet_stack": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "Efficient Loader",
-    "_meta": {
-      "title": "Efficient Loader"
-    }
-  },
-  "36": {
-    "inputs": {
-      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "37": {
-    "inputs": {
-      "control_net_name": "1.5\\control_v11p_sd15_normalbae_fp16.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "38": {
-    "inputs": {
-      "control_net_name": "1.5\\control_v11f1p_sd15_depth_fp16.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "39": {
-    "inputs": {
-      "control_net_name": "1.5\\control_v11p_sd15_openpose_fp16.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "40": {
-    "inputs": {
-      "images": [
-        "31",
+        "23",
         5
       ]
     },
@@ -314,7 +60,50 @@
       "title": "Preview Image"
     }
   },
-  "46": {
+  "12": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "14": {
+    "inputs": {
+      "model_name": "RealESRGAN_x2.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "16": {
+    "inputs": {
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "17": {
+    "inputs": {
+      "image": "WIN_20250616_12_16_56_Pro.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "18": {
     "inputs": {
       "input_mode": "simple",
       "lora_count": 1,
@@ -336,46 +125,146 @@
       "title": "LoRA Stacker"
     }
   },
-  "47": {
+  "19": {
     "inputs": {
-      "upscale_type": "latent",
-      "hires_ckpt_name": "(use same)",
-      "latent_upscaler": "nearest-exact",
-      "pixel_upscaler": "8x_NMKD-Superscale_150000_G.pth",
-      "upscale_by": 1.2500000000000002,
-      "use_same_seed": false,
-      "seed": 921858188633,
-      "hires_steps": 12,
-      "denoise": 0.8100000000000002,
-      "iterations": 1,
-      "use_controlnet": false,
-      "control_net_name": "1.5\\control_v11f1p_sd15_depth_fp16.safetensors",
-      "strength": 1,
-      "preprocessor": "DepthAnythingV2Preprocessor",
-      "preprocessor_imgs": false
-    },
-    "class_type": "HighRes-Fix Script",
-    "_meta": {
-      "title": "HighRes-Fix Script"
-    }
-  },
-  "51": {
-    "inputs": {
-      "filename_prefix": "ComfyUI",
-      "images": [
-        "31",
-        5
+      "ckpt_name": "dreamshaper_8.safetensors",
+      "vae_name": "Baked VAE",
+      "clip_skip": -1,
+      "lora_name": "None",
+      "lora_model_strength": 1,
+      "lora_clip_strength": 1,
+      "positive": "A portrait of a person in the style of a traditional oil painting, soft natural lighting, clair obscur, large expressive brush strokes, paint cracks, paint layers, colorful palette, classic painterly aesthetic, elegant and timeless composition, highly detailed, canvas texture visible, inspired by old master techniques",
+      "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
+      "token_normalization": "mean",
+      "weight_interpretation": "comfy",
+      "empty_latent_width": [
+        "20",
+        0
+      ],
+      "empty_latent_height": [
+        "21",
+        0
+      ],
+      "batch_size": 1,
+      "lora_stack": [
+        "18",
+        0
+      ],
+      "cnet_stack": [
+        "47",
+        0
       ]
     },
-    "class_type": "SaveImage",
+    "class_type": "Efficient Loader",
     "_meta": {
-      "title": "Save Image"
+      "title": "Efficient Loader"
     }
   },
-  "52": {
+  "20": {
+    "inputs": {
+      "expression": "a/b\n\n",
+      "a": [
+        "16",
+        0
+      ],
+      "b": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "Math Expression 🐍"
+    }
+  },
+  "21": {
+    "inputs": {
+      "expression": "a/b",
+      "a": [
+        "16",
+        1
+      ],
+      "b": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "Math Expression 🐍"
+    }
+  },
+  "23": {
+    "inputs": {
+      "seed": 156045693641255,
+      "steps": 30,
+      "cfg": 8,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1,
+      "preview_method": "auto",
+      "vae_decode": "true",
+      "model": [
+        "59",
+        0
+      ],
+      "positive": [
+        "19",
+        1
+      ],
+      "negative": [
+        "19",
+        2
+      ],
+      "latent_image": [
+        "19",
+        3
+      ],
+      "optional_vae": [
+        "19",
+        4
+      ]
+    },
+    "class_type": "KSampler (Efficient)",
+    "_meta": {
+      "title": "KSampler (Efficient)"
+    }
+  },
+  "26": {
+    "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "3",
+        0
+      ],
+      "image": [
+        "45",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
+    }
+  },
+  "42": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "45": {
     "inputs": {
       "preprocessor": "CannyEdgePreprocessor",
-      "resolution": 512,
+      "resolution": [
+        "16",
+        0
+      ],
       "image": [
         "17",
         0
@@ -386,46 +275,96 @@
       "title": "AIO Aux Preprocessor"
     }
   },
-  "53": {
+  "46": {
     "inputs": {
-      "preprocessor": "DSINE-NormalMapPreprocessor",
-      "resolution": 512,
-      "image": [
-        "17",
+      "images": [
+        "45",
         0
       ]
     },
-    "class_type": "AIO_Preprocessor",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "AIO Aux Preprocessor"
+      "title": "Preview Image"
     }
   },
-  "54": {
+  "47": {
     "inputs": {
-      "preprocessor": "DepthAnythingV2Preprocessor",
-      "resolution": 512,
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "48",
+        0
+      ],
       "image": [
         "17",
         0
+      ],
+      "cnet_stack": [
+        "26",
+        0
       ]
     },
-    "class_type": "AIO_Preprocessor",
+    "class_type": "Control Net Stacker",
     "_meta": {
-      "title": "AIO Aux Preprocessor"
+      "title": "Control Net Stacker"
     }
   },
-  "55": {
+  "48": {
     "inputs": {
-      "preprocessor": "OpenposePreprocessor",
-      "resolution": 512,
+      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "59": {
+    "inputs": {
+      "weight": 1,
+      "start_at": 0,
+      "end_at": 1,
+      "weight_type": "prompt is more important",
+      "model": [
+        "61",
+        0
+      ],
+      "ipadapter": [
+        "61",
+        1
+      ],
       "image": [
         "17",
         0
       ]
     },
-    "class_type": "AIO_Preprocessor",
+    "class_type": "IPAdapter",
     "_meta": {
-      "title": "AIO Aux Preprocessor"
+      "title": "IPAdapter"
+    }
+  },
+  "61": {
+    "inputs": {
+      "preset": "FACEID PLUS V2",
+      "lora_strength": 0.6,
+      "provider": "CUDA",
+      "model": [
+        "19",
+        0
+      ]
+    },
+    "class_type": "IPAdapterUnifiedLoaderFaceID",
+    "_meta": {
+      "title": "IPAdapter Unified Loader FaceID"
+    }
+  },
+  "67": {
+    "inputs": {
+      "value": 2
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
     }
   }
 }

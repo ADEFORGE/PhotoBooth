@@ -60,7 +60,7 @@ class ImageGeneratorAPIWrapper:
                     node["inputs"]["positive"] = self._styles_prompts[self._style]
             elif node["class_type"] == "KSampler" or node["class_type"] == "KSampler (Efficient)":
                 node["inputs"]["seed"] = random.randint(0, 1000000000)
-                node["inputs"]["steps"] = 6
+                node["inputs"]["steps"] = 30
                 node["inputs"]["cfg"] = 5.0
                 node["inputs"]["denoise"] = 1
             elif node["class_type"] == "LoadImage":

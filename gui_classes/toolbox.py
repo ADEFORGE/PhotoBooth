@@ -13,6 +13,10 @@ from constante import TITLE_LABEL_BORDER_COLOR, TITLE_LABEL_COLOR, TITLE_LABEL_B
 import numpy as np
 from PIL import Image
 
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QFrame, QApplication
+from PySide6.QtCore import Qt, QTimer
+import sys
+
 
 class ImageUtils:
     @staticmethod
@@ -105,9 +109,6 @@ class OutlinedLabel(QLabel):
         painter.drawText(rect, Qt.AlignCenter, text)
 
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QFrame, QApplication
-from PySide6.QtCore import Qt, QTimer
-import sys
 
 class LoadingBar(QWidget):
     def __init__(self, width_percent=0.5, height_percent=0.1, border_thickness=8, parent=None):

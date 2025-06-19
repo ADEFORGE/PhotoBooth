@@ -357,7 +357,7 @@ FIRST_BUTTON_STYLE = (
     "border-radius: 24px;"
     "min-width: 48px; min-height: 48px;"
     "max-width: 48px; max-height: 48px;"
-    "font-size: 40px;"
+    "font-size: 30px;"
     "color: white;"
     "font-weight: bold;"
     "}"
@@ -377,6 +377,7 @@ VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de con
 
 # --- Styles personnalisables pour les boutons ---
 # BTN_STYLE_ONE supprimé, n'est plus utilisé
+BTN_STYLE_TWO_FONT_SIZE_PERCENT = 14  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
 BTN_STYLE_TWO = (
     "QPushButton {{"
     "background: transparent;"

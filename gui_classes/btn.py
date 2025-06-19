@@ -5,7 +5,7 @@ import os
 from PIL import Image, ImageQt
 import io
 
-from constante import BTN_STYLE_TWO
+from constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
 
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:
@@ -226,8 +226,13 @@ class BtnStyleTwo(Btn):
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
-        # Applique un style direct sur le texte pour garantir la prise en compte
-        self.setStyleSheet(self.styleSheet() + f"\nQPushButton {{ color: white; font-weight: 900; font-size: 2.2em; font-family: Arial, sans-serif; }}\n")
+        # Applique un style direct sur le texte via setFont pour garantir la priorité
+        font = self.font()
+        font.setFamily('Arial')
+        font.setPointSize(int(side * BTN_STYLE_TWO_FONT_SIZE_PERCENT / 100))  # Pourcentage configurable
+        font.setBold(True)
+        self.setFont(font)
+        self.setStyleSheet(self.styleSheet() + '\ncolor: white;')
 
 
 # La classe Btns ne change pas ici. Utilise la version existante sans modification.

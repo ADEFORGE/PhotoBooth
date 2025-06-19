@@ -1,6 +1,6 @@
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from gui_classes.btn import Btns
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QSizePolicy
 from gui_classes.scrole import InfiniteScrollView
 import os
@@ -17,14 +17,12 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
 
-        # --- Fond animé (InfiniteScrollView) réactivé ---
-        images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
-        self.scroll_view = InfiniteScrollView(images_folder, scroll_speed=1, tilt_angle=30, parent=self)
-        self.scroll_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_view.setStyleSheet("border: none; background: transparent;")
-        self.scroll_view.setGeometry(self.rect())
-        self.scroll_view.lower()  # Met au fond
+        # --- Fond animé (InfiniteScrollView) via BackgroundManager ---
+        self._scroll_timer = QTimer(self)
+        self._scroll_timer.setInterval(50)  # ~20 FPS
+        self._scroll_timer.timeout.connect(self._update_scroll_background)
+        self._scroll_view = None
+        self._init_scroll_view()
 
         # === Ajout du titre et du message d'accueil ===
         UI_TEXTS_PATH = os.path.join(os.path.dirname(__file__), "../ui_texts.json")
@@ -57,7 +55,17 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         text_layout.addWidget(self.message_label)
         
         # Positionne le widget au centre
-        self._update_center_widget_geometry()
+        if hasattr(self, '_update_center_widget_geometry'):
+            self._update_center_widget_geometry()
+        else:
+            # fallback: center manually
+            parent_rect = self.rect()
+            center_width = int(parent_rect.width() * 0.8)
+            center_height = int(parent_rect.height() * 0.6)
+            x = (parent_rect.width() - center_width) // 2
+            y = (parent_rect.height() - center_height) // 2
+            self.center_widget.setGeometry(x, y, center_width, center_height)
+            self.center_widget.raise_()
         print("[WELCOME][DEBUG] before layout creation")
         # Layout principal qui centre le widget conteneur
         self.main_layout = QVBoxLayout()
@@ -65,13 +73,6 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.addWidget(self.center_widget, 0, Qt.AlignCenter)
         print("[WELCOME][DEBUG] after layout creation")
-
-        # Utilise le BackgroundManager pour le fond de veille
-        if hasattr(self, 'background_manager'):
-            # On prend un screenshot du scroll_view pour le fond
-            pixmap = self.scroll_view.grab()
-            self.background_manager.set_scroll_pixmap(pixmap)
-            self.update()
 
         print("[WELCOME] Appel setup_buttons")
         # Bouton style 1 avec icône (camera.png)
@@ -100,14 +101,29 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             print(f"[WELCOME] Erreur démarrage caméra: {e}")
         print("[WELCOME][DEBUG] __init__ end")
 
+    def _init_scroll_view(self):
+        images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
+        self._scroll_view = InfiniteScrollView(images_folder, scroll_speed=1, tilt_angle=30)
+        self._scroll_view.resize(self.size())
+        self._scroll_view.hide()  # Never shown directly
+        self._scroll_view._populate_scene()
+
+    def _update_scroll_background(self):
+        if self._scroll_view:
+            pixmap = self._scroll_view.grab()
+            if hasattr(self, 'background_manager'):
+                self.background_manager.set_scroll_pixmap(pixmap)
+            self.update()
+
     def resizeEvent(self, event):
-        self.scroll_view.setGeometry(self.rect())
-        self.overlay_widget.setGeometry(self.rect())
         self._update_center_widget_geometry()
+        if self._scroll_view:
+            self._scroll_view.resize(self.size())
+        self.overlay_widget.setGeometry(self.rect())
         super().resizeEvent(event)
 
     def paintEvent(self, event):
-        QWidget.paintEvent(self, event)
+        super().paintEvent(event)
 
     def goto_camera(self):
         print("[WELCOME] goto_camera called")
@@ -116,76 +132,39 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def cleanup(self):
         print("[WELCOME][DEBUG] cleanup start (reset state, not destruction)")
-        # Stop scroll_view timer and reset scene, but do not delete the widget or its children
-        if hasattr(self, "scroll_view"):
-            print("[WELCOME][DEBUG] cleanup: stopping scroll_view")
-            if hasattr(self.scroll_view, "stop"):
-                self.scroll_view.stop()
-            # Optionally clear scene content for a fresh start
-            if hasattr(self.scroll_view, 'scene') and self.scroll_view.scene is not None:
-                print("[WELCOME][DEBUG] cleanup: clearing graphics scene")
-                self.scroll_view.scene.clear()
-                self.scroll_view._populated = False  # <-- Ajouté ici !
-        else:
-            print("[WELCOME][DEBUG] cleanup: no scroll_view to clean")
-        # Optionally reset text/buttons if needed
+        if self._scroll_timer.isActive():
+            self._scroll_timer.stop()
+        if self._scroll_view:
+            self._scroll_view.deleteLater()
+            self._scroll_view = None
         if hasattr(self, "btns") and self.btns:
             print("[WELCOME][DEBUG] cleanup: cleaning btns")
             self.btns.cleanup()
         else:
             print("[WELCOME][DEBUG] cleanup: no btns to clean")
-        # Do not delete layouts or widgets, just reset state if needed
         print("[WELCOME][DEBUG] cleanup end (widget kept alive)")
 
     def showEvent(self, event):
         super().showEvent(event)
         if self.btns:
             self.btns.raise_()
-        # Démarre le thread caméra si ce n'est pas déjà fait
+        if self._scroll_view:
+            self._scroll_timer.start()
         try:
             if self.window() and hasattr(self.window(), "camera_widget"):
                 self.window().camera_widget.start_camera()
         except Exception as e:
             print(f"[WELCOME] Erreur démarrage caméra (showEvent): {e}")
 
-    def _update_center_widget_geometry(self):
-        """Centre le widget de texte au milieu de l'écran"""
-        parent_rect = self.rect()
-        center_width = int(parent_rect.width() * 0.8)  # 80% de la largeur
-        center_height = int(parent_rect.height() * 0.6)  # 60% de la hauteur
-        
-        x = (parent_rect.width() - center_width) // 2
-        y = (parent_rect.height() - center_height) // 2
-        
-        self.center_widget.setGeometry(x, y, center_width, center_height)
-        self.center_widget.raise_()
+    def hideEvent(self, event):
+        if self._scroll_timer.isActive():
+            self._scroll_timer.stop()
+        super().hideEvent(event)
 
     def on_enter(self):
         print("[WELCOME][DEBUG] on_enter called")
-        if hasattr(self, "scroll_view"):
-            print(f"[WELCOME][DEBUG] on_enter: scroll_view isVisible={self.scroll_view.isVisible()} geometry={self.scroll_view.geometry()}")
-            if hasattr(self.scroll_view, 'scene') and self.scroll_view.scene is not None:
-                print(f"[WELCOME][DEBUG] on_enter: scene items count={len(self.scroll_view.scene.items())}")
-                if len(self.scroll_view.scene.items()) == 0:
-                    print("[WELCOME][DEBUG] on_enter: repopulating scroll scene (empty scene)")
-                    self.scroll_view._populated = False
-                    self.scroll_view._populate_scene()
-                    print(f"[WELCOME][DEBUG] on_enter: scene repopulated, items count={len(self.scroll_view.scene.items())}")
-            else:
-                print("[WELCOME][DEBUG] on_enter: scene is None, repopulating scroll scene")
-                self.scroll_view._populated = False
-                self.scroll_view._populate_scene()
-                print(f"[WELCOME][DEBUG] on_enter: scene repopulated, items count={len(self.scroll_view.scene.items())}")
-            if hasattr(self.scroll_view, 'timer'):
-                print(f"[WELCOME][DEBUG] on_enter: timer isActive={self.scroll_view.timer.isActive()}")
-                if not self.scroll_view.timer.isActive():
-                    print("[WELCOME][DEBUG] on_enter: restarting scroll timer")
-                    self.scroll_view.timer.start(30)
-            self.scroll_view.show()
-            self.scroll_view.lower()
-            print(f"[WELCOME][DEBUG] on_enter: scroll_view isVisible after show/lower={self.scroll_view.isVisible()}")
-        else:
-            print("[WELCOME][DEBUG] on_enter: no scroll_view present")
+        if self._scroll_view and not self._scroll_timer.isActive():
+            self._scroll_timer.start()
         need_recreate = not self.btns or not getattr(self.btns, 'style1_btns', [])
         if not need_recreate:
             try:
@@ -211,3 +190,12 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             )
         self.overlay_widget.raise_()
         print("[WELCOME][DEBUG] on_enter: END")
+
+    def _update_center_widget_geometry(self):
+        parent_rect = self.rect()
+        center_width = int(parent_rect.width() * 0.8)
+        center_height = int(parent_rect.height() * 0.6)
+        x = (parent_rect.width() - center_width) // 2
+        y = (parent_rect.height() - center_height) // 2
+        self.center_widget.setGeometry(x, y, center_width, center_height)
+        self.center_widget.raise_()

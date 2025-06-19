@@ -8,42 +8,13 @@ import io
 from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
 
 
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
-import os
-from PIL import Image, ImageQt
-import io
-
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
-
-
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
-import os
-from PIL import Image, ImageQt
-import io
-
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
-
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
-import os
-from PIL import Image, ImageQt
-import io
-
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
-
-
 def _compute_dynamic_size(original_size: QSize) -> QSize:
     screen = QGuiApplication.primaryScreen()
     h = screen.availableGeometry().height()
     w = screen.availableGeometry().width()
-    target_h = int(h * 0.07)
-    target_w = int(w * 0.2)
-    return QSize(target_w, target_h)
+    # On prend le plus petit côté pour garantir un carré qui rentre partout
+    target = int(min(h, w) * 0.07)
+    return QSize(target, target)
 
 
 class Btn(QPushButton):
@@ -94,8 +65,11 @@ class Btn(QPushButton):
         dyn_size = _compute_dynamic_size(size) if size else None
 
         if dyn_size:
-            self.setMinimumSize(dyn_size)
-            self.setMaximumSize(dyn_size)
+            # Force le carré
+            side = max(dyn_size.width(), dyn_size.height())
+            square = QSize(side, side)
+            self.setMinimumSize(square)
+            self.setMaximumSize(square)
 
         self.setCheckable(checkable)
 
@@ -104,13 +78,14 @@ class Btn(QPushButton):
             self.setIcon(QIcon(self._icon_path))
 
     def resizeEvent(self, event):
-        super().resizeEvent(event)
+        # Force le carré même si le layout tente de changer la taille
+        side = min(self.width(), self.height())
+        self.resize(side, side)
         if self._icon_path:
-            # l'icône occupe 75% de la largeur/hauteur du bouton
             pad = 0.75
-            w = int(self.width() * pad)
-            h = int(self.height() * pad)
-            self.setIconSize(QSize(w, h))
+            icon_side = int(side * pad)
+            self.setIconSize(QSize(icon_side, icon_side))
+        super().resizeEvent(event)
 
     def place(self, layout, row, col, alignment=Qt.AlignCenter):
         layout.addWidget(self, row, col, alignment=alignment)
@@ -186,12 +161,11 @@ class BtnStyleOne(Btn):
     def __init__(self, name, parent=None):
         super().__init__(name, parent)
         icon_p = f"gui_template/btn_icons/{name}.png"
-        # on calcule une taille carrée basée sur la hauteur dynamique
-        ref = QSize(80, 80)
-        dyn = _compute_dynamic_size(ref)
-        square = QSize(dyn.height(), dyn.height())
-        self.initialize(style=BTN_STYLE_ONE, icon_path=icon_p, size=ref, checkable=False)
-        # on force ensuite le carré
+        # Utilise la même logique de dimensionnement que BtnStyleTwo
+        dyn = _compute_dynamic_size(QSize(80, 80))
+        side = max(dyn.width(), dyn.height(), 120)
+        square = QSize(side, side)
+        self.initialize(style=BTN_STYLE_ONE, icon_path=icon_p, size=square, checkable=False)
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -204,14 +178,18 @@ class BtnStyleTwo(Btn):
         super().__init__(name, parent)
         texture_path = f"gui_template/btn_textures copy/{name}.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
+        # Utilise la même logique de dimensionnement que BtnStyleOne
+        dyn = _compute_dynamic_size(QSize(80, 80))
+        side = max(dyn.width(), dyn.height(), 120)
+        square = QSize(side, side)
         self.setText(name)
-        self.adjustSize()
-        hint_size = self.sizeHint()
-        original_size = QSize(max(hint_size.width() + 32, 120), hint_size.height())
-        self.initialize(style=style, icon_path=None, size=original_size, checkable=True)
+        self.initialize(style=style, icon_path=None, size=square, checkable=True)
+        self.setMinimumSize(square)
+        self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+
 
 # La classe Btns ne change pas ici. Utilise la version existante sans modification.
 # Seul Btn et ses enfants ont besoin d'un ajustement pour iconSize.

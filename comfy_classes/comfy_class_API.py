@@ -20,7 +20,7 @@ class ImageGeneratorAPIWrapper:
 
 ########### Prompts and styles ###########
     def _load_base_prompt(self):
-        with open("workflows/image2image.json") as f:
+        with open("workflows/image2image.json", encoding="utf-8") as f:
             return json.load(f)
 
     def set_styles_prompts(self, styles_prompts : dict):

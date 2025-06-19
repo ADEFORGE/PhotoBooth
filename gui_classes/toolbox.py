@@ -13,6 +13,10 @@ from constante import TITLE_LABEL_BORDER_COLOR, TITLE_LABEL_COLOR, TITLE_LABEL_B
 import numpy as np
 from PIL import Image
 
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QFrame, QApplication
+from PySide6.QtCore import Qt, QTimer
+import sys
+
 
 class ImageUtils:
     @staticmethod
@@ -103,3 +107,86 @@ class OutlinedLabel(QLabel):
         painter.drawPath(path)
         painter.setPen(self.text_color)
         painter.drawText(rect, Qt.AlignCenter, text)
+
+
+
+class LoadingBar(QWidget):
+    def __init__(self, width_percent=0.5, height_percent=0.1, border_thickness=8, parent=None):
+        super().__init__(parent)
+        # Retrieve screen size and compute widget dimensions
+        screen_size = QApplication.primaryScreen().size()
+        w = int(screen_size.width() * width_percent)
+        h = int(screen_size.height() * height_percent)
+        self.setFixedSize(w, h)
+
+        # Transparent window settings
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+        # Dynamic styling values based on widget size
+        corner_radius = int(h * 0.25)
+        bar_height = int(h * 0.4)
+
+        # Outer frame: transparent fill, white border, rounded corners
+        frame = QFrame(self)
+        frame.setObjectName("frame")
+        frame.setGeometry(0, 0, w, h)
+        frame.setStyleSheet(
+            f"#frame {{"
+            f"    background-color: transparent;"
+            f"    border: {border_thickness}px solid rgba(255, 255, 255, 255);"
+            f"    border-radius: {corner_radius}px;"
+            f"}}"
+        )
+
+        # Calculate margins to center the bar vertically
+        vertical_margin = max(0, (h - 2 * border_thickness - bar_height) // 2)
+        main_layout = QVBoxLayout(frame)
+        main_layout.setContentsMargins(border_thickness, vertical_margin, border_thickness, vertical_margin)
+        main_layout.setSpacing(0)
+
+        # Progress bar: transparent background, no border, rounded chunk
+        self.progress = QProgressBar()
+        self.progress.setTextVisible(False)
+        self.progress.setRange(0, 100)
+        self.progress.setValue(0)
+        self.progress.setFixedHeight(bar_height)
+        self.progress.setStyleSheet(
+            "QProgressBar {"
+            "    background-color: transparent;"
+            "    border: none;"
+            f"    border-radius: {corner_radius // 2}px;"
+            "}"
+            "QProgressBar::chunk {"
+            "    background-color: rgba(255, 255, 255, 255);"
+            f"    border-radius: {corner_radius // 2}px;"
+            "}"
+        )
+        main_layout.addWidget(self.progress)
+
+        # Timer for animation
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._update_progress)
+        self._duration_ms = 2000
+
+    def setDuration(self, seconds: float):
+        """Set the fill duration in seconds."""
+        self._duration_ms = int(seconds * 1000)
+        # 100 steps => interval
+        self.timer.setInterval(max(1, self._duration_ms // 100))
+
+    def start(self):
+        """Show the bar and start filling."""
+        self.progress.setValue(0)
+        # Ensure timer interval matches duration
+        self.setDuration(self._duration_ms / 1000)
+        self.show()
+        self.timer.start()
+
+    def _update_progress(self):
+        val = self.progress.value() + 1
+        if val > self.progress.maximum():
+            self.timer.stop()
+            self.close()
+        else:
+            self.progress.setValue(val)

@@ -7,6 +7,9 @@ from gui_classes.btn import Btns
 from gui_classes.toolbox import normalize_btn_name
 import json
 import os
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QApplication
+from PySide6.QtCore import Qt, QTimer
+from gui_classes.toolbox import LoadingBar
 UI_TEXTS_PATH = os.path.join(os.path.dirname(__file__), '..', 'ui_texts.json')
 with open(UI_TEXTS_PATH, 'r', encoding='utf-8') as f:
     UI_TEXTS = json.load(f)
@@ -198,61 +201,46 @@ class OverlayWhite(Overlay):
         super().__init__(parent, center_on_screen)
         self.setStyleSheet("background: transparent;")
         if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
+            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.5); border-radius: 18px;")
     def get_overlay_bg_color(self):
-        return QColor(255,255,255,217)  # blanc arrondi, alpha=0.85*255
+        return QColor(255,255,255,int(255*0.5))  # blanc arrondi, alpha=0.85*255
 
 class OverlayLoading(OverlayWhite):
-    def __init__(self, parent=None):
-        super().__init__(parent, center_on_screen=False)  # Désactive le centrage auto
-        
-        # Force l'overlay à occuper tout l'écran
+    def __init__(self, parent=None, width_percent=0.6, height_percent=0.05, border_thickness=8, duration=30):
+        super().__init__(parent, center_on_screen=False)
+        # Full-screen overlay
         screen = QApplication.primaryScreen()
         if screen:
             self.setGeometry(screen.geometry())
-        
-        self.setWindowState(Qt.WindowFullScreen)
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background-color: rgba(255,255,255,0.85);")
-        
-        # Widget principal qui occupe tout l'écran
+
+        # Main widget to cover full screen
         self.overlay_widget = QWidget(self)
         self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.overlay_widget.setGeometry(self.rect())
-        
-        # Layout pour centrer le GIF
+
+        # Centered layout for loading bar
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(0, 0, 0, 0)
         self.overlay_layout.setSpacing(0)
-        
-        # GIF centré avec fond transparent
-        self.img_label = QLabel()
-        self.img_label.setAlignment(Qt.AlignCenter)
-        self.img_label.setStyleSheet("background: transparent;")
-        self._movie = QMovie("gui_template/load.gif")
-        
-        # Taille du GIF = 50% de l'écran
-        screen_size = min(screen.geometry().width(), screen.geometry().height())
-        self._gif_size = int(screen_size * 0.5)
-        if self._gif_size < 64:
-            self._gif_size = 128
-            
-        self._movie.setScaledSize(QSize(self._gif_size, self._gif_size))
-        self.img_label.setMovie(self._movie)
-        self.img_label.setFixedSize(self._gif_size, self._gif_size)
-        
-        # Centre le GIF
-        self.overlay_layout.addWidget(self.img_label, 0, 0, alignment=Qt.AlignCenter)
-        
-        # Layout principal plein écran
+
+        # Create and configure LoadingBar
+        self.loading_bar = LoadingBar(width_percent, height_percent, border_thickness, parent=self)
+        self.loading_bar.setDuration(duration)
+
+        # Add loading_bar to overlay_layout
+        self.overlay_layout.addWidget(self.loading_bar, 0, 0, alignment=Qt.AlignCenter)
+
+        # Main layout
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.overlay_widget)
-        
         self.setFocusPolicy(Qt.NoFocus)
 
     def resizeEvent(self, event):
+        # Ensure overlay covers full screen on resize
         screen = self.screen()
         if screen:
             self.setGeometry(screen.geometry())
@@ -260,72 +248,46 @@ class OverlayLoading(OverlayWhite):
         super().resizeEvent(event)
 
     def showEvent(self, event):
-        print(f"[OverlayLoading] showEvent appelée pour {self}")
+        # Reset and start loading bar
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.progress.setValue(0)
+            self.loading_bar.timer.stop()
         super().showEvent(event)
-        screen = self.screen()
-        if screen:
-            self.setGeometry(screen.geometry())
-        if self._movie:
-            self._movie.start()
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.start()
 
     def hideEvent(self, event):
-        print(f"[OverlayLoading] hideEvent appelée pour {self}")
-        if hasattr(self, '_movie') and self._movie:
-            self._movie.stop()
-        if hasattr(self, 'img_label'):
-            self.img_label.clear()
-            self.img_label.hide()
-        if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.hide()
-        self.hide()
-        QApplication.processEvents()
+        # Stop and reset loading bar
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.timer.stop()
+            self.loading_bar.progress.setValue(0)
         super().hideEvent(event)
 
     def clean_overlay(self):
-        print("[DEBUG] OverlayLoading.clean_overlay appelée")
-        # Stop and clear the movie
-        if hasattr(self, '_movie') and self._movie:
-            self._movie.stop()
-            self._movie.deleteLater()
-            self._movie = None
-        
-        # Clear and hide the label
-        if hasattr(self, 'img_label'):
-            self.img_label.clear()
-            self.img_label.hide()
-            self.img_label.setParent(None)
-            self.img_label.deleteLater()
-        
-        # Hide and cleanup the overlay widget
-        if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.hide()
-            self.overlay_widget.setParent(None)
-            self.overlay_widget.deleteLater()
-            
-        self.hide()
-        self.setParent(None)
-        QApplication.processEvents()
+        # Stop and delete loading bar
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.timer.stop()
+            self.loading_bar.deleteLater()
+        # Hide and delete overlay
         super().clean_overlay()
 
     def stop_animation(self):
-        """Arrête toutes les animations et timers."""
-        print(f"[OverlayLoading] stop_animation: arrêt des animations pour {self}")
-        # Arrête le QMovie si utilisé
-        if self._movie is not None:
-            self._movie.stop()
-            self._movie = None
-        
+        """Stops the loading bar progression without hiding overlay."""
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.timer.stop()
+
     def hide_overlay(self):
-        print("[DEBUG] OverlayLoading.hide_overlay appelée")
-        if hasattr(self, '_movie') and self._movie:
-            self._movie.stop()
-        self.hide()
-        self.overlay_widget.hide()
-        QApplication.processEvents()
+        # Stop and hide
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.timer.stop()
         super().hide_overlay()
 
     def __del__(self):
-        print(f"[OverlayLoading] __del__ appelée pour {self}")
+        # Ensure cleanup
+        if hasattr(self, 'loading_bar') and self.loading_bar:
+            self.loading_bar.timer.stop()
+        super().__del__()
+
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, on_validate=None, on_close=None):

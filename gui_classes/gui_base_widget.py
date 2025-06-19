@@ -51,8 +51,8 @@ class PhotoBoothBaseWidget(QWidget):
         self.btns = None
         self.background_manager = BackgroundManager(self)
 
-        # Connecte les boutons info/rules
-        self._info_btn.clicked.connect(self.show_info_dialog)
+        # Connecte les boutons langue/rules
+        self._lang_btn.clicked.connect(self.show_lang_dialog)
         self._rules_btn.clicked.connect(self.show_rules_dialog)
 
         # Correction : s'assure que l'overlay_widget est toujours au-dessus de tout
@@ -174,15 +174,15 @@ class PhotoBoothBaseWidget(QWidget):
         return logo_widget
 
     def setup_interaction_btn(self):
-        # Setup des boutons info et rules avec stockage des références
-        info_btn = QPushButton()
-        info_btn.setStyleSheet(ICON_BUTTON_STYLE)
-        icon = QPixmap("gui_template/moreinfo.png")
-        info_btn.setIcon(QIcon(icon))
-        info_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
-        info_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
-        info_btn.raise_()
-        self._info_btn = info_btn  # Stockage référence
+        # Setup du bouton de langue (lang_btn) et du bouton rules
+        lang_btn = QPushButton()
+        lang_btn.setStyleSheet(ICON_BUTTON_STYLE)
+        lang_icon = QPixmap("gui_template/language.png")
+        lang_btn.setIcon(QIcon(lang_icon))
+        lang_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+        lang_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
+        lang_btn.raise_()
+        self._lang_btn = lang_btn  # Stockage référence
 
         rules_btn = QPushButton()
         rules_btn.setStyleSheet(ICON_BUTTON_STYLE)
@@ -196,7 +196,7 @@ class PhotoBoothBaseWidget(QWidget):
         btn_layout = QVBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.setSpacing(8)
-        btn_layout.addWidget(info_btn, alignment=Qt.AlignRight | Qt.AlignTop)
+        btn_layout.addWidget(lang_btn, alignment=Qt.AlignRight | Qt.AlignTop)
         btn_layout.addWidget(rules_btn, alignment=Qt.AlignRight | Qt.AlignTop)
         btn_layout.addStretch(1)
 
@@ -390,4 +390,10 @@ class PhotoBoothBaseWidget(QWidget):
             on_validate=show_qrcode_overlay,
             on_close=None
         )
+        overlay.show_overlay()
+
+    def show_lang_dialog(self):
+        """Affiche la boîte de sélection de langue via OverlayLang"""
+        from gui_classes.overlay import OverlayLang
+        overlay = OverlayLang(self)
         overlay.show_overlay()

@@ -562,3 +562,40 @@ class OverlayCountdown(Overlay):
     def hide_overlay(self):
         self._anim_timer.stop()
         super().hide_overlay()
+
+class OverlayLang(OverlayGray):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Choix de la langue")
+        self.setFixedSize(600, 220)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        from constante import GRID_WIDTH
+        self.overlay_widget = QWidget(self)
+        self.overlay_layout = QGridLayout(self.overlay_widget)
+        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self.overlay_layout.setSpacing(0)
+        # Fond filtré
+        bg = QLabel(self.overlay_widget)
+        bg.setGeometry(0, 0, 600, 220)
+        bg.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
+        blur = QGraphicsBlurEffect()
+        blur.setBlurRadius(18)
+        bg.setGraphicsEffect(blur)
+        bg.lower()
+        # Boutons langue
+        self.btns = Btns(self, [], [], None, None)
+        btn_uk = self.btns.add_style1_btn('uk', self._on_lang_btn)
+        btn_norway = self.btns.add_style1_btn('norway', self._on_lang_btn)
+        btn_sami = self.btns.add_style1_btn('sami', self._on_lang_btn)
+        # Forcer le nombre de colonnes pour un centrage correct
+        for i in range(GRID_WIDTH):
+            self.overlay_layout.setColumnMinimumWidth(i, 1)
+        self.btns.place_style1(self.overlay_layout, 0)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.overlay_widget)
+        self.setLayout(layout)
+
+    def _on_lang_btn(self):
+        # Ne fait rien pour le moment
+        pass

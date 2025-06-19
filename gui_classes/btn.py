@@ -160,17 +160,55 @@ class Btn(QPushButton):
 class BtnStyleOne(Btn):
     def __init__(self, name, parent=None):
         super().__init__(name, parent)
-        icon_p = f"gui_template/btn_icons/{name}.png"
-        # Utilise la même logique de dimensionnement que BtnStyleTwo
+        self._icon_path_passive = f"gui_template/btn_icons/{name}_passive.png"
+        self._icon_path_pressed = f"gui_template/btn_icons/{name}_pressed.png"
         dyn = _compute_dynamic_size(QSize(80, 80))
         side = max(dyn.width(), dyn.height(), 120)
         square = QSize(side, side)
-        self.initialize(style=BTN_STYLE_ONE, icon_path=icon_p, size=square, checkable=False)
+        self._btn_side = side
+        self._icon_pad = 1.0
+        self.setStyleSheet("QPushButton { background: transparent; border: none; }")
+        # Par défaut, icône passive
+        self._set_passive_icon()
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+        self.pressed.connect(self._set_pressed_icon)
+        self.released.connect(self._set_passive_icon)
+        self.toggled.connect(self._on_toggled)
+
+    def _set_pressed_icon(self):
+        if os.path.exists(self._icon_path_pressed):
+            pix = QPixmap(self._icon_path_pressed)
+            if not pix.isNull():
+                size = int(self._btn_side * self._icon_pad)
+                self.setIcon(QIcon(pix.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+                self.setIconSize(QSize(size, size))
+
+    def _set_passive_icon(self):
+        if os.path.exists(self._icon_path_passive):
+            pix = QPixmap(self._icon_path_passive)
+            if not pix.isNull():
+                size = int(self._btn_side * self._icon_pad)
+                self.setIcon(QIcon(pix.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+                self.setIconSize(QSize(size, size))
+
+    def _on_toggled(self, checked):
+        if checked:
+            self._set_pressed_icon()
+        else:
+            self._set_passive_icon()
+
+    def resizeEvent(self, event):
+        side = min(self.width(), self.height())
+        self._btn_side = side
+        if self.isDown() or self.isChecked():
+            self._set_pressed_icon()
+        else:
+            self._set_passive_icon()
+        super().resizeEvent(event)
 
 
 class BtnStyleTwo(Btn):

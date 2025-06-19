@@ -36,6 +36,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         self.title_label.setStyleSheet("color: white; font-size: 72px; font-weight: bold; font-family: Arial;")
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.title_label.setWordWrap(True)  # Permet le saut de ligne automatique
         
         # Message avec style et dimensions
         self.message_label = QLabel(welcome_texts.get("message", ""), self.center_widget)

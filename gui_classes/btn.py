@@ -15,7 +15,7 @@ def _compute_dynamic_size(original_size: QSize) -> QSize:
     """
     screen = QGuiApplication.primaryScreen()
     screen_height = screen.availableGeometry().height()
-    target_height = int(screen_height * 0.1)
+    target_height = int(screen_height * 0.07)
     aspect_ratio = original_size.width() / original_size.height() if original_size.height() > 0 else 1
     target_width = int(target_height * aspect_ratio)
     return QSize(target_width, target_height)

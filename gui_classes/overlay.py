@@ -201,9 +201,9 @@ class OverlayWhite(Overlay):
         super().__init__(parent, center_on_screen)
         self.setStyleSheet("background: transparent;")
         if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
+            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.5); border-radius: 18px;")
     def get_overlay_bg_color(self):
-        return QColor(255,255,255,217)  # blanc arrondi, alpha=0.85*255
+        return QColor(255,255,255,int(255*0.5))  # blanc arrondi, alpha=0.85*255
 
 class OverlayLoading(OverlayWhite):
     def __init__(self, parent=None, width_percent=0.6, height_percent=0.05, border_thickness=8, duration=30):

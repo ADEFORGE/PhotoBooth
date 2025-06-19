@@ -1,11 +1,24 @@
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget
-from PySide6.QtGui import QIcon, QPixmap, QImage
+from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
+from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
 from PySide6.QtCore import QSize, Qt, QEvent
 import os
 from PIL import Image, ImageQt
 import io
 
 from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
+
+
+def _compute_dynamic_size(original_size: QSize) -> QSize:
+    """
+    Compute a new QSize where height is 10% of screen height
+    and width is scaled to maintain the original aspect ratio.
+    """
+    screen = QGuiApplication.primaryScreen()
+    screen_height = screen.availableGeometry().height()
+    target_height = int(screen_height * 0.1)
+    aspect_ratio = original_size.width() / original_size.height() if original_size.height() > 0 else 1
+    target_width = int(target_height * aspect_ratio)
+    return QSize(target_width, target_height)
 
 class Btn(QPushButton):
     def __init__(self, name, parent=None):
@@ -16,7 +29,6 @@ class Btn(QPushButton):
         self._setup_timer_sleep_events()
 
     def _setup_timer_sleep_events(self):
-        # Cherche le TimerSleep dans la hiérarchie parentale
         parent = self.parent()
         timer_sleep = None
         while parent is not None:
@@ -25,7 +37,6 @@ class Btn(QPushButton):
                 break
             parent = parent.parent() if hasattr(parent, 'parent') else None
         self._timer_sleep = timer_sleep
-        # Installe les events si timer trouvé
         if self._timer_sleep:
             self.installEventFilter(self)
             self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
@@ -33,11 +44,9 @@ class Btn(QPushButton):
     def eventFilter(self, obj, event):
         if obj is self and self._timer_sleep:
             if event.type() == QEvent.Enter:
-                # Hover: reset le timer
                 if hasattr(self._timer_sleep, 'set_and_start'):
                     self._timer_sleep.set_and_start()
             elif event.type() == QEvent.MouseButtonPress:
-                # Click: reset puis stop le timer
                 if hasattr(self._timer_sleep, 'set_and_start'):
                     self._timer_sleep.set_and_start()
                 if hasattr(self._timer_sleep, 'stop'):
@@ -54,14 +63,21 @@ class Btn(QPushButton):
     def initialize(self, style=None, icon_path=None, size=None, checkable=False):
         if style:
             self.setStyleSheet(style)
+        # Determine dynamic size if original provided
+        if size:
+            dyn_size = _compute_dynamic_size(size)
+        else:
+            dyn_size = None
+        # Set icon if exists
         if icon_path and os.path.exists(icon_path):
             icon = QIcon(icon_path)
             self.setIcon(icon)
-            if size:
-                self.setIconSize(size)
-        if size:
-            self.setMinimumSize(size)
-            self.setMaximumSize(size)
+            if dyn_size:
+                self.setIconSize(dyn_size)
+        # Set both minimum and maximum to enforce fixed size
+        if dyn_size:
+            self.setMinimumSize(dyn_size)
+            self.setMaximumSize(dyn_size)
         self.setCheckable(checkable)
 
     def place(self, layout, row, col, alignment=Qt.AlignCenter):
@@ -178,11 +194,11 @@ class BtnStyleOne(Btn):
     def __init__(self, name, parent=None):
         super().__init__(name, parent)
         icon_path = f"gui_template/btn_icons/{name}.png"
-        size = QSize(80, 80)
+        original_size = QSize(80, 80)
         self.initialize(
             style=BTN_STYLE_ONE,
             icon_path=icon_path,
-            size=size,
+            size=original_size,
             checkable=False
         )
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -195,13 +211,15 @@ class BtnStyleTwo(Btn):
         texture_path = f"gui_template/btn_textures copy/{name}.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
         self.setText(name)
+        # Determine text-based hint then dyn size
+        # Using temporary hint size to preserve proportions
         self.adjustSize()
-        width = max(self.sizeHint().width() + 32, 120)
-        size = QSize(width, 56)
+        hint_size = self.sizeHint()
+        original_size = QSize(max(hint_size.width() + 32, 120), hint_size.height())
         self.initialize(
             style=style,
             icon_path=None,
-            size=size,
+            size=original_size,
             checkable=True
         )
         self.setAttribute(Qt.WA_StyledBackground, True)

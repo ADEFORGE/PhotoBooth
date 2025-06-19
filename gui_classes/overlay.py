@@ -201,12 +201,12 @@ class OverlayWhite(Overlay):
         super().__init__(parent, center_on_screen)
         self.setStyleSheet("background: transparent;")
         if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.5); border-radius: 18px;")
+            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
     def get_overlay_bg_color(self):
-        return QColor(255,255,255,int(255*0.5))  # blanc arrondi, alpha=0.85*255
+        return QColor(255,255,255,int(255*0.85))  # blanc arrondi, alpha=0.85*255
 
 class OverlayLoading(OverlayWhite):
-    def __init__(self, parent=None, width_percent=0.6, height_percent=0.05, border_thickness=8, duration=30):
+    def __init__(self, parent=None, width_percent=0.6, height_percent=0.05, border_thickness=8, duration=45):
         super().__init__(parent, center_on_screen=False)
         # Full-screen overlay
         screen = QApplication.primaryScreen()
@@ -214,7 +214,7 @@ class OverlayLoading(OverlayWhite):
             self.setGeometry(screen.geometry())
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setStyleSheet("background-color: rgba(255,255,255,0.85);")
+        self.setStyleSheet("background-color: rgba(255,255,255,0.3);")
 
         # Main widget to cover full screen
         self.overlay_widget = QWidget(self)

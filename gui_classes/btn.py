@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget
-from PySide6.QtGui import QIcon, QPixmap, QImage
+from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
+from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
 from PySide6.QtCore import QSize, Qt, QEvent
 import os
 from PIL import Image, ImageQt
@@ -7,42 +7,78 @@ import io
 
 from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
 
+
+from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
+from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
+from PySide6.QtCore import QSize, Qt, QEvent
+import os
+from PIL import Image, ImageQt
+import io
+
+from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
+
+
+from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
+from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
+from PySide6.QtCore import QSize, Qt, QEvent
+import os
+from PIL import Image, ImageQt
+import io
+
+from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
+
+from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
+from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
+from PySide6.QtCore import QSize, Qt, QEvent
+import os
+from PIL import Image, ImageQt
+import io
+
+from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
+
+
+def _compute_dynamic_size(original_size: QSize) -> QSize:
+    screen = QGuiApplication.primaryScreen()
+    h = screen.availableGeometry().height()
+    w = screen.availableGeometry().width()
+    target_h = int(h * 0.07)
+    target_w = int(w * 0.2)
+    return QSize(target_w, target_h)
+
+
 class Btn(QPushButton):
     def __init__(self, name, parent=None):
         super().__init__(parent)
         self.name = name
         self._connected_slots = []
         self.setObjectName(name)
+        self._icon_path = None
         self._setup_timer_sleep_events()
 
     def _setup_timer_sleep_events(self):
-        # Cherche le TimerSleep dans la hiérarchie parentale
-        parent = self.parent()
-        timer_sleep = None
-        while parent is not None:
-            if hasattr(parent, '_timer_sleep') and parent._timer_sleep:
-                timer_sleep = parent._timer_sleep
+        p = self.parent()
+        while p:
+            if hasattr(p, '_timer_sleep') and p._timer_sleep:
+                self._timer_sleep = p._timer_sleep
                 break
-            parent = parent.parent() if hasattr(parent, 'parent') else None
-        self._timer_sleep = timer_sleep
-        # Installe les events si timer trouvé
+            p = p.parent() if hasattr(p, 'parent') else None
+        else:
+            self._timer_sleep = None
+
         if self._timer_sleep:
             self.installEventFilter(self)
             self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj, ev):
         if obj is self and self._timer_sleep:
-            if event.type() == QEvent.Enter:
-                # Hover: reset le timer
-                if hasattr(self._timer_sleep, 'set_and_start'):
-                    self._timer_sleep.set_and_start()
-            elif event.type() == QEvent.MouseButtonPress:
-                # Click: reset puis stop le timer
+            if ev.type() == QEvent.Enter and hasattr(self._timer_sleep, 'set_and_start'):
+                self._timer_sleep.set_and_start()
+            elif ev.type() == QEvent.MouseButtonPress:
                 if hasattr(self._timer_sleep, 'set_and_start'):
                     self._timer_sleep.set_and_start()
                 if hasattr(self._timer_sleep, 'stop'):
                     self._timer_sleep.stop()
-        return super().eventFilter(obj, event)
+        return super().eventFilter(obj, ev)
 
     def _on_btn_clicked_reset_stop_timer(self):
         if self._timer_sleep:
@@ -54,15 +90,27 @@ class Btn(QPushButton):
     def initialize(self, style=None, icon_path=None, size=None, checkable=False):
         if style:
             self.setStyleSheet(style)
-        if icon_path and os.path.exists(icon_path):
-            icon = QIcon(icon_path)
-            self.setIcon(icon)
-            if size:
-                self.setIconSize(size)
-        if size:
-            self.setMinimumSize(size)
-            self.setMaximumSize(size)
+
+        dyn_size = _compute_dynamic_size(size) if size else None
+
+        if dyn_size:
+            self.setMinimumSize(dyn_size)
+            self.setMaximumSize(dyn_size)
+
         self.setCheckable(checkable)
+
+        if icon_path and os.path.exists(icon_path):
+            self._icon_path = icon_path
+            self.setIcon(QIcon(self._icon_path))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self._icon_path:
+            # l'icône occupe 75% de la largeur/hauteur du bouton
+            pad = 0.75
+            w = int(self.width() * pad)
+            h = int(self.height() * pad)
+            self.setIconSize(QSize(w, h))
 
     def place(self, layout, row, col, alignment=Qt.AlignCenter):
         layout.addWidget(self, row, col, alignment=alignment)
@@ -76,118 +124,80 @@ class Btn(QPushButton):
 
     def connect_by_name(self, obj, method_name, signal="clicked"):
         if hasattr(obj, method_name):
-            slot = getattr(obj, method_name)
-            self.connect_slot(slot, signal)
+            self.connect_slot(getattr(obj, method_name), signal)
 
     def cleanup(self):
-        for signal, slot in self._connected_slots:
-            try:
-                getattr(self, signal).disconnect(slot)
-            except Exception:
-                pass
+        for sig, sl in self._connected_slots:
+            try: getattr(self, sig).disconnect(sl)
+            except: pass
         self._connected_slots.clear()
-        if self.parent():
-            self.setParent(None)
+        self.setParent(None)
         self.deleteLater()
 
     def set_disabled_bw(self):
-        """
-        Désactive complètement le bouton et force un affichage noir et blanc.
-        - Garde les textures mais les convertit en noir et blanc avec PIL
-        - Garde les bordures noires comme en état normal
-        - Supprime toutes les interactions (hover, pressed, checked)
-        """
-        # Désactive les interactions
         self.setEnabled(False)
         self.blockSignals(True)
         self.setCheckable(False)
         self.setChecked(False)
         self.setFocusPolicy(Qt.NoFocus)
 
-        def convert_to_bw(image_path):
-            """Convertit une image en noir et blanc avec PIL"""
-            if os.path.exists(image_path):
-                with Image.open(image_path) as img:
-                    # Utilise convert('L') pour une vraie conversion en niveaux de gris
-                    bw_img = img.convert('L')
-                    # Convertit l'image PIL en QPixmap
-                    buffer = io.BytesIO()
-                    bw_img.save(buffer, format='PNG')
-                    buffer.seek(0)
-                    return QPixmap.fromImage(QImage.fromData(buffer.getvalue()))
+        def to_bw(path):
+            if os.path.exists(path):
+                with Image.open(path) as img:
+                    buf = io.BytesIO()
+                    img.convert('L').save(buf, 'PNG')
+                    return QPixmap.fromImage(QImage.fromData(buf.getvalue()))
             return None
 
-        # Convertit l'icône en noir et blanc si présente pour BtnStyleOne
         if isinstance(self, BtnStyleOne):
-            icon_path = f"gui_template/btn_icons/{self.name}.png"
-            bw_pixmap = convert_to_bw(icon_path)
-            if bw_pixmap:
-                self.setIcon(QIcon(bw_pixmap))
+            p = f"gui_template/btn_icons/{self.name}.png"
+            pix = to_bw(p)
+            if pix: self.setIcon(QIcon(pix))
 
-        # Convertit la texture en noir et blanc pour BtnStyleTwo
         elif isinstance(self, BtnStyleTwo):
-            texture_path = f"gui_template/btn_textures copy/{self.name}.png"
-            bw_pixmap = convert_to_bw(texture_path)
-            if bw_pixmap:
-                # Sauvegarde temporaire de l'image N&B
-                temp_path = f"/tmp/bw_{self.name}.png"
-                bw_pixmap.save(temp_path)
-                
-                # Style avec bordure noire et texture N&B pour tous les états
-                style = """
-                    QPushButton {
-                        border: 2px solid black;
-                        border-radius: 5px;
-                        background-image: url(%s);
-                        background-position: center;
-                        background-repeat: no-repeat;
-                        color: black;
-                    }
-                    QPushButton:disabled {
-                        border: 2px solid black;
-                        border-radius: 5px;
-                        background-image: url(%s);
-                        background-position: center;
-                        background-repeat: no-repeat;
-                        color: black;
-                    }
-                    QPushButton:hover:disabled,
-                    QPushButton:pressed:disabled,
-                    QPushButton:checked:disabled {
-                        border: 2px solid black;
-                        border-radius: 5px;
-                        background-image: url(%s);
-                        background-position: center;
-                        background-repeat: no-repeat;
-                        color: black;
-                    }
-                """ % (temp_path, temp_path, temp_path)
+            p = f"gui_template/btn_textures copy/{self.name}.png"
+            pix = to_bw(p)
+            if pix:
+                tmp = f"/tmp/bw_{self.name}.png"
+                pix.save(tmp)
+                style = f"""
+                    QPushButton {{
+                        border:2px solid black; border-radius:5px;
+                        background-image:url({tmp}); background-position:center;
+                        background-repeat:no-repeat; color:black;
+                    }}
+                    QPushButton:disabled {{
+                        border:2px solid black; border-radius:5px;
+                        background-image:url({tmp}); background-position:center;
+                        background-repeat:no-repeat; color:black;
+                    }}
+                """
                 self.setStyleSheet(style)
 
     def set_enabled_color(self):
-        """Réactive le bouton et restaure l'icône couleur."""
         self.setEnabled(True)
-        # Recharge l'icône couleur d'origine si possible
-        icon_path = f"gui_template/btn_icons/{self.name}.png"
-        if os.path.exists(icon_path):
-            self.setIcon(QIcon(icon_path))
-        # Restaure l'opacité
+        p = f"gui_template/btn_icons/{self.name}.png"
+        if os.path.exists(p):
+            self.setIcon(QIcon(p))
         self.setStyleSheet(self.styleSheet().replace(";opacity:0.5;", ""))
+
 
 class BtnStyleOne(Btn):
     def __init__(self, name, parent=None):
         super().__init__(name, parent)
-        icon_path = f"gui_template/btn_icons/{name}.png"
-        size = QSize(80, 80)
-        self.initialize(
-            style=BTN_STYLE_ONE,
-            icon_path=icon_path,
-            size=size,
-            checkable=False
-        )
+        icon_p = f"gui_template/btn_icons/{name}.png"
+        # on calcule une taille carrée basée sur la hauteur dynamique
+        ref = QSize(80, 80)
+        dyn = _compute_dynamic_size(ref)
+        square = QSize(dyn.height(), dyn.height())
+        self.initialize(style=BTN_STYLE_ONE, icon_path=icon_p, size=ref, checkable=False)
+        # on force ensuite le carré
+        self.setMinimumSize(square)
+        self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+
 
 class BtnStyleTwo(Btn):
     def __init__(self, name, parent=None):
@@ -196,17 +206,15 @@ class BtnStyleTwo(Btn):
         style = BTN_STYLE_TWO.format(texture=texture_path)
         self.setText(name)
         self.adjustSize()
-        width = max(self.sizeHint().width() + 32, 120)
-        size = QSize(width, 56)
-        self.initialize(
-            style=style,
-            icon_path=None,
-            size=size,
-            checkable=True
-        )
+        hint_size = self.sizeHint()
+        original_size = QSize(max(hint_size.width() + 32, 120), hint_size.height())
+        self.initialize(style=style, icon_path=None, size=original_size, checkable=True)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+
+# La classe Btns ne change pas ici. Utilise la version existante sans modification.
+# Seul Btn et ses enfants ont besoin d'un ajustement pour iconSize.
 
 class Btns:
     def __init__(self, parent: QWidget, style1_names, style2_names, slot_style1=None, slot_style2=None):

@@ -134,7 +134,7 @@ class LoadingBar(QWidget):
         frame.setStyleSheet(
             f"#frame {{"
             f"    background-color: transparent;"
-            f"    border: {border_thickness}px solid rgba(255, 255, 255, 255);"
+            f"    border: {border_thickness}px solid rgba(200, 200, 200, 255);"
             f"    border-radius: {corner_radius}px;"
             f"}}"
         )
@@ -158,7 +158,7 @@ class LoadingBar(QWidget):
             f"    border-radius: {corner_radius // 2}px;"
             "}"
             "QProgressBar::chunk {"
-            "    background-color: rgba(255, 255, 255, 255);"
+            "    background-color: rgba(200, 200, 200, 255);" 
             f"    border-radius: {corner_radius // 2}px;"
             "}"
         )

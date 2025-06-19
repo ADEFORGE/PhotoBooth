@@ -1,7 +1,7 @@
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from gui_classes.btn import Btns
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QSizePolicy
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
 from gui_classes.scrole import InfiniteScrollView
 import os
 import json
@@ -18,9 +18,6 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         self.setStyleSheet("background: transparent;")
 
         # --- Fond animé (InfiniteScrollView) via BackgroundManager ---
-        self._scroll_timer = QTimer(self)
-        self._scroll_timer.setInterval(50)  # ~20 FPS
-        self._scroll_timer.timeout.connect(self._update_scroll_background)
         self._scroll_view = None
         self._init_scroll_view()
 
@@ -103,14 +100,20 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def _init_scroll_view(self):
         images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
-        self._scroll_view = InfiniteScrollView(images_folder, scroll_speed=1, tilt_angle=30)
+        # Use high FPS for smooth animation, and pass a callback for background update
+        self._scroll_view = InfiniteScrollView(
+            images_folder, scroll_speed=1, tilt_angle=30, fps=60, on_frame=self._update_scroll_background
+        )
         self._scroll_view.resize(self.size())
         self._scroll_view.hide()  # Never shown directly
         self._scroll_view._populate_scene()
 
-    def _update_scroll_background(self):
-        if self._scroll_view:
-            pixmap = self._scroll_view.grab()
+    def _update_scroll_background(self, scroll_view=None):
+        # Called by InfiniteScrollView after each frame
+        if scroll_view is None:
+            scroll_view = self._scroll_view
+        if scroll_view:
+            pixmap = scroll_view.grab()
             if hasattr(self, 'background_manager'):
                 self.background_manager.set_scroll_pixmap(pixmap)
             self.update()
@@ -132,8 +135,8 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def cleanup(self):
         print("[WELCOME][DEBUG] cleanup start (reset state, not destruction)")
-        if self._scroll_timer.isActive():
-            self._scroll_timer.stop()
+        if self._scroll_view and self._scroll_view.timer.isActive():
+            self._scroll_view.timer.stop()
         if self._scroll_view:
             self._scroll_view.deleteLater()
             self._scroll_view = None
@@ -148,8 +151,9 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         super().showEvent(event)
         if self.btns:
             self.btns.raise_()
-        if self._scroll_view:
-            self._scroll_timer.start()
+        # Start animation timer if not already running
+        if self._scroll_view and not self._scroll_view.timer.isActive():
+            self._scroll_view.timer.start()
         try:
             if self.window() and hasattr(self.window(), "camera_widget"):
                 self.window().camera_widget.start_camera()
@@ -157,14 +161,14 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             print(f"[WELCOME] Erreur démarrage caméra (showEvent): {e}")
 
     def hideEvent(self, event):
-        if self._scroll_timer.isActive():
-            self._scroll_timer.stop()
+        if self._scroll_view and self._scroll_view.timer.isActive():
+            self._scroll_view.timer.stop()
         super().hideEvent(event)
 
     def on_enter(self):
         print("[WELCOME][DEBUG] on_enter called")
-        if self._scroll_view and not self._scroll_timer.isActive():
-            self._scroll_timer.start()
+        if self._scroll_view and not self._scroll_view.timer.isActive():
+            self._scroll_view.timer.start()
         need_recreate = not self.btns or not getattr(self.btns, 'style1_btns', [])
         if not need_recreate:
             try:

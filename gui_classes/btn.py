@@ -5,7 +5,7 @@ import os
 from PIL import Image, ImageQt
 import io
 
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
+from constante import BTN_STYLE_TWO
 
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:
@@ -216,7 +216,6 @@ class BtnStyleTwo(Btn):
         super().__init__(name, parent)
         texture_path = f"gui_template/btn_textures copy/{name}.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
-        # Utilise la même logique de dimensionnement que BtnStyleOne
         dyn = _compute_dynamic_size(QSize(80, 80))
         side = max(dyn.width(), dyn.height(), 120)
         square = QSize(side, side)
@@ -227,6 +226,8 @@ class BtnStyleTwo(Btn):
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+        # Applique un style direct sur le texte pour garantir la prise en compte
+        self.setStyleSheet(self.styleSheet() + f"\nQPushButton {{ color: white; font-weight: 900; font-size: 2.2em; font-family: Arial, sans-serif; }}\n")
 
 
 # La classe Btns ne change pas ici. Utilise la version existante sans modification.

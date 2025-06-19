@@ -1,14 +1,14 @@
 {
   "OverlayRules": {
-    "title": "Règles d'utilisation",
-    "message": "Merci de lire et d'accepter les règles pour continuer."
+    "title": "Bruksregler",
+    "message": "Vennligst les og godta reglene for å fortsette."
   },
   "OverlayQrcode": {
-    "title": "Scannez le QR code pour continuer",
-    "message": "Merci d'avoir accepté les règles."
+    "title": "Skann QR-koden for å fortsette",
+    "message": "Takk for at du godtok reglene."
   },
   "WelcomeWidget": {
-    "title": "Bienvenue sur le PhotoBooth !",
-    "message": "Prenez la pose et amusez-vous. Cliquez sur l'icône caméra pour commencer."
+    "title": "Velkommen til PhotoBooth!",
+    "message": "Posér og ha det gøy. Klikk på kameraknappen for å starte."
   }
 }

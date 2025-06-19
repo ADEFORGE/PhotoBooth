@@ -1,14 +1,14 @@
 {
   "OverlayRules": {
-    "title": "Règles d'utilisation",
-    "message": "Merci de lire et d'accepter les règles pour continuer."
+    "title": "Geavahusvuogit",
+    "message": "Lohkke ja dohkke vuogit vai gávdnat viidodettiin."
   },
   "OverlayQrcode": {
-    "title": "Scannez le QR code pour continuer",
-    "message": "Merci d'avoir accepté les règles."
+    "title": "Skanna QR-koda vai joatkit",
+    "message": "Giitu go dohkke vuogit."
   },
   "WelcomeWidget": {
-    "title": "Bienvenue sur le PhotoBooth !",
-    "message": "Prenez la pose et amusez-vous. Cliquez sur l'icône caméra pour commencer."
+    "title": "Bures boahtin PhotoBoothii!",
+    "message": "Čuožžilit ja šaddet liekkus. Coahkkalat kameraoassiid ala vai álggahit."
   }
 }

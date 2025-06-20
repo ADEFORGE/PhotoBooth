@@ -210,11 +210,13 @@ class BackgroundManager(QObject):
             widget._scroll_view.setParent(widget)
             widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
             widget._scroll_view.setStyleSheet("background: transparent;")
-            widget._scroll_view.hide()
+            widget._scroll_view.show()
+            widget._scroll_view.raise_()
         else:
             widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
             widget._scroll_view.setStyleSheet("background: transparent;")
-            widget._scroll_view.hide()
+            widget._scroll_view.show()
+            widget._scroll_view.raise_()
         if widget._scroll_view and not widget._scroll_view.timer.isActive():
             print("[BGMANAGER][DEBUG] Starting scroll timer")
             widget._scroll_view.timer.start()

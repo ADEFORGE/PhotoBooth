@@ -2,7 +2,7 @@ from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from gui_classes.btn import Btns
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
-from gui_classes.scrole import InfiniteScrollView
+from gui_classes.background_manager import BackgroundManager
 import os
 import json
 from constante import TITLE_LABEL_STYLE
@@ -19,7 +19,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
         # --- Fond animé (InfiniteScrollView) via BackgroundManager ---
         self._scroll_view = None
-        self._init_scroll_view()
+        self.set_scroll_fond()
 
         # === Ajout du titre et du message d'accueil ===
         UI_TEXTS_PATH = os.path.join(os.path.dirname(__file__), "../ui_texts.json")
@@ -98,26 +98,6 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         except Exception as e:
             print(f"[WELCOME] Erreur démarrage caméra: {e}")
         print("[WELCOME][DEBUG] __init__ end")
-
-    def _init_scroll_view(self):
-        images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
-        # Use high FPS for smooth animation, and pass a callback for background update
-        self._scroll_view = InfiniteScrollView(
-            images_folder, scroll_speed=1, tilt_angle=30, fps=60, on_frame=self._update_scroll_background
-        )
-        self._scroll_view.resize(self.size())
-        self._scroll_view.hide()  # Never shown directly
-        self._scroll_view._populate_scene()
-
-    def _update_scroll_background(self, scroll_view=None):
-        # Called by InfiniteScrollView after each frame
-        if scroll_view is None:
-            scroll_view = self._scroll_view
-        if scroll_view:
-            pixmap = scroll_view.grab()
-            if hasattr(self, 'background_manager'):
-                self.background_manager.set_scroll_pixmap(pixmap)
-            self.update()
 
     def resizeEvent(self, event):
         self._update_center_widget_geometry()
@@ -204,3 +184,6 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         y = (parent_rect.height() - center_height) // 2
         self.center_widget.setGeometry(x, y, center_width, center_height)
         self.center_widget.raise_()
+
+    def set_scroll_fond(self):
+        BackgroundManager.set_scroll_fond(self)

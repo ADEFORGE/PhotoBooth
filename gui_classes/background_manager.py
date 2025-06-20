@@ -190,3 +190,35 @@ class BackgroundManager(QObject):
             print("[DEBUG][BGMANAGER] clear_all: all sources cleared")
         finally:
             self._mutex.unlock()
+
+    @staticmethod
+    def set_scroll_fond(widget):
+        """
+        Initialise et gère le scroll animé de fond pour un widget donné.
+        Le widget doit avoir un attribut 'background_manager'.
+        """
+        import os
+        from gui_classes.scrole import InfiniteScrollView
+        images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
+        if not hasattr(widget, '_scroll_view') or widget._scroll_view is None:
+            widget._scroll_view = InfiniteScrollView(
+                images_folder, scroll_speed=1, tilt_angle=30, fps=60,
+                on_frame=lambda sv: BackgroundManager._update_scroll_background(widget, sv)
+            )
+            widget._scroll_view.resize(widget.size())
+            widget._scroll_view.hide()  # Never shown directly
+            widget._scroll_view._populate_scene()
+        if widget._scroll_view and not widget._scroll_view.timer.isActive():
+            widget._scroll_view.timer.start()
+        # Met à jour le fond immédiatement
+        BackgroundManager._update_scroll_background(widget, widget._scroll_view)
+
+    @staticmethod
+    def _update_scroll_background(widget, scroll_view=None):
+        if scroll_view is None and hasattr(widget, '_scroll_view'):
+            scroll_view = widget._scroll_view
+        if scroll_view:
+            pixmap = scroll_view.grab()
+            if hasattr(widget, 'background_manager'):
+                widget.background_manager.set_scroll_pixmap(pixmap)
+            widget.update()

@@ -247,6 +247,9 @@ class InfiniteScrollView(QGraphicsView):
         def cleanup_step():
             print("[SCROLE][DEBUG] cleanup_step called")
             print(f"[SCROLE][DEBUG] cleanup_step: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
+            if self.scene is None:
+                print("[SCROLE][DEBUG] cleanup_step: scene is None, aborting cleanup_step early")
+                return False
             view_rect = self.mapToScene(self.viewport().rect()).boundingRect()
             to_remove = []
             for col in self.columns:
@@ -265,18 +268,12 @@ class InfiniteScrollView(QGraphicsView):
             if all(len(col["items"]) == 0 for col in self.columns) or self._end_anim_frame_count > self._end_anim_max_frames:
                 print(f"[SCROLE][DEBUG] cleanup_step: all items removed or max frames reached ({self._end_anim_frame_count}), stopping timer and cleaning scene")
                 self.timer.stop()
-                self.scene.clear()
-                self.scene.deleteLater()
-                self.scene = None
+                if self.scene is not None:
+                    self.scene.clear()
+                    self.scene.deleteLater()
+                    self.scene = None
                 self.columns.clear()
                 self._populated = False
-                self.scroll_speed = self._original_scroll_speed
-                print("[SCROLE][DEBUG] end_animation: all items deleted, animation stopped")
-                print(f"[SCROLE][DEBUG] end_animation: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
-                if on_finished:
-                    from PySide6.QtCore import QTimer
-                    print("[SCROLE][DEBUG] Calling on_finished via QTimer.singleShot")
-                    QTimer.singleShot(0, on_finished)
                 return False
             return True
         def end_anim_frame():

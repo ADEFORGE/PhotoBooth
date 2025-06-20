@@ -66,7 +66,7 @@ class InfiniteScrollView(QGraphicsView):
         super().hideEvent(event)
 
     def paintEvent(self, event):
-        print(f"[SCROLE][DEBUG] paintEvent: isVisible={self.isVisible()} scene={self.scene} populated={self._populated}")
+        #print(f"[SCROLE][DEBUG] paintEvent: isVisible={self.isVisible()} scene={self.scene} populated={self._populated}")
         super().paintEvent(event)
 
     def resizeEvent(self, event):
@@ -207,6 +207,62 @@ class InfiniteScrollView(QGraphicsView):
             print("[SCROLE][DEBUG] No scene to clean")
         self._populated = False
         print(f"[SCROLE][DEBUG] stop() end: scene={self.scene} populated={self._populated}")
+
+    def end_animation(self, on_finished=None):
+        print(f"[SCROLE][DEBUG] end_animation called, on_finished={on_finished}")
+        self._end_animation_mode = True
+        self._end_anim_frame_count = 0
+        self._end_anim_max_frames = 100
+        self._original_scroll_speed = self.scroll_speed
+        self.scroll_speed = max(10, self.scroll_speed * 5)  # Accélère le scroll pour la fin
+        print(f"[SCROLE][DEBUG] end_animation: scroll_speed set to {self.scroll_speed}")
+        for item in self.scene.items():
+            if hasattr(item, 'setVisible') and hasattr(item, 'toGraphicsObject'):
+                if hasattr(item, 'toGraphicsObject') and hasattr(item.toGraphicsObject(), 'toPlainText'):
+                    item.setVisible(False)
+        def cleanup_step():
+            print("[SCROLE][DEBUG] cleanup_step called")
+            view_rect = self.mapToScene(self.viewport().rect()).boundingRect()
+            to_remove = []
+            for col in self.columns:
+                for item in col["items"]:
+                    if not view_rect.intersects(item.sceneBoundingRect()):
+                        to_remove.append(item)
+            print(f"[SCROLE][DEBUG] cleanup_step: to_remove={len(to_remove)} items")
+            for item in to_remove:
+                self.scene.removeItem(item)
+                for col in self.columns:
+                    if item in col["items"]:
+                        col["items"].remove(item)
+            # Sécurité : si trop de frames, on force le nettoyage
+            self._end_anim_frame_count += 1
+            if all(len(col["items"]) == 0 for col in self.columns) or self._end_anim_frame_count > self._end_anim_max_frames:
+                print(f"[SCROLE][DEBUG] cleanup_step: all items removed or max frames reached ({self._end_anim_frame_count}), stopping timer and cleaning scene")
+                self.timer.stop()
+                self.scene.clear()
+                self.scene.deleteLater()
+                self.scene = None
+                self.columns.clear()
+                self._populated = False
+                self.scroll_speed = self._original_scroll_speed
+                print("[SCROLE][DEBUG] end_animation: all items deleted, animation stopped")
+                if on_finished:
+                    from PySide6.QtCore import QTimer
+                    print("[SCROLE][DEBUG] Calling on_finished via QTimer.singleShot")
+                    QTimer.singleShot(0, on_finished)
+                return False
+            return True
+        def end_anim_frame():
+            print("[SCROLE][DEBUG] end_anim_frame called")
+            self._scroll_step()
+            still_running = cleanup_step()
+            if not still_running:
+                print("[SCROLE][DEBUG] end_anim_frame: animation finished, timer stopped")
+                self.timer.stop()
+        print("[SCROLE][DEBUG] Disconnecting previous timer timeout and connecting end_anim_frame")
+        self.timer.timeout.disconnect()
+        self.timer.timeout.connect(end_anim_frame)
+        print("[SCROLE][DEBUG] end_animation: mode enabled")
 
 
 if __name__ == "__main__":

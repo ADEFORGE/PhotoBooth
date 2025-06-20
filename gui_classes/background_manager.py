@@ -52,12 +52,12 @@ class BackgroundManager(QObject):
             self._mutex.unlock()
 
     def set_scroll_pixmap(self, pixmap):
-        print("[DEBUG][BGMANAGER] set_scroll_pixmap called")
+        #print("[DEBUG][BGMANAGER] set_scroll_pixmap called")
         self._mutex.lock()
         try:
             self.scroll_pixmap = pixmap
             self.current_source = 'scroll'
-            print(f"[DEBUG][BGMANAGER] set_scroll_pixmap: source set to 'scroll'")
+            #print(f"[DEBUG][BGMANAGER] set_scroll_pixmap: source set to 'scroll'")
         finally:
             self._mutex.unlock()
 
@@ -193,61 +193,91 @@ class BackgroundManager(QObject):
 
     @staticmethod
     def set_scroll_fond(widget):
-        """
-        Initialise et gère le scroll animé de fond pour un widget donné.
-        Le widget doit avoir un attribut 'background_manager'.
-        """
+        print("[BGMANAGER][DEBUG] set_scroll_fond called for widget:", widget)
         import os
         from gui_classes.scrole import InfiniteScrollView
+        from PySide6.QtCore import Qt
         images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
         if not hasattr(widget, '_scroll_view') or widget._scroll_view is None:
+            print("[BGMANAGER][DEBUG] Creating new InfiniteScrollView")
             widget._scroll_view = InfiniteScrollView(
                 images_folder, scroll_speed=1, tilt_angle=30, fps=60,
                 on_frame=lambda sv: BackgroundManager._update_scroll_background(widget, sv)
             )
             widget._scroll_view.resize(widget.size())
-            widget._scroll_view.hide()  # Never shown directly
             widget._scroll_view._populate_scene()
+            widget._scroll_view.setParent(widget)
+            widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
+            widget._scroll_view.setStyleSheet("background: transparent;")
+            widget._scroll_view.hide()
+        else:
+            widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
+            widget._scroll_view.setStyleSheet("background: transparent;")
+            widget._scroll_view.hide()
         if widget._scroll_view and not widget._scroll_view.timer.isActive():
+            print("[BGMANAGER][DEBUG] Starting scroll timer")
             widget._scroll_view.timer.start()
         # Met à jour le fond immédiatement
+        print("[BGMANAGER][DEBUG] Updating scroll background")
         BackgroundManager._update_scroll_background(widget, widget._scroll_view)
 
     @staticmethod
     def _update_scroll_background(widget, scroll_view=None):
+        print(f"[BGMANAGER][DEBUG] _update_scroll_background called for widget={widget} scroll_view={scroll_view}")
         if scroll_view is None and hasattr(widget, '_scroll_view'):
             scroll_view = widget._scroll_view
         if scroll_view:
             pixmap = scroll_view.grab()
             if hasattr(widget, 'background_manager'):
+                print("[BGMANAGER][DEBUG] Setting scroll pixmap on background_manager")
                 widget.background_manager.set_scroll_pixmap(pixmap)
             widget.update()
+            print("[BGMANAGER][DEBUG] Widget updated after scroll background")
 
     @staticmethod
     def clear_scroll_fond(widget):
-        """
-        Détruit proprement le scroll animé de fond pour un widget donné.
-        """
+        print(f"[BGMANAGER][DEBUG] clear_scroll_fond called for widget={widget}")
         if hasattr(widget, '_scroll_view') and widget._scroll_view:
             if hasattr(widget._scroll_view, 'timer') and widget._scroll_view.timer.isActive():
+                print("[BGMANAGER][DEBUG] Stopping scroll timer")
                 widget._scroll_view.timer.stop()
+            print("[BGMANAGER][DEBUG] Deleting scroll view")
             widget._scroll_view.deleteLater()
             widget._scroll_view = None
 
     @staticmethod
     def start_scroll_fond(widget):
-        """
-        (Re)démarre le scroll animé de fond pour un widget donné.
-        """
+        print(f"[BGMANAGER][DEBUG] start_scroll_fond called for widget={widget}")
         if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
             if not widget._scroll_view.timer.isActive():
+                print("[BGMANAGER][DEBUG] Starting scroll timer")
                 widget._scroll_view.timer.start()
 
     @staticmethod
     def stop_scroll_fond(widget):
-        """
-        Stoppe le scroll animé de fond pour un widget donné.
-        """
+        print(f"[BGMANAGER][DEBUG] stop_scroll_fond called for widget={widget}")
         if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
             if widget._scroll_view.timer.isActive():
+                print("[BGMANAGER][DEBUG] Stopping scroll timer")
                 widget._scroll_view.timer.stop()
+
+    @staticmethod
+    def end_scroll_animation(widget, on_finished=None):
+        print(f"[BGMANAGER][DEBUG] end_scroll_animation called for widget={widget} on_finished={on_finished}")
+        if hasattr(widget, '_scroll_view') and widget._scroll_view:
+            # Show and raise the scroll view for the end animation, keep it transparent for mouse events
+            widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
+            widget._scroll_view.setStyleSheet("background: transparent;")
+            widget._scroll_view.show()
+            widget._scroll_view.raise_()
+            if hasattr(widget._scroll_view, 'end_animation'):
+                print("[BGMANAGER][DEBUG] Calling end_animation on scroll_view")
+                widget._scroll_view.end_animation(on_finished=on_finished)
+            else:
+                print("[BGMANAGER][DEBUG] No end_animation on scroll_view, calling on_finished directly")
+                if on_finished:
+                    on_finished()
+        else:
+            print("[BGMANAGER][DEBUG] No _scroll_view, calling on_finished directly")
+            if on_finished:
+                on_finished()

@@ -116,6 +116,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def cleanup(self):
         print("[WELCOME][DEBUG] cleanup start (reset state, not destruction)")
+        # Suppression de l'appel à end_scroll_animation ici pour éviter double cleanup et crash
         BackgroundManager.stop_scroll_fond(self)
         BackgroundManager.clear_scroll_fond(self)
         if hasattr(self, "btns") and self.btns:

@@ -42,10 +42,10 @@ class MainWindow(QWidget):
         print(f"[DEBUG][MAINWINDOW] set_view(index={index}, initial={initial}) called")
         if DEBUG:
             print(f"[MAINWINDOW] Switching to view {index}")
-        if not initial:
+        def do_cleanup_and_switch():
+            print(f"[MAINWINDOW][DEBUG] do_cleanup_and_switch called for index={index}")
             current_index = self.stack.currentIndex()
             print(f"[DEBUG][MAINWINDOW] stack.currentIndex()={self.stack.currentIndex()}, widget at index={type(self.stack.currentWidget())}")
-            # Diagnostic : affiche tous les widgets et leurs index
             for i in range(self.stack.count()):
                 print(f"[DEBUG][MAINWINDOW] stack index {i}: {type(self.stack.widget(i))}")
             current_widget = self.widgets.get(current_index)
@@ -59,20 +59,47 @@ class MainWindow(QWidget):
                 if hasattr(current_widget, "cleanup"):
                     print(f"[DEBUG][MAINWINDOW] Calling cleanup on {type(current_widget)}")
                     current_widget.cleanup()
-        new_widget = self.widgets[index]
-        print(f"[DEBUG][MAINWINDOW] stack.currentIndex() before set: {self.stack.currentIndex()}")
-        print(f"[DEBUG][MAINWINDOW] indexOf(new_widget): {self.stack.indexOf(new_widget)}")
-        self.stack.setCurrentWidget(new_widget)
-        print(f"[DEBUG][MAINWINDOW] stack.currentIndex() after set: {self.stack.currentIndex()}")
-        print(f"[DEBUG][MAINWINDOW] currentWidget after set: {type(self.stack.currentWidget())}")
-        if DEBUG:
-            print(f"[MAINWINDOW] Configuring new view {index}")
-        if hasattr(new_widget, "on_enter"):
-            print(f"[DEBUG][MAINWINDOW] Calling on_enter on {type(new_widget)}")
-            new_widget.on_enter()
-        if DEBUG:
-            print("[MAINWINDOW] View switch complete")
-        print(f"[DEBUG][MAINWINDOW] set_view finished for index={index}")
+            new_widget = self.widgets[index]
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex() before set: {self.stack.currentIndex()}")
+            print(f"[DEBUG][MAINWINDOW] indexOf(new_widget): {self.stack.indexOf(new_widget)}")
+            self.stack.setCurrentWidget(new_widget)
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex() after set: {self.stack.currentIndex()}")
+            print(f"[DEBUG][MAINWINDOW] currentWidget after set: {type(self.stack.currentWidget())}")
+            if DEBUG:
+                print(f"[MAINWINDOW] Configuring new view {index}")
+            if hasattr(new_widget, "on_enter"):
+                print(f"[DEBUG][MAINWINDOW] Calling on_enter on {type(new_widget)}")
+                new_widget.on_enter()
+            if DEBUG:
+                print("[MAINWINDOW] View switch complete")
+            print(f"[DEBUG][MAINWINDOW] set_view finished for index={index}")
+        if not initial:
+            print(f"[MAINWINDOW][DEBUG] set_view: not initial, checking for scroll animation end")
+            current_index = self.stack.currentIndex()
+            current_widget = self.widgets.get(current_index)
+            from gui_classes.background_manager import BackgroundManager
+            if hasattr(current_widget, '_scroll_view') and current_widget._scroll_view and hasattr(current_widget._scroll_view, 'end_animation'):
+                print(f"[MAINWINDOW][DEBUG] Calling BackgroundManager.end_scroll_animation for widget {current_widget}")
+                BackgroundManager.end_scroll_animation(current_widget, on_finished=do_cleanup_and_switch)
+            else:
+                print(f"[MAINWINDOW][DEBUG] No scroll animation to end, calling do_cleanup_and_switch directly")
+                do_cleanup_and_switch()
+        else:
+            print(f"[MAINWINDOW][DEBUG] set_view: initial view setup for index={index}")
+            new_widget = self.widgets[index]
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex() before set: {self.stack.currentIndex()}")
+            print(f"[DEBUG][MAINWINDOW] indexOf(new_widget): {self.stack.indexOf(new_widget)}")
+            self.stack.setCurrentWidget(new_widget)
+            print(f"[DEBUG][MAINWINDOW] stack.currentIndex() after set: {self.stack.currentIndex()}")
+            print(f"[DEBUG][MAINWINDOW] currentWidget after set: {type(self.stack.currentWidget())}")
+            if DEBUG:
+                print(f"[MAINWINDOW] Configuring new view {index}")
+            if hasattr(new_widget, "on_enter"):
+                print(f"[DEBUG][MAINWINDOW] Calling on_enter on {type(new_widget)}")
+                new_widget.on_enter()
+            if DEBUG:
+                print("[MAINWINDOW] View switch complete")
+            print(f"[DEBUG][MAINWINDOW] set_view finished for index={index}")
 
     def _cleanup_widget(self, widget):
         # Méthode d'analyse/debug, non appelée en production

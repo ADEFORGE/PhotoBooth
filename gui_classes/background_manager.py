@@ -194,6 +194,7 @@ class BackgroundManager(QObject):
     @staticmethod
     def set_scroll_fond(widget):
         print("[BGMANAGER][DEBUG] set_scroll_fond called for widget:", widget)
+        print(f"[BGMANAGER][DEBUG] set_scroll_fond: parent={getattr(widget, 'parent', lambda: None)()}, isVisible={getattr(widget, 'isVisible', lambda: None)()}, geometry={getattr(widget, 'geometry', lambda: None)()}")
         import os
         from gui_classes.scrole import InfiniteScrollView
         from PySide6.QtCore import Qt
@@ -220,6 +221,7 @@ class BackgroundManager(QObject):
         # Met à jour le fond immédiatement
         print("[BGMANAGER][DEBUG] Updating scroll background")
         BackgroundManager._update_scroll_background(widget, widget._scroll_view)
+        print(f"[BGMANAGER][DEBUG] set_scroll_fond: scroll_view parent={getattr(widget._scroll_view, 'parent', lambda: None)()}, isVisible={getattr(widget._scroll_view, 'isVisible', lambda: None)()}, geometry={getattr(widget._scroll_view, 'geometry', lambda: None)()}")
 
     @staticmethod
     def _update_scroll_background(widget, scroll_view=None):

@@ -146,11 +146,12 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             self.window().set_view(1)
 
     def cleanup(self):
-        print("[WELCOME][DEBUG] cleanup start (reset state, not destruction)")
+        print(f"[WELCOME][DEBUG] cleanup start (reset state, not destruction), parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
         # Nettoyage complet du scroll animé et suppression du widget du parent (stack)
         BackgroundManager.stop_scroll_fond(self)
         BackgroundManager.clear_scroll_fond(self)
         if hasattr(self, '_scroll_view') and self._scroll_view:
+            print(f"[WELCOME][DEBUG] cleanup: scroll_view parent={self._scroll_view.parent()}, isVisible={self._scroll_view.isVisible()}, geometry={self._scroll_view.geometry()}")
             self._scroll_view.setParent(None)
             self._scroll_view.deleteLater()
             self._scroll_view = None
@@ -161,7 +162,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             print("[WELCOME][DEBUG] cleanup: no btns to clean")
         # Optionnel : masquer le widget lui-même pour éviter tout effet de flash
         self.hide()
-        print("[WELCOME][DEBUG] cleanup end (widget kept alive)")
+        print(f"[WELCOME][DEBUG] cleanup end (widget kept alive), parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
 
     def showEvent(self, event):
         super().showEvent(event)

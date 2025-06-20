@@ -39,8 +39,8 @@ class MainWindow(QWidget):
         self.set_view(0, initial=True)
 
     def set_view(self, index: int, initial=False):
-        #file:gui_mainwindow.py - logique de transition stack
         print(f"[DEBUG][MAINWINDOW] set_view(index={index}, initial={initial}) called")
+        print(f"[DEBUG][MAINWINDOW] set_view: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
         if DEBUG:
             print(f"[MAINWINDOW] Switching to view {index}")
         def do_cleanup_and_switch():
@@ -50,7 +50,7 @@ class MainWindow(QWidget):
             for i in range(self.stack.count()):
                 print(f"[DEBUG][MAINWINDOW] stack index {i}: {type(self.stack.widget(i))}")
             current_widget = self.widgets.get(current_index)
-            print(f"[DEBUG][MAINWINDOW] current_widget={type(current_widget)}")
+            print(f"[DEBUG][MAINWINDOW] current_widget={type(current_widget)} parent={getattr(current_widget, 'parent', lambda: None)()}, isVisible={getattr(current_widget, 'isVisible', lambda: None)()}, geometry={getattr(current_widget, 'geometry', lambda: None)()}")
             if current_widget:
                 if DEBUG:
                     print(f"[MAINWINDOW] Cleaning up view {current_index}")
@@ -63,11 +63,13 @@ class MainWindow(QWidget):
             # Correction : si on quitte WelcomeWidget (0) pour aller à PhotoBooth (1), on saute tout autre WelcomeWidget
             if current_index == 0 and index == 1:
                 print("[DEBUG][MAINWINDOW] Transition WelcomeWidget animé → PhotoBooth (direct)")
-                # Masquer explicitement le WelcomeWidget pour éviter tout effet de flash
-                self.widgets[0].hide()
+                print(f"[DEBUG][MAINWINDOW] set_view: SWITCH STACK vers PhotoBooth, parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
                 self.stack.setCurrentWidget(self.widgets[1])
                 if hasattr(self.widgets[1], "on_enter"):
                     self.widgets[1].on_enter()
+                print("[DEBUG][MAINWINDOW] set_view: scheduling WelcomeWidget cleanup via QTimer.singleShot(0, cleanup)")
+                from PySide6.QtCore import QTimer
+                QTimer.singleShot(0, self.widgets[0].cleanup)
                 print(f"[DEBUG][MAINWINDOW] set_view finished for index={index}")
                 return
             new_widget = self.widgets[index]
@@ -89,6 +91,22 @@ class MainWindow(QWidget):
             current_index = self.stack.currentIndex()
             current_widget = self.widgets.get(current_index)
             from gui_classes.background_manager import BackgroundManager
+            # Transition WelcomeWidget → PhotoBooth : détache le scroll_view, overlay, puis switch stack
+            if current_index == 0 and index == 1:
+                print(f"[DEBUG][MAINWINDOW] Preparing scroll_view overlay for animation")
+                scroll_view = getattr(self.widgets[0], '_scroll_view', None)
+                if scroll_view:
+                    scroll_view.setParent(self)
+                    scroll_view.setGeometry(0, 0, self.width(), self.height())
+                    scroll_view.show()  # <-- Ajout explicite pour forcer la visibilité
+                    scroll_view.raise_()
+                    print(f"[DEBUG][MAINWINDOW] scroll_view parent: {scroll_view.parent()}, isVisible: {scroll_view.isVisible()}, geometry: {scroll_view.geometry()}")
+                print(f"[DEBUG][MAINWINDOW] Switch stack to PhotoBooth AVANT animation")
+                self.stack.setCurrentWidget(self.widgets[1])
+                if hasattr(self.widgets[1], "on_enter"):
+                    self.widgets[1].on_enter()
+                # On continue avec l'animation de fin du scroll sur scroll_view overlay
+                current_widget = self.widgets[0]  # Pour compatibilité avec le reste du code
             if hasattr(current_widget, '_scroll_view') and current_widget._scroll_view and hasattr(current_widget._scroll_view, 'end_animation'):
                 print(f"[MAINWINDOW][DEBUG] Calling BackgroundManager.end_scroll_animation for widget {current_widget}")
                 BackgroundManager.end_scroll_animation(current_widget, on_finished=do_cleanup_and_switch)

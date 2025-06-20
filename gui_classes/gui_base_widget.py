@@ -121,11 +121,13 @@ class PhotoBoothBaseWidget(QWidget):
 
     def clear_display(self):
         print("[DEBUG][BASEWIDGET] clear_display called")
+        print(f"[DEBUG][BASEWIDGET] clear_display: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
         if hasattr(self, 'background_manager'):
-            print(f"[DEBUG][BASEWIDGET] background_manager source before clear: {self.background_manager.get_source()}")
+            print(f"[DEBUG][BASEWIDGET] clear_display: background_manager={self.background_manager}")
         self.background_manager.clear_all()
         self.update()
         print("[DEBUG][BASEWIDGET] clear_display finished")
+        print(f"[DEBUG][BASEWIDGET] clear_display: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
 
     def clear_buttons(self):
         print("[DEBUG][BASEWIDGET] clear_buttons called")

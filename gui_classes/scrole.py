@@ -212,6 +212,10 @@ class InfiniteScrollView(QGraphicsView):
 
     def end_animation(self, on_finished=None):
         print(f"[SCROLE][DEBUG] end_animation called, on_finished={on_finished}")
+        print(f"[SCROLE][DEBUG] end_animation: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
+        if not self.timer.isActive():
+            print("[SCROLE][DEBUG] end_animation: timer was not active, starting it for animation")
+            self.timer.start()
         self._end_animation_mode = True
         self._end_anim_frame_count = 0
         self._end_anim_max_frames = 100
@@ -224,6 +228,7 @@ class InfiniteScrollView(QGraphicsView):
                     item.setVisible(False)
         def cleanup_step():
             print("[SCROLE][DEBUG] cleanup_step called")
+            print(f"[SCROLE][DEBUG] cleanup_step: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
             view_rect = self.mapToScene(self.viewport().rect()).boundingRect()
             to_remove = []
             for col in self.columns:
@@ -238,6 +243,7 @@ class InfiniteScrollView(QGraphicsView):
                         col["items"].remove(item)
             # Sécurité : si trop de frames, on force le nettoyage
             self._end_anim_frame_count += 1
+            print(f"[SCROLE][DEBUG] cleanup_step: frame={self._end_anim_frame_count}, columns={[len(col['items']) for col in self.columns]}")
             if all(len(col["items"]) == 0 for col in self.columns) or self._end_anim_frame_count > self._end_anim_max_frames:
                 print(f"[SCROLE][DEBUG] cleanup_step: all items removed or max frames reached ({self._end_anim_frame_count}), stopping timer and cleaning scene")
                 self.timer.stop()
@@ -248,6 +254,7 @@ class InfiniteScrollView(QGraphicsView):
                 self._populated = False
                 self.scroll_speed = self._original_scroll_speed
                 print("[SCROLE][DEBUG] end_animation: all items deleted, animation stopped")
+                print(f"[SCROLE][DEBUG] end_animation: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
                 if on_finished:
                     from PySide6.QtCore import QTimer
                     print("[SCROLE][DEBUG] Calling on_finished via QTimer.singleShot")
@@ -256,10 +263,12 @@ class InfiniteScrollView(QGraphicsView):
             return True
         def end_anim_frame():
             print("[SCROLE][DEBUG] end_anim_frame called")
+            print(f"[SCROLE][DEBUG] end_anim_frame: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
             self._scroll_step()
             still_running = cleanup_step()
             if not still_running:
                 print("[SCROLE][DEBUG] end_anim_frame: animation finished, timer stopped")
+                print(f"[SCROLE][DEBUG] end_anim_frame: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
                 self.timer.stop()
         print("[SCROLE][DEBUG] Disconnecting previous timer timeout and connecting end_anim_frame")
         self.timer.timeout.disconnect()

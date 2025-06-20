@@ -1,5 +1,5 @@
-from PySide6.QtGui import QPixmap, QImage, QPainter, QColor, QLinearGradient
-from PySide6.QtCore import QObject, QMutex, Qt, QPoint, QPointF
+from PySide6.QtGui import QPixmap, QImage, QPainter
+from PySide6.QtCore import QObject, QMutex, Qt
 
 class BackgroundManager(QObject):
     """
@@ -19,6 +19,7 @@ class BackgroundManager(QObject):
         self.camera_pixmap = None    # QPixmap
         self.scroll_pixmap = None    # QPixmap
         self.current_source = None   # 'generated', 'capture', 'camera', 'scroll'
+        self._gradient_cache = {}    # (path, QSize) -> QPixmap
 
     def set_generated_image(self, qimage):
         # print("[BG_MANAGER] set_generated_image called")
@@ -128,61 +129,44 @@ class BackgroundManager(QObject):
         finally:
             self._mutex.unlock()
 
-    def apply_bottom_gradient(self, image):
-        """
-        Applique un dégradé vertical du bas vers le haut sur l'image.
-        Le dégradé va de noir opaque en bas à transparent en haut,
-        sur 20% de la hauteur de l'image depuis le bas.
-        """
-        if isinstance(image, QImage):
-            pixmap = QPixmap.fromImage(image)
-        elif isinstance(image, QPixmap):
-            pixmap = image
-        else:
-            return None
-
-        # Crée un pixmap avec la même taille
-        result = QPixmap(pixmap.size())
-        result.fill(Qt.transparent)
-
-        # Dessine l'image originale
-        painter = QPainter(result)
-        painter.drawPixmap(0, 0, pixmap)
-
-        # Calcule la zone de dégradé (20% de la hauteur depuis le bas)
-        height = pixmap.height()
-        gradient_height = int(height * 0.2)
-        gradient_start = height - gradient_height
-
-        # Crée le dégradé linéaire avec une opacité plus forte
-        gradient = QLinearGradient(QPointF(0, gradient_start), QPointF(0, height))
-        gradient.setColorAt(0, QColor(0, 0, 0, 0))  # Transparent en haut
-        gradient.setColorAt(0.4, QColor(0, 0, 0, 100))  # Semi-transparent au milieu
-        gradient.setColorAt(0.7, QColor(0, 0, 0, 200))  # Plus opaque
-        gradient.setColorAt(1, QColor(0, 0, 0, 255))  # Complètement opaque en bas
-
-        # Applique le dégradé
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-        painter.fillRect(0, gradient_start, pixmap.width(), gradient_height, gradient)
-        painter.end()
-
-        return result
+    def _get_scaled_gradient(self, gradient_path, size):
+        key = (gradient_path, size.width(), size.height())
+        if key in self._gradient_cache:
+            return self._gradient_cache[key]
+        gradient = QPixmap(gradient_path)
+        if not gradient.isNull():
+            scaled = gradient.scaled(size, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            self._gradient_cache[key] = scaled
+            return scaled
+        return None
 
     def get_background(self):
         self._mutex.lock()
         try:
             background = None
+            gradient_path = None
             if self.generated_image is not None:
                 background = QPixmap.fromImage(self.generated_image)
+                gradient_path = "gui_template/Gradient Camera Screen.png"
             elif self.captured_image is not None:
                 background = QPixmap.fromImage(self.captured_image)
+                gradient_path = "gui_template/Gradient Camera Screen.png"
             elif self.camera_pixmap is not None:
                 background = self.camera_pixmap
+                gradient_path = "gui_template/Gradient Camera Screen.png"
             elif self.scroll_pixmap is not None:
                 background = self.scroll_pixmap
+                gradient_path = "gui_template/Gradient Intro Screen.png"
 
-            if background is not None:
-                result = self.apply_bottom_gradient(background)
+            if background is not None and gradient_path is not None:
+                result = QPixmap(background.size())
+                result.fill(Qt.transparent)
+                painter = QPainter(result)
+                painter.drawPixmap(0, 0, background)
+                gradient = self._get_scaled_gradient(gradient_path, background.size())
+                if gradient is not None:
+                    painter.drawPixmap(0, 0, gradient)
+                painter.end()
                 return result
             return None
         finally:
@@ -206,3 +190,64 @@ class BackgroundManager(QObject):
             print("[DEBUG][BGMANAGER] clear_all: all sources cleared")
         finally:
             self._mutex.unlock()
+
+    @staticmethod
+    def set_scroll_fond(widget):
+        """
+        Initialise et gère le scroll animé de fond pour un widget donné.
+        Le widget doit avoir un attribut 'background_manager'.
+        """
+        import os
+        from gui_classes.scrole import InfiniteScrollView
+        images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
+        if not hasattr(widget, '_scroll_view') or widget._scroll_view is None:
+            widget._scroll_view = InfiniteScrollView(
+                images_folder, scroll_speed=1, tilt_angle=30, fps=60,
+                on_frame=lambda sv: BackgroundManager._update_scroll_background(widget, sv)
+            )
+            widget._scroll_view.resize(widget.size())
+            widget._scroll_view.hide()  # Never shown directly
+            widget._scroll_view._populate_scene()
+        if widget._scroll_view and not widget._scroll_view.timer.isActive():
+            widget._scroll_view.timer.start()
+        # Met à jour le fond immédiatement
+        BackgroundManager._update_scroll_background(widget, widget._scroll_view)
+
+    @staticmethod
+    def _update_scroll_background(widget, scroll_view=None):
+        if scroll_view is None and hasattr(widget, '_scroll_view'):
+            scroll_view = widget._scroll_view
+        if scroll_view:
+            pixmap = scroll_view.grab()
+            if hasattr(widget, 'background_manager'):
+                widget.background_manager.set_scroll_pixmap(pixmap)
+            widget.update()
+
+    @staticmethod
+    def clear_scroll_fond(widget):
+        """
+        Détruit proprement le scroll animé de fond pour un widget donné.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view:
+            if hasattr(widget._scroll_view, 'timer') and widget._scroll_view.timer.isActive():
+                widget._scroll_view.timer.stop()
+            widget._scroll_view.deleteLater()
+            widget._scroll_view = None
+
+    @staticmethod
+    def start_scroll_fond(widget):
+        """
+        (Re)démarre le scroll animé de fond pour un widget donné.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
+            if not widget._scroll_view.timer.isActive():
+                widget._scroll_view.timer.start()
+
+    @staticmethod
+    def stop_scroll_fond(widget):
+        """
+        Stoppe le scroll animé de fond pour un widget donné.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
+            if widget._scroll_view.timer.isActive():
+                widget._scroll_view.timer.stop()

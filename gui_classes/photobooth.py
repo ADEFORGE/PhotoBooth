@@ -5,7 +5,7 @@ from constante import CAMERA_ID, DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
 from gui_classes.camera_viewer import CameraViewer
 from PySide6.QtGui import QPixmap, QImage
 from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationTask
-from gui_classes.timer_sleep import TimerSleep
+from gui_classes.standby_manager import StandbyManager
 
 
 class PhotoBooth(CameraViewer):
@@ -15,13 +15,10 @@ class PhotoBooth(CameraViewer):
         self._generation_task = None
         self._generation_in_progress = False
         self._countdown_callback_active = False  # Anti-reentrance flag
-        # --- TimerSleep integration ---
-        from gui_mainwindow import MainWindow
-        self._timer_sleep = None
-        if isinstance(parent, MainWindow):
-            self._timer_sleep = TimerSleep(parent)
-        elif hasattr(parent, 'set_view'):
-            self._timer_sleep = TimerSleep(parent)
+        # --- StandbyManager integration ---
+        self.standby_manager = None
+        if hasattr(parent, 'set_view'):
+            self.standby_manager = StandbyManager(parent)
         if DEBUG:
             print("[INIT] Generation task and flags initialized")
 
@@ -335,9 +332,9 @@ class PhotoBooth(CameraViewer):
         self.start_camera()
 
         # Start the inactivity timer when entering default state
-        if self._timer_sleep:
-            self._timer_sleep.set_timer_from_constante()
-            self._timer_sleep.start()
+        if self.standby_manager:
+            self.standby_manager.set_timer_from_constante()
+            self.standby_manager.start_standby_timer()
         print("[DEBUG][PHOTOBOOTH] set_state_default finished")
 
     def set_state_validation(self):
@@ -356,8 +353,8 @@ class PhotoBooth(CameraViewer):
         self.update_frame()
 
         # Stop the inactivity timer when entering validation state
-        if self._timer_sleep:
-            self._timer_sleep.stop()
+        if self.standby_manager:
+            self.standby_manager.stop_standby_timer()
         print("[DEBUG][PHOTOBOOTH] set_state_validation finished")
 
     def set_state_wait(self):
@@ -373,8 +370,8 @@ class PhotoBooth(CameraViewer):
         self.update_frame()
 
         # Stop the inactivity timer when entering wait state
-        if self._timer_sleep:
-            self._timer_sleep.stop()
+        if self.standby_manager:
+            self.standby_manager.stop_standby_timer()
         print("[DEBUG][PHOTOBOOTH] set_state_wait finished")
 
     def update_frame(self):
@@ -394,6 +391,6 @@ class PhotoBooth(CameraViewer):
 
     def user_activity(self):
         # Call this on any user activity to reset the timer
-        if self._timer_sleep:
-            self._timer_sleep.set_timer_from_constante()
-            self._timer_sleep.start()
+        if self.standby_manager:
+            self.standby_manager.set_timer_from_constante()
+            self.standby_manager.start_standby_timer()

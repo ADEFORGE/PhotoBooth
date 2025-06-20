@@ -182,9 +182,19 @@ class WelcomeWidget(PhotoBoothBaseWidget):
     def on_enter(self):
         print("[WELCOME][DEBUG] on_enter called")
         # Correction : toujours garantir un scroll animé
-        if not hasattr(self, '_scroll_view') or self._scroll_view is None:
+        recreate_scroll = not hasattr(self, '_scroll_view') or self._scroll_view is None
+        if recreate_scroll:
             print("[WELCOME][DEBUG] on_enter: _scroll_view is None, recreating scroll fond")
             self.set_scroll_fond()
+        else:
+            print(f"[WELCOME][DEBUG] on_enter: _scroll_view exists, timer active={self._scroll_view.timer.isActive()}, isVisible={self._scroll_view.isVisible()}")
+        # Toujours démarrer le scroll fond et le rendre visible
+        if self._scroll_view:
+            self._scroll_view.show()
+            self._scroll_view.raise_()
+            if not self._scroll_view.timer.isActive():
+                print("[WELCOME][DEBUG] on_enter: scroll_view timer not active, starting it")
+                self._scroll_view.timer.start()
         BackgroundManager.start_scroll_fond(self)
         need_recreate = not self.btns or not getattr(self.btns, 'style1_btns', [])
         if not need_recreate:

@@ -61,6 +61,15 @@ class InfiniteScrollView(QGraphicsView):
 
     def showEvent(self, event):
         print(f"[SCROLE][DEBUG] showEvent: isVisible={self.isVisible()} geometry={self.geometry()} scene={self.scene} populated={self._populated}")
+        # Correction : repopuler la scène si elle a été détruite
+        if self.scene is None:
+            print("[SCROLE][DEBUG] showEvent: scene is None, recreating scene and repopulating")
+            self.scene = QGraphicsScene(self)
+            self.setScene(self.scene)
+            self.columns.clear()
+            self._populated = False
+            self._populate_scene()
+            self._populated = True
         super().showEvent(event)
 
     def hideEvent(self, event):
@@ -74,6 +83,15 @@ class InfiniteScrollView(QGraphicsView):
     def resizeEvent(self, event):
         print(f"[SCROLE][DEBUG] resizeEvent: size={self.size()} populated={self._populated}")
         super().resizeEvent(event)
+        # Correction : repopuler la scène si absente
+        if self.scene is None:
+            print("[SCROLE][DEBUG] resizeEvent: scene is None, recreating scene and repopulating")
+            self.scene = QGraphicsScene(self)
+            self.setScene(self.scene)
+            self.columns.clear()
+            self._populated = False
+            self._populate_scene()
+            self._populated = True
         # Toujours repopuler la scène si la taille a changé (même si déjà peuplée)
         if self.viewport().width() > 0 and self.viewport().height() > 0:
             print(f"[SCROLE][DEBUG] resizeEvent: force _populate_scene (avant clear)")

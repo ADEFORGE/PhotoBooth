@@ -1,9 +1,9 @@
 # gui_classes/photobooth.py
-from PySide6.QtCore import QTimer, QThread
+from PySide6.QtCore import QTimer, QThread, Qt
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from constante import CAMERA_ID, DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
 from gui_classes.camera_viewer import CameraViewer
-from PySide6.QtGui import QPixmap, QImage
+from PySide6.QtGui import QPixmap, QImage, QPainter, QColor
 from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationTask
 from gui_classes.standby_manager import StandbyManager
 
@@ -11,6 +11,17 @@ from gui_classes.standby_manager import StandbyManager
 class PhotoBooth(CameraViewer):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setStyleSheet("background-color: black !important;")  # Fond noir, non transparent
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
+        self.setAutoFillBackground(True)
+        if self.parent() is not None:
+            try:
+                self.parent().setAttribute(Qt.WA_TranslucentBackground, False)
+                self.parent().setAutoFillBackground(True)
+                print(f"[PHOTOBOOTH][DEBUG] Parent transparency disabled: {self.parent()}")
+            except Exception as e:
+                print(f"[PHOTOBOOTH][DEBUG] Could not set parent transparency: {e}")
+        print(f"[PHOTOBOOTH][DEBUG] self WA_TranslucentBackground: {self.testAttribute(Qt.WA_TranslucentBackground)}")
         self.countdown_overlay_manager = CountdownOverlayManager(self, 3)  # Correction ici
         self._generation_task = None
         self._generation_in_progress = False
@@ -394,3 +405,13 @@ class PhotoBooth(CameraViewer):
         if self.standby_manager:
             self.standby_manager.set_timer_from_constante()
             self.standby_manager.start_standby_timer()
+
+    def paintEvent(self, event):
+        from PySide6.QtGui import QPainter, QColor
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 255))  # Noir opaque
+        if hasattr(super(), 'paintEvent'):
+            super().paintEvent(event)
+        if DEBUG:
+            print(f"[PHOTOBOOTH][DEBUG] paintEvent: fond noir peint, WA_TranslucentBackground={self.testAttribute(Qt.WA_TranslucentBackground)}, parent={self.parent()}")

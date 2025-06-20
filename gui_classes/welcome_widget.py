@@ -3,6 +3,7 @@ from gui_classes.btn import Btns
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
 from gui_classes.background_manager import BackgroundManager
+from gui_classes.language_manager import language_manager
 import os
 import json
 from constante import TITLE_LABEL_STYLE
@@ -99,6 +100,14 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             print(f"[WELCOME] Erreur démarrage caméra: {e}")
         print("[WELCOME][DEBUG] __init__ end")
 
+        language_manager.subscribe(self.update_language)
+        self.update_language()
+
+    def update_language(self):
+        welcome_texts = language_manager.get_texts("WelcomeWidget")
+        self.title_label.setText(welcome_texts.get("title", "Bienvenue"))
+        self.message_label.setText(welcome_texts.get("message", ""))
+
     def resizeEvent(self, event):
         self._update_center_widget_geometry()
         if self._scroll_view:
@@ -124,6 +133,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         else:
             print("[WELCOME][DEBUG] cleanup: no btns to clean")
         print("[WELCOME][DEBUG] cleanup end (widget kept alive)")
+        language_manager.unsubscribe(self.update_language)
 
     def showEvent(self, event):
         super().showEvent(event)

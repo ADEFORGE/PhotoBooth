@@ -14,12 +14,15 @@ from PySide6.QtCore import Qt, QTimer
 
 
 class InfiniteScrollView(QGraphicsView):
-    def __init__(self, folder_path, scroll_speed=1, tilt_angle=30, parent=None):
+    def __init__(self, folder_path, scroll_speed=1, tilt_angle=30, parent=None, fps=60, on_frame=None):
         print("[SCROLE][DEBUG] __init__ start")
         super().__init__(parent)
         self.folder_path = folder_path
         self.scroll_speed = scroll_speed
         self.tilt_angle = tilt_angle
+        self.fps = fps
+        self.margin = 1.1  # 10% de marge
+        self.on_frame = on_frame  # callback to call after each frame (for background update)
 
         self.image_paths = self._load_image_paths(self.folder_path)
         if not self.image_paths:
@@ -39,9 +42,20 @@ class InfiniteScrollView(QGraphicsView):
         self._populated = False  # NE PAS appeler _populate_scene ici
 
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self._scroll_step)
-        self.timer.start(30)
+        self.timer.timeout.connect(self._on_frame)
+        self.set_fps(self.fps)
+        self.timer.start()
         print(f"[SCROLE][DEBUG] __init__ end, timer isActive={self.timer.isActive()}")
+
+    def set_fps(self, fps):
+        self.fps = fps
+        interval = max(1, int(1000 / fps))
+        self.timer.setInterval(interval)
+
+    def _on_frame(self):
+        self._scroll_step()
+        if self.on_frame:
+            self.on_frame(self)
 
     def showEvent(self, event):
         print(f"[SCROLE][DEBUG] showEvent: isVisible={self.isVisible()} geometry={self.geometry()} scene={self.scene} populated={self._populated}")
@@ -92,7 +106,8 @@ class InfiniteScrollView(QGraphicsView):
         orig_w = sample_pixmap.width()
         orig_h = sample_pixmap.height()
 
-        raw_cols = (screen_width / orig_w) * 2.5
+
+        raw_cols = (screen_width / orig_w) * self.margin
         int_cols = max(1, int(raw_cols))
         column_count = int_cols if abs(raw_cols - int_cols) < 1e-6 else int_cols + 1
 
@@ -101,7 +116,7 @@ class InfiniteScrollView(QGraphicsView):
         scaled_h = orig_h * factor
 
         visible_count = ceil(screen_height / scaled_h) + 2
-        total_items = max(visible_count * 3, 10)
+        total_items = max(visible_count * self.margin, 10)
         total_h = scaled_h * total_items
 
         scene_w = column_count * scaled_w

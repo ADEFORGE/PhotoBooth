@@ -5,45 +5,17 @@ import os
 from PIL import Image, ImageQt
 import io
 
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
-
-
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
-import os
-from PIL import Image, ImageQt
-import io
-
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
-
-
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
-import os
-from PIL import Image, ImageQt
-import io
-
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
-
-from PySide6.QtWidgets import QPushButton, QButtonGroup, QWidget, QApplication
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
-import os
-from PIL import Image, ImageQt
-import io
-
-from constante import BTN_STYLE_ONE, BTN_STYLE_TWO
+from constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
+from gui_classes.standby_manager import StandbyManager
 
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:
     screen = QGuiApplication.primaryScreen()
     h = screen.availableGeometry().height()
     w = screen.availableGeometry().width()
-    target_h = int(h * 0.07)
-    target_w = int(w * 0.2)
-    return QSize(target_w, target_h)
+    # On prend le plus petit côté pour garantir un carré qui rentre partout
+    target = int(min(h, w) * 0.07)
+    return QSize(target, target)
 
 
 class Btn(QPushButton):
@@ -53,39 +25,33 @@ class Btn(QPushButton):
         self._connected_slots = []
         self.setObjectName(name)
         self._icon_path = None
-        self._setup_timer_sleep_events()
+        self._setup_standby_manager_events()
 
-    def _setup_timer_sleep_events(self):
+    def _setup_standby_manager_events(self):
         p = self.parent()
+        self._standby_manager = None
         while p:
-            if hasattr(p, '_timer_sleep') and p._timer_sleep:
-                self._timer_sleep = p._timer_sleep
+            if hasattr(p, 'standby_manager') and p.standby_manager:
+                self._standby_manager = p.standby_manager
                 break
             p = p.parent() if hasattr(p, 'parent') else None
-        else:
-            self._timer_sleep = None
-
-        if self._timer_sleep:
+        if self._standby_manager:
             self.installEventFilter(self)
             self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
 
     def eventFilter(self, obj, ev):
-        if obj is self and self._timer_sleep:
-            if ev.type() == QEvent.Enter and hasattr(self._timer_sleep, 'set_and_start'):
-                self._timer_sleep.set_and_start()
+        if obj is self and self._standby_manager:
+            if ev.type() == QEvent.Enter:
+                self._standby_manager.reset_standby_timer()
             elif ev.type() == QEvent.MouseButtonPress:
-                if hasattr(self._timer_sleep, 'set_and_start'):
-                    self._timer_sleep.set_and_start()
-                if hasattr(self._timer_sleep, 'stop'):
-                    self._timer_sleep.stop()
+                self._standby_manager.reset_standby_timer()
+                self._standby_manager.stop_standby_timer()
         return super().eventFilter(obj, ev)
 
     def _on_btn_clicked_reset_stop_timer(self):
-        if self._timer_sleep:
-            if hasattr(self._timer_sleep, 'set_and_start'):
-                self._timer_sleep.set_and_start()
-            if hasattr(self._timer_sleep, 'stop'):
-                self._timer_sleep.stop()
+        if self._standby_manager:
+            self._standby_manager.reset_standby_timer()
+            self._standby_manager.stop_standby_timer()
 
     def initialize(self, style=None, icon_path=None, size=None, checkable=False):
         if style:
@@ -94,8 +60,11 @@ class Btn(QPushButton):
         dyn_size = _compute_dynamic_size(size) if size else None
 
         if dyn_size:
-            self.setMinimumSize(dyn_size)
-            self.setMaximumSize(dyn_size)
+            # Force le carré
+            side = max(dyn_size.width(), dyn_size.height())
+            square = QSize(side, side)
+            self.setMinimumSize(square)
+            self.setMaximumSize(square)
 
         self.setCheckable(checkable)
 
@@ -104,13 +73,14 @@ class Btn(QPushButton):
             self.setIcon(QIcon(self._icon_path))
 
     def resizeEvent(self, event):
-        super().resizeEvent(event)
+        # Force le carré même si le layout tente de changer la taille
+        side = min(self.width(), self.height())
+        self.resize(side, side)
         if self._icon_path:
-            # l'icône occupe 75% de la largeur/hauteur du bouton
             pad = 0.75
-            w = int(self.width() * pad)
-            h = int(self.height() * pad)
-            self.setIconSize(QSize(w, h))
+            icon_side = int(side * pad)
+            self.setIconSize(QSize(icon_side, icon_side))
+        super().resizeEvent(event)
 
     def place(self, layout, row, col, alignment=Qt.AlignCenter):
         layout.addWidget(self, row, col, alignment=alignment)
@@ -185,18 +155,55 @@ class Btn(QPushButton):
 class BtnStyleOne(Btn):
     def __init__(self, name, parent=None):
         super().__init__(name, parent)
-        icon_p = f"gui_template/btn_icons/{name}.png"
-        # on calcule une taille carrée basée sur la hauteur dynamique
-        ref = QSize(80, 80)
-        dyn = _compute_dynamic_size(ref)
-        square = QSize(dyn.height(), dyn.height())
-        self.initialize(style=BTN_STYLE_ONE, icon_path=icon_p, size=ref, checkable=False)
-        # on force ensuite le carré
+        self._icon_path_passive = f"gui_template/btn_icons/{name}_passive.png"
+        self._icon_path_pressed = f"gui_template/btn_icons/{name}_pressed.png"
+        dyn = _compute_dynamic_size(QSize(80, 80))
+        side = max(dyn.width(), dyn.height(), 120)
+        square = QSize(side, side)
+        self._btn_side = side
+        self._icon_pad = 1.0
+        self.setStyleSheet("QPushButton { background: transparent; border: none; }")
+        # Par défaut, icône passive
+        self._set_passive_icon()
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+        self.pressed.connect(self._set_pressed_icon)
+        self.released.connect(self._set_passive_icon)
+        self.toggled.connect(self._on_toggled)
+
+    def _set_pressed_icon(self):
+        if os.path.exists(self._icon_path_pressed):
+            pix = QPixmap(self._icon_path_pressed)
+            if not pix.isNull():
+                size = int(self._btn_side * self._icon_pad)
+                self.setIcon(QIcon(pix.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+                self.setIconSize(QSize(size, size))
+
+    def _set_passive_icon(self):
+        if os.path.exists(self._icon_path_passive):
+            pix = QPixmap(self._icon_path_passive)
+            if not pix.isNull():
+                size = int(self._btn_side * self._icon_pad)
+                self.setIcon(QIcon(pix.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+                self.setIconSize(QSize(size, size))
+
+    def _on_toggled(self, checked):
+        if checked:
+            self._set_pressed_icon()
+        else:
+            self._set_passive_icon()
+
+    def resizeEvent(self, event):
+        side = min(self.width(), self.height())
+        self._btn_side = side
+        if self.isDown() or self.isChecked():
+            self._set_pressed_icon()
+        else:
+            self._set_passive_icon()
+        super().resizeEvent(event)
 
 
 class BtnStyleTwo(Btn):
@@ -204,14 +211,24 @@ class BtnStyleTwo(Btn):
         super().__init__(name, parent)
         texture_path = f"gui_template/btn_textures copy/{name}.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
+        dyn = _compute_dynamic_size(QSize(80, 80))
+        side = max(dyn.width(), dyn.height(), 120)
+        square = QSize(side, side)
         self.setText(name)
-        self.adjustSize()
-        hint_size = self.sizeHint()
-        original_size = QSize(max(hint_size.width() + 32, 120), hint_size.height())
-        self.initialize(style=style, icon_path=None, size=original_size, checkable=True)
+        self.initialize(style=style, icon_path=None, size=square, checkable=True)
+        self.setMinimumSize(square)
+        self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+        # Applique un style direct sur le texte via setFont pour garantir la priorité
+        font = self.font()
+        font.setFamily('Arial')
+        font.setPointSize(int(side * BTN_STYLE_TWO_FONT_SIZE_PERCENT / 100))  # Pourcentage configurable
+        font.setBold(True)
+        self.setFont(font)
+        self.setStyleSheet(self.styleSheet() + '\ncolor: white;')
+
 
 # La classe Btns ne change pas ici. Utilise la version existante sans modification.
 # Seul Btn et ses enfants ont besoin d'un ajustement pour iconSize.

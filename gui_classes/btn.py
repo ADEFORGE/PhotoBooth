@@ -6,6 +6,7 @@ from PIL import Image, ImageQt
 import io
 
 from constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
+from gui_classes.standby_manager import StandbyManager
 
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:
@@ -24,39 +25,33 @@ class Btn(QPushButton):
         self._connected_slots = []
         self.setObjectName(name)
         self._icon_path = None
-        self._setup_timer_sleep_events()
+        self._setup_standby_manager_events()
 
-    def _setup_timer_sleep_events(self):
+    def _setup_standby_manager_events(self):
         p = self.parent()
+        self._standby_manager = None
         while p:
-            if hasattr(p, '_timer_sleep') and p._timer_sleep:
-                self._timer_sleep = p._timer_sleep
+            if hasattr(p, 'standby_manager') and p.standby_manager:
+                self._standby_manager = p.standby_manager
                 break
             p = p.parent() if hasattr(p, 'parent') else None
-        else:
-            self._timer_sleep = None
-
-        if self._timer_sleep:
+        if self._standby_manager:
             self.installEventFilter(self)
             self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
 
     def eventFilter(self, obj, ev):
-        if obj is self and self._timer_sleep:
-            if ev.type() == QEvent.Enter and hasattr(self._timer_sleep, 'set_and_start'):
-                self._timer_sleep.set_and_start()
+        if obj is self and self._standby_manager:
+            if ev.type() == QEvent.Enter:
+                self._standby_manager.reset_standby_timer()
             elif ev.type() == QEvent.MouseButtonPress:
-                if hasattr(self._timer_sleep, 'set_and_start'):
-                    self._timer_sleep.set_and_start()
-                if hasattr(self._timer_sleep, 'stop'):
-                    self._timer_sleep.stop()
+                self._standby_manager.reset_standby_timer()
+                self._standby_manager.stop_standby_timer()
         return super().eventFilter(obj, ev)
 
     def _on_btn_clicked_reset_stop_timer(self):
-        if self._timer_sleep:
-            if hasattr(self._timer_sleep, 'set_and_start'):
-                self._timer_sleep.set_and_start()
-            if hasattr(self._timer_sleep, 'stop'):
-                self._timer_sleep.stop()
+        if self._standby_manager:
+            self._standby_manager.reset_standby_timer()
+            self._standby_manager.stop_standby_timer()
 
     def initialize(self, style=None, icon_path=None, size=None, checkable=False):
         if style:

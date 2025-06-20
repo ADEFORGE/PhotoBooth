@@ -1,8 +1,11 @@
+# file:photobooth.py
+# file:welcome_widget.py
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from gui_classes.btn import Btns
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Property, QPropertyAnimation
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
 from gui_classes.background_manager import BackgroundManager
+from PySide6.QtGui import QPainter
 import os
 import json
 from constante import TITLE_LABEL_STYLE
@@ -98,6 +101,26 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         except Exception as e:
             print(f"[WELCOME] Erreur démarrage caméra: {e}")
         print("[WELCOME][DEBUG] __init__ end")
+        self.gradient_opacity = 1.0
+        self._gradient_anim = None
+
+    def get_gradient_opacity(self):
+        return self.gradient_opacity
+
+    def set_gradient_opacity(self, value):
+        self.gradient_opacity = value
+        self.update()
+
+    gradient_opacity_prop = Property(float, get_gradient_opacity, set_gradient_opacity)
+
+    def fade_out_gradient(self, duration=1000):
+        if self._gradient_anim:
+            self._gradient_anim.stop()
+        self._gradient_anim = QPropertyAnimation(self, b'gradient_opacity_prop')
+        self._gradient_anim.setDuration(duration)
+        self._gradient_anim.setStartValue(1.0)
+        self._gradient_anim.setEndValue(0.0)
+        self._gradient_anim.start()
 
     def resizeEvent(self, event):
         self._update_center_widget_geometry()
@@ -108,6 +131,15 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def paintEvent(self, event):
         super().paintEvent(event)
+        # Ajout du fondu du gradient
+        if self.background_manager and self.background_manager.get_source() == 'scroll' and self.gradient_opacity > 0:
+            gradient_pixmap = self.background_manager._get_scaled_gradient("gui_template/Gradient Intro Screen.png", self.size())
+            if gradient_pixmap:
+                painter = QPainter(self)
+                painter.setOpacity(self.gradient_opacity)
+                painter.drawPixmap(0, 0, gradient_pixmap)
+                painter.setOpacity(1.0)
+                painter.end()
 
     def goto_camera(self):
         print("[WELCOME] goto_camera called")

@@ -264,6 +264,8 @@ class BackgroundManager(QObject):
     @staticmethod
     def end_scroll_animation(widget, on_finished=None):
         print(f"[BGMANAGER][DEBUG] end_scroll_animation called for widget={widget} on_finished={on_finished}")
+        if hasattr(widget, 'fade_out_gradient'):
+            widget.fade_out_gradient(1000)
         if hasattr(widget, '_scroll_view') and widget._scroll_view:
             # Show and raise the scroll view for the end animation, keep it transparent for mouse events
             widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
@@ -274,10 +276,10 @@ class BackgroundManager(QObject):
                 print("[BGMANAGER][DEBUG] Calling end_animation on scroll_view")
                 widget._scroll_view.end_animation(on_finished=on_finished)
             else:
-                print("[BGMANAGER][DEBUG] No end_animation on scroll_view, calling on_finished directly")
+                print("[BGMANAGER][DEBUG] No end_animation on scroll_view, calling on_finished directement")
                 if on_finished:
                     on_finished()
         else:
-            print("[BGMANAGER][DEBUG] No _scroll_view, calling on_finished directly")
+            print("[BGMANAGER][DEBUG] No _scroll_view, calling on_finished directement")
             if on_finished:
                 on_finished()

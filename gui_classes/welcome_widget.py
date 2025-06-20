@@ -20,8 +20,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         self.setStyleSheet("background: transparent;")
 
         # --- Fond animé (InfiniteScrollView) via BackgroundManager ---
-        self._scroll_view = None
-        self.set_scroll_fond()
+        BackgroundManager.set_scroll_fond(self)
 
         # === Ajout du titre et du message d'accueil ===
         UI_TEXTS_PATH = os.path.join(os.path.dirname(__file__), "../ui_texts.json")
@@ -123,8 +122,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def resizeEvent(self, event):
         self._update_center_widget_geometry()
-        if self._scroll_view:
-            self._scroll_view.resize(self.size())
+        BackgroundManager.resize_scroll_fond(self)
         self.overlay_widget.setGeometry(self.rect())
         super().resizeEvent(event)
 
@@ -147,14 +145,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def cleanup(self):
         print(f"[WELCOME][DEBUG] cleanup start (reset state, not destruction), parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
-        # Nettoyage complet du scroll animé et suppression du widget du parent (stack)
-        BackgroundManager.stop_scroll_fond(self)
-        BackgroundManager.clear_scroll_fond(self)
-        if hasattr(self, '_scroll_view') and self._scroll_view:
-            print(f"[WELCOME][DEBUG] cleanup: scroll_view parent={self._scroll_view.parent()}, isVisible={self._scroll_view.isVisible()}, geometry={self._scroll_view.geometry()}")
-            self._scroll_view.setParent(None)
-            self._scroll_view.deleteLater()
-            self._scroll_view = None
+        BackgroundManager.cleanup_scroll_fond(self)
         if hasattr(self, "btns") and self.btns:
             print("[WELCOME][DEBUG] cleanup: cleaning btns")
             self.btns.cleanup()
@@ -181,21 +172,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def on_enter(self):
         print("[WELCOME][DEBUG] on_enter called")
-        # Correction : toujours garantir un scroll animé
-        recreate_scroll = not hasattr(self, '_scroll_view') or self._scroll_view is None
-        if recreate_scroll:
-            print("[WELCOME][DEBUG] on_enter: _scroll_view is None, recreating scroll fond")
-            self.set_scroll_fond()
-        else:
-            print(f"[WELCOME][DEBUG] on_enter: _scroll_view exists, timer active={self._scroll_view.timer.isActive()}, isVisible={self._scroll_view.isVisible()}")
-        # Toujours démarrer le scroll fond et le rendre visible
-        if self._scroll_view:
-            self._scroll_view.show()
-            self._scroll_view.raise_()
-            if not self._scroll_view.timer.isActive():
-                print("[WELCOME][DEBUG] on_enter: scroll_view timer not active, starting it")
-                self._scroll_view.timer.start()
-        BackgroundManager.start_scroll_fond(self)
+        BackgroundManager.on_enter_scroll_fond(self)
         need_recreate = not self.btns or not getattr(self.btns, 'style1_btns', [])
         if not need_recreate:
             try:

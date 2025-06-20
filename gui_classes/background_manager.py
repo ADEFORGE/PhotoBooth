@@ -287,3 +287,28 @@ class BackgroundManager(QObject):
             print("[BGMANAGER][DEBUG] No _scroll_view, calling on_finished directement")
             if on_finished:
                 on_finished()
+
+    @staticmethod
+    def resize_scroll_fond(widget):
+        """
+        Redimensionne le scroll fond si présent.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view:
+            widget._scroll_view.resize(widget.size())
+
+    @staticmethod
+    def cleanup_scroll_fond(widget):
+        """
+        Nettoie tout le scroll fond (stop, clear, destroy).
+        """
+        BackgroundManager.stop_scroll_fond(widget)
+        BackgroundManager.clear_scroll_fond(widget)
+        BackgroundManager.clear_scroll_view(widget)
+
+    @staticmethod
+    def on_enter_scroll_fond(widget):
+        """
+        Gère tout le cycle d'activation du scroll fond à l'entrée.
+        """
+        BackgroundManager.set_scroll_fond(widget)
+        BackgroundManager.start_scroll_fond(widget)

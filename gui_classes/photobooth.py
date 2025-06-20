@@ -413,5 +413,5 @@ class PhotoBooth(CameraViewer):
         painter.fillRect(self.rect(), QColor(0, 0, 0, 255))  # Noir opaque
         if hasattr(super(), 'paintEvent'):
             super().paintEvent(event)
-        if DEBUG:
-            print(f"[PHOTOBOOTH][DEBUG] paintEvent: fond noir peint, WA_TranslucentBackground={self.testAttribute(Qt.WA_TranslucentBackground)}, parent={self.parent()}")
+        # if DEBUG:
+        #     print(f"[PHOTOBOOTH][DEBUG] paintEvent: fond noir peint, WA_TranslucentBackground={self.testAttribute(Qt.WA_TranslucentBackground)}, parent={self.parent()}")

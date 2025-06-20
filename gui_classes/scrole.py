@@ -245,10 +245,10 @@ class InfiniteScrollView(QGraphicsView):
                 if hasattr(item, 'toGraphicsObject') and hasattr(item.toGraphicsObject(), 'toPlainText'):
                     item.setVisible(False)
         def cleanup_step():
-            print("[SCROLE][DEBUG] cleanup_step called")
-            print(f"[SCROLE][DEBUG] cleanup_step: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
+            #print("[SCROLE][DEBUG] cleanup_step called")
+            #print(f"[SCROLE][DEBUG] cleanup_step: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
             if self.scene is None:
-                print("[SCROLE][DEBUG] cleanup_step: scene is None, aborting cleanup_step early")
+                #print("[SCROLE][DEBUG] cleanup_step: scene is None, aborting cleanup_step early")
                 return False
             view_rect = self.mapToScene(self.viewport().rect()).boundingRect()
             to_remove = []
@@ -256,7 +256,7 @@ class InfiniteScrollView(QGraphicsView):
                 for item in col["items"]:
                     if not view_rect.intersects(item.sceneBoundingRect()):
                         to_remove.append(item)
-            print(f"[SCROLE][DEBUG] cleanup_step: to_remove={len(to_remove)} items")
+            #print(f"[SCROLE][DEBUG] cleanup_step: to_remove={len(to_remove)} items")
             for item in to_remove:
                 self.scene.removeItem(item)
                 for col in self.columns:
@@ -264,9 +264,9 @@ class InfiniteScrollView(QGraphicsView):
                         col["items"].remove(item)
             # Sécurité : si trop de frames, on force le nettoyage
             self._end_anim_frame_count += 1
-            print(f"[SCROLE][DEBUG] cleanup_step: frame={self._end_anim_frame_count}, columns={[len(col['items']) for col in self.columns]}")
+            #print(f"[SCROLE][DEBUG] cleanup_step: frame={self._end_anim_frame_count}, columns={[len(col['items']) for col in self.columns]}")
             if all(len(col["items"]) == 0 for col in self.columns) or self._end_anim_frame_count > self._end_anim_max_frames:
-                print(f"[SCROLE][DEBUG] cleanup_step: all items removed or max frames reached ({self._end_anim_frame_count}), stopping timer and cleaning scene")
+                #print(f"[SCROLE][DEBUG] cleanup_step: all items removed or max frames reached ({self._end_anim_frame_count}), stopping timer and cleaning scene")
                 self.timer.stop()
                 if self.scene is not None:
                     self.scene.clear()
@@ -278,17 +278,17 @@ class InfiniteScrollView(QGraphicsView):
             return True
         def end_anim_frame():
             print("[SCROLE][DEBUG] end_anim_frame called")
-            print(f"[SCROLE][DEBUG] end_anim_frame: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
+            #print(f"[SCROLE][DEBUG] end_anim_frame: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
             self._scroll_step()
             still_running = cleanup_step()
             if not still_running:
-                print("[SCROLE][DEBUG] end_anim_frame: animation finished, timer stopped")
-                print(f"[SCROLE][DEBUG] end_anim_frame: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
+                #print("[SCROLE][DEBUG] end_anim_frame: animation finished, timer stopped")
+                #print(f"[SCROLE][DEBUG] end_anim_frame: parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}, timerActive={self.timer.isActive()}")
                 self.timer.stop()
         print("[SCROLE][DEBUG] Disconnecting previous timer timeout and connecting end_anim_frame")
         self.timer.timeout.disconnect()
         self.timer.timeout.connect(end_anim_frame)
-        print("[SCROLE][DEBUG] end_animation: mode enabled")
+        #print("[SCROLE][DEBUG] end_animation: mode enabled")
 
 
 if __name__ == "__main__":

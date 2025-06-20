@@ -227,16 +227,16 @@ class BackgroundManager(QObject):
 
     @staticmethod
     def _update_scroll_background(widget, scroll_view=None):
-        print(f"[BGMANAGER][DEBUG] _update_scroll_background called for widget={widget} scroll_view={scroll_view}")
+        #print(f"[BGMANAGER][DEBUG] _update_scroll_background called for widget={widget} scroll_view={scroll_view}")
         if scroll_view is None and hasattr(widget, '_scroll_view'):
             scroll_view = widget._scroll_view
         if scroll_view:
             pixmap = scroll_view.grab()
             if hasattr(widget, 'background_manager'):
-                print("[BGMANAGER][DEBUG] Setting scroll pixmap on background_manager")
+                #print("[BGMANAGER][DEBUG] Setting scroll pixmap on background_manager")
                 widget.background_manager.set_scroll_pixmap(pixmap)
             widget.update()
-            print("[BGMANAGER][DEBUG] Widget updated after scroll background")
+            #print("[BGMANAGER][DEBUG] Widget updated after scroll background")
 
     @staticmethod
     def clear_scroll_fond(widget):

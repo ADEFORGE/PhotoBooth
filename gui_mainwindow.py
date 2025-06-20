@@ -63,6 +63,8 @@ class MainWindow(QWidget):
             # Correction : si on quitte WelcomeWidget (0) pour aller à PhotoBooth (1), on saute tout autre WelcomeWidget
             if current_index == 0 and index == 1:
                 print("[DEBUG][MAINWINDOW] Transition WelcomeWidget animé → PhotoBooth (direct)")
+                # Masquer explicitement le WelcomeWidget pour éviter tout effet de flash
+                self.widgets[0].hide()
                 self.stack.setCurrentWidget(self.widgets[1])
                 if hasattr(self.widgets[1], "on_enter"):
                     self.widgets[1].on_enter()

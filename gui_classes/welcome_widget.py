@@ -11,10 +11,7 @@ from constante import TITLE_LABEL_STYLE
 
 class WelcomeWidget(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
-        print("[WELCOME][DEBUG] __init__ start")
         super().__init__(parent)
-        print("[WELCOME][DEBUG] __init__ after super")
-        print("[WELCOME] Init WelcomeWidget")
         self.setWindowTitle("PhotoBooth - Accueil")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
@@ -65,15 +62,12 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             y = (parent_rect.height() - center_height) // 2
             self.center_widget.setGeometry(x, y, center_width, center_height)
             self.center_widget.raise_()
-        print("[WELCOME][DEBUG] before layout creation")
         # Layout principal qui centre le widget conteneur
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.addWidget(self.center_widget, 0, Qt.AlignCenter)
-        print("[WELCOME][DEBUG] after layout creation")
 
-        print("[WELCOME] Appel setup_buttons")
         # Bouton style 1 avec icône (camera.png)
         self.setup_buttons(
             style1_names=["camera"],  # Assurez-vous que gui_template/btn_icons/camera.png existe
@@ -81,7 +75,6 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             slot_style1="goto_camera"
         )
         if self.btns:
-            print("[WELCOME] Btns créés :", self.btns.style1_btns, self.btns.style2_btns)
             self.btns.raise_()
             self.overlay_widget.raise_()
             for btn in self.btns.style1_btns + self.btns.style2_btns:
@@ -96,9 +89,8 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         try:
             if self.window() and hasattr(self.window(), "camera_widget"):
                 self.window().camera_widget.start_camera()
-        except Exception as e:
-            print(f"[WELCOME] Erreur démarrage caméra: {e}")
-        print("[WELCOME][DEBUG] __init__ end")
+        except Exception:
+            pass
         self.gradient_opacity = 1.0
         self._gradient_anim = None
 
@@ -128,32 +120,18 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def paintEvent(self, event):
         super().paintEvent(event)
-        # Ajout du fondu du gradient
-        if self.background_manager and self.background_manager.get_source() == 'scroll' and self.gradient_opacity > 0:
-            gradient_pixmap = self.background_manager._get_scaled_gradient("gui_template/Gradient Intro Screen.png", self.size())
-            if gradient_pixmap:
-                painter = QPainter(self)
-                painter.setOpacity(self.gradient_opacity)
-                painter.drawPixmap(0, 0, gradient_pixmap)
-                painter.setOpacity(1.0)
-                painter.end()
+        # Suppression de toute gestion de gradient ici, tout est géré dans BackgroundManager
 
     def goto_camera(self):
-        print("[WELCOME] goto_camera called")
         if self.window():
             self.window().set_view(1)
 
     def cleanup(self):
-        print(f"[WELCOME][DEBUG] cleanup start (reset state, not destruction), parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
         BackgroundManager.cleanup_scroll_fond(self)
         if hasattr(self, "btns") and self.btns:
-            print("[WELCOME][DEBUG] cleanup: cleaning btns")
             self.btns.cleanup()
-        else:
-            print("[WELCOME][DEBUG] cleanup: no btns to clean")
         # Optionnel : masquer le widget lui-même pour éviter tout effet de flash
         self.hide()
-        print(f"[WELCOME][DEBUG] cleanup end (widget kept alive), parent={self.parent()}, isVisible={self.isVisible()}, geometry={self.geometry()}")
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -163,15 +141,14 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         try:
             if self.window() and hasattr(self.window(), "camera_widget"):
                 self.window().camera_widget.start_camera()
-        except Exception as e:
-            print(f"[WELCOME] Erreur démarrage caméra (showEvent): {e}")
+        except Exception:
+            pass
 
     def hideEvent(self, event):
         BackgroundManager.stop_scroll_fond(self)
         super().hideEvent(event)
 
     def on_enter(self):
-        print("[WELCOME][DEBUG] on_enter called")
         BackgroundManager.on_enter_scroll_fond(self)
         need_recreate = not self.btns or not getattr(self.btns, 'style1_btns', [])
         if not need_recreate:
@@ -179,17 +156,14 @@ class WelcomeWidget(PhotoBoothBaseWidget):
                 for btn in self.btns.style1_btns + self.btns.style2_btns:
                     btn.show()
                     btn.raise_()
-                print("[WELCOME][DEBUG] on_enter: buttons already present")
-            except Exception as e:
-                print(f"[WELCOME][DEBUG] on_enter: Exception on btns: {e}, will recreate btns")
+            except Exception:
                 need_recreate = True
         if need_recreate:
-            print("[WELCOME][DEBUG] on_enter: recreating buttons")
             if self.btns:
                 try:
                     self.btns.cleanup()
-                except Exception as e:
-                    print(f"[WELCOME][DEBUG] Exception during btns.cleanup(): {e}")
+                except Exception:
+                    pass
                 self.btns = None
             self.setup_buttons(
                 style1_names=["camera"],
@@ -197,7 +171,6 @@ class WelcomeWidget(PhotoBoothBaseWidget):
                 slot_style1="goto_camera"
             )
         self.overlay_widget.raise_()
-        print("[WELCOME][DEBUG] on_enter: END")
 
     def _update_center_widget_geometry(self):
         parent_rect = self.rect()

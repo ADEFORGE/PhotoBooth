@@ -385,7 +385,6 @@ BTN_STYLE_TWO = (
     "background-image: url({texture});"
     "background-position: center;"
     "background-repeat: no-repeat;"
-    "background-size: cover;"
     "color: white;"
     "font-weight: 900;"
     "font-size: 2.2em;"

@@ -147,27 +147,30 @@ class BackgroundManager(QObject):
             gradient_path = None
             if self.generated_image is not None:
                 background = QPixmap.fromImage(self.generated_image)
-                gradient_path = "gui_template/Gradient Camera Screen.png"
+                #gradient_path = "gui_template/Gradient Camera Screen.png"
             elif self.captured_image is not None:
                 background = QPixmap.fromImage(self.captured_image)
-                gradient_path = "gui_template/Gradient Camera Screen.png"
+                #gradient_path = "gui_template/Gradient Camera Screen.png"
             elif self.camera_pixmap is not None:
                 background = self.camera_pixmap
-                gradient_path = "gui_template/Gradient Camera Screen.png"
+                #gradient_path = "gui_template/Gradient Camera Screen.png"
             elif self.scroll_pixmap is not None:
                 background = self.scroll_pixmap
-                gradient_path = "gui_template/Gradient Intro Screen.png"
+                #gradient_path = "gui_template/Gradient Intro Screen.png"
 
-            if background is not None and gradient_path is not None:
-                result = QPixmap(background.size())
-                result.fill(Qt.transparent)
-                painter = QPainter(result)
-                painter.drawPixmap(0, 0, background)
-                gradient = self._get_scaled_gradient(gradient_path, background.size())
-                if gradient is not None:
-                    painter.drawPixmap(0, 0, gradient)
-                painter.end()
-                return result
+            # DEBUG: Désactive temporairement tout gradient pour debug WelcomeWidget
+            #if background is not None and gradient_path is not None:
+            #    result = QPixmap(background.size())
+            #    result.fill(Qt.transparent)
+            #    painter = QPainter(result)
+            #    painter.drawPixmap(0, 0, background)
+            #    gradient = self._get_scaled_gradient(gradient_path, background.size())
+            #    if gradient is not None:
+            #        painter.drawPixmap(0, 0, gradient)
+            #    painter.end()
+            #    return result
+            if background is not None:
+                return background
             return None
         finally:
             self._mutex.unlock()
@@ -193,106 +196,84 @@ class BackgroundManager(QObject):
 
     @staticmethod
     def set_scroll_fond(widget):
-        print("[BGMANAGER][DEBUG] set_scroll_fond called for widget:", widget)
-        print(f"[BGMANAGER][DEBUG] set_scroll_fond: parent={getattr(widget, 'parent', lambda: None)()}, isVisible={getattr(widget, 'isVisible', lambda: None)()}, geometry={getattr(widget, 'geometry', lambda: None)()}")
-        import os
         from gui_classes.scrole import InfiniteScrollView
         from PySide6.QtCore import Qt
+        import os
         images_folder = os.path.join(os.path.dirname(__file__), "../gui_template/sleep_picture")
         if not hasattr(widget, '_scroll_view') or widget._scroll_view is None:
-            print("[BGMANAGER][DEBUG] Creating new InfiniteScrollView")
             widget._scroll_view = InfiniteScrollView(
                 images_folder, scroll_speed=1, tilt_angle=30, fps=60,
                 on_frame=lambda sv: BackgroundManager._update_scroll_background(widget, sv)
             )
-            widget._scroll_view.resize(widget.size())
-            widget._scroll_view._populate_scene()
-            widget._scroll_view.setParent(widget)
-            widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
-            widget._scroll_view.setStyleSheet("background: transparent;")
-            widget._scroll_view.show()
-            widget._scroll_view.raise_()
-        else:
-            widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
-            widget._scroll_view.setStyleSheet("background: transparent;")
-            widget._scroll_view.show()
-            widget._scroll_view.raise_()
+        widget._scroll_view.setParent(widget)
+        widget._scroll_view.resize(widget.size())
+        widget._scroll_view._populate_scene()
+        widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
+        widget._scroll_view.setStyleSheet("background: transparent;")
+        widget._scroll_view.show()
+        widget._scroll_view.raise_()
+        # Force explicit showEvent to ensure animation resumes after reparenting
+        if hasattr(widget._scroll_view, 'showEvent'):
+            from PySide6.QtGui import QShowEvent
+            event = QShowEvent()
+            widget._scroll_view.showEvent(event)
         if widget._scroll_view and not widget._scroll_view.timer.isActive():
-            print("[BGMANAGER][DEBUG] Starting scroll timer")
             widget._scroll_view.timer.start()
-        # Met à jour le fond immédiatement
-        print("[BGMANAGER][DEBUG] Updating scroll background")
         BackgroundManager._update_scroll_background(widget, widget._scroll_view)
-        print(f"[BGMANAGER][DEBUG] set_scroll_fond: scroll_view parent={getattr(widget._scroll_view, 'parent', lambda: None)()}, isVisible={getattr(widget._scroll_view, 'isVisible', lambda: None)()}, geometry={getattr(widget._scroll_view, 'geometry', lambda: None)()}")
 
     @staticmethod
     def _update_scroll_background(widget, scroll_view=None):
-        #print(f"[BGMANAGER][DEBUG] _update_scroll_background called for widget={widget} scroll_view={scroll_view}")
         if scroll_view is None and hasattr(widget, '_scroll_view'):
             scroll_view = widget._scroll_view
         if scroll_view:
             pixmap = scroll_view.grab()
             if hasattr(widget, 'background_manager'):
-                #print("[BGMANAGER][DEBUG] Setting scroll pixmap on background_manager")
                 widget.background_manager.set_scroll_pixmap(pixmap)
             widget.update()
-            #print("[BGMANAGER][DEBUG] Widget updated after scroll background")
+        else:
+            if hasattr(widget, 'background_manager'):
+                widget.background_manager.clear_scroll()
 
     @staticmethod
     def clear_scroll_fond(widget):
-        print(f"[BGMANAGER][DEBUG] clear_scroll_fond called for widget={widget}")
         if hasattr(widget, '_scroll_view') and widget._scroll_view:
             if hasattr(widget._scroll_view, 'timer') and widget._scroll_view.timer.isActive():
-                print("[BGMANAGER][DEBUG] Stopping scroll timer")
                 widget._scroll_view.timer.stop()
-            print("[BGMANAGER][DEBUG] Deleting scroll view")
             widget._scroll_view.deleteLater()
             widget._scroll_view = None
 
     @staticmethod
     def start_scroll_fond(widget):
-        print(f"[BGMANAGER][DEBUG] start_scroll_fond called for widget={widget}")
         if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
             if not widget._scroll_view.timer.isActive():
-                print("[BGMANAGER][DEBUG] Starting scroll timer")
                 widget._scroll_view.timer.start()
 
     @staticmethod
     def stop_scroll_fond(widget):
-        print(f"[BGMANAGER][DEBUG] stop_scroll_fond called for widget={widget}")
         if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
             if widget._scroll_view.timer.isActive():
-                print("[BGMANAGER][DEBUG] Stopping scroll timer")
                 widget._scroll_view.timer.stop()
 
     @staticmethod
     def end_scroll_animation(widget, on_finished=None):
-        print(f"[BGMANAGER][DEBUG] end_scroll_animation called for widget={widget} on_finished={on_finished}")
         if hasattr(widget, 'fade_out_gradient'):
             widget.fade_out_gradient(1000)
         if hasattr(widget, '_scroll_view') and widget._scroll_view:
-            # Show and raise the scroll view for the end animation, keep it transparent for mouse events
             widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
             widget._scroll_view.setStyleSheet("background: transparent;")
             widget._scroll_view.show()
             widget._scroll_view.raise_()
             if hasattr(widget._scroll_view, 'end_animation'):
-                print("[BGMANAGER][DEBUG] Calling end_animation on scroll_view")
                 widget._scroll_view.end_animation(on_finished=on_finished)
             else:
-                print("[BGMANAGER][DEBUG] No end_animation on scroll_view, calling on_finished directement")
                 if on_finished:
                     on_finished()
         else:
-            print("[BGMANAGER][DEBUG] No _scroll_view, calling on_finished directement")
             if on_finished:
                 on_finished()
 
     @staticmethod
     def resize_scroll_fond(widget):
-        """
-        Redimensionne le scroll fond si présent.
-        """
         if hasattr(widget, '_scroll_view') and widget._scroll_view:
             widget._scroll_view.resize(widget.size())
 

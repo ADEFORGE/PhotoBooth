@@ -4,6 +4,7 @@ from gui_classes.btn import Btns
 from PySide6.QtCore import Qt, Property, QPropertyAnimation
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
 from gui_classes.background_manager import BackgroundManager
+from gui_classes.language_manager import language_manager
 from PySide6.QtGui import QPainter
 import os
 import json
@@ -89,28 +90,9 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         try:
             if self.window() and hasattr(self.window(), "camera_widget"):
                 self.window().camera_widget.start_camera()
-        except Exception:
-            pass
-        self.gradient_opacity = 1.0
-        self._gradient_anim = None
-
-    def get_gradient_opacity(self):
-        return self.gradient_opacity
-
-    def set_gradient_opacity(self, value):
-        self.gradient_opacity = value
-        self.update()
-
-    gradient_opacity_prop = Property(float, get_gradient_opacity, set_gradient_opacity)
-
-    def fade_out_gradient(self, duration=1000):
-        if self._gradient_anim:
-            self._gradient_anim.stop()
-        self._gradient_anim = QPropertyAnimation(self, b'gradient_opacity_prop')
-        self._gradient_anim.setDuration(duration)
-        self._gradient_anim.setStartValue(1.0)
-        self._gradient_anim.setEndValue(0.0)
-        self._gradient_anim.start()
+        except Exception as e:
+            print(f"[WELCOME] Erreur démarrage caméra: {e}")
+        print("[WELCOME][DEBUG] __init__ end")
 
     def resizeEvent(self, event):
         self._update_center_widget_geometry()
@@ -132,6 +114,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             self.btns.cleanup()
         # Optionnel : masquer le widget lui-même pour éviter tout effet de flash
         self.hide()
+        language_manager.unsubscribe(self.update_language)
 
     def showEvent(self, event):
         super().showEvent(event)

@@ -1,0 +1,14 @@
+{
+  "OverlayRules": {
+    "title": "Geavahusvuogit",
+    "message": "Lohkke ja dohkke vuogit vai gávdnat viidodettiin."
+  },
+  "OverlayQrcode": {
+    "title": "Skanna QR-koda vai joatkit",
+    "message": "Giitu go dohkke vuogit."
+  },
+  "WelcomeWidget": {
+    "title": "Bures boahtin PhotoBoothii!",
+    "message": "Čuožžilit ja šaddet liekkus. Coahkkalat kameraoassiid ala vai álggahit."
+  }
+}

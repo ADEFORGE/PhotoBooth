@@ -293,6 +293,7 @@ class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, on_validate=None, on_close=None):
         super().__init__(parent)
         from constante import GRID_WIDTH
+        from gui_classes.language_manager import language_manager
         self.setFixedSize(700, 540)
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
@@ -303,22 +304,19 @@ class OverlayRules(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        rules_texts = UI_TEXTS["OverlayRules"]
-        # Title
-        title_label = QLabel(rules_texts["title"], self.overlay_widget)
-        title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
-        title_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-        row += 1
-        # Message
-        msg_label = QLabel(rules_texts["message"], self.overlay_widget)
-        msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
-        msg_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-        row += 1
-        self.btns = Btns(self, [], [], None, None)
         self._on_validate = on_validate
         self._on_close = on_close
+        self.title_label = QLabel("", self.overlay_widget)
+        self.title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
+        self.msg_label = QLabel("", self.overlay_widget)
+        self.msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
+        self.msg_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
+        self.btns = Btns(self, [], [], None, None)
         # Utilise setup_buttons pour la création/placement
         self.setup_buttons(
             style1_names=["accept", "close"],
@@ -327,11 +325,18 @@ class OverlayRules(OverlayWhite):
             slot_style2=None,
             start_row=row
         )
-        # Bloc setText supprimé ici
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)
         self.setLayout(layout)
+        language_manager.subscribe(self.update_language)
+        self.update_language()
+
+    def update_language(self):
+        from gui_classes.language_manager import language_manager
+        rules_texts = language_manager.get_texts("OverlayRules")
+        self.title_label.setText(rules_texts.get("title", ""))
+        self.msg_label.setText(rules_texts.get("message", ""))
 
     def _on_accept_close(self):
         sender = self.sender()
@@ -344,10 +349,16 @@ class OverlayRules(OverlayWhite):
                 self._on_close()
             self.hide_overlay()
 
+    def closeEvent(self, event):
+        from gui_classes.language_manager import language_manager
+        language_manager.unsubscribe(self.update_language)
+        super().closeEvent(event)
+
 class OverlayQrcode(OverlayWhite):
     def __init__(self, parent=None, qimage=None, on_close=None):
         super().__init__(parent)
         from constante import TITLE_LABEL_STYLE, GRID_WIDTH
+        from gui_classes.language_manager import language_manager
         self.setFixedSize(700, 540)
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
@@ -358,14 +369,11 @@ class OverlayQrcode(OverlayWhite):
         self.overlay_layout.setRowStretch(2, 1)
         self.overlay_layout.setRowStretch(3, 0)
         row = 0
-        qr_texts = UI_TEXTS["OverlayQrcode"]
-        # Title
-        title_label = QLabel(qr_texts["title"], self.overlay_widget)
-        title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
-        title_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self.title_label = QLabel("", self.overlay_widget)
+        self.title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.title_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        # QR code
         self.qr_label = QLabel(self.overlay_widget)
         self.qr_label.setAlignment(Qt.AlignCenter)
         self.qr_label.setMinimumSize(220, 220)
@@ -377,17 +385,15 @@ class OverlayQrcode(OverlayWhite):
             self.qr_label.setPixmap(scaled_pix)
         else:
             self.qr_label.setText("")
-        self.overlay_layout.addWidget(self.qr_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.qr_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        # Message
-        msg_label = QLabel(qr_texts["message"], self.overlay_widget)
-        msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
-        msg_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self.msg_label = QLabel("", self.overlay_widget)
+        self.msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
+        self.msg_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.btns = Btns(self, [], [], None, None)
         self._on_close = on_close
-        # Utilise setup_buttons pour la création/placement
         self.setup_buttons(
             style1_names=["close"],
             style2_names=[],
@@ -395,16 +401,28 @@ class OverlayQrcode(OverlayWhite):
             slot_style2=None,
             start_row=row
         )
-        # Bloc setText supprimé ici
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.overlay_widget)
         self.setLayout(layout)
+        language_manager.subscribe(self.update_language)
+        self.update_language()
+
+    def update_language(self):
+        from gui_classes.language_manager import language_manager
+        qr_texts = language_manager.get_texts("OverlayQrcode")
+        self.title_label.setText(qr_texts.get("title", ""))
+        self.msg_label.setText(qr_texts.get("message", ""))
 
     def _on_close_btn(self):
         if self._on_close:
             self._on_close()
         self.hide_overlay()
+
+    def closeEvent(self, event):
+        from gui_classes.language_manager import language_manager
+        language_manager.unsubscribe(self.update_language)
+        super().closeEvent(event)
 
 class OverlayInfo(OverlayGray):
     def __init__(self, parent=None):
@@ -562,3 +580,40 @@ class OverlayCountdown(Overlay):
     def hide_overlay(self):
         self._anim_timer.stop()
         super().hide_overlay()
+
+class OverlayLang(OverlayGray):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Choix de la langue")
+        self.setFixedSize(600, 220)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        from constante import GRID_WIDTH
+        self.overlay_widget = QWidget(self)
+        self.overlay_layout = QGridLayout(self.overlay_widget)
+        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self.overlay_layout.setSpacing(0)
+        # Fond filtré
+        bg = QLabel(self.overlay_widget)
+        bg.setGeometry(0, 0, 600, 220)
+        bg.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
+        blur = QGraphicsBlurEffect()
+        blur.setBlurRadius(18)
+        bg.setGraphicsEffect(blur)
+        bg.lower()
+        # Boutons langue
+        self.btns = Btns(self, [], [], None, None)
+        btn_uk = self.btns.add_style1_btn('uk', lambda: self._on_lang_btn('uk'))
+        btn_norway = self.btns.add_style1_btn('norway', lambda: self._on_lang_btn('norway'))
+        btn_sami = self.btns.add_style1_btn('sami', lambda: self._on_lang_btn('sami'))
+        for i in range(GRID_WIDTH):
+            self.overlay_layout.setColumnMinimumWidth(i, 1)
+        self.btns.place_style1(self.overlay_layout, 0)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.overlay_widget)
+        self.setLayout(layout)
+
+    def _on_lang_btn(self, lang_code):
+        from gui_classes.language_manager import language_manager
+        language_manager.load_language(lang_code)
+        self.hide_overlay()

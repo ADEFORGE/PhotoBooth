@@ -1,0 +1,14 @@
+{
+  "OverlayRules": {
+    "title": "Terms of Use",
+    "message": "Please read and accept the terms to continue."
+  },
+  "OverlayQrcode": {
+    "title": "Scan the QR code to continue",
+    "message": "Thank you for accepting the terms."
+  },
+  "WelcomeWidget": {
+    "title": "Welcome to the PhotoBooth!",
+    "message": "Strike a pose and have fun. Click the camera icon to get started."
+  }
+}

@@ -17,6 +17,8 @@ class InfiniteScrollView(QGraphicsView):
     def __init__(self, folder_path, scroll_speed=1, tilt_angle=30, parent=None, fps=60, on_frame=None):
         print("[SCROLE][DEBUG] __init__ start")
         super().__init__(parent)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet("background: transparent;")
         self.folder_path = folder_path
         self.scroll_speed = scroll_speed
         self.tilt_angle = tilt_angle
@@ -36,7 +38,7 @@ class InfiniteScrollView(QGraphicsView):
         self.setInteractive(False)
         self.setDragMode(QGraphicsView.NoDrag)
         self.setRenderHint(QPainter.Antialiasing)
-        self.setBackgroundBrush(Qt.black)
+        self.setBackgroundBrush(Qt.transparent)
 
         self.columns = []
         self._populated = False  # NE PAS appeler _populate_scene ici

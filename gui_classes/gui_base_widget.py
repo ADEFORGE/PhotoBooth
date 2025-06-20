@@ -22,6 +22,8 @@ from gui_classes.background_manager import BackgroundManager
 class PhotoBoothBaseWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet("background: transparent;")
         self._thread = None
         self._worker = None
         self._generation_in_progress = False
@@ -33,6 +35,8 @@ class PhotoBoothBaseWidget(QWidget):
         self._background_qimage = None
         self.overlay_widget = QWidget(self)
         self.overlay_widget.setObjectName("overlay_widget")
+        self.overlay_widget.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.overlay_widget.setStyleSheet("background: transparent;")
         self.overlay_layout = QGridLayout(self.overlay_widget)
         self.overlay_layout.setContentsMargins(*GRID_LAYOUT_MARGINS)
         self.overlay_layout.setSpacing(GRID_LAYOUT_SPACING)
@@ -97,11 +101,10 @@ class PhotoBoothBaseWidget(QWidget):
                 source_rect = scaled_img.rect().adjusted(x_offset, 0, -x_offset, 0)
                 painter.drawPixmap(target_rect, scaled_img, source_rect)
             else:
-                painter.fillRect(self.rect(), Qt.black)
                 x = (widget_w - scaled_w) // 2
                 painter.drawPixmap(x, 0, scaled_w, scaled_h, scaled_img)
         else:
-            painter.fillRect(self.rect(), Qt.black)
+            pass  # Ne rien dessiner pour laisser la transparence native
 
     # Wrappers simples pour le background_manager
     def show_image(self, qimage: QImage):

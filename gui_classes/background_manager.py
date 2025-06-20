@@ -207,11 +207,11 @@ class BackgroundManager(QObject):
             widget._scroll_view.resize(widget.size())
             widget._scroll_view._populate_scene()
             widget._scroll_view.setParent(widget)
-            widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
+            widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
             widget._scroll_view.setStyleSheet("background: transparent;")
             widget._scroll_view.hide()
         else:
-            widget._scroll_view.setAttribute(Qt.WA_TransparentForMouseEvents)
+            widget._scroll_view.setAttribute(Qt.WA_TranslucentBackground, True)
             widget._scroll_view.setStyleSheet("background: transparent;")
             widget._scroll_view.hide()
         if widget._scroll_view and not widget._scroll_view.timer.isActive():

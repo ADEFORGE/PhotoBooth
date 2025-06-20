@@ -39,6 +39,7 @@ class MainWindow(QWidget):
         self.set_view(0, initial=True)
 
     def set_view(self, index: int, initial=False):
+        #file:gui_mainwindow.py - logique de transition stack
         print(f"[DEBUG][MAINWINDOW] set_view(index={index}, initial={initial}) called")
         if DEBUG:
             print(f"[MAINWINDOW] Switching to view {index}")
@@ -59,6 +60,14 @@ class MainWindow(QWidget):
                 if hasattr(current_widget, "cleanup"):
                     print(f"[DEBUG][MAINWINDOW] Calling cleanup on {type(current_widget)}")
                     current_widget.cleanup()
+            # Correction : si on quitte WelcomeWidget (0) pour aller à PhotoBooth (1), on saute tout autre WelcomeWidget
+            if current_index == 0 and index == 1:
+                print("[DEBUG][MAINWINDOW] Transition WelcomeWidget animé → PhotoBooth (direct)")
+                self.stack.setCurrentWidget(self.widgets[1])
+                if hasattr(self.widgets[1], "on_enter"):
+                    self.widgets[1].on_enter()
+                print(f"[DEBUG][MAINWINDOW] set_view finished for index={index}")
+                return
             new_widget = self.widgets[index]
             print(f"[DEBUG][MAINWINDOW] stack.currentIndex() before set: {self.stack.currentIndex()}")
             print(f"[DEBUG][MAINWINDOW] indexOf(new_widget): {self.stack.indexOf(new_widget)}")

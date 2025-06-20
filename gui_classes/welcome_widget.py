@@ -1,4 +1,3 @@
-# file:photobooth.py
 # file:welcome_widget.py
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from gui_classes.btn import Btns
@@ -148,14 +147,20 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def cleanup(self):
         print("[WELCOME][DEBUG] cleanup start (reset state, not destruction)")
-        # Suppression de l'appel à end_scroll_animation ici pour éviter double cleanup et crash
+        # Nettoyage complet du scroll animé et suppression du widget du parent (stack)
         BackgroundManager.stop_scroll_fond(self)
         BackgroundManager.clear_scroll_fond(self)
+        if hasattr(self, '_scroll_view') and self._scroll_view:
+            self._scroll_view.setParent(None)
+            self._scroll_view.deleteLater()
+            self._scroll_view = None
         if hasattr(self, "btns") and self.btns:
             print("[WELCOME][DEBUG] cleanup: cleaning btns")
             self.btns.cleanup()
         else:
             print("[WELCOME][DEBUG] cleanup: no btns to clean")
+        # Optionnel : masquer le widget lui-même pour éviter tout effet de flash
+        self.hide()
         print("[WELCOME][DEBUG] cleanup end (widget kept alive)")
 
     def showEvent(self, event):

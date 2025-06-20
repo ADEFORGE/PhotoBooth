@@ -116,11 +116,8 @@ class WelcomeWidget(PhotoBoothBaseWidget):
 
     def cleanup(self):
         print("[WELCOME][DEBUG] cleanup start (reset state, not destruction)")
-        if self._scroll_view and self._scroll_view.timer.isActive():
-            self._scroll_view.timer.stop()
-        if self._scroll_view:
-            self._scroll_view.deleteLater()
-            self._scroll_view = None
+        BackgroundManager.stop_scroll_fond(self)
+        BackgroundManager.clear_scroll_fond(self)
         if hasattr(self, "btns") and self.btns:
             print("[WELCOME][DEBUG] cleanup: cleaning btns")
             self.btns.cleanup()
@@ -132,9 +129,7 @@ class WelcomeWidget(PhotoBoothBaseWidget):
         super().showEvent(event)
         if self.btns:
             self.btns.raise_()
-        # Start animation timer if not already running
-        if self._scroll_view and not self._scroll_view.timer.isActive():
-            self._scroll_view.timer.start()
+        BackgroundManager.start_scroll_fond(self)
         try:
             if self.window() and hasattr(self.window(), "camera_widget"):
                 self.window().camera_widget.start_camera()
@@ -142,14 +137,16 @@ class WelcomeWidget(PhotoBoothBaseWidget):
             print(f"[WELCOME] Erreur démarrage caméra (showEvent): {e}")
 
     def hideEvent(self, event):
-        if self._scroll_view and self._scroll_view.timer.isActive():
-            self._scroll_view.timer.stop()
+        BackgroundManager.stop_scroll_fond(self)
         super().hideEvent(event)
 
     def on_enter(self):
         print("[WELCOME][DEBUG] on_enter called")
-        if self._scroll_view and not self._scroll_view.timer.isActive():
-            self._scroll_view.timer.start()
+        # Correction : toujours garantir un scroll animé
+        if not hasattr(self, '_scroll_view') or self._scroll_view is None:
+            print("[WELCOME][DEBUG] on_enter: _scroll_view is None, recreating scroll fond")
+            self.set_scroll_fond()
+        BackgroundManager.start_scroll_fond(self)
         need_recreate = not self.btns or not getattr(self.btns, 'style1_btns', [])
         if not need_recreate:
             try:

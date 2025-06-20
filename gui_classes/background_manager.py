@@ -222,3 +222,32 @@ class BackgroundManager(QObject):
             if hasattr(widget, 'background_manager'):
                 widget.background_manager.set_scroll_pixmap(pixmap)
             widget.update()
+
+    @staticmethod
+    def clear_scroll_fond(widget):
+        """
+        Détruit proprement le scroll animé de fond pour un widget donné.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view:
+            if hasattr(widget._scroll_view, 'timer') and widget._scroll_view.timer.isActive():
+                widget._scroll_view.timer.stop()
+            widget._scroll_view.deleteLater()
+            widget._scroll_view = None
+
+    @staticmethod
+    def start_scroll_fond(widget):
+        """
+        (Re)démarre le scroll animé de fond pour un widget donné.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
+            if not widget._scroll_view.timer.isActive():
+                widget._scroll_view.timer.start()
+
+    @staticmethod
+    def stop_scroll_fond(widget):
+        """
+        Stoppe le scroll animé de fond pour un widget donné.
+        """
+        if hasattr(widget, '_scroll_view') and widget._scroll_view and hasattr(widget._scroll_view, 'timer'):
+            if widget._scroll_view.timer.isActive():
+                widget._scroll_view.timer.stop()

@@ -21,6 +21,7 @@ class InfiniteScrollView(QGraphicsView):
         self.scroll_speed = scroll_speed
         self.tilt_angle = tilt_angle
         self.fps = fps
+        self.margin = 1.1  # 10% de marge
         self.on_frame = on_frame  # callback to call after each frame (for background update)
 
         self.image_paths = self._load_image_paths(self.folder_path)
@@ -105,7 +106,8 @@ class InfiniteScrollView(QGraphicsView):
         orig_w = sample_pixmap.width()
         orig_h = sample_pixmap.height()
 
-        raw_cols = (screen_width / orig_w) * 2.5
+
+        raw_cols = (screen_width / orig_w) * self.margin
         int_cols = max(1, int(raw_cols))
         column_count = int_cols if abs(raw_cols - int_cols) < 1e-6 else int_cols + 1
 
@@ -114,7 +116,7 @@ class InfiniteScrollView(QGraphicsView):
         scaled_h = orig_h * factor
 
         visible_count = ceil(screen_height / scaled_h) + 2
-        total_items = max(visible_count * 3, 10)
+        total_items = max(visible_count * self.margin, 10)
         total_h = scaled_h * total_items
 
         scene_w = column_count * scaled_w

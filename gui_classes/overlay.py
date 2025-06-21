@@ -10,9 +10,6 @@ import os
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QApplication
 from PySide6.QtCore import Qt, QTimer
 from gui_classes.toolbox import LoadingBar
-UI_TEXTS_PATH = os.path.join(os.path.dirname(__file__), '..', 'ui_texts.json')
-with open(UI_TEXTS_PATH, 'r', encoding='utf-8') as f:
-    UI_TEXTS = json.load(f)
 
 class Overlay(QWidget):
     def __init__(self, parent=None, center_on_screen=True):

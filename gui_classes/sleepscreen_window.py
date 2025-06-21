@@ -57,7 +57,7 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
 
         # Labels titre et sous-titre
         self.title_label = QLabel(self.center_widget)
-        self.title_label.setStyleSheet(TITLE_LABEL_STYLE)
+        self.title_label.setStyleSheet("color: white; font-size: 72px; font-weight: bold; font-family: Arial;")
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setWordWrap(True)
 

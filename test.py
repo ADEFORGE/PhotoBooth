@@ -2,238 +2,281 @@ import sys
 import os
 import random
 from math import ceil
+from functools import lru_cache
 
-from PySide6.QtCore import Qt, QTimer, QRectF
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 
+# Debug switch
+DEBUG_SCROLL = True
 
-class Image:
-    """Représente une image avec pixmap préchargé"""
+class ImageLoader:
+    """Charge et filtre les images d'un dossier"""
     VALID_EXTS = {'.png', '.jpg', '.jpeg', '.bmp', '.gif'}
 
-    def __init__(self, path, width, height):
-        self.path = path
-        self.pixmap = QPixmap(path).scaled(width, height,
-                                           Qt.IgnoreAspectRatio,
-                                           Qt.SmoothTransformation)
+    @staticmethod
+    def load_paths(folder_path):
+        if DEBUG_SCROLL: print(f"[LOAD_PATHS] Dossier: {folder_path}")
+        if not os.path.isdir(folder_path):
+            raise RuntimeError(f"Dossier introuvable: {folder_path}")
+        paths = [
+            os.path.join(folder_path, f)
+            for f in sorted(os.listdir(folder_path))
+            if os.path.splitext(f.lower())[1] in ImageLoader.VALID_EXTS
+        ]
+        if DEBUG_SCROLL: print(f"[LOAD_PATHS] {len(paths)} images trouvées")
+        return paths
 
+@lru_cache(maxsize=256)
+def get_scaled_pixmap(path, width, height):
+    """Cache et retourne un QPixmap redimensionné"""
+    pix = QPixmap(path)
+    if pix.isNull():
+        raise RuntimeError(f"Impossible de charger l'image: {path}")
+    scaled = pix.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    if DEBUG_SCROLL: print(f"[CACHE] Pixmap mise en cache: {path} ({width}x{height})")
+    return scaled
 
 class Column:
-    """Colonne d'images avec scrolling infini"""
-    def __init__(self, paths, x, img_w, img_h, count, direction, scene):
-        self.paths = paths
-        self.x = x
-        self.w = img_w
-        self.h = img_h
-        self.count = count
-        self.direction = direction  # -1 pour monter, 1 pour descendre
+    """Colonne d'images avec défilement infini"""
+    def __init__(self, image_paths, x, img_w, img_h, num_rows, direction, scene):
+        if DEBUG_SCROLL: print(f"[COLUMN INIT] x={x}, rows={num_rows}, dir={direction}")
+        self.image_paths = image_paths
+        self.x, self.img_w, self.img_h = x, img_w, img_h
+        self.num_rows, self.direction = num_rows, direction
         self.scene = scene
-        self.total_h = img_h * count
         self.items = []
-        self._populate_initial()
+        self.total_height = img_h * num_rows
+        # Précharger initial items
+        for _ in range(num_rows):
+            self._add_bottom()
 
-    def _populate_initial(self):
-        offset = random.randint(0, self.count - 1)
-        for i in range(self.count):
-            path = random.choice(self.paths)
-            img = Image(path, self.w, self.h)
-            item = QGraphicsPixmapItem(img.pixmap)
-            idx = i + (-offset if self.direction < 0 else offset)
-            y = (idx * self.h) % self.total_h
-            item.setPos(self.x, y)
-            self.scene.addItem(item)
-            self.items.append(item)
+    def _create_item(self, path, y):
+        if DEBUG_SCROLL: print(f"[CREATE_ITEM] {path} at y={y}")
+        pixmap = get_scaled_pixmap(path, self.img_w, self.img_h)
+        item = QGraphicsPixmapItem(pixmap)
+        item.setPos(self.x, y)
+        self.scene.addItem(item)
+        return item
 
-    def move_up(self, step=1):
-        for item in self.items:
-            item.moveBy(0, -step)
+    def _add_top(self):
+        if not self.items:
+            return
+        y = min(item.y() for item in self.items) - self.img_h
+        choice = random.choice(self.image_paths)
+        if DEBUG_SCROLL: print(f"[ADD_TOP] {choice} at y={y}")
+        self.items.append(self._create_item(choice, y))
 
-    def move_down(self, step=1):
-        for item in self.items:
-            item.moveBy(0, step)
+    def _add_bottom(self):
+        y = max((item.y() for item in self.items), default=-self.img_h) + self.img_h
+        choice = random.choice(self.image_paths)
+        if DEBUG_SCROLL: print(f"[ADD_BOTTOM] {choice} at y={y}")
+        self.items.append(self._create_item(choice, y))
 
     def remove_top(self):
-        # Supprime et retire l'item le plus en haut
+        if not self.items:
+            return
         top = min(self.items, key=lambda it: it.y())
+        if DEBUG_SCROLL: print(f"[REMOVE_TOP] at y={top.y()}")
         self.scene.removeItem(top)
         self.items.remove(top)
 
     def remove_bottom(self):
-        # Supprime et retire l'item le plus en bas
-        bottom = max(self.items, key=lambda it: it.y())
-        self.scene.removeItem(bottom)
-        self.items.remove(bottom)
+        if not self.items:
+            return
+        bot = max(self.items, key=lambda it: it.y())
+        if DEBUG_SCROLL: print(f"[REMOVE_BOTTOM] at y={bot.y()}")
+        self.scene.removeItem(bot)
+        self.items.remove(bot)
 
-    def add_bottom(self):
-        # Ajoute une image en bas
-        path = random.choice(self.paths)
-        img = Image(path, self.w, self.h)
-        item = QGraphicsPixmapItem(img.pixmap)
-        bottom_y = max(it.y() for it in self.items)
-        item.setPos(self.x, bottom_y + self.h)
-        self.scene.addItem(item)
-        self.items.append(item)
+    def get_count(self):
+        return len(self.items)
 
-    def add_top(self):
-        # Ajoute une image en haut
-        path = random.choice(self.paths)
-        img = Image(path, self.w, self.h)
-        item = QGraphicsPixmapItem(img.pixmap)
-        top_y = min(it.y() for it in self.items)
-        item.setPos(self.x, top_y - self.h)
-        self.scene.addItem(item)
-        self.items.append(item)
+    def clear(self):
+        if DEBUG_SCROLL: print(f"[COLUMN CLEAR] Removing {len(self.items)} items")
+        for item in list(self.items):
+            self.scene.removeItem(item)
+        self.items.clear()
 
-    def infinite_scroll_up(self, step=1):
-        """Fait défiler vers le haut: déplace, ajoute en bas, retire en haut"""
-        self.move_up(step)
-        # si un item dépasse en haut
-        top = min(self.items, key=lambda it: it.y())
-        if top.y() + self.h < 0:
-            self.remove_top()
-            self.add_bottom()
-
-    def infinite_scroll_up_no_add(self, step=1):
-        """Fait défiler vers le haut sans ajout: déplace et retire en haut"""
-        self.move_up(step)
-        top = min(self.items, key=lambda it: it.y())
-        if top.y() + self.h < 0:
-            self.remove_top()
-
-    def infinite_scroll_down(self, step=1):
-        """Fait défiler vers le bas: déplace, ajoute en haut, retire en bas"""
-        self.move_down(step)
-        bottom = max(self.items, key=lambda it: it.y())
-        if bottom.y() > self.total_h:
-            self.remove_bottom()
-            self.add_top()
-
-    def infinite_scroll_down_no_add(self, step=1):
-        """Fait défiler vers le bas sans ajout: déplace et retire en bas"""
-        self.move_down(step)
-        bottom = max(self.items, key=lambda it: it.y())
-        if bottom.y() > self.total_h:
-            self.remove_bottom()
-
+    def scroll(self, step=1, infinite=True):
+        if not self.items:
+            if DEBUG_SCROLL: print("[SCROLL] No items to scroll")
+            return
+        # Défilement unifié
+        for it in list(self.items):
+            new_y = it.y() + step * self.direction
+            it.setY(new_y)
+        if infinite:
+            if self.direction < 0:
+                if self.items and min(it.y() for it in self.items) + self.img_h < 0:
+                    self.remove_top(); self._add_bottom()
+            else:
+                if self.items and max(it.y() for it in self.items) > self.total_height:
+                    self.remove_bottom(); self._add_top()
+        else:
+            if self.direction < 0:
+                if self.items and min(it.y() for it in self.items) + self.img_h < 0:
+                    self.remove_top()
+            else:
+                if self.items and max(it.y() for it in self.items) > self.total_height:
+                    self.remove_bottom()
 
 class ScrollTab:
-    """Gestionnaire de colonnes"""
-    def __init__(self, paths, view_w, view_h, margin_x, margin_y):
-        pix = QPixmap(paths[0])
+    """Gère plusieurs colonnes de scroll"""
+    def __init__(self, image_paths, view_w, view_h, margin_x=2.5, margin_y=2.5):
+        if DEBUG_SCROLL: print(f"[SCROLLTAB INIT] view=({view_w}x{view_h}), margins=({margin_x},{margin_y})")
+        pix = QPixmap(image_paths[0])
         iw, ih = pix.width(), pix.height()
-        self.nb_cols = max(1, int(ceil((view_w / iw) * margin_x)))
-        self.nb_rows = max(1, int(ceil((view_h / ih) * margin_y))) + 2
-        self.paths = paths
-        self.margin_x = margin_x
-        self.margin_y = margin_y
+        diag = (view_w ** 2 + view_h ** 2) ** 0.5
+        self.num_cols = max(1, int(ceil((diag / iw) * margin_x)))
+        self.num_rows = max(1, int(ceil((view_h / ih) * margin_y))) + 2
+        self.image_paths = image_paths
         self.columns = []
+        self._col_params = [
+            (i*iw, iw, ih, self.num_rows, -1 if i % 2 == 0 else 1)
+            for i in range(self.num_cols)
+        ]
+        if DEBUG_SCROLL: print(f"[SCROLLTAB] cols={self.num_cols}, rows={self.num_rows}")
 
     def create_columns(self, scene):
-        for i in range(self.nb_cols):
-            x = i * QPixmap(self.paths[0]).width()
-            direction = -1 if i % 2 == 0 else 1
-            col = Column(self.paths, x,
-                         QPixmap(self.paths[0]).width(),
-                         QPixmap(self.paths[0]).height(),
-                         self.nb_rows, direction, scene)
-            self.columns.append(col)
+        if DEBUG_SCROLL: print(f"[CREATE_COLUMNS] Creating columns")
+        self.columns.clear()
+        for params in self._col_params:
+            self.columns.append(Column(self.image_paths, *params, scene))
 
+    def get_remaining_images(self):
+        return sum(col.get_count() for col in self.columns)
+
+    def clear(self):
+        if DEBUG_SCROLL: print("[SCROLLTAB CLEAR] Clearing all columns")
+        for col in self.columns:
+            col.clear()
+        self.columns.clear()
 
 class InfiniteScrollView(QGraphicsView):
     """Vue principale pour le scroll infini"""
     def __init__(self, folder_path, scroll_speed=1, fps=60,
                  margin_x=2.5, margin_y=2.5, angle=0, parent=None):
         super().__init__(parent)
-        self.folder = folder_path
-        self.speed = scroll_speed
-        self.fps = fps
-        self.margin_x = margin_x
-        self.margin_y = margin_y
-        self.angle = angle
-        self._setup_view()
-        self.scene = QGraphicsScene(self)
-        self.setScene(self.scene)
-        self.scrolltab = None
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._on_frame)
-
-    def _setup_view(self):
+        if DEBUG_SCROLL: print("[VIEW INIT]")
+        # config view
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background: transparent;")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setInteractive(False)
         self.setRenderHint(QPainter.Antialiasing)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+        self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+        # scene
+        self._scene = QGraphicsScene(self)
+        self.setScene(self._scene)
+        # params
+        self.image_paths = ImageLoader.load_paths(folder_path)
+        self.speed, self.fps = scroll_speed, fps
+        self.margin_x, self.margin_y = margin_x, margin_y
+        self.angle = angle
+        # timers
+        self.timer = QTimer(self); self.timer.timeout.connect(self._on_frame)
+        self.stop_timer = QTimer(self); self.stop_timer.timeout.connect(self._on_stop_frame)
+        self.scroll_tab = None
+        self.set_angle(angle)
 
     def reset(self):
-        """Réinitialise la scène et les colonnes"""
-        self.timer.stop()
-        self.scene.clear()
+        if DEBUG_SCROLL: print("[RESET] Reinitialisation du scroll")
+        self.timer.stop(); self.stop_timer.stop()
+        self.clear()
         screen = QGuiApplication.primaryScreen()
         vw, vh = screen.size().width(), screen.size().height()
-        paths = ImageLoader.load_paths(self.folder)
-        self.scrolltab = ScrollTab(paths, vw, vh, self.margin_x, self.margin_y)
-        self.scrolltab.create_columns(self.scene)
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
+        self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y)
+        self.scroll_tab.create_columns(self._scene)
+        self.center_view()
 
     def start(self):
-        """Démarre l'animation"""
-        if not self.scrolltab:
-            self.reset()
-        # Appliquer rotation
-        if self.angle:
-            t = QTransform()
-            rect = self.scene.sceneRect()
-            cx, cy = rect.center().x(), rect.center().y()
-            t.translate(cx, cy)
-            t.rotate(self.angle)
-            t.translate(-cx, -cy)
-            self.setTransform(t)
-        inv, _ = self.transform().inverted()
-        bbox = self.transform().mapRect(self.scene.sceneRect())
-        scene_center = inv.map(bbox.center())
-        self.centerOn(scene_center)
-        interval = max(1, int(1000 / self.fps))
-        self.timer.start(interval)
+        if DEBUG_SCROLL: print("[START] Début du scroll infini")
+        if self.scroll_tab is None: self.reset()
+        self.timer.start(max(1, int(1000 / self.fps)))
+
+    def _begin_stop_animation(self, stop_speed=1):
+        if DEBUG_SCROLL: print("[BEGIN_STOP] Arrêt programmé")
+        self.timer.stop()
+        self.stop_speed = stop_speed
+        self.stop_timer.start(max(1, int(1000 / self.fps)))
 
     def _on_frame(self):
-        for col in self.scrolltab.columns:
-            if col.direction < 0:
-                col.infinite_scroll_up(self.speed)
-            else:
-                col.infinite_scroll_down(self.speed)
+        if not self.scroll_tab:
+            return
+        for col in self.scroll_tab.columns:
+            col.scroll(self.speed, infinite=True)
 
-    def end(self):
-        """Arrête et nettoie en conservant la scène vide"""
-        self.timer.stop()
-        self.scene.clear()
-        self.scrolltab = None
+    def _on_stop_frame(self):
+        if not self.scroll_tab:
+            self.stop_timer.stop()
+            return
+        for col in self.scroll_tab.columns:
+            col.scroll(self.stop_speed, infinite=False)
+        if self.get_remaining_images() == 0:
+            if DEBUG_SCROLL: print("[STOP_FRAME] Plus d'images restantes")
+            self.stop_timer.stop()
+            self.clear()
+
+    def stop(self):
+        if DEBUG_SCROLL: print("[STOP] Arrêt immédiat")
+        self.timer.stop(); self.stop_timer.stop()
+        if self.scroll_tab:
+            for col in self.scroll_tab.columns:
+                col.scroll(self.speed, infinite=False)
+
+    def get_remaining_images(self):
+        """Retourne le nombre total d'images restantes"""
+        count = self.scroll_tab.get_remaining_images() if self.scroll_tab else 0
+        if DEBUG_SCROLL: print(f"[GET_REMAINING] {count} images restantes")
+        return count
 
     def clear(self):
-        """Nettoie absolument tout"""
-        self.timer.stop()
-        self.scene.clear()
-        self.scrolltab = None
+        if DEBUG_SCROLL: print("[STOP] Arrêt immédiat")
+        self.timer.stop(); self.stop_timer.stop()
+        if self.scroll_tab:
+            for col in self.scroll_tab.columns:
+                col.scroll(self.speed, infinite=False)
 
-    def get_dim_scene(self):
-        rect = self.scene.sceneRect()
-        transformed = self.transform().mapRect(rect)
-        return transformed.width(), transformed.height()
+    def clear(self):
+        if DEBUG_SCROLL: print("[CLEAR] Nettoyage complet")
+        self.timer.stop(); self.stop_timer.stop()
+        if self.scroll_tab:
+            self.scroll_tab.clear(); self.scroll_tab = None
+        self._scene.clear()
 
-    def get_coord_view(self):
-        vr = self.mapToScene(self.viewport().rect()).boundingRect()
-        return (vr.x(), vr.y(), vr.width(), vr.height())
+    def zoom_in(self, factor=1.2):
+        if DEBUG_SCROLL: print(f"[ZOOM_IN] factor={factor}")
+        self.scale(factor, factor)
 
+    def zoom_out(self, factor=1.2):
+        if DEBUG_SCROLL: print(f"[ZOOM_OUT] factor={factor}")
+        self.scale(1/factor, 1/factor)
+
+    def center_view(self):
+        if DEBUG_SCROLL: print("[CENTER_VIEW]")
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+        self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+        rect = self._scene.sceneRect()
+        self.centerOn(rect.center())
+
+    def set_angle(self, angle):
+        if DEBUG_SCROLL: print(f"[SET_ANGLE] {angle}")
+        self.angle = angle
+        self.resetTransform()
+        self.setTransform(QTransform().rotate(angle))
+        self.center_view()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     here = os.path.dirname(os.path.abspath(__file__))
-    folder = os.path.join(here, './images')
-    view = InfiniteScrollView(folder, scroll_speed=1, fps=60,
-                               margin_x=1, margin_y=1, angle=0)
-    view.setWindowTitle("Infinite Scroll")
+    folder = os.path.join(here, 'gui_template', 'sleep_picture')
+    view = InfiniteScrollView(folder, scroll_speed=2, fps=60, margin_x=1, margin_y=1, angle=15)
     view.showFullScreen()
     view.start()
-    QTimer.singleShot(2000, view.end)
+    # Arrêt programmé après 5s
+    QTimer.singleShot(5000, lambda: view._begin_stop_animation(6))
     sys.exit(app.exec())

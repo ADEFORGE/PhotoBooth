@@ -7,9 +7,12 @@ from functools import lru_cache
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
 from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsView, QGraphicsScene
 
 # Debug switch
-DEBUG_SCROLL = True
+DEBUG_SCROLL = False
 
 class ImageLoader:
     """Charge et filtre les images d'un dossier"""
@@ -270,13 +273,112 @@ class InfiniteScrollView(QGraphicsView):
         self.setTransform(QTransform().rotate(angle))
         self.center_view()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    here = os.path.dirname(os.path.abspath(__file__))
-    folder = os.path.join(here, 'gui_template', 'sleep_picture')
-    view = InfiniteScrollView(folder, scroll_speed=2, fps=60, margin_x=1, margin_y=1, angle=15)
-    view.showFullScreen()
-    view.start()
-    # Arrêt programmé après 5s
-    QTimer.singleShot(5000, lambda: view._begin_stop_animation(6))
-    sys.exit(app.exec())
+class InfiniteScrollWidget(QWidget):
+    """
+    Wrapper widget that encapsulates an infinite scrolling image view,
+    exposing a QLabel-like API similar to QMovie.
+    """
+    def __init__(self, folder_path, scroll_speed=1, fps=60,
+                 margin_x=2.5, margin_y=2.5, angle=0, parent=None):
+        super().__init__(parent)
+        # Set up internal graphics view
+        self._view = InfiniteScrollView(folder_path, scroll_speed,
+                                        fps, margin_x, margin_y, angle)
+        # Layout to contain the view
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._view)
+        self.setLayout(layout)
+        # Playback state
+        self._is_running = False
+
+    def start(self):
+        """Start the scrolling animation."""
+        if not self._is_running:
+            self._view.start()
+            self._is_running = True
+
+    def stop(self):
+        """Immediately stop the scrolling animation."""
+        if self._is_running:
+            self._view.stop()
+            self._is_running = False
+
+    def begin_stop(self, stop_speed=1):
+        """Stop the animation gradually with a given speed."""
+        if self._is_running:
+            self._view._begin_stop_animation(stop_speed)
+            self._is_running = False
+
+    def setAngle(self, angle):
+        """Rotate the entire view by the given angle."""
+        self._view.set_angle(angle)
+
+    def zoomIn(self, factor=1.2):
+        """Zoom in by the factor."""
+        self._view.zoom_in(factor)
+
+    def zoomOut(self, factor=1.2):
+        """Zoom out by the factor."""
+        self._view.zoom_out(factor)
+
+    def clear(self):
+        """Clear all items and reset the view."""
+        self._view.clear()
+
+    def isRunning(self):
+        """Return True if the animation is active."""
+        return self._is_running
+
+    def setSpeed(self, speed):
+        """Dynamically adjust scroll speed."""
+        self._view.speed = speed
+
+    def sizeHint(self):
+        """Provide a sensible default size."""
+        screen = QGuiApplication.primaryScreen()
+        return screen.size()
+
+
+
+
+    # Example usage:
+    # widget = InfiniteScrollWidget('/path/to/images', scroll_speed=2, fps=60, angle=15)
+    # widget.show()  # can be added to any layout or window
+    # widget.start()
+
+# from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
+
+
+# class MainWindow(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
+#         central = QWidget()
+#         self.setCentralWidget(central)
+
+#         # Création d'une grille
+#         grid = QGridLayout(central)
+#         central.setLayout(grid)
+
+#         # Instanciation du widget de scroll infini
+#         scroll_widget = InfiniteScrollWidget(
+#             './gui_template/sleep_picture',
+#             scroll_speed=2,
+#             fps=60,
+#             margin_x=1,
+#             margin_y=1,
+#             angle=15
+#         )
+
+#         # On l'ajoute comme un QLabel dans la grille :
+#         grid.addWidget(scroll_widget, 0, 0)   # ligne 0, colonne 0
+#         # Vous pouvez aussi le mettre ailleurs :
+#         # grid.addWidget(scroll_widget, 1, 2)  # ligne 1, colonne 2
+
+#         scroll_widget.start()
+
+# if __name__ == '__main__':
+#     app = QApplication([])
+#     win = MainWindow()
+#     win.show()
+#     app.exec()

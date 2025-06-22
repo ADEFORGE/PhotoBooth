@@ -5,8 +5,8 @@ from gui_classes.gui_base_widget import PhotoBoothBaseWidget
 from gui_classes.background_manager import BackgroundManager
 from gui_classes.language_manager import language_manager
 from gui_classes.btn import Btns
-from PySide6.QtCore import Qt, QPropertyAnimation, QTimer
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QApplication
 
 from constante import TITLE_LABEL_STYLE, GRID_WIDTH
 
@@ -102,13 +102,14 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
         super().hideEvent(event)
 
     def cleanup(self):
+        # Nettoyage final
         self.background_manager.clear_scroll()
         if self.btns:
             self.btns.cleanup(); self.btns = None
         language_manager.unsubscribe(self.update_language)
         super().cleanup()
 
-    # Affichage items
+    # Contrôle d'affichage
     def show_items(self):
         self.title_label.show(); self.message_label.show()
         if self.btns:
@@ -124,36 +125,59 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
     # Fin d'animation
     def end_animation(self, stop_speed=1):
         self.hide_items()
+        # Lancer l'arrêt progressif sans détruire la scène
         self.background_manager.end_animation(
             stop_speed=stop_speed,
             on_finished=self.end_animation_callback
         )
 
     def end_animation_callback(self):
-        """Switche la vue puis fade-out et cleanup."""
-        # 1) switch
-        if self.window():
-            self.window().end_change_view()
-        # 2) fade
+        # 1) Prendre un screenshot du scroll_widget et animer le fade-out sur l'image, pas sur le widget vivant
         sw = self.background_manager.scroll_widget
         if sw:
-            effect = QGraphicsOpacityEffect(sw)
-            sw.setGraphicsEffect(effect)
+            from PySide6.QtWidgets import QGraphicsOpacityEffect, QLabel
+            from PySide6.QtCore import QPropertyAnimation
+            from PySide6.QtGui import QPixmap
+
+            # Prendre un screenshot du scroll_widget
+            pixmap = QPixmap(sw.size())
+            sw.render(pixmap)
+
+            # Masquer le scroll_widget vivant
+            sw.hide()
+
+            # Créer un QLabel overlay pour afficher le screenshot
+            overlay_label = QLabel(self)
+            overlay_label.setPixmap(pixmap)
+            overlay_label.setGeometry(sw.geometry())
+            overlay_label.setAttribute(Qt.WA_TranslucentBackground)
+            overlay_label.setStyleSheet("background: transparent;")
+            overlay_label.show()
+            overlay_label.raise_()
+
+            # Appliquer l'effet de fondu sur le QLabel
+            effect = QGraphicsOpacityEffect(overlay_label)
+            overlay_label.setGraphicsEffect(effect)
             anim = QPropertyAnimation(effect, b"opacity", self)
             anim.setDuration(500)
             anim.setStartValue(1.0)
             anim.setEndValue(0.0)
-            anim.finished.connect(lambda: self._cleanup_scroll_widget(sw))
+
+            def on_fade_finished():
+                overlay_label.hide()
+                overlay_label.deleteLater()
+                sw._view._scene.clear()
+                if self.window():
+                    self.window().end_change_view()
+                QTimer.singleShot(0, self.cleanup)
+            anim.finished.connect(on_fade_finished)
             anim.start(QPropertyAnimation.DeleteWhenStopped)
         else:
-            self._cleanup_scroll_widget(None)
-
-    def _cleanup_scroll_widget(self, sw=None):
-        """Nettoyage après transition."""
-        if sw:
-            sw.hide()
-        self.background_manager.clear_scroll()
-        self.cleanup()
+            # Si pas de scroll, switch direct
+            if self.window():
+                self.window().end_change_view()
+            QTimer.singleShot(0, self.cleanup)
 
     def on_camera_button_clicked(self):
+        print("[DEBUG] on_camera_button_clicked: start_change_view with animation")
         self.window().start_change_view(1, callback=lambda: self.end_animation(stop_speed=6))

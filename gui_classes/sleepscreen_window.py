@@ -6,6 +6,9 @@ from gui_classes.language_manager import language_manager
 from gui_classes.btn import Btns
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PySide6.QtCore import QPropertyAnimation
+from PySide6.QtWidgets import QGraphicsOpacityEffect
+
 from constante import TITLE_LABEL_STYLE, GRID_WIDTH
 
 class SleepScreenWindow(PhotoBoothBaseWidget):
@@ -150,13 +153,32 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
             on_finished=self.end_animation_callback
         )
 
+
+
     def end_animation_callback(self):
-        """Appelé quand le scroll est terminé : appelle la fin du changement de vue."""
-        # Nettoyage local
-        self.cleanup()
-        # Finaliser le changement de vue dans le WindowManager
-        if self.window():
-            self.window().end_change_view()
+        # 1) Faire fondre le scroll_widget
+        sw = self.background_manager.scroll_widget
+        if sw:
+            effect = QGraphicsOpacityEffect(sw)
+            sw.setGraphicsEffect(effect)
+            anim = QPropertyAnimation(effect, b"opacity", self)
+            anim.setDuration(500)  # 0.5s par exemple
+            anim.setStartValue(1.0)
+            anim.setEndValue(0.0)
+            def on_fade_finished():
+                # 2) Switch de stack
+                if self.window():
+                    self.window().end_change_view()
+                # 3) Nettoyage définitif
+                self.cleanup()
+            anim.finished.connect(on_fade_finished)
+            anim.start(QPropertyAnimation.DeleteWhenStopped)
+        else:
+            # au cas où, on nettoie et on switch quand même
+            if self.window():
+                self.window().end_change_view()
+            self.cleanup()
+
 
     # --- Connexion du bouton ---
     def on_camera_button_clicked(self):

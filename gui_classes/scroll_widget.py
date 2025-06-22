@@ -12,7 +12,7 @@ from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsView, QGraphicsScene
 
 # Debug switch
-DEBUG_SCROLL = False
+DEBUG_SCROLL = True
 
 class ImageLoader:
     """Charge et filtre les images d'un dossier"""
@@ -355,6 +355,8 @@ class InfiniteScrollWidget(QWidget):
 #         super().__init__()
 #         central = QWidget()
 #         self.setCentralWidget(central)
+#         self.setAttribute(Qt.WA_TranslucentBackground)
+#         self.setStyleSheet("background: transparent;")
 
 #         # Création d'une grille
 #         grid = QGridLayout(central)
@@ -376,6 +378,10 @@ class InfiniteScrollWidget(QWidget):
 #         # grid.addWidget(scroll_widget, 1, 2)  # ligne 1, colonne 2
 
 #         scroll_widget.start()
+#         QTimer.singleShot(5000, lambda: scroll_widget.begin_stop(6))
+
+
+#         QTimer.singleShot(15000, lambda: scroll_widget.start())
 
 # if __name__ == '__main__':
 #     app = QApplication([])

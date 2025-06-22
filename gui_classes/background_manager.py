@@ -137,20 +137,3 @@ class BackgroundManager(QObject):
 
     def get_source(self):
         return self.current_source
-
-    # --- Unset scroll with end animation ---
-    def unset_scroll(self, on_finished=None, stop_speed=1):
-        """
-        Lance l'animation de fin du scroll, puis détruit le widget.
-        """
-        if self.scroll_widget:
-            self.scroll_widget.begin_stop(stop_speed)
-            # Calcul approximatif de la durée en ms puis callback
-            # Nombre d'étapes = hauteur totale / vitesse
-            total_steps = self.scroll_widget.scroll_tab.num_rows * self.scroll_widget.img_h
-            interval = 1000 / self.scroll_widget.fps
-            duration = int(total_steps * interval / stop_speed)
-            QTimer.singleShot(duration, lambda: self.clear_scroll() or (on_finished and on_finished()))
-        else:
-            if on_finished:
-                on_finished()

@@ -201,21 +201,25 @@ class InfiniteScrollView(QGraphicsView):
         if self.scroll_tab is None: self.reset()
         self.timer.start(max(1, int(1000 / self.fps)))
 
-    def _begin_stop_animation(self, stop_speed=1):
-        if DEBUG_SCROLL: print("[BEGIN_STOP] Arrêt programmé")
-        self.timer.stop()
-        self.stop_speed = stop_speed
-        self.stop_timer.start(max(1, int(1000 / self.fps)))
-
     def _on_frame(self):
         if not self.scroll_tab:
             return
         for col in self.scroll_tab.columns:
             col.scroll(self.speed, infinite=True)
 
+    def _begin_stop_animation(self, stop_speed=1, on_finished=None):
+        """Start a graceful stop, then invoke callback when done."""
+        if DEBUG_SCROLL: print("[BEGIN_STOP] Arrêt programmé")
+        self.timer.stop()
+        self.stop_speed = stop_speed
+        self.stop_callback = on_finished
+        self.stop_timer.start(max(1, int(1000 / self.fps)))
+
     def _on_stop_frame(self):
         if not self.scroll_tab:
             self.stop_timer.stop()
+            if hasattr(self, 'stop_callback') and self.stop_callback:
+                self.stop_callback()
             return
         for col in self.scroll_tab.columns:
             col.scroll(self.stop_speed, infinite=False)
@@ -223,6 +227,10 @@ class InfiniteScrollView(QGraphicsView):
             if DEBUG_SCROLL: print("[STOP_FRAME] Plus d'images restantes")
             self.stop_timer.stop()
             self.clear()
+            if hasattr(self, 'stop_callback') and self.stop_callback:
+                self.stop_callback()
+
+
 
     def stop(self):
         if DEBUG_SCROLL: print("[STOP] Arrêt immédiat")
@@ -304,10 +312,10 @@ class InfiniteScrollWidget(QWidget):
             self._view.stop()
             self._is_running = False
 
-    def begin_stop(self, stop_speed=1):
-        """Stop the animation gradually with a given speed."""
+    def begin_stop(self, stop_speed=1, on_finished=None):
+        """Stop the animation gradually and call on_finished at the end."""
         if self._is_running:
-            self._view._begin_stop_animation(stop_speed)
+            self._view._begin_stop_animation(stop_speed, on_finished)
             self._is_running = False
 
     def setAngle(self, angle):

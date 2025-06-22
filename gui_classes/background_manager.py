@@ -137,3 +137,9 @@ class BackgroundManager(QObject):
 
     def get_source(self):
         return self.current_source
+    
+    def end_animation(self, stop_speed=1, on_finished=None):
+        """Termine l'animation de scroll avec un arrêt fluide."""
+        if self.scroll_widget:
+            self.scroll_widget.begin_stop(stop_speed=stop_speed, on_finished=on_finished)
+

@@ -324,10 +324,6 @@ class PhotoBoothBaseWidget(QWidget):
     def cleanup(self):
         print("[DEBUG][BASEWIDGET] cleanup called")
         """Perform thorough cleanup of resources"""
-        # Clean up scroll fond animation (si présent)
-        if hasattr(self, 'background_manager'):
-            from gui_classes.background_manager import BackgroundManager
-            BackgroundManager.end_scroll_animation(self)
         # Clean up thread and worker
         if hasattr(self, '_thread') and self._thread:
             if self._thread.isRunning():

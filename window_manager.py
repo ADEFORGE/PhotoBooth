@@ -4,9 +4,9 @@ from PySide6.QtCore import Qt
 from gui_classes.photobooth import PhotoBooth
 from gui_classes.sleepscreen_window import SleepScreenWindow
 from constante import WINDOW_STYLE, DEBUG
-import os, sys
+import sys
 
-DEBUG_MANAGER_WINDOWS = False # ou True ou DEBUG
+DEBUG_MANAGER_WINDOWS = False  # ou True ou DEBUG
 
 class WindowManager(QWidget):
     """
@@ -35,12 +35,16 @@ class WindowManager(QWidget):
         for w in self.widgets.values():
             self.stack.addWidget(w)
 
+        # Variable pour transition
+        self._pending_index = None
+
         # Affiche la vue initiale (veille)
         self.set_view(0, initial=True)
 
     def set_view(self, index: int, initial=False):
         """
         Change la page courante (0=veille, 1=photobooth).
+        Nettoie l'ancienne vue et initialise la nouvelle.
         """
         if DEBUG_MANAGER_WINDOWS:
             print(f"[WindowManager] set_view(index={index}, initial={initial})")
@@ -63,16 +67,41 @@ class WindowManager(QWidget):
         if hasattr(new_widget, 'on_enter'):
             new_widget.on_enter()
 
-    def show(self):
+    def start(self):
         super().showFullScreen()
         if DEBUG_MANAGER_WINDOWS:
             print("[WindowManager] Application started in full screen")
+
+    def start_change_view(self, index=0, callback=None):
+        """
+        Démarre la préparation du changement vers la vue `index`.
+        Si un callback est fourni, il sera appelé pour gérer l'animation,
+        puis il doit invoquer `end_change_view()` une fois terminé.
+        Sinon, la transition est immédiate.
+        """
+        current_index = self.stack.currentIndex()
+        if index == current_index or index not in self.widgets:
+            return
+        self._pending_index = index
+        if callback:
+            callback()
+        else:
+            self.end_change_view()
+
+    def end_change_view(self):
+        """
+        Finalise la transition vers la vue préparée par `start_change_view`.
+        """
+        if self._pending_index is None:
+            return
+        self.set_view(self._pending_index)
+        self._pending_index = None
 
 
 def main():
     app = QApplication(sys.argv)
     manager = WindowManager()
-    manager.show()
+    manager.start()
     sys.exit(app.exec())
 
 if __name__ == '__main__':

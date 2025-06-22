@@ -69,11 +69,11 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
         self.center_layout.addWidget(self.title_label)
         self.center_layout.addWidget(self.message_label)
 
-        # Bouton accès caméra
+        # Boutons accès caméra
         self.setup_buttons(
             style1_names=['camera'],
             style2_names=[],
-            slot_style1='goto_camera'
+            slot_style1='on_camera_button_clicked'
         )
 
         # Texte et subscription langue
@@ -121,3 +121,46 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
             self.btns.cleanup(); self.btns = None
         language_manager.unsubscribe(self.update_language)
         super().cleanup()
+
+    # --- Nouveaux contrôles d'affichage ---
+    def show_items(self):
+        """Affiche proprement le titre, le message et le(s) bouton(s)."""
+        self.title_label.show()
+        self.message_label.show()
+        if self.btns:
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                btn.show()
+                btn.setEnabled(True)
+
+    def hide_items(self):
+        """Cache proprement le titre, le message et le(s) bouton(s)."""
+        self.title_label.hide()
+        self.message_label.hide()
+        if self.btns:
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                btn.hide()
+                btn.setEnabled(False)
+
+    # --- Gestion de la fin d'animation ---
+    def end_animation(self, stop_speed=1):
+        """Lance l'arrêt progressif du scroll, puis déclenche end_animation_callback."""
+        self.hide_items()
+        self.background_manager.end_animation(
+            stop_speed=stop_speed,
+            on_finished=self.end_animation_callback
+        )
+
+    def end_animation_callback(self):
+        """Appelé quand le scroll est terminé : appelle la fin du changement de vue."""
+        # Nettoyage local
+        self.cleanup()
+        # Finaliser le changement de vue dans le WindowManager
+        if self.window():
+            self.window().end_change_view()
+
+    # --- Connexion du bouton ---
+    def on_camera_button_clicked(self):
+        """Wrapper connecté au bouton caméra pour lancer la transition."""
+        if self.window():
+            # Démarrer transition vers PhotoBooth (index 1) en jouant la fin d'animation comme callback
+            self.window().start_change_view(1, callback=lambda: self.end_animation(stop_speed=6))

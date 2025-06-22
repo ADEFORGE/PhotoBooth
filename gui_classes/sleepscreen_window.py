@@ -6,7 +6,7 @@ from gui_classes.background_manager import BackgroundManager
 from gui_classes.language_manager import language_manager
 from gui_classes.btn import Btns
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QApplication
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 
 from constante import TITLE_LABEL_STYLE, GRID_WIDTH
 
@@ -132,52 +132,17 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
         )
 
     def end_animation_callback(self):
-        # 1) Prendre un screenshot du scroll_widget et animer le fade-out sur l'image, pas sur le widget vivant
+        # 1) Switch de vue avant nettoyage pour éviter artefacts
+        if self.window():
+            self.window().end_change_view()
+        # 2) Cacher simplement le scroll widget et vider sa scène
         sw = self.background_manager.scroll_widget
         if sw:
-            from PySide6.QtWidgets import QGraphicsOpacityEffect, QLabel
-            from PySide6.QtCore import QPropertyAnimation
-            from PySide6.QtGui import QPixmap
-
-            # Prendre un screenshot du scroll_widget
-            pixmap = QPixmap(sw.size())
-            sw.render(pixmap)
-
-            # Masquer le scroll_widget vivant
             sw.hide()
-
-            # Créer un QLabel overlay pour afficher le screenshot
-            overlay_label = QLabel(self)
-            overlay_label.setPixmap(pixmap)
-            overlay_label.setGeometry(sw.geometry())
-            overlay_label.setAttribute(Qt.WA_TranslucentBackground)
-            overlay_label.setStyleSheet("background: transparent;")
-            overlay_label.show()
-            overlay_label.raise_()
-
-            # Appliquer l'effet de fondu sur le QLabel
-            effect = QGraphicsOpacityEffect(overlay_label)
-            overlay_label.setGraphicsEffect(effect)
-            anim = QPropertyAnimation(effect, b"opacity", self)
-            anim.setDuration(500)
-            anim.setStartValue(1.0)
-            anim.setEndValue(0.0)
-
-            def on_fade_finished():
-                overlay_label.hide()
-                overlay_label.deleteLater()
-                sw._view._scene.clear()
-                if self.window():
-                    self.window().end_change_view()
-                QTimer.singleShot(0, self.cleanup)
-            anim.finished.connect(on_fade_finished)
-            anim.start(QPropertyAnimation.DeleteWhenStopped)
-        else:
-            # Si pas de scroll, switch direct
-            if self.window():
-                self.window().end_change_view()
-            QTimer.singleShot(0, self.cleanup)
+            sw._view._scene.clear()
+        # 3) Nettoyage complet différé pour laisser Qt repeindre
+        QTimer.singleShot(0, self.cleanup)
 
     def on_camera_button_clicked(self):
-        print("[DEBUG] on_camera_button_clicked: start_change_view with animation")
+        # Démarre la transition vers PhotoBooth
         self.window().start_change_view(1, callback=lambda: self.end_animation(stop_speed=6))

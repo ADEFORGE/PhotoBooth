@@ -1,3 +1,4 @@
+# file: scroll_widget.py
 import sys
 import os
 import random
@@ -5,11 +6,17 @@ from math import ceil
 from functools import lru_cache
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
-from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsView, QGraphicsScene
+from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication, QBrush, QColor
+from PySide6.QtWidgets import (
+    QApplication,
+    QGraphicsView,
+    QGraphicsScene,
+    QGraphicsPixmapItem,
+    QWidget,
+    QVBoxLayout,
+    QLabel
+)
+
 
 # Debug switch
 DEBUG_SCROLL = True
@@ -40,6 +47,7 @@ def get_scaled_pixmap(path, width, height):
     scaled = pix.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
     if DEBUG_SCROLL: print(f"[CACHE] Pixmap mise en cache: {path} ({width}x{height})")
     return scaled
+
 
 class Column:
     """Colonne d'images avec défilement infini"""
@@ -157,13 +165,14 @@ class ScrollTab:
             col.clear()
         self.columns.clear()
 
+
 class InfiniteScrollView(QGraphicsView):
-    """Vue principale pour le scroll infini"""
+    """Vue principale pour le scroll infini avec fond transparent"""
     def __init__(self, folder_path, scroll_speed=1, fps=60,
                  margin_x=2.5, margin_y=2.5, angle=0, parent=None):
         super().__init__(parent)
         if DEBUG_SCROLL: print("[VIEW INIT]")
-        # config view
+        # config view for transparency
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background: transparent;")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -172,19 +181,33 @@ class InfiniteScrollView(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+        # ensure viewport background is transparent
+        self.setBackgroundBrush(Qt.transparent)
+        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+
         # scene
         self._scene = QGraphicsScene(self)
+        self._scene.setBackgroundBrush(Qt.transparent)
         self.setScene(self._scene)
+
         # params
         self.image_paths = ImageLoader.load_paths(folder_path)
         self.speed, self.fps = scroll_speed, fps
         self.margin_x, self.margin_y = margin_x, margin_y
         self.angle = angle
+
         # timers
         self.timer = QTimer(self); self.timer.timeout.connect(self._on_frame)
         self.stop_timer = QTimer(self); self.stop_timer.timeout.connect(self._on_stop_frame)
         self.scroll_tab = None
+
         self.set_angle(angle)
+
+    def drawBackground(self, painter, rect):
+        """Override to keep background transparent"""
+        painter.fillRect(rect, Qt.transparent)
+
+
 
     def reset(self):
         if DEBUG_SCROLL: print("[RESET] Reinitialisation du scroll")

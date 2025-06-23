@@ -91,19 +91,35 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
         language_manager.unsubscribe(self.update_language)
         super().cleanup()
 
-    # Contrôle d'affichage
-    def show_items(self):
-        self.title_label.show(); self.message_label.show()
-        if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
-                btn.show(); btn.setEnabled(True)
-
-    def hide_items(self):
-        self.title_label.hide(); self.message_label.hide()
-        if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
-                btn.hide(); btn.setEnabled(False)
 
     def on_camera_button_clicked(self):
         # Démarre la transition vers PhotoBooth
         self.window().start_change_view(1)
+
+    def on_enter(self):
+        """Affiche et met à jour les textes et boutons à chaque retour sur la veille."""
+        self.update_language()
+        if self.btns is None:
+            self.setup_buttons(
+                style1_names=['camera'],
+                style2_names=[],
+                slot_style1='on_camera_button_clicked'
+            )
+        # Affiche les labels et boutons
+        self.title_label.show()
+        self.message_label.show()
+        for btn in self.btns.style1_btns + self.btns.style2_btns:
+            btn.show()
+            btn.setEnabled(True)
+
+    def on_leave(self):
+        """Cache et nettoie les boutons et labels à la sortie de la veille."""
+        self.title_label.hide()
+        self.message_label.hide()
+        if self.btns:
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                btn.hide()
+                btn.setEnabled(False)
+            self.btns.cleanup()
+            self.btns = None
+        language_manager.unsubscribe(self.update_language)

@@ -16,6 +16,8 @@ class PhotoBooth(CameraViewer):
         self.setStyleSheet("background: transparent;")
         self.setAutoFillBackground(False)
         self.showFullScreen()
+        # Ajout d'un fond noir par défaut
+        self._default_background_color = QColor(0, 0, 0)
         # Suppression de l'application de la transparence au parent
         print(f"[PHOTOBOOTH][DEBUG] self WA_TranslucentBackground: {self.testAttribute(Qt.WA_TranslucentBackground)}")
         self.countdown_overlay_manager = CountdownOverlayManager(self, 3)  # Correction ici
@@ -403,6 +405,10 @@ class PhotoBooth(CameraViewer):
             self.standby_manager.start_standby_timer()
 
     def paintEvent(self, event):
+        # Ajout du fond noir par défaut
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), self._default_background_color)
+        painter.end()
         # Suppression du remplissage noir, on laisse la transparence
         if hasattr(super(), 'paintEvent'):
             super().paintEvent(event)

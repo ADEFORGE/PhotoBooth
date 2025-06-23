@@ -104,8 +104,6 @@ class BackgroundManager(QObject):
     def get_source(self):
         return self.current_source
 
-
-
     def clear_scroll_overlay(self):
         """
         Détruit proprement l'overlay de scroll et le widget de scroll s'ils existent.
@@ -123,7 +121,7 @@ class BackgroundManager(QObject):
         """
         from gui_classes.scroll_widget import InfiniteScrollWidget
         from PySide6.QtWidgets import QVBoxLayout, QWidget
-        self.clear_scroll_overlay()
+        self.clear_scroll_overlay()  # Toujours nettoyer avant de créer un nouvel overlay
         class ScrollOverlay(QWidget):
             def __init__(self, parent):
                 super().__init__(parent)
@@ -162,7 +160,7 @@ class BackgroundManager(QObject):
         if set_view:
             set_view()
         if hasattr(self, 'scroll_widget') and self.scroll_widget:
-            self.scroll_widget.begin_stop(stop_speed=6, on_finished=None)
+            self.scroll_widget.begin_stop(stop_speed=30, on_finished=None)
         else:
             self.clear_scroll_overlay()
 

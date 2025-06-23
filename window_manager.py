@@ -67,6 +67,8 @@ class WindowManager(QWidget):
         # Changement de vue
         new_widget = self.widgets[index]
         self.stack.setCurrentWidget(new_widget)
+
+
         # Force le plein écran à chaque changement de vue
         self.showFullScreen()
         if DEBUG_MANAGER_WINDOWS:
@@ -77,7 +79,7 @@ class WindowManager(QWidget):
         # Gère le scroll overlay selon la vue
         if index == 0:
             # Sur l'écran de veille, démarre le scroll
-            self.background_manager.start_scroll(self, on_started=None)
+            self.background_manager.start_scroll(self)
 
     def start(self):
         # Toujours forcer le plein écran au démarrage
@@ -94,7 +96,6 @@ class WindowManager(QWidget):
         if index == current_index or index not in self.widgets:
             return
         self._pending_index = index
-
         self.background_manager.stop_scroll(set_view=lambda: self.set_view(index))
 
 
@@ -103,13 +104,3 @@ class WindowManager(QWidget):
         # Si l'overlay de scroll existe, on le resize dynamiquement
         if hasattr(self.background_manager, 'scroll_overlay') and self.background_manager.scroll_overlay:
             self.background_manager.scroll_overlay.setGeometry(0, 0, self.width(), self.height())
-
-
-def main():
-    app = QApplication(sys.argv)
-    manager = WindowManager()
-    manager.start()
-    sys.exit(app.exec())
-
-if __name__ == '__main__':
-    main()

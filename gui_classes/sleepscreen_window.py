@@ -2,18 +2,17 @@
 import os
 import json
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
-from gui_classes.background_manager import BackgroundManager
 from gui_classes.language_manager import language_manager
 from gui_classes.btn import Btns
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 
 from constante import TITLE_LABEL_STYLE, GRID_WIDTH
 
 class SleepScreenWindow(PhotoBoothBaseWidget):
     """
-    Fenêtre d'écran de veille animé (hérite de PhotoBoothBaseWidget).
-    Montre le même titre et sous-titre que WelcomeWidget, avec un bouton pour accéder à la caméra.
+    Fenêtre d'écran de veille minimaliste, fond totalement transparent,
+    labels dynamiques et bouton caméra, sans gestion de fond animé, scroll ou BackgroundManager.
     """
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -29,18 +28,9 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
         self.setWindowTitle("PhotoBooth - Veille")
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background: transparent;")
+        self.showFullScreen()
 
-        # Fond animé via BackgroundManager
-        images_folder = os.path.join(os.path.dirname(__file__), '..', 'gui_template', 'sleep_picture')
-        self.background_manager.set_scroll(
-            parent_widget=self,
-            folder_path=images_folder,
-            scroll_speed=1,
-            fps=60,
-            margin_x=1,
-            margin_y=1,
-            angle=15
-        )
+        # Suppression du fond animé et du BackgroundManager
 
         # Conteneur centré
         self.center_widget = QWidget(self.overlay_widget)
@@ -84,26 +74,18 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        sw = self.background_manager.scroll_widget
-        if sw:
-            sw.resize(self.size())
         self.overlay_widget.setGeometry(self.rect())
 
     def showEvent(self, event):
         super().showEvent(event)
-        images_folder = os.path.join(os.path.dirname(__file__), '..', 'gui_template', 'sleep_picture')
-        self.background_manager.set_scroll(parent_widget=self, folder_path=images_folder)
         if self.btns:
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.show(); btn.raise_()
 
     def hideEvent(self, event):
-        self.background_manager.clear_scroll()
         super().hideEvent(event)
 
     def cleanup(self):
-        # Nettoyage final
-        self.background_manager.clear_scroll()
         if self.btns:
             self.btns.cleanup(); self.btns = None
         language_manager.unsubscribe(self.update_language)
@@ -122,27 +104,6 @@ class SleepScreenWindow(PhotoBoothBaseWidget):
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.hide(); btn.setEnabled(False)
 
-    # Fin d'animation
-    def end_animation(self, stop_speed=1):
-        self.hide_items()
-        # Lancer l'arrêt progressif sans détruire la scène
-        self.background_manager.end_animation(
-            stop_speed=stop_speed,
-            on_finished=self.end_animation_callback
-        )
-
-    def end_animation_callback(self):
-        # 1) Switch de vue avant nettoyage pour éviter artefacts
-        if self.window():
-            self.window().end_change_view()
-        # 2) Cacher simplement le scroll widget et vider sa scène
-        sw = self.background_manager.scroll_widget
-        if sw:
-            sw.hide()
-            sw._view._scene.clear()
-        # 3) Nettoyage complet différé pour laisser Qt repeindre
-        QTimer.singleShot(0, self.cleanup)
-
     def on_camera_button_clicked(self):
         # Démarre la transition vers PhotoBooth
-        self.window().start_change_view(1, callback=lambda: self.end_animation(stop_speed=6))
+        self.window().start_change_view(1)

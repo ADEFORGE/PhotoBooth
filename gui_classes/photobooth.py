@@ -11,16 +11,12 @@ from gui_classes.standby_manager import StandbyManager
 class PhotoBooth(CameraViewer):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setStyleSheet("background-color: black !important;")  # Fond noir, non transparent
-        self.setAttribute(Qt.WA_TranslucentBackground, False)
-        self.setAutoFillBackground(True)
-        if self.parent() is not None:
-            try:
-                self.parent().setAttribute(Qt.WA_TranslucentBackground, False)
-                self.parent().setAutoFillBackground(True)
-                print(f"[PHOTOBOOTH][DEBUG] Parent transparency disabled: {self.parent()}")
-            except Exception as e:
-                print(f"[PHOTOBOOTH][DEBUG] Could not set parent transparency: {e}")
+        # Appliquer la transparence uniquement sur ce widget, pas sur le parent
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet("background: transparent;")
+        self.setAutoFillBackground(False)
+        self.showFullScreen()
+        # Suppression de l'application de la transparence au parent
         print(f"[PHOTOBOOTH][DEBUG] self WA_TranslucentBackground: {self.testAttribute(Qt.WA_TranslucentBackground)}")
         self.countdown_overlay_manager = CountdownOverlayManager(self, 3)  # Correction ici
         self._generation_task = None
@@ -407,10 +403,7 @@ class PhotoBooth(CameraViewer):
             self.standby_manager.start_standby_timer()
 
     def paintEvent(self, event):
-        from PySide6.QtGui import QPainter, QColor
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, False)
-        painter.fillRect(self.rect(), QColor(0, 0, 0, 255))  # Noir opaque
+        # Suppression du remplissage noir, on laisse la transparence
         if hasattr(super(), 'paintEvent'):
             super().paintEvent(event)
         # if DEBUG:

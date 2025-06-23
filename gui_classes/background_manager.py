@@ -109,16 +109,32 @@ class BackgroundManager(QObject):
         """Inputs: None. Returns: QPixmap or None."""
         if DEBUG_BackgroundManager:
             print(f"[DEBUG][BackgroundManager] Entering get_background: args={{}}")
+        from PySide6.QtGui import QPixmap, QPainter
+        from PySide6.QtCore import Qt
+        base_pixmap = None
         with QMutexLocker(self._mutex):
             if self.generated_image:
-                result = QPixmap.fromImage(self.generated_image)
+                base_pixmap = QPixmap.fromImage(self.generated_image)
             elif self.captured_image:
-                result = QPixmap.fromImage(self.captured_image)
+                base_pixmap = QPixmap.fromImage(self.captured_image)
             else:
-                result = self.camera_pixmap
+                base_pixmap = self.camera_pixmap
+        # Appliquer le gradient Camera Screen si ce n'est pas le scroll overlay
+        if base_pixmap is not None:
+            gradient_path = "./gui_template/Gradient Camera Screen.png"
+            gradient_pix = QPixmap(gradient_path)
+            if not gradient_pix.isNull():
+                result = QPixmap(base_pixmap.size())
+                result.fill(Qt.transparent)
+                painter = QPainter(result)
+                painter.drawPixmap(0, 0, base_pixmap)
+                painter.setOpacity(1.0)
+                painter.drawPixmap(0, 0, gradient_pix.scaled(base_pixmap.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+                painter.end()
+                base_pixmap = result
         if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Exiting get_background: return={result}")
-        return result
+            print(f"[DEBUG][BackgroundManager] Exiting get_background: return={base_pixmap}")
+        return base_pixmap
 
     def get_source(self) -> str | None:
         """Inputs: None. Returns: current source key (str) or None."""
@@ -139,6 +155,8 @@ class BackgroundManager(QObject):
             self.scroll_overlay = None
         if getattr(self, 'scroll_widget', None):
             self.scroll_widget = None
+        if hasattr(self, 'gradient_label'):
+            self.gradient_label = None
         if DEBUG_BackgroundManager:
             print(f"[DEBUG][BackgroundManager] Exiting clear_scroll_overlay: return=None")
 
@@ -147,6 +165,8 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager:
             print(f"[DEBUG][BackgroundManager] Entering start_scroll: args={{'parent':{parent}, 'on_started':{on_started}}}")
         self.clear_scroll_overlay()
+        from PySide6.QtGui import QPixmap
+        from PySide6.QtWidgets import QLabel
         class ScrollOverlay(QWidget):
             def __init__(self, parent):
                 super().__init__(parent)
@@ -173,6 +193,20 @@ class BackgroundManager(QObject):
             angle=15
         )
         layout.addWidget(self.scroll_widget)
+        # Ajout du gradient overlay (Intro Screen) AU-DESSUS du scroll_widget, sans débordement (stretch)
+        self.gradient_label = QLabel(self.scroll_overlay)
+        self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.gradient_label.setStyleSheet("background: transparent;")
+        self.gradient_label.setGeometry(0, 0, parent.width(), parent.height())
+        self.gradient_label.setPixmap(QPixmap("./gui_template/Gradient Intro Screen.png").scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        self.gradient_label.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.gradient_label.raise_()  # S'assurer qu'il est au-dessus du scroll_widget
+        self.gradient_label.show()
+        def resize_gradient():
+            self.gradient_label.setGeometry(0, 0, self.scroll_overlay.width(), self.scroll_overlay.height())
+            pix = QPixmap("./gui_template/Gradient Intro Screen.png")
+            self.gradient_label.setPixmap(pix.scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        self.scroll_overlay.resizeEvent = lambda event: (resize_gradient(), ScrollOverlay.resizeEvent(self.scroll_overlay, event))
         self.scroll_widget.start()
         if on_started:
             on_started()

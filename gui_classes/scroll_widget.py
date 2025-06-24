@@ -3,6 +3,7 @@ DEBUG_Column = False
 DEBUG_ScrollTab = False
 DEBUG_InfiniteScrollView = False
 DEBUG_InfiniteScrollWidget = False
+DEBUG_ScrollOverlay = False
 
 import sys
 import os
@@ -243,10 +244,11 @@ class InfiniteScrollView(QGraphicsView):
         self.speed, self.fps = scroll_speed, fps
         self.margin_x, self.margin_y = margin_x, margin_y
         self.angle = angle
-        self.timer = QTimer(self); self.timer.timeout.connect(self._on_frame)
-        self.stop_timer = QTimer(self); self.stop_timer.timeout.connect(self._on_stop_frame)
         self.scroll_tab = None
         self.set_angle(angle)
+        self._stopping = False
+        self._stop_speed = None
+        self._stop_callback = None
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting __init__: return=None")
 
@@ -258,7 +260,7 @@ class InfiniteScrollView(QGraphicsView):
         """Inputs: None. Returns: None."""
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{}}")
-        self.timer.stop(); self.stop_timer.stop()
+        # self.timer.stop(); self.stop_timer.stop()  # SUPPRIMÉ
         screen = QGuiApplication.primaryScreen()
         vw, vh = screen.size().width(), screen.size().height()
         self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y)
@@ -273,9 +275,16 @@ class InfiniteScrollView(QGraphicsView):
             print(f"[DEBUG][InfiniteScrollView] Entering start: args={{}}")
         if self.scroll_tab is None:
             self.reset()
-        self.timer.start(max(1, int(1000 / self.fps)))
+        # self.timer.start(max(1, int(1000 / self.fps)))  # SUPPRIMÉ
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting start: return=None")
+
+    def update_frame(self):
+        """Appelé par le timer global pour faire défiler le scroll ou l'animation d'arrêt selon l'état interne."""
+        if self._stopping:
+            self._on_stop_frame()
+        else:
+            self._on_frame()
 
     def _on_frame(self) -> None:
         """Inputs: None. Returns: None."""
@@ -288,67 +297,55 @@ class InfiniteScrollView(QGraphicsView):
         """Inputs: stop_speed, on_finished. Returns: None."""
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering _begin_stop_animation: args={{...}}")
-        self.timer.stop()
-        self.stop_speed = stop_speed
-        self.stop_callback = on_finished
-
-        # --- Ajout : coefficient dynamique sur le fps ---
-        base_fps = self.fps if hasattr(self, 'fps') else 60
-        # On augmente le fps proportionnellement à la vitesse de stop (min 1x, max 4x)
-        coeff = min(max(stop_speed / self.speed, 1), 4) if hasattr(self, 'speed') and self.speed > 0 else 1
-        self._stop_anim_fps = int(base_fps * coeff)
-        self.stop_timer.start(max(1, int(1000 / self._stop_anim_fps)))
-        # --- Fin ajout ---
-
+        self._stopping = True
+        self._stop_speed = stop_speed
+        self._stop_callback = on_finished
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting _begin_stop_animation: return=None")
 
     def _on_stop_frame(self) -> None:
         """Inputs: None. Returns: None."""
         if not self.scroll_tab:
-            self.stop_timer.stop()
-            if hasattr(self, 'stop_callback') and self.stop_callback:
-                self.stop_callback()
+            self._stopping = False
+            if self._stop_callback:
+                self._stop_callback()
             return
         for col in self.scroll_tab.columns:
-            col.scroll(self.stop_speed, infinite=False)
+            col.scroll(self._stop_speed, infinite=False)
         if self.scroll_tab.get_remaining_images() == 0:
-            self.stop_timer.stop()
+            self._stopping = False
             self._scene.clear()
-            if hasattr(self, 'stop_callback') and self.stop_callback:
-                self.stop_callback()
+            if self._stop_callback:
+                self._stop_callback()
 
     def stop(self) -> None:
         """Inputs: None. Returns: None."""
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering stop: args={{}}")
-        self.timer.stop(); self.stop_timer.stop()
+        # self.timer.stop(); self.stop_timer.stop()  # SUPPRIMÉ
         if self.scroll_tab:
             for col in self.scroll_tab.columns:
                 col.scroll(self.speed, infinite=False)
+        self._stopping = False
+        self._stop_speed = None
+        self._stop_callback = None
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting stop: return=None")
 
-    def get_remaining_images(self) -> int:
-        """Inputs: None. Returns: total remaining images (int)."""
-        if DEBUG_InfiniteScrollView:
-            print(f"[DEBUG][InfiniteScrollView] Entering get_remaining_images: args={{}}")
-        count = self.scroll_tab.get_remaining_images() if self.scroll_tab else 0
-        if DEBUG_InfiniteScrollView:
-            print(f"[DEBUG][InfiniteScrollView] Exiting get_remaining_images: return={count}")
-        return count
-
     def clear(self) -> None:
         """Inputs: None. Returns: None."""
-        if DEBUG_InfiniteScrollView:
-            print(f"[DEBUG][InfiniteScrollView] Entering clear: args={{}}")
-        self.timer.stop(); self.stop_timer.stop()
+        if DEBUG_InfiniteScrollWidget:
+            print(f"[DEBUG][InfiniteScrollWidget] Entering clear: args={{}}")
+        # self.timer.stop(); self.stop_timer.stop()  # SUPPRIMÉ
         if self.scroll_tab:
             self.scroll_tab.clear()
             self.scroll_tab = None
         self._scene.clear()
-        if DEBUG_InfiniteScrollView:
-            print(f"[DEBUG][InfiniteScrollView] Exiting clear: return=None")
+        self._stopping = False
+        self._stop_speed = None
+        self._stop_callback = None
+        if DEBUG_InfiniteScrollWidget:
+            print(f"[DEBUG][InfiniteScrollWidget] Exiting clear: return=None")
 
     def zoom_in(self, factor: float = 1.2) -> None:
         """Inputs: factor. Returns: None."""
@@ -402,6 +399,9 @@ class InfiniteScrollWidget(QWidget):
         self._is_running = False
         if DEBUG_InfiniteScrollWidget:
             print(f"[DEBUG][InfiniteScrollWidget] Exiting __init__: return=None")
+
+    def update_frame(self):
+        self._view.update_frame()
 
     def start(self) -> None:
         """Inputs: None. Returns: None."""
@@ -492,3 +492,116 @@ class InfiniteScrollWidget(QWidget):
             print(f"[DEBUG][InfiniteScrollWidget] Exiting sizeHint: return={size}")
         return size
 
+class ScrollOverlay(QWidget):
+    def __init__(self, parent=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering __init__: args={{'parent': parent}}")
+        super().__init__(parent)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setStyleSheet("background: transparent;")
+        if parent:
+            self.setGeometry(0, 0, parent.width(), parent.height())
+        self.hide()
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.scroll_widget = InfiniteScrollWidget(
+            './gui_template/sleep_picture',
+            scroll_speed=2,
+            fps=80,
+            margin_x=1,
+            margin_y=1,
+            angle=15
+        )
+        layout.addWidget(self.scroll_widget)
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting __init__: return=None")
+
+    def resizeEvent(self, event):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering resizeEvent: args={{'event': event}}")
+        if self.parent():
+            self.setGeometry(0, 0, self.parent().width(), self.parent().height())
+        super().resizeEvent(event)
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting resizeEvent: return=None")
+
+    def raise_overlay(self, on_raised=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering raise_overlay: args={{'on_raised': on_raised}}")
+        self.raise_()
+        if on_raised:
+            on_raised()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting raise_overlay: return=None")
+
+    def lower_overlay(self, on_lowered=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering lower_overlay: args={{'on_lowered': on_lowered}}")
+        self.lower()
+        if on_lowered:
+            on_lowered()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting lower_overlay: return=None")
+
+    def start_scroll_animation(self, stop_speed=30, on_finished=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering start_scroll_animation: args={{'stop_speed': stop_speed, 'on_finished': on_finished}}")
+        if self.scroll_widget:
+            self.scroll_widget.begin_stop(stop_speed=stop_speed, on_finished=on_finished)
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting start_scroll_animation: return=None")
+
+    def clean_scroll(self, on_cleaned=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering clean_scroll: args={{'on_cleaned': on_cleaned}}")
+        if self.scroll_widget:
+            self.scroll_widget.clear()
+        if on_cleaned:
+            on_cleaned()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting clean_scroll: return=None")
+
+    def clear_overlay(self, on_cleared=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering clear_overlay: args={{'on_cleared': on_cleared}}")
+        self.hide()
+        self.deleteLater()
+        self.scroll_widget = None
+        if on_cleared:
+            on_cleared()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting clear_overlay: return=None")
+
+    def hide_overlay(self, on_hidden=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering hide_overlay: args={{'on_hidden': on_hidden}}")
+        if self.isVisible():
+            self.hide()
+        if on_hidden:
+            on_hidden()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting hide_overlay: return=None")
+
+    def show_overlay(self, on_shown=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering show_overlay: args={{'on_shown': on_shown}}")
+        if not self.isVisible():
+            self.show()
+        running = False
+        if hasattr(self.scroll_widget, 'isRunning'):
+            running = self.scroll_widget.isRunning()
+        if not running and self.scroll_widget:
+            self.scroll_widget.start()
+        if on_shown:
+            on_shown()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting show_overlay: return=None")
+
+    def update_frame(self):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering update_frame: args={{}}")
+        if self.scroll_widget:
+            self.scroll_widget.update_frame()
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting update_frame: return=None")

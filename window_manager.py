@@ -1,13 +1,31 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QApplication
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QResizeEvent
+from PySide6.QtCore import Qt, QTimer
 from gui_classes.photobooth import PhotoBooth
 from gui_classes.sleepscreen_window import SleepScreenWindow
-from gui_classes.background_manager import BackgroundManager
+from gui_classes.scroll_widget import ScrollOverlay
 from constante import WINDOW_STYLE, DEBUG
 import sys
 
-DEBUG_WindowManager = True
+DEBUG_WindowManager = False
+
+class TimerUpdateDisplay:
+    def __init__(self, window_manager, interval_ms=1000 // 60):
+        self.window_manager = window_manager
+        self._timer = QTimer()
+        self._timer.setInterval(interval_ms)
+        self._timer.timeout.connect(self.update_frame)
+        self._timer.start()
+
+    def update_frame(self):
+        wm = self.window_manager
+        # Met à jour le scroll overlay si visible
+        if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
+            wm.scroll_overlay.update_frame()
+        # Met à jour la caméra du PhotoBooth si visible
+        current_widget = wm.stack.currentWidget()
+        if hasattr(current_widget, 'background_manager'):
+            current_widget.background_manager.update_camera_frame()
 
 class WindowManager(QWidget):
     def __init__(self) -> None:
@@ -17,7 +35,6 @@ class WindowManager(QWidget):
         self.setWindowTitle("PhotoBooth")
         self.setStyleSheet("background: transparent;")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.background_manager = BackgroundManager()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.stack = QStackedWidget()
@@ -31,8 +48,10 @@ class WindowManager(QWidget):
             self.stack.addWidget(w)
         self._pending_index = None
         # Création de l'overlay de scroll, caché au démarrage
-        self.background_manager.create_scroll_overlay(self, on_created=lambda: self.background_manager.hide_scroll_overlay())
+        self.scroll_overlay = ScrollOverlay(self)
+        self.scroll_overlay.hide_overlay()
         self.set_view(0, initial=True)
+        self.display_timer = TimerUpdateDisplay(self)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 
@@ -46,7 +65,7 @@ class WindowManager(QWidget):
             new_widget.on_enter()
         if index == 0:
             # Affiche l'overlay de scroll en fond
-            self.background_manager.lower_scroll_overlay(on_lowered=lambda: self.background_manager.show_scroll_overlay(on_shown=callback))
+            self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay(on_shown=callback))
         if callback:
             callback()
         if DEBUG_WindowManager:
@@ -62,28 +81,24 @@ class WindowManager(QWidget):
     def start_change_view(self, index: int = 0, callback=None) -> None:
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Entering start_change_view: args={{'index':{index}, 'callback':{callback}}}")
-        
         current_index = self.stack.currentIndex()
-        
         if index == current_index or index not in self.widgets:
             if DEBUG_WindowManager:
                 print(f"[DEBUG][WindowManager] Exiting start_change_view: return=None")
             return
-        
         self._pending_index = index
         # Nouvelle logique : overlay devant, set_view, animation, hide, clean
         def after_set_view():
             print(f"[DEBUG][WindowManager] Exiting after_set_view")
-            self.background_manager.start_scroll_animation(
-                
+            self.scroll_overlay.start_scroll_animation(
                 stop_speed=30,
-                on_finished=lambda: self.background_manager.hide_scroll_overlay(
-                    on_hidden=lambda: self.background_manager.clean_scroll_overlay(
+                on_finished=lambda: self.scroll_overlay.hide_overlay(
+                    on_hidden=lambda: self.scroll_overlay.clean_scroll(
                         on_cleaned=callback
                     )
                 )
             )
-        self.background_manager.raise_scroll_overlay(
+        self.scroll_overlay.raise_overlay(
             on_raised=lambda: self.set_view(index, callback=after_set_view)
         )
         if DEBUG_WindowManager:
@@ -93,7 +108,7 @@ class WindowManager(QWidget):
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Entering resizeEvent: args={{'event':{event}}}")
         super().resizeEvent(event)
-        if hasattr(self.background_manager, 'scroll_overlay') and self.background_manager.scroll_overlay:
-            self.background_manager.scroll_overlay.setGeometry(0, 0, self.width(), self.height())
+        if hasattr(self, 'scroll_overlay') and self.scroll_overlay:
+            self.scroll_overlay.setGeometry(0, 0, self.width(), self.height())
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting resizeEvent: return=None")

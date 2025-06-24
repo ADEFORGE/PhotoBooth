@@ -1,153 +1,120 @@
-# gui_classes/photobooth.py
-from PySide6.QtCore import QTimer, QThread, Qt
+DEBUG_PhotoBooth = True
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPainter, QColor
 from gui_classes.gui_base_widget import PhotoBoothBaseWidget
-from constante import CAMERA_ID, DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
-from gui_classes.camera_viewer import CameraViewer
-from PySide6.QtGui import QPixmap, QImage, QPainter, QColor
+from constante import DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
 from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationTask
 from gui_classes.standby_manager import StandbyManager
+from gui_classes.background_manager import BackgroundManager
 
-
-class PhotoBooth(CameraViewer):
+class PhotoBooth(PhotoBoothBaseWidget):
     def __init__(self, parent=None):
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering __init__: args={{'parent':{parent}}}")
         super().__init__(parent)
-        # Appliquer la transparence uniquement sur ce widget, pas sur le parent
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
         self.setAutoFillBackground(False)
         self.showFullScreen()
-        # Ajout d'un fond noir par défaut
         self._default_background_color = QColor(0, 0, 0)
-        # Suppression de l'application de la transparence au parent
-        print(f"[PHOTOBOOTH][DEBUG] self WA_TranslucentBackground: {self.testAttribute(Qt.WA_TranslucentBackground)}")
-        self.countdown_overlay_manager = CountdownOverlayManager(self, 3)  # Correction ici
+        self.countdown_overlay_manager = CountdownOverlayManager(self, 3)
         self._generation_task = None
         self._generation_in_progress = False
-        self._countdown_callback_active = False  # Anti-reentrance flag
-        # --- StandbyManager integration ---
-        self.standby_manager = None
-        if hasattr(parent, 'set_view'):
-            self.standby_manager = StandbyManager(parent)
+        self._countdown_callback_active = False
+        self.standby_manager = StandbyManager(parent) if hasattr(parent, 'set_view') else None
+        self.background_manager = BackgroundManager(self)
+        self.generated_image = None
+        self.original_photo = None
         if DEBUG:
             print("[INIT] Generation task and flags initialized")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting __init__: return=None")
 
     def on_enter(self):
-        print("[DEBUG][PHOTOBOOTH] on_enter called")
-        print(f"[DEBUG][PHOTOBOOTH] generated_image={self.generated_image}, original_photo={self.original_photo}, selected_style={self.selected_style}")
-        """Called when PhotoBooth view becomes active."""
-        # print("[PHOTOBOOTH] Entering view")  # Suppression de l'affichage du titre
-        # Clear any previous state
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering on_enter: args={{}}")
         self.generated_image = None
         self.original_photo = None
         self.selected_style = None
-        
-        # Reset UI to default state
-        self._capture_connected = True
         self.set_state_default()
-        
-        # Start camera if needed
-        self.start_camera()
-        
-        # Update display with last frame if available
-        if self._last_frame:
-            self.show_image(self._last_frame)
-            self.update()
-            
-        print("[DEBUG][PHOTOBOOTH] on_enter finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting on_enter: return=None")
 
     def on_leave(self):
-        print("[DEBUG][PHOTOBOOTH] on_leave called")
-        print(f"[DEBUG][PHOTOBOOTH] _capture_connected={self._capture_connected}, overlays={hasattr(self, '_countdown_overlay')}, background_source={getattr(self, 'background_manager', None) and self.background_manager.get_source()}")
-        """Called when leaving PhotoBooth view."""
-        # Stop camera first
-        self._capture_connected = False
-        self.stop_camera()
-        
-        # Clean up any ongoing operations
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering on_leave: args={{}}")
         self.clean()
-
-        # Hide any overlays
         self.hide_loading()
-        # Robust overlay cleanup with protection and debug prints
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
             try:
                 if getattr(self._countdown_overlay, '_is_alive', True):
-                    print(f"[DEBUG] Cleaning countdown overlay: {self._countdown_overlay}")
                     self._countdown_overlay.clean_overlay()
                 else:
-                    print(f"[PROTECT] Countdown overlay already destroyed: {self._countdown_overlay}")
+                    pass
             except Exception as e:
-                print(f"[ERROR] Exception during countdown overlay cleanup: {e}")
+                pass
             self._countdown_overlay = None
         self.countdown_overlay_manager.clear_overlay("countdown")
-
-        print("[DEBUG][PHOTOBOOTH] on_leave finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting on_leave: return=None")
 
     def clean(self):
-        print("[DEBUG][PHOTOBOOTH] clean called")
-        """Wrapper: délègue le cleanup à ImageGenerationTask."""
-        if DEBUG:
-            print(f"[GEN] Cleaning up - in_progress: {self._generation_in_progress}, task: {self._generation_task}")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering clean: args={{}}")
         self._generation_in_progress = False
         if self._generation_task:
             if hasattr(self._generation_task, 'finished'):
                 try:
-                    if DEBUG:
-                        print("[GEN] Disconnecting previous task signals")
                     self._generation_task.finished.disconnect()
-                except Exception as e:
-                    if DEBUG:
-                        print(f"[GEN] Warning: Could not disconnect signals: {e}")
+                except Exception:
+                    pass
             self._generation_task.clean()
             self._generation_task = None
-        if DEBUG:
-            print("[GEN] Cleanup complete")
-        print("[DEBUG][PHOTOBOOTH] clean finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting clean: return=None")
 
     def cleanup(self):
-        print("[PHOTOBOOTH][DEBUG] cleanup start (reset state, not destruction)")
-        # Reset state, clear overlays, stop timers, etc. but do not delete the widget
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering cleanup: args={{}}")
         if hasattr(self, 'clean'):
             self.clean()
-        # Optionally clear display, overlays, etc.
-        print("[PHOTOBOOTH][DEBUG] cleanup end (widget kept alive)")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting cleanup: return=None")
 
     def start(self, style_name, input_image):
-        """Start image generation via ImageGenerationTask. Ne force plus le flag et ne gère plus l'overlay ici."""
-        if DEBUG:
-            print(f"[GEN] Starting generation with style: {style_name}")
-            print(f"[GEN] Current state - in_progress: {self._generation_in_progress}, task: {self._generation_task}")
-        # self.show_loading()  # SUPPRIMÉ : overlay de loading géré uniquement par overlay_manager.py
-        from gui_classes.overlay_manager import ImageGenerationTask
-        # Toujours nettoyer l'ancienne tâche, même si in_progress
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering start: args={{'style_name':{style_name},'input_image':<QImage>}}")
         if self._generation_task:
-            if DEBUG:
-                print("[GEN] WARNING: Previous generation task exists, cleaning up first")
             self.clean()
-        # On force la création d'une nouvelle tâche, même si l'état précédent n'est pas propre
         self._generation_task = ImageGenerationTask(style=style_name, input_image=input_image, parent=self)
         self._generation_task.finished.connect(self._on_image_generated_callback)
-        if DEBUG:
-            print("[GEN] New generation task created and connected")
         self._generation_task.start()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting start: return=None")
 
     def finish(self):
-        """Wrapper: termine la génération via ImageGenerationTask."""
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering finish: args={{}}")
         if self._generation_task:
             self._generation_task.finish()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting finish: return=None")
 
     def _on_style_toggle(self, checked, style_name):
-        if checked:
-            self.selected_style = style_name
-        else:
-            self.selected_style = None
-        # Remplace le thread/generation direct par le manager si generate_image=True
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering _on_style_toggle: args={{'checked':{checked},'style_name':{style_name}}}")
+        self.selected_style = style_name if checked else None
         super().on_toggle(checked, style_name, generate_image=False)
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting _on_style_toggle: return=None")
 
     def _on_take_selfie(self):
-        if not self.selected_style:
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering _on_take_selfie: args={{}}")
+        if not getattr(self, 'selected_style', None):
             take_selfie_btn = None
-            if self.btns:
+            if hasattr(self, 'btns'):
                 for btn in self.btns.style1_btns:
                     if btn.objectName() == "take_selfie":
                         take_selfie_btn = btn
@@ -163,110 +130,43 @@ class PhotoBooth(CameraViewer):
                     app.setStyleSheet(new_style + "\n" + TOOLTIP_STYLE)
                 global_pos = take_selfie_btn.mapToGlobal(take_selfie_btn.rect().center())
                 QToolTip.showText(global_pos, "Select a style first", take_selfie_btn, take_selfie_btn.rect(), TOOLTIP_DURATION_MS)
+            if DEBUG_PhotoBooth:
+                print(f"[DEBUG][PhotoBooth] Exiting _on_take_selfie: return=None")
             return
-        print("[DEBUG] Démarrage du compte à rebours")
-        # Lance d'abord le compte à rebours
         self.countdown_overlay_manager.start(self._after_countdown_finish)
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting _on_take_selfie: return=None")
 
     def _after_countdown_finish(self):
-        from constante import DEBUG
-        import threading
-        print(f"[TRACE] _after_countdown_finish called. Thread: {threading.current_thread().name}, id(self): {id(self)}, flag: {self._countdown_callback_active}")
-        print(f"[DEBUG_FLAGS] _after_countdown_finish: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}, _last_frame={'OK' if self._last_frame is not None else 'None'}")
-        if self._countdown_callback_active:
-            print(f"[TRACE] _after_countdown_finish: Already running, skipping. Thread: {threading.current_thread().name}, id(self): {id(self)}")
-            if DEBUG:
-                print("[GEN] _after_countdown_finish: Already running, skipping reentrant call.")
-            return
-
-        self._countdown_callback_active = True
-        try:
-            if DEBUG:
-                print(f"[GEN] Countdown finished - in_progress: {self._generation_in_progress}")
-                print(f"[GEN] Selected style: {self.selected_style}")
-            print(f"[TRACE] _after_countdown_finish: Entered main logic. Thread: {threading.current_thread().name}, id(self): {id(self)}")
-            print(f"[DEBUG_FLAGS] Entered main logic: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}, _last_frame={'OK' if self._last_frame is not None else 'None'}")
-
-            self.clean()  # This will set _generation_in_progress to False
-
-            if self._last_frame is None:
-                print(f"[TRACE] _after_countdown_finish: No frame available. Thread: {threading.current_thread().name}, id(self): {id(self)}")
-                if DEBUG:
-                    print("[GEN] Error: No frame available")
-                self._countdown_callback_active = False
-                print(f"[DEBUG_FLAGS] Early return: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
-                return
-
-            qimg = QImage(self._last_frame)
-            if qimg.isNull():
-                print(f"[TRACE] _after_countdown_finish: QImage is null. Thread: {threading.current_thread().name}, id(self): {id(self)}")
-                if DEBUG:
-                    print("[GEN] Error: Failed to capture image")
-                self._countdown_callback_active = False
-                print(f"[DEBUG_FLAGS] Early return: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
-                return
-
-            self.original_photo = qimg
-            self.background_manager.set_captured_image(qimg)
-
-            # Ne pas nettoyer l'overlay countdown ici ! Le manager s'en occupe.
-            print(f"[TRACE] _after_countdown_finish: Clearing countdown overlay via manager.")
-            try:
-                self.countdown_overlay_manager.clear_overlay("countdown")
-            except Exception as e:
-                print(f"[ERROR] Exception during countdown overlay manager cleanup: {e}")
-
-            # CORRECTION: Only allow generation if not already in progress
-            if self.selected_style and not self._generation_in_progress:
-                print(f"[TRACE] _after_countdown_finish: Starting generation with style: {self.selected_style}")
-                if DEBUG:
-                    print(f"[GEN] Starting generation with style: {self.selected_style}")
-                # self._generation_in_progress = True  # SUPPRIMÉ : le flag est géré dans le callback de génération
-                print(f"[DEBUG_FLAGS] Before start: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
-                self.start(self.selected_style, qimg.copy())
-            else:
-                print(f"[TRACE] _after_countdown_finish: Generation already in progress or no style selected. Skipping start.")
-        except Exception as e:
-            import traceback
-            print(f"[TRACE] _after_countdown_finish: Exception: {e}")
-            traceback.print_exc()
-            if DEBUG:
-                print(f"[GEN] Exception in _after_countdown_finish: {e}")
-        finally:
-            print(f"[TRACE] _after_countdown_finish: Resetting flag. Thread: {threading.current_thread().name}, id(self): {id(self)}")
-            print(f"[DEBUG_FLAGS] Finally: _countdown_callback_active={self._countdown_callback_active}, _generation_in_progress={self._generation_in_progress}, _generation_task={self._generation_task}, selected_style={self.selected_style}")
-            self._countdown_callback_active = False
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering _after_countdown_finish: args={{}}")
+        self.clean()
+        # Note: _last_frame logic removed, must be handled elsewhere if needed
+        if getattr(self, 'selected_style', None) and not self._generation_in_progress and self.original_photo:
+            self.start(self.selected_style, self.original_photo)
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting _after_countdown_finish: return=None")
 
     def _on_image_generated_callback(self, qimg):
-        """Callback when image generation is complete."""
-        from constante import DEBUG
-        if DEBUG:
-            print(f"[GEN] Generation callback - in_progress: {self._generation_in_progress}")
-            print(f"[GEN] Generated image valid: {qimg and not qimg.isNull()}")
-        
-        # Reset generation state
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering _on_image_generated_callback: args={{'qimg':<QImage>}}")
         self._generation_task = None
-        self._generation_in_progress = False  # Important: reset flag here
-        
-        self.stop_camera()
+        self._generation_in_progress = False
         if qimg and not qimg.isNull():
-            if DEBUG:
-                print("[GEN] Valid image generated, updating display")
             self.generated_image = qimg
         else:
-            if DEBUG:
-                print("[GEN] No valid image generated")
             self.generated_image = None
         self.update_frame()
-        if DEBUG:
-            print("[GEN] Moving to validation state")
         self.set_state_validation()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting _on_image_generated_callback: return=None")
 
     def _on_accept_close(self):
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering _on_accept_close: args={{}}")
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
-            from constante import VALIDATION_OVERLAY_MESSAGE
             from gui_classes.overlay import OverlayRules, OverlayQrcode
             from gui_classes.toolbox import QRCodeUtils
             def on_rules_validated():
@@ -277,7 +177,7 @@ class PhotoBooth(CameraViewer):
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
                 overlay_qr = OverlayQrcode(
                     parent=self.window(),
-                    qimage=qimg,  # Correction ici : qimage -> qimg
+                    qimage=qimg,
                     on_close=on_qrcode_close
                 )
                 overlay_qr.show_overlay()
@@ -291,34 +191,32 @@ class PhotoBooth(CameraViewer):
             overlay.show_overlay()
         else:
             self.set_state_default()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting _on_accept_close: return=None")
 
     def reset_generation_state(self):
-        """Reset the generation state and related flags."""
-        from constante import DEBUG
-        if DEBUG:
-            print("[PHOTOBOOTH] Resetting generation state and flags")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering reset_generation_state: args={{}}")
         self._generation_in_progress = False
         self._generation_task = None
         self.generated_image = None
         self.original_photo = None
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting reset_generation_state: return=None")
 
     def reset_to_default_state(self):
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering reset_to_default_state: args={{}}")
         self.set_state_default()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting reset_to_default_state: return=None")
 
     def set_state_default(self):
-        """État d'accueil : webcam, bouton take_selfie, boutons de styles."""
-        from constante import DEBUG
-        print("[DEBUG][PHOTOBOOTH] set_state_default called")
-        if DEBUG:
-            print("[PHOTOBOOTH] Back to default state")
-        # Reset generation state and flags
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering set_state_default: args={{}}")
         self.reset_generation_state()
         self.selected_style = None
-        self._last_frame = None
-        # Nettoyer l'affichage
         self.clear_display()
-        
-        # Configurer les boutons
         from constante import dico_styles
         self.setup_buttons(
             style1_names=["take_selfie"],
@@ -326,8 +224,6 @@ class PhotoBooth(CameraViewer):
             slot_style1=self._on_take_selfie,
             slot_style2=lambda checked, btn=None: self._on_style_toggle(checked, btn.text() if btn else None)
         )
-        
-        # S'assurer que les boutons sont visibles et actifs
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.raise_()
         if hasattr(self, 'btns'):
@@ -335,82 +231,71 @@ class PhotoBooth(CameraViewer):
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.show()
                 btn.setEnabled(True)
-                
-        # Réactiver la caméra
-        self._capture_connected = True
-        self.start_camera()
-
-        # Start the inactivity timer when entering default state
         if self.standby_manager:
             self.standby_manager.set_timer_from_constante()
             self.standby_manager.start_standby_timer()
-        print("[DEBUG][PHOTOBOOTH] set_state_default finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting set_state_default: return=None")
 
     def set_state_validation(self):
-        print("[DEBUG][PHOTOBOOTH] set_state_validation called")
-        """État validation : image/photo affichée, boutons accept/close (style1), plus de boutons de styles."""
-        self._capture_connected = False
-        self.stop_camera()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering set_state_validation: args={{}}")
         self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
             self.btns.raise_()
             for btn in self.btns.style1_btns:
                 btn.show()
                 btn.setEnabled(True)
-            self.btns.set_disabled_bw_style2()  # Désactive et grise les boutons style2 (N&B, non cliquables)
-            # Suppression de l'appel à disable_style2_btns, car set_disabled_bw_style2 suffit
+            self.btns.set_disabled_bw_style2()
         self.update_frame()
-
-        # Stop the inactivity timer when entering validation state
         if self.standby_manager:
             self.standby_manager.stop_standby_timer()
-        print("[DEBUG][PHOTOBOOTH] set_state_validation finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting set_state_validation: return=None")
 
     def set_state_wait(self):
-        print("[DEBUG][PHOTOBOOTH] set_state_wait called")
-        """État attente : image/photo affichée, aucun bouton style1 ni style2."""
-        self._capture_connected = False
-        self.stop_camera()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering set_state_wait: args={{}}")
         if hasattr(self, 'btns'):
             self.btns.set_disabled_bw_style2()
- 
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.hide()
         self.update_frame()
-
-        # Stop the inactivity timer when entering wait state
         if self.standby_manager:
             self.standby_manager.stop_standby_timer()
-        print("[DEBUG][PHOTOBOOTH] set_state_wait finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting set_state_wait: return=None")
 
     def update_frame(self):
-        print("[DEBUG][PHOTOBOOTH] update_frame called")
-        """Met à jour l'affichage avec la bonne source via le BackgroundManager."""
-        # Priorité : image générée > photo originale > frame caméra
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering update_frame: args={{}}")
         if self.generated_image and not isinstance(self.generated_image, str):
             self.background_manager.set_generated_image(self.generated_image)
         elif self.original_photo:
             self.background_manager.set_captured_image(self.original_photo)
-        elif self._last_frame:
-            self.background_manager.set_camera_pixmap(QPixmap.fromImage(self._last_frame))
         else:
             self.background_manager.clear_all()
         self.update()
-        print("[DEBUG][PHOTOBOOTH] update_frame finished")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting update_frame: return=None")
 
     def user_activity(self):
-        # Call this on any user activity to reset the timer
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering user_activity: args={{}}")
         if self.standby_manager:
             self.standby_manager.set_timer_from_constante()
             self.standby_manager.start_standby_timer()
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting user_activity: return=None")
 
     def paintEvent(self, event):
-        # Ajout du fond noir par défaut
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Entering paintEvent: args={{'event':{event}}}")
         painter = QPainter(self)
         painter.fillRect(self.rect(), self._default_background_color)
         painter.end()
-        # Suppression du remplissage noir, on laisse la transparence
         if hasattr(super(), 'paintEvent'):
             super().paintEvent(event)
-        # if DEBUG:
-        #     print(f"[PHOTOBOOTH][DEBUG] paintEvent: fond noir peint, WA_TranslucentBackground={self.testAttribute(Qt.WA_TranslucentBackground)}, parent={self.parent()}")
+        if DEBUG_PhotoBooth:
+            print(f"[DEBUG][PhotoBooth] Exiting paintEvent: return=None")
+

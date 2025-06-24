@@ -174,42 +174,42 @@ class BackgroundManager(QObject):
         self.thread.stop()
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting close: return=None")
 
-# class MainWindow(QWidget):
-#     def __init__(self):
-#         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering __init__: args={{}}")
-#         super().__init__()
-#         self.setWindowTitle("Demo Background Manager")
-#         self.showFullScreen()
-#         self.label = QLabel(alignment=Qt.AlignCenter)
-#         self.combo_res = QComboBox()
-#         self.combo_rot = QComboBox(); self.combo_rot.addItems(["0°","90°","180°","270°"])
-#         self.btn_capture = QPushButton("Capture"); self.btn_live = QPushButton("Live")
-#         self.btn_generate = QPushButton("Générer image"); self.btn_clear = QPushButton("Clear")
-#         ctrl = QHBoxLayout(); ctrl.addWidget(self.combo_res); ctrl.addWidget(self.combo_rot)
-#         for btn in (self.btn_capture,self.btn_live,self.btn_generate,self.btn_clear): ctrl.addWidget(btn)
-#         layout = QVBoxLayout(self); layout.addWidget(self.label); layout.addLayout(ctrl)
-#         init_rot = self.combo_rot.currentIndex()*90
-#         self.bg = BackgroundManager(self.label, self.combo_res, rotation=init_rot)
-#         self.combo_rot.currentIndexChanged.connect(lambda idx: self.bg.set_rotation(idx*90))
-#         self.btn_capture.clicked.connect(self.bg.capture)
-#         self.btn_live.clicked.connect(self.bg.set_live)
-#         self.btn_generate.clicked.connect(self.bg.on_generate)
-#         self.btn_clear.clicked.connect(self.bg.clear)
-#         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting __init__: return=None")
+class MainWindow(QWidget):
+    def __init__(self):
+        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering __init__: args={{}}")
+        super().__init__()
+        self.setWindowTitle("Demo Background Manager")
+        self.showFullScreen()
+        self.label = QLabel(alignment=Qt.AlignCenter)
+        self.combo_res = QComboBox()
+        self.combo_rot = QComboBox(); self.combo_rot.addItems(["0°","90°","180°","270°"])
+        self.btn_capture = QPushButton("Capture"); self.btn_live = QPushButton("Live")
+        self.btn_generate = QPushButton("Générer image"); self.btn_clear = QPushButton("Clear")
+        ctrl = QHBoxLayout(); ctrl.addWidget(self.combo_res); ctrl.addWidget(self.combo_rot)
+        for btn in (self.btn_capture,self.btn_live,self.btn_generate,self.btn_clear): ctrl.addWidget(btn)
+        layout = QVBoxLayout(self); layout.addWidget(self.label); layout.addLayout(ctrl)
+        init_rot = self.combo_rot.currentIndex()*90
+        self.bg = BackgroundManager(self.label, self.combo_res, rotation=init_rot)
+        self.combo_rot.currentIndexChanged.connect(lambda idx: self.bg.set_rotation(idx*90))
+        self.btn_capture.clicked.connect(self.bg.capture)
+        self.btn_live.clicked.connect(self.bg.set_live)
+        self.btn_generate.clicked.connect(self.bg.on_generate)
+        self.btn_clear.clicked.connect(self.bg.clear)
+        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting __init__: return=None")
 
-#     def closeEvent(self, event) -> None:
-#         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering closeEvent: args={{event:{event}}}")
-#         self.bg.close()
-#         super().closeEvent(event)
-#         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting closeEvent: return=None")
+    def closeEvent(self, event) -> None:
+        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering closeEvent: args={{event:{event}}}")
+        self.bg.close()
+        super().closeEvent(event)
+        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting closeEvent: return=None")
 
-# def main() -> None:
-#     if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering main: args={{}}")
-#     app = QApplication(sys.argv)
-#     win = MainWindow()
-#     sys.exit(app.exec())
-#     if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting main: return=None")
+def main() -> None:
+    if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering main: args={{}}")
+    app = QApplication(sys.argv)
+    win = MainWindow()
+    sys.exit(app.exec())
+    if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting main: return=None")
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 

@@ -187,25 +187,25 @@ class BackgroundManager(QObject):
         self.scroll_widget = InfiniteScrollWidget(
             './gui_template/sleep_picture',
             scroll_speed=2,
-            fps=60,
+            fps=80,
             margin_x=1,
             margin_y=1,
             angle=15
         )
         layout.addWidget(self.scroll_widget)
         # Ajout du gradient overlay (Intro Screen) AU-DESSUS du scroll_widget, sans débordement (stretch)
-        self.gradient_label = QLabel(self.scroll_overlay)
-        self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
-        self.gradient_label.setStyleSheet("background: transparent;")
-        self.gradient_label.setGeometry(0, 0, parent.width(), parent.height())
-        self.gradient_label.setPixmap(QPixmap("./gui_template/Gradient Intro Screen.png").scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-        self.gradient_label.setAttribute(Qt.WA_TransparentForMouseEvents)
-        self.gradient_label.raise_()  # S'assurer qu'il est au-dessus du scroll_widget
-        self.gradient_label.show()
-        def resize_gradient():
-            self.gradient_label.setGeometry(0, 0, self.scroll_overlay.width(), self.scroll_overlay.height())
-            pix = QPixmap("./gui_template/Gradient Intro Screen.png")
-            self.gradient_label.setPixmap(pix.scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        # self.gradient_label = QLabel(self.scroll_overlay)
+        # self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
+        # self.gradient_label.setStyleSheet("background: transparent;")
+        # self.gradient_label.setGeometry(0, 0, parent.width(), parent.height())
+        # self.gradient_label.setPixmap(QPixmap("./gui_template/Gradient Intro Screen.png").scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        # self.gradient_label.setAttribute(Qt.WA_TransparentForMouseEvents)
+        # self.gradient_label.raise_()  # S'assurer qu'il est au-dessus du scroll_widget
+        # self.gradient_label.show()
+        # def resize_gradient():
+        #     self.gradient_label.setGeometry(0, 0, self.scroll_overlay.width(), self.scroll_overlay.height())
+        #     pix = QPixmap("./gui_template/Gradient Intro Screen.png")
+        #     self.gradient_label.setPixmap(pix.scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
         self.scroll_overlay.resizeEvent = lambda event: (resize_gradient(), ScrollOverlay.resizeEvent(self.scroll_overlay, event))
         self.scroll_widget.start()
         if on_started:

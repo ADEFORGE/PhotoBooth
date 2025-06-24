@@ -284,14 +284,22 @@ class InfiniteScrollView(QGraphicsView):
         for col in self.scroll_tab.columns:
             col.scroll(self.speed, infinite=True)
 
-    def _begin_stop_animation(self, stop_speed: int = 1, on_finished=None) -> None:
+    def _begin_stop_animation(self, stop_speed: int = 6, on_finished=None) -> None:
         """Inputs: stop_speed, on_finished. Returns: None."""
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering _begin_stop_animation: args={{...}}")
         self.timer.stop()
         self.stop_speed = stop_speed
         self.stop_callback = on_finished
-        self.stop_timer.start(max(1, int(1000 / self.fps)))
+
+        # --- Ajout : coefficient dynamique sur le fps ---
+        base_fps = self.fps if hasattr(self, 'fps') else 60
+        # On augmente le fps proportionnellement à la vitesse de stop (min 1x, max 4x)
+        coeff = min(max(stop_speed / self.speed, 1), 4) if hasattr(self, 'speed') and self.speed > 0 else 1
+        self._stop_anim_fps = int(base_fps * coeff)
+        self.stop_timer.start(max(1, int(1000 / self._stop_anim_fps)))
+        # --- Fin ajout ---
+
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting _begin_stop_animation: return=None")
 

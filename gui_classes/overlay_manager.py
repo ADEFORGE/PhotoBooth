@@ -87,8 +87,7 @@ class CountdownThread(QObject):
     def _on_tick(self, count):
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering _on_tick: args={(count,)}")
         if self._overlay and getattr(self._overlay, '_is_alive', True):
-            if hasattr(self._overlay, 'show_number'):
-                self._overlay.show_number(count)
+            self._overlay.show_number(count) if hasattr(self._overlay, 'show_number') else None
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting _on_tick: return=None")
 
     # Inputs: none
@@ -138,6 +137,7 @@ class CountdownThread(QObject):
             self._overlay.clean_overlay()
         self._overlay = None
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting clear_overlay: return=None")
+
 
 class ImageGenerationThread(QObject):
     finished = Signal(object)
@@ -219,4 +219,131 @@ class ImageGenerationThread(QObject):
     # Inputs: none
     # Outputs: deletes thread safely in main thread
     def _delete_thread_safe(self):
-        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _delete_thread_safe: args
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _delete_thread_safe: args=()")
+        if self._thread and QThread.currentThread() != self._thread:
+            self._thread.quit()
+            self._thread.wait()
+            self._thread.deleteLater()
+            self._thread = None
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting _delete_thread_safe: return=None")
+
+    # Inputs: none
+    # Outputs: starts image generation in background thread
+    def start(self):
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering start: args=()")
+        if self._thread and self._thread.isRunning():
+            if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting start: return=None")
+            return
+
+        self.show_loading()
+        self._thread = QThread()
+
+        class ImageGenerationWorker(QObject):
+            finished = Signal(object)
+
+            # Inputs: api, style, input_image
+            # Outputs: emits QImage or None
+            def __init__(self, api, style, input_image):
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering __init__: args={(api, style, input_image)}")
+                super().__init__()
+                self.api = api
+                self.style = style
+                self.input_image = input_image
+                self._running = True
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting __init__: return=None")
+
+            # Inputs: none
+            # Outputs: emits generated QImage or None
+            def run(self):
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering run: args=()")
+                try:
+                    self.api.set_style(self.style)
+                    if not self._running:
+                        self.finished.emit(None)
+                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                        return
+                    arr = ImageUtils.qimage_to_cv(self.input_image)
+                    os.makedirs("../ComfyUI/input", exist_ok=True)
+                    cv2.imwrite("../ComfyUI/input/input.png", arr)
+                    self.api.generate_image()
+                    if not self._running:
+                        self.finished.emit(None)
+                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                        return
+                    output_dir = os.path.abspath("../ComfyUI/output")
+                    files = glob.glob(os.path.join(output_dir, "*.png"))
+                    if not files:
+                        self.finished.emit(None)
+                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                        return
+                    latest = max(files, key=os.path.getmtime)
+                    img = cv2.imread(latest)
+                    if img is None:
+                        self.finished.emit(None)
+                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                        return
+                    qimg = ImageUtils.cv_to_qimage(img)
+                    inp = os.path.abspath("../ComfyUI/input/input.png")
+                    if os.path.exists(inp):
+                        os.remove(inp)
+                    if os.path.exists(latest):
+                        os.remove(latest)
+                    self.finished.emit(qimg)
+                except:
+                    self.finished.emit(None)
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+
+            # Inputs: none
+            # Outputs: flags stop
+            def stop(self):
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering stop: args=()")
+                self._running = False
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting stop: return=None")
+
+        self._worker = ImageGenerationWorker(self.api, self.style, self.input_image)
+        self._worker.moveToThread(self._thread)
+        self._worker.finished.connect(self._on_worker_finished)
+        self._thread.started.connect(self._worker.run)
+        self._thread.start()
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting start: return=None")
+
+    # Inputs: result (QImage or None)
+    # Outputs: emits finished, cleans thread and worker, hides overlay
+    def _on_worker_finished(self, result):
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _on_worker_finished: args={(result,)}")
+        self.finished.emit(result)
+        if self._thread:
+            if self._thread.isRunning():
+                self._thread.quit()
+                self._thread.wait()
+            self._thread.deleteLater()
+            self._thread = None
+        if self._worker:
+            self._worker.deleteLater()
+            self._worker = None
+        self.hide_loading()
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting _on_worker_finished: return=None")
+
+    # Inputs: none
+    # Outputs: no operation
+    def _on_thread_finished_hide_overlay(self):
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _on_thread_finished_hide_overlay: args=()")
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting _on_thread_finished_hide_overlay: return=None")
+
+    # Inputs: none
+    # Outputs: stops worker and thread, hides overlay
+    def stop(self):
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering stop: args=()")
+        self._running = False
+        if self._thread:
+            if self._thread.isRunning():
+                self._thread.quit()
+                self._thread.wait()
+            self._thread.deleteLater()
+            self._thread = None
+        if self._worker:
+            self._worker.deleteLater()
+            self._worker = None
+        self.hide_loading()
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting stop: return=None")
+

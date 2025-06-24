@@ -10,15 +10,10 @@ import cv2
 from gui_classes.toolbox import ImageUtils
 import time
 
-class OverlayManager(QObject):
+class CountdownThread(QObject):
     overlay_finished = Signal()
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._parent = parent
-
-class CountdownOverlayManager(OverlayManager):
-    class CountdownThread(QThread):
+    class Thread(QThread):
         tick = Signal(int)
         finished = Signal()
         def __init__(self, start):
@@ -38,28 +33,30 @@ class CountdownOverlayManager(OverlayManager):
         def stop(self):
             self._running = False
 
-    def __init__(self, parent, count):
+    def __init__(self, parent=None, count=None):
         super().__init__(parent)
+        self._parent = parent
         self._count = count
         self._thread = None
         self._overlay = None
         self._user_callback = None
-        
-    def start(self, on_finished=None):
+
+    def start_countdown(self, count=None, on_finished=None):
         if self._thread is not None:
             return
+        if count is not None:
+            self._count = count
         self._user_callback = on_finished
-        # Utilise OverlayCountdown au lieu de OverlayLoading
         self._overlay = OverlayCountdown(self._parent, start=self._count)
         if hasattr(self._overlay, '_is_alive') and not self._overlay._is_alive:
             print(f"[PROTECT] OverlayCountdown déjà détruit, start annulé")
             return
         self._overlay.show_overlay()
-        self._thread = self.CountdownThread(self._count)
+        self._thread = self.Thread(self._count)
         self._thread.tick.connect(self._on_tick)
         self._thread.finished.connect(self._on_finish)
         self._thread.start()
-        
+
     def _on_tick(self, count):
         if self._overlay and getattr(self._overlay, '_is_alive', True):
             if hasattr(self._overlay, 'show_number'):
@@ -68,7 +65,7 @@ class CountdownOverlayManager(OverlayManager):
                 print(f"[PROTECT] _on_tick: overlay n'a pas show_number")
         else:
             print(f"[PROTECT] _on_tick ignoré, overlay non vivant")
-        
+
     def _on_finish(self):
         if self._overlay:
             if getattr(self._overlay, '_is_alive', True):
@@ -78,7 +75,7 @@ class CountdownOverlayManager(OverlayManager):
             self._overlay = None
         if self._thread:
             self._thread.stop()
-            self._thread.wait()  # Wait for thread to finish
+            self._thread.wait()
             self._thread.deleteLater()
             self._thread = None
             self.overlay_finished.emit()
@@ -87,7 +84,7 @@ class CountdownOverlayManager(OverlayManager):
             self._user_callback()
             self._user_callback = None
 
-    def stop(self):
+    def stop_countdown(self):
         if self._thread:
             self._thread.stop()
             self._thread.wait()
@@ -120,7 +117,7 @@ class CountdownOverlayManager(OverlayManager):
         else:
             print(f"[GEN_TASK] clear_overlay: aucun overlay à nettoyer pour countdown")
 
-class ImageGenerationTask(QObject):
+class ImageGenerationThread(QObject):
     finished = Signal(object)  # QImage ou None
 
     def __init__(self, style, input_image, parent=None):

@@ -1,8 +1,8 @@
 import os
 import json
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget
-from gui_classes.language_manager import language_manager
-from gui_classes.btn import Btns
+from gui_classes.gui_window.base_window import PhotoBoothBaseWidget
+from gui_classes.gui_manager.language_manager import language_manager
+from gui_classes.gui_object.btn import Btns
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout

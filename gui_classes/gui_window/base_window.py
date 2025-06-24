@@ -5,16 +5,16 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize
-from gui_classes.overlay import OverlayLoading, OverlayRules, OverlayInfo
-from gui_classes.toolbox import normalize_btn_name
+from gui_classes.gui_object.overlay import OverlayLoading, OverlayRules, OverlayInfo
+from gui_classes.gui_object.toolbox import normalize_btn_name
 from constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
     ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE
 )
-from gui_classes.btn import Btns
+from gui_classes.gui_object.btn import Btns
 
-class PhotoBoothBaseWidget(QWidget):
+class BaseWindow(QWidget):
     """
     Inputs:
         parent: QWidget or None
@@ -339,7 +339,7 @@ class PhotoBoothBaseWidget(QWidget):
         if hasattr(self, 'btns') and self.btns:
             self.btns.cleanup()
             self.btns = None
-        from gui_classes.btn import Btns
+        from gui_classes.gui_object.btn import Btns
         self.btns = Btns(self, [], [], None, None)
         self.btns.setup_buttons(
             style1_names, 
@@ -456,14 +456,14 @@ class PhotoBoothBaseWidget(QWidget):
         """
         if DEBUG_PhotoBoothBaseWidget:
             print(f"[DEBUG][PhotoBoothBaseWidget] Entering show_rules_dialog: args={{}}")
-        from gui_classes.overlay import OverlayRules, OverlayQrcode
-        from gui_classes.toolbox import QRCodeUtils
+        from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
+        from gui_classes.gui_object.toolbox import QRCodeUtils
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
         parent = app.activeWindow() if app else self
         def show_qrcode_overlay():
             if getattr(self, 'generated_image', None) is not None:
-                from gui_classes.overlay import UI_TEXTS
+                from gui_classes.gui_object.overlay import UI_TEXTS
                 data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
                 pil_img = QRCodeUtils.generate_qrcode(data)
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
@@ -491,7 +491,7 @@ class PhotoBoothBaseWidget(QWidget):
         """
         if DEBUG_PhotoBoothBaseWidget:
             print(f"[DEBUG][PhotoBoothBaseWidget] Entering show_lang_dialog: args={{}}")
-        from gui_classes.overlay import OverlayLang
+        from gui_classes.gui_object.overlay import OverlayLang
         overlay = OverlayLang(self)
         overlay.show_overlay()
         if DEBUG_PhotoBoothBaseWidget:

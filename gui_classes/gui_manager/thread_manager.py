@@ -13,6 +13,7 @@ DEBUG_CountdownThread = False
 DEBUG_Thread = False
 DEBUG_ImageGenerationThread = False
 DEBUG_ImageGenerationWorker = False
+DEBUG_CameraCaptureThread = True
 
 class CountdownThread(QObject):
     overlay_finished = Signal()
@@ -137,7 +138,6 @@ class CountdownThread(QObject):
             self._overlay.clean_overlay()
         self._overlay = None
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting clear_overlay: return=None")
-
 
 class ImageGenerationThread(QObject):
     finished = Signal(object)
@@ -347,3 +347,50 @@ class ImageGenerationThread(QObject):
         self.hide_loading()
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting stop: return=None")
 
+class CameraCaptureThread(QThread):
+    frame_ready = Signal(QImage)
+    RESOLUTIONS = {0: (640, 480), 1: (1280, 720), 2: (1920, 1080), 3: (2560, 1440)}
+
+    def __init__(self, camera_id: int = 0, parent=None):
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering __init__: args={{camera_id:{camera_id}, parent:{parent}}}")
+        super().__init__(parent)
+        self.camera_id = camera_id
+        self._running = True
+        self.cap = None
+        self.current_res = 0
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting __init__: return=None")
+
+    def set_resolution_level(self, level: int) -> None:
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering set_resolution_level: args={{level:{level}}}")
+        if level in self.RESOLUTIONS:
+            self.current_res = level
+            if self.cap and self.cap.isOpened():
+                w, h = self.RESOLUTIONS[level]
+                self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)
+                self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting set_resolution_level: return=None")
+
+    def run(self) -> None:
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering run: args={{}}")
+        self.cap = cv2.VideoCapture(self.camera_id)
+        if not self.cap.isOpened():
+            print(f"[Camera] Impossible d'ouvrir la caméra id={self.camera_id}")
+            if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
+            return
+        self.set_resolution_level(self.current_res)
+        while self._running:
+            ret, frame = self.cap.read()
+            if ret and frame is not None:
+                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = rgb.shape
+                qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
+                self.frame_ready.emit(qimg)
+            self.msleep(33)
+        self.cap.release()
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
+
+    def stop(self) -> None:
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering stop: args={{}}")
+        self._running = False
+        self.wait()
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting stop: return=None")

@@ -145,86 +145,94 @@ class BackgroundManager(QObject):
             print(f"[DEBUG][BackgroundManager] Exiting get_source: return={result}")
         return result
 
-    def clear_scroll_overlay(self) -> None:
-        """Inputs: None. Returns: None."""
-        if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Entering clear_scroll_overlay: args={{}}")
+    def create_scroll_overlay(self, parent, on_created=None):
+        """Crée l'overlay de scroll si non existant, puis callback."""
+        if getattr(self, 'scroll_overlay', None) is None:
+            from PySide6.QtWidgets import QVBoxLayout
+            class ScrollOverlay(QWidget):
+                def __init__(self, parent):
+                    super().__init__(parent)
+                    self.setAttribute(Qt.WA_TranslucentBackground)
+                    self.setStyleSheet("background: transparent;")
+                    self.setGeometry(0, 0, parent.width(), parent.height())
+                    self.hide()
+                def resizeEvent(self, event):
+                    if self.parent():
+                        self.setGeometry(0, 0, self.parent().width(), self.parent().height())
+                    super().resizeEvent(event)
+            self.scroll_overlay = ScrollOverlay(parent)
+            layout = QVBoxLayout(self.scroll_overlay)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(0)
+            from gui_classes.scroll_widget import InfiniteScrollWidget
+            self.scroll_widget = InfiniteScrollWidget(
+                './gui_template/sleep_picture',
+                scroll_speed=2,
+                fps=80,
+                margin_x=1,
+                margin_y=1,
+                angle=15
+            )
+            layout.addWidget(self.scroll_widget)
+        if on_created:
+            on_created()
+
+    def raise_scroll_overlay(self, on_raised=None):
+        if getattr(self, 'scroll_overlay', None):
+            self.scroll_overlay.raise_()
+        if on_raised:
+            on_raised()
+
+    def lower_scroll_overlay(self, on_lowered=None):
+        if getattr(self, 'scroll_overlay', None):
+            self.scroll_overlay.lower()
+        if on_lowered:
+            on_lowered()
+
+    def start_scroll_animation(self, stop_speed=30, on_finished=None):
+        if getattr(self, 'scroll_widget', None):
+            self.scroll_widget.begin_stop(stop_speed=stop_speed, on_finished=on_finished)
+        else:
+            if on_finished:
+                on_finished()
+
+    def clean_scroll_overlay(self, on_cleaned=None):
+        if getattr(self, 'scroll_widget', None):
+            self.scroll_widget.clear()
+        if on_cleaned:
+            on_cleaned()
+
+    def clear_scroll_overlay(self, on_cleared=None):
         if getattr(self, 'scroll_overlay', None):
             self.scroll_overlay.hide()
             self.scroll_overlay.deleteLater()
             self.scroll_overlay = None
-        if getattr(self, 'scroll_widget', None):
-            self.scroll_widget = None
+        self.scroll_widget = None
         if hasattr(self, 'gradient_label'):
             self.gradient_label = None
-        if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Exiting clear_scroll_overlay: return=None")
+        if on_cleared:
+            on_cleared()
 
-    def start_scroll(self, parent: QWidget, on_started=None) -> None:
-        """Inputs: parent (QWidget), on_started (callable or None). Returns: None."""
-        if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Entering start_scroll: args={{'parent':{parent}, 'on_started':{on_started}}}")
-        self.clear_scroll_overlay()
-        from PySide6.QtGui import QPixmap
-        from PySide6.QtWidgets import QLabel
-        class ScrollOverlay(QWidget):
-            def __init__(self, parent):
-                super().__init__(parent)
-                self.setAttribute(Qt.WA_TranslucentBackground)
-                self.setStyleSheet("background: transparent;")
-                self.setGeometry(0, 0, parent.width(), parent.height())
-                self.lower()
-                self.show()
-            def resizeEvent(self, event):
-                if self.parent():
-                    self.setGeometry(0, 0, self.parent().width(), self.parent().height())
-                super().resizeEvent(event)
-        self.scroll_overlay = ScrollOverlay(parent)
-        layout = QVBoxLayout(self.scroll_overlay)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        from gui_classes.scroll_widget import InfiniteScrollWidget
-        self.scroll_widget = InfiniteScrollWidget(
-            './gui_template/sleep_picture',
-            scroll_speed=2,
-            fps=80,
-            margin_x=1,
-            margin_y=1,
-            angle=15
-        )
-        layout.addWidget(self.scroll_widget)
-        # Ajout du gradient overlay (Intro Screen) AU-DESSUS du scroll_widget, sans débordement (stretch)
-        # self.gradient_label = QLabel(self.scroll_overlay)
-        # self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
-        # self.gradient_label.setStyleSheet("background: transparent;")
-        # self.gradient_label.setGeometry(0, 0, parent.width(), parent.height())
-        # self.gradient_label.setPixmap(QPixmap("./gui_template/Gradient Intro Screen.png").scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-        # self.gradient_label.setAttribute(Qt.WA_TransparentForMouseEvents)
-        # self.gradient_label.raise_()  # S'assurer qu'il est au-dessus du scroll_widget
-        # self.gradient_label.show()
-        # def resize_gradient():
-        #     self.gradient_label.setGeometry(0, 0, self.scroll_overlay.width(), self.scroll_overlay.height())
-        #     pix = QPixmap("./gui_template/Gradient Intro Screen.png")
-        #     self.gradient_label.setPixmap(pix.scaled(self.gradient_label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-        self.scroll_overlay.resizeEvent = lambda event: (resize_gradient(), ScrollOverlay.resizeEvent(self.scroll_overlay, event))
-        self.scroll_widget.start()
-        if on_started:
-            on_started()
-        if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Exiting start_scroll: return=None")
+    def hide_scroll_overlay(self, on_hidden=None):
+        if getattr(self, 'scroll_overlay', None) and self.scroll_overlay.isVisible():
+            self.scroll_overlay.hide()
+        if on_hidden:
+            on_hidden()
 
-    def stop_scroll(self, set_view=None) -> None:
-        """Inputs: set_view (callable or None). Returns: None."""
-        if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Entering stop_scroll: args={{'set_view':{set_view}}}")
+    def show_scroll_overlay(self, on_shown=None):
         if getattr(self, 'scroll_overlay', None):
-            self.scroll_overlay.raise_()
-        if set_view:
-            set_view()
-        if getattr(self, 'scroll_widget', None):
-            self.scroll_widget.begin_stop(stop_speed=30, on_finished=None)
-        else:
-            self.clear_scroll_overlay()
-        if DEBUG_BackgroundManager:
-            print(f"[DEBUG][BackgroundManager] Exiting stop_scroll: return=None")
+            if not self.scroll_overlay.isVisible():
+                self.scroll_overlay.show()
+            # Démarre l'animation si le widget existe et n'est pas déjà en cours
+            if getattr(self, 'scroll_widget', None):
+                if hasattr(self.scroll_widget, 'isRunning'):
+                    running = self.scroll_widget.isRunning()
+                else:
+                    running = False
+                if not running:
+                    self.scroll_widget.start()
+                    if DEBUG_BackgroundManager:
+                        print("[DEBUG][BackgroundManager] show_scroll_overlay: scroll_widget.start() called")
+        if on_shown:
+            on_shown()
 

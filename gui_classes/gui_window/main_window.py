@@ -2,13 +2,17 @@ DEBUG_PhotoBooth = True
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter, QColor
-from gui_classes.gui_base_widget import PhotoBoothBaseWidget
-from constante import DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS
-from gui_classes.overlay_manager import CountdownOverlayManager, ImageGenerationTask
-from gui_classes.standby_manager import StandbyManager
-from gui_classes.background_manager import BackgroundManager
+from gui_classes.gui_window.base_window import BaseWindow
+from gui_classes.gui_object.constante import DEBUG, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles
+from gui_classes.gui_manager.thread_manager import CountdownThread, ImageGenerationThread
+from gui_classes.gui_manager.standby_manager import StandbyManager
+from gui_classes.gui_manager.background_manager import BackgroundManager
+from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
+from gui_classes.gui_object.toolbox import QRCodeUtils
+from PySide6.QtWidgets import QToolTip, QApplication
+import re
 
-class PhotoBooth(PhotoBoothBaseWidget):
+class PhotoBooth(BaseWindow):
     def __init__(self, parent=None):
         if DEBUG_PhotoBooth:
             print(f"[DEBUG][PhotoBooth] Entering __init__: args={{'parent':{parent}}}")
@@ -18,7 +22,7 @@ class PhotoBooth(PhotoBoothBaseWidget):
         self.setAutoFillBackground(False)
         self.showFullScreen()
         self._default_background_color = QColor(0, 0, 0)
-        self.countdown_overlay_manager = CountdownOverlayManager(self, 3)
+        self.countdown_overlay_manager = CountdownThread(self, 3)
         self._generation_task = None
         self._generation_in_progress = False
         self._countdown_callback_active = False
@@ -87,7 +91,7 @@ class PhotoBooth(PhotoBoothBaseWidget):
             print(f"[DEBUG][PhotoBooth] Entering start: args={{'style_name':{style_name},'input_image':<QImage>}}")
         if self._generation_task:
             self.clean()
-        self._generation_task = ImageGenerationTask(style=style_name, input_image=input_image, parent=self)
+        self._generation_task = ImageGenerationThread(style=style_name, input_image=input_image, parent=self)
         self._generation_task.finished.connect(self._on_image_generated_callback)
         self._generation_task.start()
         if DEBUG_PhotoBooth:
@@ -120,12 +124,9 @@ class PhotoBooth(PhotoBoothBaseWidget):
                         take_selfie_btn = btn
                         break
             if take_selfie_btn:
-                from PySide6.QtWidgets import QToolTip, QApplication
-                from PySide6.QtCore import QPoint
                 app = QApplication.instance()
                 if app is not None:
                     old_style = app.styleSheet() or ""
-                    import re
                     new_style = re.sub(r"QToolTip\s*\{[^}]*\}", "", old_style)
                     app.setStyleSheet(new_style + "\n" + TOOLTIP_STYLE)
                 global_pos = take_selfie_btn.mapToGlobal(take_selfie_btn.rect().center())
@@ -133,7 +134,7 @@ class PhotoBooth(PhotoBoothBaseWidget):
             if DEBUG_PhotoBooth:
                 print(f"[DEBUG][PhotoBooth] Exiting _on_take_selfie: return=None")
             return
-        self.countdown_overlay_manager.start(self._after_countdown_finish)
+        self.countdown_overlay_manager.start_countdown(on_finished=self._after_countdown_finish)
         if DEBUG_PhotoBooth:
             print(f"[DEBUG][PhotoBooth] Exiting _on_take_selfie: return=None")
 
@@ -167,8 +168,6 @@ class PhotoBooth(PhotoBoothBaseWidget):
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
-            from gui_classes.overlay import OverlayRules, OverlayQrcode
-            from gui_classes.toolbox import QRCodeUtils
             def on_rules_validated():
                 def on_qrcode_close():
                     self.set_state_default()
@@ -217,7 +216,6 @@ class PhotoBooth(PhotoBoothBaseWidget):
         self.reset_generation_state()
         self.selected_style = None
         self.clear_display()
-        from constante import dico_styles
         self.setup_buttons(
             style1_names=["take_selfie"],
             style2_names=list(dico_styles.keys()),

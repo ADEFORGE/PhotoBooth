@@ -1,13 +1,15 @@
 DEBUG_PhotoBoothBaseWidget = True
 
 from PySide6.QtWidgets import (
-    QWidget, QLabel, QGridLayout, QPushButton, QHBoxLayout, QVBoxLayout
+    QWidget, QLabel, QGridLayout, QPushButton, QHBoxLayout, QVBoxLayout, QApplication
 )
 from PySide6.QtGui import QPixmap, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize
-from gui_classes.gui_object.overlay import OverlayLoading, OverlayRules, OverlayInfo
-from gui_classes.gui_object.toolbox import normalize_btn_name
-from constante import (
+from gui_classes.gui_object.overlay import (
+    OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang, UI_TEXTS
+)
+from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
+from gui_classes.gui_object.constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
     ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE
@@ -339,7 +341,7 @@ class BaseWindow(QWidget):
         if hasattr(self, 'btns') and self.btns:
             self.btns.cleanup()
             self.btns = None
-        from gui_classes.gui_object.btn import Btns
+       
         self.btns = Btns(self, [], [], None, None)
         self.btns.setup_buttons(
             style1_names, 
@@ -456,14 +458,11 @@ class BaseWindow(QWidget):
         """
         if DEBUG_PhotoBoothBaseWidget:
             print(f"[DEBUG][PhotoBoothBaseWidget] Entering show_rules_dialog: args={{}}")
-        from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
-        from gui_classes.gui_object.toolbox import QRCodeUtils
-        from PySide6.QtWidgets import QApplication
+
         app = QApplication.instance()
         parent = app.activeWindow() if app else self
         def show_qrcode_overlay():
             if getattr(self, 'generated_image', None) is not None:
-                from gui_classes.gui_object.overlay import UI_TEXTS
                 data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
                 pil_img = QRCodeUtils.generate_qrcode(data)
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
@@ -491,7 +490,6 @@ class BaseWindow(QWidget):
         """
         if DEBUG_PhotoBoothBaseWidget:
             print(f"[DEBUG][PhotoBoothBaseWidget] Entering show_lang_dialog: args={{}}")
-        from gui_classes.gui_object.overlay import OverlayLang
         overlay = OverlayLang(self)
         overlay.show_overlay()
         if DEBUG_PhotoBoothBaseWidget:

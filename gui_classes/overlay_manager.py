@@ -220,4 +220,3 @@ class ImageGenerationThread(QObject):
     # Outputs: deletes thread safely in main thread
     def _delete_thread_safe(self):
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _delete_thread_safe: args
-

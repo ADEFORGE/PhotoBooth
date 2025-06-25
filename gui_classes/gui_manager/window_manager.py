@@ -25,7 +25,7 @@ class TimerUpdateDisplay:
         # Met à jour la caméra du PhotoBooth si visible
         current_widget = wm.stack.currentWidget()
         if hasattr(current_widget, 'background_manager'):
-            current_widget.background_manager.update_camera_frame()
+            current_widget.background_manager.update_background()
 
 class WindowManager(QWidget):
     def __init__(self) -> None:

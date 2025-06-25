@@ -9,7 +9,7 @@ from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager
 from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
 from gui_classes.gui_object.toolbox import QRCodeUtils
-from PySide6.QtWidgets import QToolTip, QApplication
+from PySide6.QtWidgets import QToolTip, QApplication, QLabel, QVBoxLayout
 import re
 
 class MainWindow(BaseWindow):
@@ -27,9 +27,20 @@ class MainWindow(BaseWindow):
         self._generation_in_progress = False
         self._countdown_callback_active = False
         self.standby_manager = StandbyManager(parent) if hasattr(parent, 'set_view') else None
-        self.background_manager = BackgroundManager(self)
-        self.generated_image = None
-        self.original_photo = None
+        # Création du QLabel pour la vidéo/photo en fond
+        self.bg_label = QLabel(self)
+        self.bg_label.setAlignment(Qt.AlignCenter)
+        self.bg_label.setStyleSheet("background: black;")
+        self.bg_label.lower()  # S'assurer qu'il est en fond
+        self.bg_label.setGeometry(0, 0, self.width(), self.height())
+        # Instanciation du BackgroundManager
+        self.background_manager = BackgroundManager(self.bg_label)
+        # Ne pas ajouter bg_label au layout !
+        # S'assurer que le label vidéo est bien en fond après tous les overlays
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.raise_()
+        self.bg_label.lower()  # Toujours en fond, après tous les raise_()
+        self.background_manager.update_background()  # Afficher la première frame
         if DEBUG:
             print("[INIT] Generation task and flags initialized")
         if DEBUG_PhotoBooth:
@@ -229,6 +240,8 @@ class MainWindow(BaseWindow):
             for btn in self.btns.style1_btns + self.btns.style2_btns:
                 btn.show()
                 btn.setEnabled(True)
+        self.bg_label.lower()  # Toujours en fond
+        self.background_manager.update_background()  # Forcer l'affichage caméra
         if self.standby_manager:
             self.standby_manager.set_timer_from_constante()
             self.standby_manager.start_standby_timer()
@@ -268,11 +281,12 @@ class MainWindow(BaseWindow):
         if DEBUG_PhotoBooth:
             print(f"[DEBUG][PhotoBooth] Entering update_frame: args={{}}")
         if self.generated_image and not isinstance(self.generated_image, str):
-            self.background_manager.set_generated_image(self.generated_image)
+            self.background_manager.set_generated(self.generated_image)
         elif self.original_photo:
-            self.background_manager.set_captured_image(self.original_photo)
+            self.background_manager.capture()  # capture() prend la dernière frame
         else:
-            self.background_manager.clear_all()
+            self.background_manager.clear()
+        self.background_manager.update_background()  # Toujours afficher la bonne image
         self.update()
         if DEBUG_PhotoBooth:
             print(f"[DEBUG][PhotoBooth] Exiting update_frame: return=None")
@@ -285,6 +299,22 @@ class MainWindow(BaseWindow):
             self.standby_manager.start_standby_timer()
         if DEBUG_PhotoBooth:
             print(f"[DEBUG][PhotoBooth] Exiting user_activity: return=None")
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Adapter le label de fond à la taille de la fenêtre
+        self.bg_label.setGeometry(0, 0, self.width(), self.height())
+        if hasattr(self, 'overlay_widget'):
+            self.overlay_widget.setGeometry(0, 0, self.width(), self.height())
+            self.overlay_widget.raise_()
+        if hasattr(self, 'btns'):
+            self.btns.raise_()
+        self.bg_label.lower()  # Toujours en fond après resize
+
+    def closeEvent(self, event):
+        if hasattr(self, 'background_manager'):
+            self.background_manager.close()
+        super().closeEvent(event)
 
     def paintEvent(self, event):
         if DEBUG_PhotoBooth:

@@ -164,7 +164,7 @@ class BaseWindow(QWidget):
         logo_layout = QVBoxLayout()
         logo1 = QLabel()
         logo2 = QLabel()
-        for logo, path in [(logo1, "gui_template/logo1.png"), (logo2, "gui_template/logo2.png")]:
+        for logo, path in [(logo1, "gui_template/base_window/logo1.png"), (logo2, "gui_template/base_window/logo2.png")]:
             pix = QPixmap(path)
             logo.setPixmap(pix.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             logo.setAttribute(Qt.WA_TranslucentBackground)
@@ -189,7 +189,7 @@ class BaseWindow(QWidget):
             print(f"[DEBUG][PhotoBoothBaseWidget] Entering setup_interaction_btn: args={{}}")
         lang_btn = QPushButton()
         lang_btn.setStyleSheet(ICON_BUTTON_STYLE)
-        lang_icon = QPixmap("gui_template/language.png")
+        lang_icon = QPixmap("gui_template/base_window/language.png")
         lang_btn.setIcon(QIcon(lang_icon))
         lang_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
         lang_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
@@ -198,7 +198,7 @@ class BaseWindow(QWidget):
         rules_btn = QPushButton()
         rules_btn.setStyleSheet(ICON_BUTTON_STYLE)
         rules_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
-        rules_icon = QPixmap("gui_template/rule_ico.png")
+        rules_icon = QPixmap("gui_template/base_window/rule_ico.png")
         rules_btn.setIcon(QIcon(rules_icon))
         rules_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
         rules_btn.raise_()

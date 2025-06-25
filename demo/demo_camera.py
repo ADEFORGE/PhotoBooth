@@ -55,161 +55,131 @@ class CameraCaptureThread(QThread):
         self._running = False
         self.wait()
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting stop: return=None")
+import sys
+from PySide6.QtWidgets import (
+    QWidget, QLabel, QGridLayout, QPushButton, QHBoxLayout, QVBoxLayout, QApplication
+)
+from PySide6.QtGui import QPixmap, QIcon, QPainter, QImage
+from PySide6.QtCore import Qt, QSize, QMutex, QMutexLocker
+from gui_classes.gui_object.overlay import (
+    OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang
+)
+from gui_classes.gui_object.toolbox import QRCodeUtils
+from gui_classes.gui_object.constante import (
+    GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
+    GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
+    ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE
+)
+from gui_classes.gui_object.btn import Btns
 
-class BackgroundManager(QObject):
-    def __init__(self, label: QLabel, combo_res: QComboBox, rotation: int = 0, interval_ms: int = 33, parent=None):
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering __init__: args={{label:{label}, combo_res:{combo_res}, rotation:{rotation}, interval_ms:{interval_ms}}}")
+DEBUG_PhotoBoothBaseWidget = True
+
+class BackgroundManager(QWidget):
+    def __init__(self, parent=None):
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][BackgroundManager] Entering __init__: args={{parent:{parent}}}")
         super().__init__(parent)
-        self.label = label
-        self.combo_res = combo_res
         self._mutex = QMutex()
-        self.rotation = rotation
-        self.label.lower()
-        self.thread = CameraCaptureThread()
-        self.thread.frame_ready.connect(self._on_frame_ready)
-        self.thread.start()
-        self.last_camera = None
-        self.captured = None
-        self.generated = None
-        self.current = 'live'
-        self.combo_res.addItems(["Low", "HD 720p", "Full HD", "2K"])
-        self.combo_res.currentIndexChanged.connect(self._on_resolution_changed)
-        self.timer = QTimer(self)
-        self.timer.setInterval(interval_ms)
-        self.timer.timeout.connect(self.update_background)
-        self.timer.start()
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting __init__: return=None")
+        self.pixmap = None
+        self.lower()
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][BackgroundManager] Exiting __init__: return=None")
 
-    def set_rotation(self, angle: int) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_rotation: args={{angle:{angle}}}")
-        if angle in (0, 90, 180, 270):
-            with QMutexLocker(self._mutex):
-                self.rotation = angle
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_rotation: return=None")
-
-    def _on_resolution_changed(self, index: int) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering _on_resolution_changed: args={{index:{index}}}")
-        self.thread.set_resolution_level(index)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting _on_resolution_changed: return=None")
-
-    def _on_frame_ready(self, qimg: QImage) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering _on_frame_ready: args={{qimg:{qimg}}}")
-        pix = QPixmap.fromImage(qimg)
+    def set_pixmap(self, pix: QPixmap) -> None:
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][BackgroundManager] Entering set_pixmap: args={{pix:{pix}}}")
         with QMutexLocker(self._mutex):
-            self.last_camera = pix
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting _on_frame_ready: return=None")
+            self.pixmap = pix
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][BackgroundManager] Exiting set_pixmap: return=None")
 
-    def set_live(self) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_live: args={{}}")
-        with QMutexLocker(self._mutex): self.current = 'live'
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_live: return=None")
-
-    def capture(self) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering capture: args={{}}")
+    def paintEvent(self, event) -> None:
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][BackgroundManager] Entering paintEvent: args={{event:{event}}}")
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
         with QMutexLocker(self._mutex):
-            if self.last_camera: self.captured = QPixmap(self.last_camera)
-            self.current = 'captured'
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting capture: return=None")
+            if self.pixmap:
+                scaled = self.pixmap.scaled(
+                    self.width(), self.height(), 
+                    Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
+                )
+                x = (scaled.width() - self.width()) // 2
+                y = (scaled.height() - self.height()) // 2
+                painter.drawPixmap(-x, -y, scaled)
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][BackgroundManager] Exiting paintEvent: return=None")
 
-    def set_generated(self, qimage: QImage) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_generated: args={{qimage:{qimage}}}")
-        with QMutexLocker(self._mutex):
-            self.generated = QPixmap.fromImage(qimage)
-            self.current = 'generated'
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_generated: return=None")
+class BaseWindow(QWidget):
+    def __init__(self, parent=None):
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Entering __init__: args={{parent:{parent}}}")
+        super().__init__(parent)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet("background: transparent;")
 
-    def on_generate(self) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering on_generate: args={{}}")
-        w, h = 640, 480
-        img = QImage(w, h, QImage.Format_RGB888)
-        img.fill(Qt.red)
-        self.set_generated(img)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting on_generate: return=None")
+        self.bg = BackgroundManager(self)
+        self.bg.setGeometry(0, 0, 1920, 1080)
+        self.bg.show()
 
-    def clear(self) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering clear: args={{}}")
-        with QMutexLocker(self._mutex):
-            self.captured = None
-            self.generated = None
-            self.current = 'live'
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting clear: return=None")
+        self.overlay_widget = QWidget(self)
+        self.overlay_widget.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.overlay_layout = QGridLayout(self.overlay_widget)
+        self.overlay_layout.setContentsMargins(*GRID_LAYOUT_MARGINS)
+        self.overlay_layout.setSpacing(GRID_LAYOUT_SPACING)
+        self.overlay_layout.setVerticalSpacing(GRID_VERTICAL_SPACING)
+        self.overlay_layout.setHorizontalSpacing(GRID_HORIZONTAL_SPACING)
 
-    def get_pixmap(self) -> QPixmap:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering get_pixmap: args={{}}")
-        with QMutexLocker(self._mutex):
-            result = self.generated if self.current=='generated' and self.generated else (self.captured if self.current=='captured' and self.captured else self.last_camera)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting get_pixmap: return={result}")
-        return result
+        self.setupcontainer()
+        self.setup_row_stretches()
 
-    def render_pixmap(self, pix: QPixmap) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering render_pixmap: args={{pix:{pix}}}")
-        self.label.lower()
-        if self.rotation != 0:
-            pix = pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)
-        lw, lh = self.label.width(), self.label.height()
-        ow, oh = pix.width(), pix.height()
-        factor = lh/oh; nw = int(ow*factor)
-        scaled = pix.scaled(nw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-        if nw < lw:
-            result = QPixmap(lw, lh); result.fill(Qt.black)
-            p = QPainter(result); x=(lw-nw)//2; p.drawPixmap(x,0,scaled); p.end()
-        else:
-            x=(nw-lw)//2; result = scaled.copy(x,0,lw,lh)
-        grad = QPixmap("./gui_template/Gradient_1.png")
-        if not grad.isNull():
-            gs = grad.scaled(lw,lh,Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
-            p = QPainter(result); p.setOpacity(1.0); p.drawPixmap(0,0,gs); p.end()
-        self.label.setPixmap(result)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting render_pixmap: return=None")
+        self.setLayout(QVBoxLayout())
+        self.layout().addWidget(self.overlay_widget)
+        self.btns = None
 
-    def update_background(self) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering update_background: args={{}}")
-        pix = self.get_pixmap()
-        if pix: self.render_pixmap(pix)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting update_background: return=None")
+        self._lang_btn.clicked.connect(self.show_lang_dialog)
+        self._rules_btn.clicked.connect(self.show_rules_dialog)
 
-    def close(self) -> None:
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering close: args={{}}")
-        self.timer.stop()
-        self.thread.stop()
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting close: return=None")
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Exiting __init__: return=None")
 
-class MainWindow(QWidget):
-    def __init__(self):
-        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering __init__: args={{}}")
-        super().__init__()
-        self.setWindowTitle("Demo Background Manager")
-        self.showFullScreen()
-        self.label = QLabel(alignment=Qt.AlignCenter)
-        self.combo_res = QComboBox()
-        self.combo_rot = QComboBox(); self.combo_rot.addItems(["0°","90°","180°","270°"])
-        self.btn_capture = QPushButton("Capture"); self.btn_live = QPushButton("Live")
-        self.btn_generate = QPushButton("Générer image"); self.btn_clear = QPushButton("Clear")
-        ctrl = QHBoxLayout(); ctrl.addWidget(self.combo_res); ctrl.addWidget(self.combo_rot)
-        for btn in (self.btn_capture,self.btn_live,self.btn_generate,self.btn_clear): ctrl.addWidget(btn)
-        layout = QVBoxLayout(self); layout.addWidget(self.label); layout.addLayout(ctrl)
-        init_rot = self.combo_rot.currentIndex()*90
-        self.bg = BackgroundManager(self.label, self.combo_res, rotation=init_rot)
-        self.combo_rot.currentIndexChanged.connect(lambda idx: self.bg.set_rotation(idx*90))
-        self.btn_capture.clicked.connect(self.bg.capture)
-        self.btn_live.clicked.connect(self.bg.set_live)
-        self.btn_generate.clicked.connect(self.bg.on_generate)
-        self.btn_clear.clicked.connect(self.bg.clear)
-        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting __init__: return=None")
+    def resizeEvent(self, event) -> None:
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Entering resizeEvent: args={{event:{event}}}")
+        self.bg.setGeometry(0, 0, self.width(), self.height())
+        self.overlay_widget.setGeometry(0, 0, self.width(), self.height())
+        if self.btns:
+            for btn in self.btns.style1_btns + self.btns.style2_btns:
+                btn.raise_()
+        super().resizeEvent(event)
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Exiting resizeEvent: return=None")
 
-    def closeEvent(self, event) -> None:
-        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering closeEvent: args={{event:{event}}}")
-        self.bg.close()
-        super().closeEvent(event)
-        if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting closeEvent: return=None")
+    def setupcontainer(self) -> None:
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Entering setupcontainer: args={{}}")
+        top_bar = QHBoxLayout()
+        logo = QLabel()
+        pix = QPixmap("gui_template/base_window/logo1.png").scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        logo.setPixmap(pix)
+        top_bar.addWidget(logo)
 
-def main() -> None:
-    if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering main: args={{}}")
-    app = QApplication(sys.argv)
-    win = MainWindow()
-    sys.exit(app.exec())
-    if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting main: return=None")
+        self._lang_btn = QPushButton()
+        self._rules_btn = QPushButton()
+        for btn, ico in [(self._lang_btn, "language.png"), (self._rules_btn, "rule_ico.png")]:
+            btn.setStyleSheet(ICON_BUTTON_STYLE)
+            icon = QPixmap(f"gui_template/base_window/{ico}")
+            btn.setIcon(QIcon(icon))
+            btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
+            btn.setFixedSize(INFO_BUTTON_SIZE+16, INFO_BUTTON_SIZE+16)
+            top_bar.addWidget(btn)
+
+        container = QWidget()
+        container.setLayout(top_bar)
+        container.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Exiting setupcontainer: return=None")
+
+    def setup_row_stretches(self) -> None:
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Entering setup_row_stretches: args={{}}")
+        for row, stretch in GRID_ROW_STRETCHES.items():
+            idx = {'title':0,'display':1,'buttons':2}[row]
+            self.overlay_layout.setRowStretch(idx, stretch)
+        if DEBUG_PhotoBoothBaseWidget: print(f"[DEBUG][PhotoBoothBaseWidget] Exiting setup_row_stretches: return=None")
+
+    # ... autres méthodes (clear_buttons, show_loading, etc.) restent inchangées.
 
 if __name__ == '__main__':
-    main()
-
+    app = QApplication(sys.argv)
+    win = BaseWindow()
+    win.showFullScreen()
+    sys.exit(app.exec())

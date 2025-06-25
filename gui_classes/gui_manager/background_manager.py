@@ -1,63 +1,28 @@
 import sys
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QComboBox
 from PySide6.QtCore import Qt, QThread, Signal, QObject, QMutex, QMutexLocker, QTimer
 from PySide6.QtGui import QImage, QPixmap, QPainter, QTransform
-import cv2
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QComboBox
 
-DEBUG_CameraCaptureThread = False#True
+from gui_classes.gui_manager.thread_manager import CameraCaptureThread
+
 DEBUG_BackgroundManager = False
 DEBUG_MainWindow = False
 
-class CameraCaptureThread(QThread):
-    frame_ready = Signal(QImage)
-    RESOLUTIONS = {0: (640, 480), 1: (1280, 720), 2: (1920, 1080), 3: (2560, 1440)}
-
-    def __init__(self, camera_id: int = 0, parent=None):
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering __init__: args={{camera_id:{camera_id}, parent:{parent}}}")
-        super().__init__(parent)
-        self.camera_id = camera_id
-        self._running = True
-        self.cap = None
-        self.current_res = 0
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting __init__: return=None")
-
-    def set_resolution_level(self, level: int) -> None:
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering set_resolution_level: args={{level:{level}}}")
-        if level in self.RESOLUTIONS:
-            self.current_res = level
-            if self.cap and self.cap.isOpened():
-                w, h = self.RESOLUTIONS[level]
-                self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)
-                self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting set_resolution_level: return=None")
-
-    def run(self) -> None:
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering run: args=")
-        self.cap = cv2.VideoCapture(self.camera_id)
-        if not self.cap.isOpened():
-            print(f"[Camera] Impossible d'ouvrir la caméra id={self.camera_id}")
-            if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
-            return
-        self.set_resolution_level(self.current_res)
-        while self._running:
-            ret, frame = self.cap.read()
-            if ret and frame is not None:
-                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, ch = rgb.shape
-                qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
-                self.frame_ready.emit(qimg)
-            self.msleep(33)
-        self.cap.release()
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
-
-    def stop(self) -> None:
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering stop: args=")
-        self._running = False
-        self.wait()
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting stop: return=None")
-
 class BackgroundManager(QObject):
-    def __init__(self, label: QLabel, resolution_level: int = 0, rotation: int = 0, parent=None):
+    """
+    Manages live camera feed, captures, and generated images, rendering them onto a QLabel.
+    """
+
+    def __init__(self, label: QLabel, resolution_level: int = 0, rotation: int = 0, parent=None) -> None:
+        """
+        Inputs:
+            label (QLabel): Widget to render the background.
+            resolution_level (int): Camera resolution preset index.
+            rotation (int): Rotation angle (0, 90, 180, 270).
+            parent: Optional parent QObject.
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering __init__: args={{label:{label}, resolution_level:{resolution_level}, rotation:{rotation}}}")
         super().__init__(parent)
         self.label = label
@@ -75,6 +40,12 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting __init__: return=None")
 
     def set_rotation(self, angle: int) -> None:
+        """
+        Inputs:
+            angle (int): Rotation angle in degrees (0, 90, 180, 270).
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_rotation: args={{angle:{angle}}}")
         if angle in (0, 90, 180, 270):
             with QMutexLocker(self._mutex):
@@ -82,6 +53,12 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_rotation: return=None")
 
     def _on_frame_ready(self, qimg: QImage) -> None:
+        """
+        Inputs:
+            qimg (QImage): New frame from camera.
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering _on_frame_ready: args={{qimg:{qimg}}}")
         pix = QPixmap.fromImage(qimg)
         with QMutexLocker(self._mutex):
@@ -89,18 +66,38 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting _on_frame_ready: return=None")
 
     def set_live(self) -> None:
+        """
+        Inputs:
+            None
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_live: args=")
-        with QMutexLocker(self._mutex): self.current = 'live'
+        with QMutexLocker(self._mutex):
+            self.current = 'live'
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_live: return=None")
 
     def capture(self) -> None:
+        """
+        Inputs:
+            None
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering capture: args=")
         with QMutexLocker(self._mutex):
-            if self.last_camera: self.captured = QPixmap(self.last_camera)
+            if self.last_camera:
+                self.captured = QPixmap(self.last_camera)
             self.current = 'captured'
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting capture: return=None")
 
     def set_generated(self, qimage: QImage) -> None:
+        """
+        Inputs:
+            qimage (QImage): Image to display as generated background.
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_generated: args={{qimage:{qimage}}}")
         with QMutexLocker(self._mutex):
             self.generated = QPixmap.fromImage(qimage)
@@ -108,6 +105,12 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_generated: return=None")
 
     def on_generate(self) -> None:
+        """
+        Inputs:
+            None
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering on_generate: args=")
         w, h = 640, 480
         img = QImage(w, h, QImage.Format_RGB888)
@@ -116,6 +119,12 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting on_generate: return=None")
 
     def clear(self) -> None:
+        """
+        Inputs:
+            None
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering clear: args=")
         with QMutexLocker(self._mutex):
             self.captured = None
@@ -124,67 +133,132 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting clear: return=None")
 
     def get_pixmap(self) -> QPixmap:
+        """
+        Inputs:
+            None
+        Outputs:
+            QPixmap: Appropriate pixmap based on current mode.
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering get_pixmap: args=")
         with QMutexLocker(self._mutex):
-            result = self.generated if self.current=='generated' and self.generated else (self.captured if self.current=='captured' and self.captured else self.last_camera)
+            if self.current == 'generated' and self.generated:
+                result = self.generated
+            elif self.current == 'captured' and self.captured:
+                result = self.captured
+            else:
+                result = self.last_camera
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting get_pixmap: return={result}")
         return result
 
     def render_pixmap(self, pix: QPixmap) -> None:
+        """
+        Inputs:
+            pix (QPixmap): Pixmap to render onto label.
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering render_pixmap: args={{pix:{pix}}}")
         self.label.lower()
         if self.rotation != 0:
             pix = pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)
         lw, lh = self.label.width(), self.label.height()
         ow, oh = pix.width(), pix.height()
-        factor = lh/oh; nw = int(ow*factor)
+        factor = lh / oh
+        nw = int(ow * factor)
         scaled = pix.scaled(nw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
         if nw < lw:
-            result = QPixmap(lw, lh); result.fill(Qt.black)
-            p = QPainter(result); x=(lw-nw)//2; p.drawPixmap(x,0,scaled); p.end()
+            result = QPixmap(lw, lh)
+            result.fill(Qt.black)
+            p = QPainter(result)
+            x = (lw - nw) // 2
+            p.drawPixmap(x, 0, scaled)
+            p.end()
         else:
-            x=(nw-lw)//2; result = scaled.copy(x,0,lw,lh)
+            x = (nw - lw) // 2
+            result = scaled.copy(x, 0, lw, lh)
         grad = QPixmap("./gui_template/Gradient_1.png")
         if not grad.isNull():
-            gs = grad.scaled(lw,lh,Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
-            p = QPainter(result); p.setOpacity(1.0); p.drawPixmap(0,0,gs); p.end()
+            gs = grad.scaled(lw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            p2 = QPainter(result)
+            p2.setOpacity(1.0)
+            p2.drawPixmap(0, 0, gs)
+            p2.end()
         self.label.setPixmap(result)
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting render_pixmap: return=None")
 
     def update_background(self) -> None:
+        """
+        Inputs:
+            None
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering update_background: args=")
         pix = self.get_pixmap()
-        if pix: self.render_pixmap(pix)
+        if pix:
+            self.render_pixmap(pix)
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting update_background: return=None")
 
     def close(self) -> None:
+        """
+        Inputs:
+            None
+        Outputs:
+            None
+        """
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering close: args=")
         self.thread.stop()
+        self.thread.wait()
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting close: return=None")
 
 # class MainWindow(QWidget):
-#     def __init__(self):
+#     """
+#     Main application window with controls for BackgroundManager.
+#     """
+
+#     def __init__(self) -> None:
+#         """
+#         Inputs:
+#             None
+#         Outputs:
+#             None
+#         """
 #         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering __init__: args=")
 #         super().__init__()
 #         self.setWindowTitle("Demo Background Manager")
 #         self.showFullScreen()
+
 #         self.label = QLabel(alignment=Qt.AlignCenter)
 #         self.combo_res = QComboBox()
 #         self.combo_res.addItems(["Low", "HD 720p", "Full HD", "2K"])
-#         self.combo_rot = QComboBox(); self.combo_rot.addItems(["0°","90°","180°","270°"])
-#         self.btn_capture = QPushButton("Capture"); self.btn_live = QPushButton("Live")
-#         self.btn_generate = QPushButton("Générer image"); self.btn_clear = QPushButton("Clear")
-#         ctrl = QHBoxLayout(); ctrl.addWidget(self.combo_res); ctrl.addWidget(self.combo_rot)
-#         for btn in (self.btn_capture,self.btn_live,self.btn_generate,self.btn_clear): ctrl.addWidget(btn)
-#         layout = QVBoxLayout(self); layout.addWidget(self.label); layout.addLayout(ctrl)
-#         init_rot = self.combo_rot.currentIndex()*90
+#         self.combo_rot = QComboBox()
+#         self.combo_rot.addItems(["0°", "90°", "180°", "270°"])
+
+#         self.btn_capture = QPushButton("Capture")
+#         self.btn_live = QPushButton("Live")
+#         self.btn_generate = QPushButton("Generate Image")
+#         self.btn_clear = QPushButton("Clear")
+
+#         ctrl = QHBoxLayout()
+#         ctrl.addWidget(self.combo_res)
+#         ctrl.addWidget(self.combo_rot)
+#         for btn in (self.btn_capture, self.btn_live, self.btn_generate, self.btn_clear):
+#             ctrl.addWidget(btn)
+
+#         layout = QVBoxLayout(self)
+#         layout.addWidget(self.label)
+#         layout.addLayout(ctrl)
+
+#         init_rot = self.combo_rot.currentIndex() * 90
 #         self.bg = BackgroundManager(self.label, resolution_level=self.combo_res.currentIndex(), rotation=init_rot)
-#         self.combo_rot.currentIndexChanged.connect(lambda idx: self.bg.set_rotation(idx*90))
+
+#         self.combo_rot.currentIndexChanged.connect(lambda idx: self.bg.set_rotation(idx * 90))
 #         self.combo_res.currentIndexChanged.connect(lambda idx: self.bg.thread.set_resolution_level(idx))
 #         self.btn_capture.clicked.connect(self.bg.capture)
 #         self.btn_live.clicked.connect(self.bg.set_live)
 #         self.btn_generate.clicked.connect(self.bg.on_generate)
 #         self.btn_clear.clicked.connect(self.bg.clear)
+
 #         self.timer = QTimer(self)
 #         self.timer.setInterval(33)
 #         self.timer.timeout.connect(self.bg.update_background)
@@ -192,18 +266,32 @@ class BackgroundManager(QObject):
 #         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting __init__: return=None")
 
 #     def closeEvent(self, event) -> None:
+#         """
+#         Inputs:
+#             event: QCloseEvent
+#         Outputs:
+#             None
+#         """
 #         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering closeEvent: args={{event:{event}}}")
 #         self.timer.stop()
 #         self.bg.close()
 #         super().closeEvent(event)
 #         if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting closeEvent: return=None")
 
+
 # def main() -> None:
+#     """
+#     Inputs:
+#         None
+#     Outputs:
+#         None
+#     """
 #     if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Entering main: args=")
 #     app = QApplication(sys.argv)
 #     win = MainWindow()
 #     sys.exit(app.exec())
 #     if DEBUG_MainWindow: print(f"[DEBUG][MainWindow] Exiting main: return=None")
+
 
 # if __name__ == '__main__':
 #     main()

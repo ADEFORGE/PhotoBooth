@@ -1,19 +1,19 @@
-from gui_classes.gui_object.overlay import OverlayCountdown, OverlayLoading
-from gui_classes.gui_object.toolbox import ImageUtils
-from PySide6.QtCore import QObject, QThread, Signal, QTimer
-from PySide6.QtGui import QImage
-from PySide6.QtWidgets import QApplication
-from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
-import os
-import glob
-import cv2
-import time
-
 DEBUG_CountdownThread = False
 DEBUG_Thread = False
 DEBUG_ImageGenerationThread = False
 DEBUG_ImageGenerationWorker = False
-DEBUG_CameraCaptureThread = True
+DEBUG_CameraCaptureThread = False
+
+import os
+import glob
+import time
+import cv2
+from PySide6.QtCore import Qt, QObject, QThread, Signal, QTimer
+from PySide6.QtGui import QImage, QPixmap, QPainter, QTransform
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QComboBox
+from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
+from gui_classes.gui_object.overlay import OverlayCountdown, OverlayLoading
+from gui_classes.gui_object.toolbox import ImageUtils
 
 class CountdownThread(QObject):
     overlay_finished = Signal()
@@ -22,19 +22,25 @@ class CountdownThread(QObject):
         tick = Signal(int)
         finished = Signal()
 
-        # Inputs: start (int)
-        # Outputs: emits tick and finished signals
-        def __init__(self, start):
-            if DEBUG_Thread: print(f"[DEBUG][Thread] Entering __init__: args={(start,)}")
+        def __init__(self, start: int):
+            """
+            Inputs:
+                start (int)
+            Outputs:
+                emits tick(int) and finished()
+            """
+            if DEBUG_Thread: print(f"[DEBUG][Thread] Entering __init__: args={{(start,)}}")
             super().__init__()
             self._start = start
             self._running = True
             self._finished_emitted = False
             if DEBUG_Thread: print(f"[DEBUG][Thread] Exiting __init__: return=None")
 
-        # Inputs: none
-        # Outputs: emits tick(count) every second, emits finished at end
-        def run(self):
+        def run(self) -> None:
+            """
+            Inputs: none
+            Outputs: emits tick(count) every second; emits finished() at end
+            """
             if DEBUG_Thread: print(f"[DEBUG][Thread] Entering run: args=()")
             count = self._start
             while self._running and count >= 0:
@@ -46,17 +52,23 @@ class CountdownThread(QObject):
                 self.finished.emit()
             if DEBUG_Thread: print(f"[DEBUG][Thread] Exiting run: return=None")
 
-        # Inputs: none
-        # Outputs: stops the loop
-        def stop(self):
+        def stop(self) -> None:
+            """
+            Inputs: none
+            Outputs: stops the loop
+            """
             if DEBUG_Thread: print(f"[DEBUG][Thread] Entering stop: args=()")
             self._running = False
             if DEBUG_Thread: print(f"[DEBUG][Thread] Exiting stop: return=None")
 
-    # Inputs: parent (QObject), count (int)
-    # Outputs: initializes countdown
-    def __init__(self, parent=None, count=None):
-        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering __init__: args={(parent, count)}")
+    def __init__(self, parent: QObject = None, count: int = 0):
+        """
+        Inputs:
+            parent (QObject), count (int)
+        Outputs:
+            initializes countdown thread and overlay
+        """
+        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering __init__: args={{(parent, count)}}")
         super().__init__(parent)
         self._parent = parent
         self._count = count
@@ -65,11 +77,15 @@ class CountdownThread(QObject):
         self._user_callback = None
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting __init__: return=None")
 
-    # Inputs: count (int), on_finished (callable)
-    # Outputs: starts countdown thread and overlay
-    def start_countdown(self, count=None, on_finished=None):
-        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering start_countdown: args={(count, on_finished)}")
-        if self._thread is not None:
+    def start_countdown(self, count: int = None, on_finished: callable = None) -> None:
+        """
+        Inputs:
+            count (int), on_finished (callable)
+        Outputs:
+            starts countdown, shows overlay
+        """
+        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering start_countdown: args={{(count, on_finished)}}")
+        if self._thread:
             if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting start_countdown: return=None")
             return
         if count is not None:
@@ -83,17 +99,25 @@ class CountdownThread(QObject):
         self._thread.start()
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting start_countdown: return=None")
 
-    # Inputs: count (int)
-    # Outputs: updates overlay number
-    def _on_tick(self, count):
-        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering _on_tick: args={(count,)}")
+    def _on_tick(self, count: int) -> None:
+        """
+        Inputs:
+            count (int)
+        Outputs:
+            updates overlay number
+        """
+        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering _on_tick: args={{(count,)}}")
         if self._overlay and getattr(self._overlay, '_is_alive', True):
-            self._overlay.show_number(count) if hasattr(self._overlay, 'show_number') else None
+            if hasattr(self._overlay, 'show_number'):
+                self._overlay.show_number(count)
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting _on_tick: return=None")
 
-    # Inputs: none
-    # Outputs: cleans overlay and thread, emits overlay_finished, calls user callback
-    def _on_finish(self):
+    def _on_finish(self) -> None:
+        """
+        Inputs: none
+        Outputs:
+            cleans up overlay and thread, emits overlay_finished, calls callback
+        """
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering _on_finish: args=()")
         if self._overlay and getattr(self._overlay, '_is_alive', True):
             self._overlay.clean_overlay()
@@ -109,9 +133,11 @@ class CountdownThread(QObject):
             self._user_callback = None
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting _on_finish: return=None")
 
-    # Inputs: none
-    # Outputs: stops and deletes thread and overlay
-    def stop_countdown(self):
+    def stop_countdown(self) -> None:
+        """
+        Inputs: none
+        Outputs: stops countdown and removes overlay
+        """
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering stop_countdown: args=()")
         if self._thread:
             self._thread.stop()
@@ -123,17 +149,20 @@ class CountdownThread(QObject):
         self._overlay = None
         if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Exiting stop_countdown: return=None")
 
-    # Inputs: reason (any)
-    # Outputs: forcibly clears overlay
-    def clear_overlay(self, reason=None):
-        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering clear_overlay: args={(reason,)}")
+    def clear_overlay(self, reason: any = None) -> None:
+        """
+        Inputs:
+            reason (any)
+        Outputs: clears overlay forcibly
+        """
+        if DEBUG_CountdownThread: print(f"[DEBUG][CountdownThread] Entering clear_overlay: args={{(reason,)}}")
         if self._overlay:
             try:
                 self._overlay.blockSignals(True)
                 if hasattr(self._overlay, '_anim_timer'):
                     self._overlay._anim_timer.stop()
                     self._overlay._anim_timer.timeout.disconnect()
-            except:
+            except Exception:
                 pass
             self._overlay.clean_overlay()
         self._overlay = None
@@ -142,10 +171,13 @@ class CountdownThread(QObject):
 class ImageGenerationThread(QObject):
     finished = Signal(object)
 
-    # Inputs: style (any), input_image (QImage), parent (QObject)
-    # Outputs: initializes API wrapper and state
-    def __init__(self, style, input_image, parent=None):
-        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering __init__: args={(style, input_image, parent)}")
+    def __init__(self, style: any, input_image: QImage, parent: QObject = None):
+        """
+        Inputs:
+            style (any), input_image (QImage), parent (QObject)
+        Outputs: initializes API wrapper and state
+        """
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering __init__: args={{(style, input_image, parent)}}")
         super().__init__(parent)
         self.api = ImageGeneratorAPIWrapper()
         self.input_image = input_image
@@ -156,9 +188,11 @@ class ImageGenerationThread(QObject):
         self._loading_overlay = None
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting __init__: return=None")
 
-    # Inputs: none
-    # Outputs: shows loading overlay
-    def show_loading(self):
+    def show_loading(self) -> None:
+        """
+        Inputs: none
+        Outputs: displays loading overlay
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering show_loading: args=()")
         for widget in QApplication.allWidgets():
             if widget.__class__.__name__ == "OverlayLoading" and widget is not self._loading_overlay:
@@ -178,9 +212,11 @@ class ImageGenerationThread(QObject):
             self._loading_overlay.raise_()
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting show_loading: return=None")
 
-    # Inputs: none
-    # Outputs: hides and deletes loading overlay
-    def hide_loading(self):
+    def hide_loading(self) -> None:
+        """
+        Inputs: none
+        Outputs: hides and deletes loading overlay
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering hide_loading: args=()")
         if self._loading_overlay:
             try:
@@ -190,7 +226,7 @@ class ImageGenerationThread(QObject):
                 parent = self._loading_overlay.parent()
                 if parent and hasattr(parent, "layout") and parent.layout():
                     parent.layout().removeWidget(self._loading_overlay)
-            except:
+            except Exception:
                 pass
             self._loading_overlay.hide()
             self._loading_overlay.setVisible(False)
@@ -200,9 +236,11 @@ class ImageGenerationThread(QObject):
             self._loading_overlay = None
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting hide_loading: return=None")
 
-    # Inputs: none
-    # Outputs: cleans thread resources
-    def clean(self):
+    def clean(self) -> None:
+        """
+        Inputs: none
+        Outputs: stops and deletes thread and worker
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering clean: args=()")
         self.stop()
         if self._thread:
@@ -216,9 +254,11 @@ class ImageGenerationThread(QObject):
                 QTimer.singleShot(0, self._delete_thread_safe)
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting clean: return=None")
 
-    # Inputs: none
-    # Outputs: deletes thread safely in main thread
-    def _delete_thread_safe(self):
+    def _delete_thread_safe(self) -> None:
+        """
+        Inputs: none
+        Outputs: deletes thread safely in main thread
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _delete_thread_safe: args=()")
         if self._thread and QThread.currentThread() != self._thread:
             self._thread.quit()
@@ -227,24 +267,28 @@ class ImageGenerationThread(QObject):
             self._thread = None
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting _delete_thread_safe: return=None")
 
-    # Inputs: none
-    # Outputs: starts image generation in background thread
-    def start(self):
+    def start(self) -> None:
+        """
+        Inputs: none
+        Outputs: starts background generation and shows loading
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering start: args=()")
         if self._thread and self._thread.isRunning():
             if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting start: return=None")
             return
-
         self.show_loading()
         self._thread = QThread()
 
         class ImageGenerationWorker(QObject):
             finished = Signal(object)
 
-            # Inputs: api, style, input_image
-            # Outputs: emits QImage or None
-            def __init__(self, api, style, input_image):
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering __init__: args={(api, style, input_image)}")
+            def __init__(self, api: ImageGeneratorAPIWrapper, style: any, input_image: QImage):
+                """
+                Inputs:
+                    api (ImageGeneratorAPIWrapper), style (any), input_image (QImage)
+                Outputs: initializes worker
+                """
+                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering __init__: args={{(api, style, input_image)}}")
                 super().__init__()
                 self.api = api
                 self.style = style
@@ -252,9 +296,11 @@ class ImageGenerationThread(QObject):
                 self._running = True
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting __init__: return=None")
 
-            # Inputs: none
-            # Outputs: emits generated QImage or None
-            def run(self):
+            def run(self) -> None:
+                """
+                Inputs: none
+                Outputs: emits generated QImage or None
+                """
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering run: args=()")
                 try:
                     self.api.set_style(self.style)
@@ -284,18 +330,18 @@ class ImageGenerationThread(QObject):
                         return
                     qimg = ImageUtils.cv_to_qimage(img)
                     inp = os.path.abspath("../ComfyUI/input/input.png")
-                    if os.path.exists(inp):
-                        os.remove(inp)
-                    if os.path.exists(latest):
-                        os.remove(latest)
+                    if os.path.exists(inp): os.remove(inp)
+                    if os.path.exists(latest): os.remove(latest)
                     self.finished.emit(qimg)
-                except:
+                except Exception:
                     self.finished.emit(None)
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
 
-            # Inputs: none
-            # Outputs: flags stop
-            def stop(self):
+            def stop(self) -> None:
+                """
+                Inputs: none
+                Outputs: flags stop
+                """
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering stop: args=()")
                 self._running = False
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting stop: return=None")
@@ -307,10 +353,13 @@ class ImageGenerationThread(QObject):
         self._thread.start()
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting start: return=None")
 
-    # Inputs: result (QImage or None)
-    # Outputs: emits finished, cleans thread and worker, hides overlay
-    def _on_worker_finished(self, result):
-        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _on_worker_finished: args={(result,)}")
+    def _on_worker_finished(self, result: QImage) -> None:
+        """
+        Inputs:
+            result (QImage or None)
+        Outputs: emits finished, cleans resources, hides loading
+        """
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _on_worker_finished: args={{(result,)}}")
         self.finished.emit(result)
         if self._thread:
             if self._thread.isRunning():
@@ -324,15 +373,19 @@ class ImageGenerationThread(QObject):
         self.hide_loading()
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting _on_worker_finished: return=None")
 
-    # Inputs: none
-    # Outputs: no operation
-    def _on_thread_finished_hide_overlay(self):
+    def _on_thread_finished_hide_overlay(self) -> None:
+        """
+        Inputs: none
+        Outputs: placeholder no-op
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering _on_thread_finished_hide_overlay: args=()")
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting _on_thread_finished_hide_overlay: return=None")
 
-    # Inputs: none
-    # Outputs: stops worker and thread, hides overlay
-    def stop(self):
+    def stop(self) -> None:
+        """
+        Inputs: none
+        Outputs: stops worker and thread, hides loading
+        """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering stop: args=()")
         self._running = False
         if self._thread:
@@ -351,8 +404,13 @@ class CameraCaptureThread(QThread):
     frame_ready = Signal(QImage)
     RESOLUTIONS = {0: (640, 480), 1: (1280, 720), 2: (1920, 1080), 3: (2560, 1440)}
 
-    def __init__(self, camera_id: int = 0, parent=None):
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering __init__: args={{camera_id:{camera_id}, parent:{parent}}}")
+    def __init__(self, camera_id: int = 0, parent: QObject = None):
+        """
+        Inputs:
+            camera_id (int), parent (QObject)
+        Outputs: initializes camera capture thread
+        """
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering __init__: args={{(camera_id, parent)}}")
         super().__init__(parent)
         self.camera_id = camera_id
         self._running = True
@@ -361,7 +419,12 @@ class CameraCaptureThread(QThread):
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting __init__: return=None")
 
     def set_resolution_level(self, level: int) -> None:
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering set_resolution_level: args={{level:{level}}}")
+        """
+        Inputs:
+            level (int)
+        Outputs: applies new resolution if valid
+        """
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering set_resolution_level: args={{(level,)}}")
         if level in self.RESOLUTIONS:
             self.current_res = level
             if self.cap and self.cap.isOpened():
@@ -371,10 +434,14 @@ class CameraCaptureThread(QThread):
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting set_resolution_level: return=None")
 
     def run(self) -> None:
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering run: args={{}}")
+        """
+        Inputs: none
+        Outputs: emits frame_ready(QImage) until stopped
+        """
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering run: args=()")
         self.cap = cv2.VideoCapture(self.camera_id)
         if not self.cap.isOpened():
-            print(f"[Camera] Impossible d'ouvrir la caméra id={self.camera_id}")
+            print(f"[Camera] Cannot open camera id={self.camera_id}")
             if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
             return
         self.set_resolution_level(self.current_res)
@@ -390,7 +457,11 @@ class CameraCaptureThread(QThread):
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
 
     def stop(self) -> None:
-        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering stop: args={{}}")
+        """
+        Inputs: none
+        Outputs: stops capture and waits thread end
+        """
+        if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering stop: args=()")
         self._running = False
         self.wait()
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting stop: return=None")

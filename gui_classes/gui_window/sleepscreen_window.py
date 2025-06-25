@@ -1,27 +1,18 @@
-import os
-import json
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QResizeEvent, QShowEvent, QHideEvent
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from gui_classes.gui_window.base_window import BaseWindow
 from gui_classes.gui_manager.language_manager import language_manager
-from gui_classes.gui_object.btn import Btns
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QResizeEvent
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
-from gui_classes.gui_object.constante import TITLE_LABEL_STYLE, GRID_WIDTH
+from gui_classes.gui_object.constante import GRID_WIDTH
 
-DEBUG_SleepScreenWindow = False
+DEBUG_SleepScreenWindow: bool = False
 
 class SleepScreenWindow(BaseWindow):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget = None) -> None:
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Entering __init__: args={{'parent':{parent}}}")
         super().__init__(parent)
-        ui_texts_path = os.path.join(os.path.dirname(__file__), '..', 'ui_texts.json')
-        try:
-            with open(ui_texts_path, 'r', encoding='utf-8') as f:
-                all_ui_texts = json.load(f)
-            self._default_texts = all_ui_texts.get('WelcomeWidget', {})
-        except Exception:
-            self._default_texts = {}
+        self._default_texts = language_manager.get_texts('WelcomeWidget') or {}
         self.setWindowTitle("PhotoBooth - Veille")
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background: transparent;")
@@ -72,7 +63,7 @@ class SleepScreenWindow(BaseWindow):
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Exiting resizeEvent: return=None")
 
-    def showEvent(self, event) -> None:
+    def showEvent(self, event: QShowEvent) -> None:
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Entering showEvent: args={{'event':{event}}}")
         super().showEvent(event)
@@ -83,7 +74,7 @@ class SleepScreenWindow(BaseWindow):
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Exiting showEvent: return=None")
 
-    def hideEvent(self, event) -> None:
+    def hideEvent(self, event: QHideEvent) -> None:
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Entering hideEvent: args={{'event':{event}}}")
         super().hideEvent(event)

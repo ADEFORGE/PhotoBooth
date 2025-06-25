@@ -12,7 +12,7 @@ from gui_classes.gui_object.toolbox import QRCodeUtils
 from PySide6.QtWidgets import QToolTip, QApplication
 import re
 
-class PhotoBooth(BaseWindow):
+class MainWindow(BaseWindow):
     def __init__(self, parent=None):
         if DEBUG_PhotoBooth:
             print(f"[DEBUG][PhotoBooth] Entering __init__: args={{'parent':{parent}}}")

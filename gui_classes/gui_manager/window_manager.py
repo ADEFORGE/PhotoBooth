@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QApplication
 from PySide6.QtGui import QResizeEvent
 from PySide6.QtCore import Qt, QTimer
-from gui_classes.photobooth import PhotoBooth
-from gui_classes.sleepscreen_window import SleepScreenWindow
-from gui_classes.scroll_widget import ScrollOverlay
-from constante import WINDOW_STYLE, DEBUG
+from gui_classes.gui_window.main_window import MainWindow
+from gui_classes.gui_window.sleepscreen_window import SleepScreenWindow
+from gui_classes.gui_object.scroll_widget import ScrollOverlay
+from gui_classes.gui_object.constante import WINDOW_STYLE, DEBUG
 import sys
 
 DEBUG_WindowManager = False
@@ -42,7 +42,7 @@ class WindowManager(QWidget):
         layout.addWidget(self.stack)
         self.widgets = {
             0: SleepScreenWindow(self),
-            1: PhotoBooth(self)
+            1: MainWindow(self)
         }
         for w in self.widgets.values():
             self.stack.addWidget(w)

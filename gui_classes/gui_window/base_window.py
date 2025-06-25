@@ -6,8 +6,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize
 from gui_classes.gui_object.overlay import (
-    OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang, UI_TEXTS
-)
+    OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang)
 from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
 from gui_classes.gui_object.constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,

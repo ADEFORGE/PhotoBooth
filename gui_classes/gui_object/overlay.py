@@ -2,14 +2,15 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QHBoxLayout, QPushButton, QTextEdit, QSizePolicy, QGraphicsBlurEffect, QApplication
 from PySide6.QtCore import Qt, QSize, QEvent, QThread, Signal, QObject, QTimer
 from PySide6.QtGui import QMovie, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QPainterPath
-from constante import DIALOG_BOX_STYLE, FIRST_BUTTON_STYLE
-from gui_classes.btn import Btns
-from gui_classes.toolbox import normalize_btn_name
+from gui_classes.gui_object.constante import DIALOG_BOX_STYLE, FIRST_BUTTON_STYLE
+from gui_classes.gui_object.btn import Btns
+from gui_classes.gui_object.toolbox import normalize_btn_name,LoadingBar
 import json
 import os
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QApplication
 from PySide6.QtCore import Qt, QTimer
-from gui_classes.toolbox import LoadingBar
+from gui_classes.gui_object.constante import TITLE_LABEL_STYLE, GRID_WIDTH
+from gui_classes.gui_manager.language_manager import language_manager
 
 class Overlay(QWidget):
     def __init__(self, parent=None, center_on_screen=True):
@@ -289,8 +290,6 @@ class OverlayLoading(OverlayWhite):
 class OverlayRules(OverlayWhite):
     def __init__(self, parent=None, on_validate=None, on_close=None):
         super().__init__(parent)
-        from constante import GRID_WIDTH
-        from gui_classes.language_manager import language_manager
         self.setFixedSize(700, 540)
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
@@ -330,7 +329,7 @@ class OverlayRules(OverlayWhite):
         self.update_language()
 
     def update_language(self):
-        from gui_classes.language_manager import language_manager
+
         rules_texts = language_manager.get_texts("OverlayRules")
         self.title_label.setText(rules_texts.get("title", ""))
         self.msg_label.setText(rules_texts.get("message", ""))
@@ -347,15 +346,12 @@ class OverlayRules(OverlayWhite):
             self.hide_overlay()
 
     def closeEvent(self, event):
-        from gui_classes.language_manager import language_manager
         language_manager.unsubscribe(self.update_language)
         super().closeEvent(event)
 
 class OverlayQrcode(OverlayWhite):
     def __init__(self, parent=None, qimage=None, on_close=None):
         super().__init__(parent)
-        from constante import TITLE_LABEL_STYLE, GRID_WIDTH
-        from gui_classes.language_manager import language_manager
         self.setFixedSize(700, 540)
         self.overlay_widget = QWidget(self)
         self.overlay_layout = QGridLayout(self.overlay_widget)
@@ -406,7 +402,6 @@ class OverlayQrcode(OverlayWhite):
         self.update_language()
 
     def update_language(self):
-        from gui_classes.language_manager import language_manager
         qr_texts = language_manager.get_texts("OverlayQrcode")
         self.title_label.setText(qr_texts.get("title", ""))
         self.msg_label.setText(qr_texts.get("message", ""))
@@ -417,7 +412,6 @@ class OverlayQrcode(OverlayWhite):
         self.hide_overlay()
 
     def closeEvent(self, event):
-        from gui_classes.language_manager import language_manager
         language_manager.unsubscribe(self.update_language)
         super().closeEvent(event)
 
@@ -611,6 +605,5 @@ class OverlayLang(OverlayGray):
         self.setLayout(layout)
 
     def _on_lang_btn(self, lang_code):
-        from gui_classes.language_manager import language_manager
         language_manager.load_language(lang_code)
         self.hide_overlay()

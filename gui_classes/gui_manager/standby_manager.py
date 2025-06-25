@@ -1,6 +1,6 @@
 # standby_manager.py
 from PySide6.QtCore import QTimer
-from constante import DEBUG, SLEEP_TIMER_SECONDS
+from gui_classes.gui_object.constante import DEBUG, SLEEP_TIMER_SECONDS
 
 class StandbyManager:
     def __init__(self, main_window):
@@ -27,7 +27,6 @@ class StandbyManager:
             print(f"[STANDBY_MANAGER] Timer duration set to {self._duration}s")
 
     def set_timer_from_constante(self):
-        from constante import SLEEP_TIMER_SECONDS
         self._duration = SLEEP_TIMER_SECONDS
         if DEBUG:
             print(f"[STANDBY_MANAGER] Timer duration set from constante: {self._duration}s")

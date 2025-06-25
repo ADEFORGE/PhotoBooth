@@ -1,5 +1,5 @@
-from gui_classes.overlay import OverlayCountdown, OverlayLoading
-from gui_classes.toolbox import ImageUtils
+from gui_classes.gui_object.overlay import OverlayCountdown, OverlayLoading
+from gui_classes.gui_object.toolbox import ImageUtils
 from PySide6.QtCore import QObject, QThread, Signal, QTimer
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication

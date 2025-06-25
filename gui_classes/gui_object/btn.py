@@ -5,8 +5,8 @@ import os
 from PIL import Image, ImageQt
 import io
 
-from constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
-from gui_classes.standby_manager import StandbyManager
+from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
+from gui_classes.gui_manager.standby_manager import StandbyManager
 
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:

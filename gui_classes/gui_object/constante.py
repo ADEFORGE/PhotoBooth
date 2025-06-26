@@ -37,7 +37,7 @@ COLORS = {
 }
 
 try:
-    from config_local import CAMERA_ID
+    from config_local import CAMERA_ID # type: ignore
 except ImportError:
     CAMERA_ID = 0  # Valeur par défaut si pas de config locale
 

@@ -514,6 +514,11 @@ class ScrollOverlay(QWidget):
             angle=15
         )
         layout.addWidget(self.scroll_widget)
+        self.gradient_label = QLabel(self)
+        self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.gradient_label.setStyleSheet("background: transparent;")
+        self.gradient_label.setVisible(True)
+        self._set_gradient_pixmap()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting __init__: return=None")
 
@@ -523,8 +528,23 @@ class ScrollOverlay(QWidget):
         if self.parent():
             self.setGeometry(0, 0, self.parent().width(), self.parent().height())
         super().resizeEvent(event)
+        self._resize_gradient()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting resizeEvent: return=None")
+
+    def _set_gradient_pixmap(self, path="gui_template/gradient/gradient_0.png"):
+        pixmap = QPixmap(path)
+        if not pixmap.isNull():
+            self.gradient_label.setPixmap(pixmap.scaled(self.width(), self.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+            self.gradient_label.setGeometry(0, 0, self.width(), self.height())
+            self.gradient_label.raise_()
+
+    def _resize_gradient(self):
+        pixmap = self.gradient_label.pixmap()
+        if pixmap:
+            self.gradient_label.setPixmap(pixmap.scaled(self.width(), self.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+            self.gradient_label.setGeometry(0, 0, self.width(), self.height())
+            self.gradient_label.raise_()
 
     def raise_overlay(self, on_raised=None):
         if DEBUG_ScrollOverlay:

@@ -2,7 +2,7 @@ import os
 import json
 from typing import Callable, List, Dict, Any
 
-DEBUG_LanguageManager = True
+DEBUG_LanguageManager = False
 
 class LanguageManager:
     _instance = None

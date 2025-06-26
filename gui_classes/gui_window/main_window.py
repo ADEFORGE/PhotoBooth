@@ -1,4 +1,4 @@
-DEBUG_MainWindow = True
+DEBUG_MainWindow = False
 
 from PySide6.QtCore import Qt, QEvent
 from PySide6.QtGui import QPainter, QColor, QImage
@@ -146,6 +146,14 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering _after_countdown_finish: args={{}}")
         self.clean()
+        # Prendre la photo via le background_manager et la stocker dans original_photo
+        if hasattr(self, 'background_manager'):
+            self.background_manager.capture()
+            pixmap = self.background_manager.get_background_image()
+            if pixmap is not None and not pixmap.isNull():
+                self.original_photo = pixmap.toImage()
+            else:
+                self.original_photo = None
         if getattr(self, 'selected_style', None) and not self._generation_in_progress and self.original_photo:
             self.start(self.selected_style, self.original_photo)
         if DEBUG_MainWindow:
@@ -230,7 +238,10 @@ class MainWindow(BaseWindow):
                 btn.show()
                 btn.setEnabled(True)
         self.bg_label.lower()
-        self.background_manager.update_background()
+        # Remettre le retour caméra (mode live)
+        if hasattr(self, 'background_manager'):
+            self.background_manager.set_live()
+            self.background_manager.update_background()
         if self.standby_manager:
             self.standby_manager.set_timer_from_constante()
             self.standby_manager.start_standby_timer()

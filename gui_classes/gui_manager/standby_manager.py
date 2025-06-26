@@ -1,7 +1,7 @@
 from PySide6.QtCore import QTimer
 from gui_classes.gui_object.constante import DEBUG, SLEEP_TIMER_SECONDS
 
-DEBUG_StandbyManager = True
+DEBUG_StandbyManager = False
 
 class StandbyManager:
     def __init__(self, main_window):

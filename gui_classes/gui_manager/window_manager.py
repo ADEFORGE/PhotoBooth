@@ -9,16 +9,36 @@ DEBUG_TimerUpdateDisplay = False
 DEBUG_WindowManager = False
 
 class TimerUpdateDisplay:
-    def __init__(self, window_manager: QWidget, interval_ms: int = 1000 // 60) -> None:
+    def __init__(self, window_manager: QWidget, fps: int = 60) -> None:
         if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Entering __init__: args={{'window_manager':{window_manager}, 'interval_ms':{interval_ms}}}")
+            print(f"[DEBUG][TimerUpdateDisplay] Entering __init__: args={{'window_manager':{window_manager}, 'fps':{fps}}}")
         self.window_manager = window_manager
+        interval_ms = int(1000 / fps) if fps > 0 else 1000 // 60
         self._timer = QTimer(self.window_manager)
         self._timer.setInterval(interval_ms)
         self._timer.timeout.connect(self.update_frame)
         self._timer.start()
+        self._fps = fps if fps > 0 else 60
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting __init__: return=None")
+
+    def set_fps(self, fps: int) -> None:
+        """
+        Change dynamiquement le nombre de FPS du timer d'affichage.
+        """
+        if fps <= 0:
+            fps = 60
+        interval_ms = int(1000 / fps)
+        self._timer.setInterval(interval_ms)
+        self._fps = fps
+        if DEBUG_TimerUpdateDisplay:
+            print(f"[DEBUG][TimerUpdateDisplay] FPS changed to {fps} (interval {interval_ms} ms)")
+
+    def get_fps(self) -> int:
+        """
+        Retourne le FPS courant du timer.
+        """
+        return self._fps
 
     def update_frame(self) -> None:
         if DEBUG_TimerUpdateDisplay:
@@ -55,7 +75,7 @@ class WindowManager(QWidget):
         self.scroll_overlay = ScrollOverlay(self)
         self.scroll_overlay.hide_overlay()
         self.set_view(0, initial=True)
-        self.display_timer = TimerUpdateDisplay(self)
+        self.display_timer = TimerUpdateDisplay(self, fps=60)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 

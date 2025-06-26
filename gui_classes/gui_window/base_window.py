@@ -12,7 +12,7 @@ from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
 from gui_classes.gui_object.constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
-    ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE
+    ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE, HUD_SIZE_RATIO, SHOW_LOGOS
 )
 from gui_classes.gui_object.btn import Btns
 
@@ -116,10 +116,13 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Entering setup_logo: args={{}}")
         layout = QVBoxLayout()
+        screen = QApplication.primaryScreen()
+        screen_height = screen.size().height() if screen else 1080
+        logo_size = int(screen_height * HUD_SIZE_RATIO)
         for path in ("gui_template/base_window/logo1.png", "gui_template/base_window/logo2.png"):
             lbl = QLabel()
             pix = QPixmap(path)
-            lbl.setPixmap(pix.scaled(LOGO_SIZE, LOGO_SIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            lbl.setPixmap(pix.scaled(logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             lbl.setAttribute(Qt.WA_TranslucentBackground)
             lbl.setStyleSheet("background: rgba(0,0,0,0);")
             layout.addWidget(lbl)
@@ -134,19 +137,39 @@ class BaseWindow(QWidget):
     def setup_interaction_btn(self) -> QWidget:
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Entering setup_interaction_btn: args={{}}")
+        screen = QApplication.primaryScreen()
+        screen_height = screen.size().height() if screen else 1080
+        btn_size = int(screen_height * HUD_SIZE_RATIO)
+        # Style dynamique pour la taille du bouton
+        btn_style = (
+            f"QPushButton {{"
+            f"background-color: rgba(180,180,180,0.35);"
+            f"border: 2px solid #bbb;"
+            f"border-radius: 24px;"
+            f"min-width: {btn_size}px; min-height: {btn_size}px;"
+            f"max-width: {btn_size}px; max-height: {btn_size}px;"
+            f"}}"
+            f"QPushButton:hover {{"
+            f"border: 2.5px solid white;"
+            f"}}"
+            f"QPushButton:pressed {{"
+            f"background-color: rgba(220,220,220,0.55);"
+            f"border: 3px solid #eee;"
+            f"}}"
+        )
         lang_btn = QPushButton()
-        lang_btn.setStyleSheet(ICON_BUTTON_STYLE)
+        lang_btn.setStyleSheet(btn_style)
         lang_btn.setIcon(QIcon(QPixmap("gui_template/base_window/language.png")))
-        lang_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
-        lang_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
+        lang_btn.setIconSize(QSize(btn_size, btn_size))
+        lang_btn.setFixedSize(btn_size, btn_size)
         lang_btn.raise_()
         self._lang_btn = lang_btn
 
         rules_btn = QPushButton()
-        rules_btn.setStyleSheet(ICON_BUTTON_STYLE)
+        rules_btn.setStyleSheet(btn_style)
         rules_btn.setIcon(QIcon(QPixmap("gui_template/base_window/rule_ico.png")))
-        rules_btn.setIconSize(QSize(INFO_BUTTON_SIZE, INFO_BUTTON_SIZE))
-        rules_btn.setFixedSize(INFO_BUTTON_SIZE + 16, INFO_BUTTON_SIZE + 16)
+        rules_btn.setIconSize(QSize(btn_size, btn_size))
+        rules_btn.setFixedSize(btn_size, btn_size)
         rules_btn.raise_()
         self._rules_btn = rules_btn
 
@@ -171,7 +194,8 @@ class BaseWindow(QWidget):
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
-        layout.addWidget(self.setup_logo(), alignment=Qt.AlignLeft | Qt.AlignTop)
+        if SHOW_LOGOS:
+            layout.addWidget(self.setup_logo(), alignment=Qt.AlignLeft | Qt.AlignTop)
         layout.addStretch(1)
         layout.addWidget(self.setup_interaction_btn(), alignment=Qt.AlignRight | Qt.AlignTop)
         container = QWidget()

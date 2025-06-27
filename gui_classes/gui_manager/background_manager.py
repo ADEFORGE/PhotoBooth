@@ -12,7 +12,7 @@ class BackgroundManager(QObject):
     Manages live camera feed, captures, and generated images, rendering them onto a QLabel.
     """
 
-    def __init__(self, label: QLabel, resolution_level: int = 2, rotation: int = 0, parent=None) -> None:
+    def __init__(self, label: QLabel, resolution_level: int = 0, rotation: int = 0, parent=None) -> None:
         """
         Inputs:
             label (QLabel): Widget to render the background.
@@ -25,7 +25,12 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering __init__: args={{label:{label}, resolution_level:{resolution_level}, rotation:{rotation}}}")
         super().__init__(parent)
         self.label = label
-        self._mutex = QMutex()
+        # Ajout du label gradient superposé
+        self.gradient_label = QLabel(label.parent())
+        self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.gradient_label.setStyleSheet("background: transparent;")
+        self.gradient_label.setVisible(False)
+        self._set_gradient_pixmap()
         self.rotation = rotation
         self.label.lower()
         self.thread = CameraCaptureThread()
@@ -38,6 +43,19 @@ class BackgroundManager(QObject):
         self.current = 'live'
         self._show_gradient = False  # Par défaut, gradient désactivé
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting __init__: return=None")
+
+    def _set_gradient_pixmap(self, path=None):
+        import os
+        if path is None:
+            path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "gradient", "gradient_1.png")
+        grad_path_abs = os.path.abspath(path)
+        pixmap = QPixmap(grad_path_abs)
+        if not pixmap.isNull():
+            self.gradient_label.setPixmap(
+                pixmap.scaled(self.label.width(), self.label.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            )
+            self.gradient_label.setGeometry(self.label.geometry())
+            self.gradient_label.raise_()
 
     def set_rotation(self, angle: int) -> None:
         """
@@ -163,8 +181,8 @@ class BackgroundManager(QObject):
             None
         """
         self._show_gradient = bool(flag)
-        # Rafraîchit l'affichage immédiatement
-        self.update_background()
+        self.gradient_label.setVisible(self._show_gradient)
+        # Plus besoin de redessiner à chaque frame
 
     def render_pixmap(self, pix: QPixmap) -> None:
         """
@@ -196,21 +214,6 @@ class BackgroundManager(QObject):
         else:
             x = (nw - lw) // 2
             result = scaled.copy(x, 0, lw, lh)
-        import os
-        gradient_path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "gradient", "gradient_1.png")
-        grad_path_abs = os.path.abspath(gradient_path)
-        if self._show_gradient:
-            if not os.path.exists(grad_path_abs):
-                print(f"[BackgroundManager] Gradient file not found: {grad_path_abs}")
-            grad = QPixmap(grad_path_abs)
-            if grad.isNull():
-                print(f"[BackgroundManager] Gradient QPixmap is null: {grad_path_abs}")
-            if not grad.isNull():
-                gs = grad.scaled(lw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                p2 = QPainter(result)
-                p2.setOpacity(1.0)
-                p2.drawPixmap(0, 0, gs)
-                p2.end()
         self.label.setPixmap(result)
         # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting render_pixmap: return=None")
 
@@ -253,7 +256,7 @@ class BackgroundManager(QObject):
         """        
         if flag:
             # Résolution maximale (ex: index 0)
-            self.background_gradient(False)
+            self.background_gradient(True)
             # if hasattr(self.thread, 'set_resolution_level'):
             #     self.thread.set_resolution_level(3)
             print("[BackgroundManager] is_work(True) : mode TRAVAIL (gradient ON, résolution MAX)", file=sys.stderr)
@@ -263,3 +266,8 @@ class BackgroundManager(QObject):
             # if hasattr(self.thread, 'set_resolution_level') and hasattr(self.thread, 'get_max_resolution_index'):
             #     self.thread.set_resolution_level(0)
             print("[BackgroundManager] is_work(False) : mode REPOS (gradient ON, résolution MIN)", file=sys.stderr)
+
+    # À appeler lors du resize du label parent (dans la fenêtre)
+    def on_resize(self):
+        self._set_gradient_pixmap()
+        self.gradient_label.setGeometry(self.label.geometry())

@@ -102,10 +102,6 @@ class WindowManager(QWidget):
             print(f"[DEBUG][WindowManager] Exiting start: return=None")
 
     def start_change_view(self, index: int = 0, callback=None) -> None:
-        # Désactive le gradient avant de changer de vue
-        if 1 in self.widgets and hasattr(self.widgets[1], 'set_background_gradient'):
-            print("caca")
-            self.widgets[1].set_background_gradient(False)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Entering start_change_view: args={{'index':{index}, 'callback':{callback}}}")
         current_index = self.stack.currentIndex()
@@ -120,12 +116,18 @@ class WindowManager(QWidget):
             self.scroll_overlay.start_scroll_animation(
                 stop_speed=30,
                 on_finished=lambda: self.scroll_overlay.hide_overlay(
-                    on_hidden=lambda: self.scroll_overlay.clean_scroll(on_cleaned=callback)
+                    on_hidden=lambda: self.scroll_overlay.clean_scroll(on_cleaned=after_animation)
                 )
             )
             # Réactive le gradient après le changement de vue
             if 1 in self.widgets and hasattr(self.widgets[1], 'set_background_gradient'):
                 self.widgets[1].set_background_gradient(True)
+        def after_animation():
+            # Désactive le gradient uniquement après la fin de l'animation
+            if 1 in self.widgets and hasattr(self.widgets[1], 'set_background_gradient'):
+                self.widgets[1].set_background_gradient(False)
+            if callback:
+                callback()
         self.scroll_overlay.raise_overlay(on_raised=lambda: self.set_view(index, callback=after_set_view))
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting start_change_view: return=None")

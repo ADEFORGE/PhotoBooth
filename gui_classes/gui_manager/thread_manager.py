@@ -452,7 +452,7 @@ class CameraCaptureThread(QThread):
                 h, w, ch = rgb.shape
                 qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
                 self.frame_ready.emit(qimg)
-            self.msleep(33)
+            self.msleep(10)
         self.cap.release()
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
 

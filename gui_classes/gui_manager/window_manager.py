@@ -85,7 +85,7 @@ class WindowManager(QWidget):
         self._pending_index = None
         self.scroll_overlay = ScrollOverlay(self)
         self.scroll_overlay.hide_overlay()        
-        self.display_timer = TimerUpdateDisplay(self, fps=60)
+        self.display_timer = TimerUpdateDisplay(self, fps=90)
         self.set_view(0, initial=True)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")

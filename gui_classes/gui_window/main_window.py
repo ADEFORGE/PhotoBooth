@@ -1,8 +1,11 @@
 DEBUG_MainWindow = False
 
+from typing import Optional, Callable
+
 from PySide6.QtCore import Qt, QEvent
 from PySide6.QtGui import QPainter, QColor, QImage
-from PySide6.QtWidgets import QToolTip, QApplication, QLabel
+from PySide6.QtWidgets import QApplication, QLabel
+
 from gui_classes.gui_window.base_window import BaseWindow
 from gui_classes.gui_object.constante import TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles
 from gui_classes.gui_manager.thread_manager import CountdownThread, ImageGenerationThread
@@ -10,8 +13,7 @@ from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager
 from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
 from gui_classes.gui_object.toolbox import QRCodeUtils
-import re
-from typing import Optional
+
 
 class MainWindow(BaseWindow):
     def __init__(self, parent: Optional[object] = None) -> None:
@@ -44,9 +46,8 @@ class MainWindow(BaseWindow):
     def on_enter(self) -> None:
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering on_enter: args={{}}")
-        self.generated_image = None
-        self.original_photo = None
-        self.selected_style = None
+        if hasattr(self, 'background_manager'):
+            self.background_manager.on_enter()
         self.set_state_default()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting on_enter: return=None")
@@ -54,6 +55,8 @@ class MainWindow(BaseWindow):
     def on_leave(self) -> None:
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering on_leave: args={{}}")
+        if hasattr(self, 'background_manager'):
+            self.background_manager.on_leave()
         self.clean()
         self.hide_loading()
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
@@ -64,6 +67,7 @@ class MainWindow(BaseWindow):
                 pass
             self._countdown_overlay = None
         self.countdown_overlay_manager.clear_overlay("countdown")
+        self.set_state_default()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting on_leave: return=None")
 
@@ -82,71 +86,53 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting clean: return=None")
 
-    def cleanup(self) -> None:
+    def set_generation_style(self, checked: bool, style_name: str, generate_image: bool = False) -> None:
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering cleanup: args={{}}")
-        if hasattr(self, 'clean'):
-            self.clean()
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting cleanup: return=None")
-
-    def start(self, style_name: str, input_image: QImage) -> None:
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering start: args={{'style_name':{style_name},'input_image':<QImage>}}")
-        if self._generation_task:
-            self.clean()
-        self._generation_task = ImageGenerationThread(style=style_name, input_image=input_image, parent=self)
-        self._generation_task.finished.connect(self._on_image_generated_callback)
-        self._generation_task.start()
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting start: return=None")
-
-    def finish(self) -> None:
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering finish: args={{}}")
-        if self._generation_task:
-            self._generation_task.finish()
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting finish: return=None")
-
-    def _on_style_toggle(self, checked: bool, style_name: str) -> None:
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering _on_style_toggle: args={{'checked':{checked},'style_name':{style_name}}}")
-        self.selected_style = style_name if checked else None
-        super().on_toggle(checked, style_name, generate_image=False)
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting _on_style_toggle: return=None")
-
-    def _on_take_selfie(self) -> None:
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering _on_take_selfie: args={{}}")
-        if not getattr(self, 'selected_style', None):
-            take_selfie_btn = None
-            if hasattr(self, 'btns'):
-                for btn in self.btns.style1_btns:
-                    if btn.objectName() == "take_selfie":
-                        take_selfie_btn = btn
-                        break
-            if take_selfie_btn:
-                app = QApplication.instance()
-                if app is not None:
-                    old_style = app.styleSheet() or ""
-                    new_style = re.sub(r"QToolTip\s*\{[^}]*\}", "", old_style)
-                    app.setStyleSheet(new_style + "\n" + TOOLTIP_STYLE)
-                global_pos = take_selfie_btn.mapToGlobal(take_selfie_btn.rect().center())
-                QToolTip.showText(global_pos, "Select a style first", take_selfie_btn, take_selfie_btn.rect(), TOOLTIP_DURATION_MS)
+            print(f"[DEBUG][MainWindow] Entering set_generation_style: args={{'checked':{checked},'style_name':{style_name},'generate_image':{generate_image}}}")
+        if self._generation_in_progress:
             if DEBUG_MainWindow:
-                print(f"[DEBUG][MainWindow] Exiting _on_take_selfie: return=None")
+                print(f"[DEBUG][MainWindow] Exiting set_generation_style: return=None")
             return
-        self.countdown_overlay_manager.start_countdown(on_finished=self._after_countdown_finish)
+        if checked:
+            self.selected_style = style_name
+        else:
+            self.selected_style = None
+        if generate_image:
+            if self.original_photo and self.selected_style:
+                self.start(self.selected_style, self.original_photo)
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting _on_take_selfie: return=None")
+            print(f"[DEBUG][MainWindow] Exiting set_generation_style: return=None")
 
-    def _after_countdown_finish(self) -> None:
+    def take_selfie(self) -> None:
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering _after_countdown_finish: args={{}}")
+            print(f"[DEBUG][MainWindow] Entering take_selfie: args={{}}")
+        if not getattr(self, 'selected_style', None):
+            if hasattr(self, 'btns'):
+                self.show_message(self.btns.style1_btns, "Select a style first", TOOLTIP_DURATION_MS)
+        else:
+            self.selfie_countdown(
+                on_finished=lambda: (
+                    self.selfie(
+                        callback=lambda: (
+                            self.generation(
+                                self.selected_style,
+                                self.original_photo,
+                                callback=self.show_generation
+                            )
+                        )
+                    )
+                )
+            )
+        if DEBUG_MainWindow:
+            print(f"[DEBUG][MainWindow] Exiting take_selfie: return=None")
+
+    def selfie_countdown(self, on_finished: Optional[Callable[[], None]] = None) -> None:
+        self.countdown_overlay_manager.start_countdown(on_finished=on_finished)
+
+    def selfie(self, callback: Optional[Callable[[], None]] = None) -> None:
+        if DEBUG_MainWindow:
+            print(f"[DEBUG][MainWindow] Entering selfie: args={{'callback':{callback}}}")
         self.clean()
-        # Prendre la photo via le background_manager et la stocker dans original_photo
         if hasattr(self, 'background_manager'):
             self.background_manager.capture()
             pixmap = self.background_manager.get_background_image()
@@ -154,21 +140,33 @@ class MainWindow(BaseWindow):
                 self.original_photo = pixmap.toImage()
             else:
                 self.original_photo = None
-        if getattr(self, 'selected_style', None) and not self._generation_in_progress and self.original_photo:
-            self.start(self.selected_style, self.original_photo)
+        if not self._generation_in_progress and self.original_photo and callback:
+            callback()
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting _after_countdown_finish: return=None")
+            print(f"[DEBUG][MainWindow] Exiting selfie: return=None")
 
-    def _on_image_generated_callback(self, qimg: QImage) -> None:
+    def generation(self, style_name: str, input_image: QImage, callback: Optional[Callable[[], None]] = None) -> None:
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering _on_image_generated_callback: args={{'qimg':<QImage>}}")
+            print(f"[DEBUG][MainWindow] Entering generation: args={{'style_name':{style_name},'input_image':<QImage>,'callback':{callback}}}")
+        if self._generation_task:
+            self.clean()
+        self._generation_task = ImageGenerationThread(style=style_name, input_image=input_image, parent=self)
+        if callback:
+            self._generation_task.finished.connect(callback)
+        self._generation_task.start()
+        if DEBUG_MainWindow:
+            print(f"[DEBUG][MainWindow] Exiting generation: return=None")
+
+    def show_generation(self, qimg: QImage) -> None:
+        if DEBUG_MainWindow:
+            print(f"[DEBUG][MainWindow] Entering show_generation: args={{'qimg':<QImage>}}")
         self._generation_task = None
         self._generation_in_progress = False
         self.generated_image = qimg if qimg and not qimg.isNull() else None
         self.update_frame()
         self.set_state_validation()
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting _on_image_generated_callback: return=None")
+            print(f"[DEBUG][MainWindow] Exiting show_generation: return=None")
 
     def _on_accept_close(self) -> None:
         if DEBUG_MainWindow:
@@ -208,27 +206,20 @@ class MainWindow(BaseWindow):
         self._generation_task = None
         self.generated_image = None
         self.original_photo = None
+        self.selected_style = None
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting reset_generation_state: return=None")
-
-    def reset_to_default_state(self) -> None:
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering reset_to_default_state: args={{}}")
-        self.set_state_default()
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting reset_to_default_state: return=None")
 
     def set_state_default(self) -> None:
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
-        self.selected_style = None
         self.clear_display()
         self.setup_buttons(
             style1_names=["take_selfie"],
             style2_names=list(dico_styles.keys()),
-            slot_style1=self._on_take_selfie,
-            slot_style2=lambda checked, btn=None: self._on_style_toggle(checked, btn.text() if btn else None)
+            slot_style1=self.take_selfie,
+            slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.text() if btn else None, generate_image=False)
         )
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.raise_()
@@ -238,7 +229,6 @@ class MainWindow(BaseWindow):
                 btn.show()
                 btn.setEnabled(True)
         self.bg_label.lower()
-        # Remettre le retour caméra (mode live)
         if hasattr(self, 'background_manager'):
             self.background_manager.set_live()
             self.background_manager.update_background()
@@ -325,12 +315,3 @@ class MainWindow(BaseWindow):
             super().paintEvent(event)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting paintEvent: return=None")
-
-    def is_work(self, flag: bool) -> None:
-        """
-        Wrapper pour activer/désactiver dynamiquement le gradient de fond via MainWindow.
-        Désormais, utilise is_work pour piloter gradient + résolution.
-        """
-        #if DEBUG_MainWindow:
-        if hasattr(self, 'background_manager'):
-            self.background_manager.is_work(flag)

@@ -23,6 +23,7 @@ class BackgroundManager(QObject):
         self.rotation = rotation
         self.gradient_path = gradient_path
         self._mutex = QMutex()
+        self._show_gradient = True  # Flag pour afficher ou masquer le gradient
 
         # Optimisation du peintre: ne pas effacer entièrement
         self.label.setAttribute(Qt.WA_OpaquePaintEvent)
@@ -55,6 +56,9 @@ class BackgroundManager(QObject):
         self._gradient_pixmap = pixmap
         self._resize_gradient()
         self.gradient_label.lower()
+        # Appliquer la visibilité initiale
+        if not self._show_gradient:
+            self.gradient_label.hide()
 
     def _resize_gradient(self) -> None:
         """Redimensionne le gradient sans le recharger."""
@@ -67,6 +71,15 @@ class BackgroundManager(QObject):
         )
         self.gradient_label.setPixmap(scaled)
         self.gradient_label.setGeometry(geom)
+
+    def show_gradient(self, show: bool) -> None:
+        """Affiche ou masque le gradient."""
+        with QMutexLocker(self._mutex):
+            self._show_gradient = show
+            if show:
+                self.gradient_label.show()
+            else:
+                self.gradient_label.hide()
 
     def set_rotation(self, angle: int) -> None:
         if angle in (0, 90, 180, 270):
@@ -168,7 +181,23 @@ class BackgroundManager(QObject):
     def get_background_image(self) -> QPixmap | None:
         return self.get_pixmap()
 
-    def is_work(self, flag: bool) -> None:
-        # TODO: Ajuster la résolution selon flag
-        pass
+    def set_camera_resolution(self, level: int) -> None:
+        """Change la résolution du flux caméra (wrapper sur CameraCaptureThread.set_resolution_level)."""
+        if hasattr(self, 'thread') and hasattr(self.thread, 'set_resolution_level'):
+            self.thread.set_resolution_level(level)
+            if DEBUG_BackgroundManager:
+                print(f"[BackgroundManager] Résolution caméra changée: niveau {level}")
 
+    def on_enter(self) -> None:
+        """À appeler lors de l'entrée dans la vue : affiche le gradient et met la résolution caméra à 2 (FullHD)."""
+        self.show_gradient(True)
+        self.set_camera_resolution(2)
+        if DEBUG_BackgroundManager:
+            print("[BackgroundManager] on_enter: gradient ON, résolution 2 (FullHD)")
+
+    def on_leave(self) -> None:
+        """À appeler lors de la sortie de la vue : masque le gradient et met la résolution caméra à 0 (basse)."""
+        self.show_gradient(False)
+        self.set_camera_resolution(0)
+        if DEBUG_BackgroundManager:
+            print("[BackgroundManager] on_leave: gradient OFF, résolution 0 (basse)")

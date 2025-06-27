@@ -319,13 +319,13 @@ class ImageGenerationThread(QObject):
                     output_dir = os.path.abspath("../ComfyUI/output")
                     files = glob.glob(os.path.join(output_dir, "*.png"))
                     if not files:
-                        self.finished.emit(None)
+                        self.finished.emit(self.input_image)
                         if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
                     latest = max(files, key=os.path.getmtime)
                     img = cv2.imread(latest)
                     if img is None:
-                        self.finished.emit(None)
+                        self.finished.emit(self.input_image)
                         if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
                     qimg = ImageUtils.cv_to_qimage(img)
@@ -334,7 +334,7 @@ class ImageGenerationThread(QObject):
                     if os.path.exists(latest): os.remove(latest)
                     self.finished.emit(qimg)
                 except Exception:
-                    self.finished.emit(None)
+                    self.finished.emit(self.input_image)
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
 
             def stop(self) -> None:

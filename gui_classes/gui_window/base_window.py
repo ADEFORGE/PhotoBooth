@@ -3,8 +3,9 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QPixmap, QIcon, QPainter, QResizeEvent, QPaintEvent, QShowEvent
 from PySide6.QtWidgets import (
     QWidget, QLabel, QGridLayout, QPushButton,
-    QHBoxLayout, QVBoxLayout, QApplication
+    QHBoxLayout, QVBoxLayout, QApplication, QToolTip
 )
+import re
 from gui_classes.gui_object.overlay import (
     OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang
 )
@@ -27,7 +28,6 @@ class BaseWindow(QWidget):
         self.setStyleSheet("background: transparent;")
         self._generation_in_progress = False
         self.loading_overlay = None
-        self.selected_style = None
         self.generated_image = None
         self.overlay_widget = QWidget(self)
         self.overlay_widget.setObjectName("overlay_widget")
@@ -245,18 +245,6 @@ class BaseWindow(QWidget):
             print(f"[DEBUG][BaseWindow] Exiting _ensure_overlay: return={self.loading_overlay}")
         return self.loading_overlay
 
-    def on_toggle(self, checked: bool, style_name: str, generate_image: bool = False) -> None:
-        if DEBUG_BaseWindow:
-            print(f"[DEBUG][BaseWindow] Entering on_toggle: args={{'checked': {checked}, 'style_name': {style_name}, 'generate_image': {generate_image}}}")
-        if self._generation_in_progress:
-            if DEBUG_BaseWindow:
-                print(f"[DEBUG][BaseWindow] Exiting on_toggle: return=None")
-            return
-        if checked:
-            self.selected_style = style_name
-        if DEBUG_BaseWindow:
-            print(f"[DEBUG][BaseWindow] Exiting on_toggle: return=None")
-
     def setup_buttons(
         self,
         style1_names: List[str],
@@ -372,3 +360,28 @@ class BaseWindow(QWidget):
         OverlayLang(self).show_overlay()
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting show_lang_dialog: return=None")
+
+    def show_message(self, items, message: str, duration: int = 2000) -> None:
+        """
+        Affiche un message (tooltip) centré sur le premier widget trouvé dans items.
+        items : liste de widgets (ou boutons)
+        message : texte à afficher
+        duration : durée d'affichage en ms
+        """
+        target = None
+        for widget in items:
+            if widget is not None:
+                target = widget
+                break
+        if target:
+            app = QApplication.instance()
+            if app is not None:
+                old_style = app.styleSheet() or ""
+                try:
+                    from gui_classes.gui_object.constante import TOOLTIP_STYLE
+                except ImportError:
+                    TOOLTIP_STYLE = ""
+                new_style = re.sub(r"QToolTip\\s*\\{[^}]*\\}", "", old_style)
+                app.setStyleSheet(new_style + "\n" + TOOLTIP_STYLE)
+            global_pos = target.mapToGlobal(target.rect().center())
+            QToolTip.showText(global_pos, message, target, target.rect(), duration)

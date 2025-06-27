@@ -137,9 +137,9 @@ class BaseWindow(QWidget):
     def setup_interaction_btn(self) -> QWidget:
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Entering setup_interaction_btn: args={{}}")
-        screen = QApplication.primaryScreen()
-        screen_height = screen.size().height() if screen else 1080
-        btn_size = int(screen_height * HUD_SIZE_RATIO)
+        # Utilisation de la taille dynamique des boutons
+        from gui_classes.gui_object.btn import _compute_dynamic_size
+        btn_size = _compute_dynamic_size(QSize(80, 80)).width()
         # Style dynamique pour la taille du bouton
         btn_style = (
             f"QPushButton {{"
@@ -185,7 +185,7 @@ class BaseWindow(QWidget):
         widget.setAttribute(Qt.WA_TranslucentBackground)
         widget.setStyleSheet("background: rgba(0,0,0,0);")
         if DEBUG_BaseWindow:
-            print(f"[DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}")
+            print(f"[DEBUG][BaseWindow] Exiting setup_interaction_btn: return={{widget}}")
         return widget
 
     def setupcontainer(self) -> None:

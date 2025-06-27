@@ -174,6 +174,10 @@ class BackgroundManager(QObject):
             None
         """
         # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering render_pixmap: args={{pix:{pix}}}")
+        if pix is None:
+            # Si aucun pixmap n'est disponible, on efface le label
+            self.label.clear()
+            return
         self.label.lower()
         if self.rotation != 0:
             pix = pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)

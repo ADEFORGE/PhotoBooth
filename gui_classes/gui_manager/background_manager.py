@@ -12,7 +12,7 @@ class BackgroundManager(QObject):
     Manages live camera feed, captures, and generated images, rendering them onto a QLabel.
     """
 
-    def __init__(self, label: QLabel, resolution_level: int = 0, rotation: int = 0, parent=None) -> None:
+    def __init__(self, label: QLabel, resolution_level: int = 2, rotation: int = 0, parent=None) -> None:
         """
         Inputs:
             label (QLabel): Widget to render the background.
@@ -254,12 +254,12 @@ class BackgroundManager(QObject):
         if flag:
             # Résolution maximale (ex: index 0)
             self.background_gradient(True)
-            if hasattr(self.thread, 'set_resolution_level'):
-                self.thread.set_resolution_level(3)
+            # if hasattr(self.thread, 'set_resolution_level'):
+            #     self.thread.set_resolution_level(3)
             print("[BackgroundManager] is_work(True) : mode TRAVAIL (gradient ON, résolution MAX)", file=sys.stderr)
         else:
             # Résolution minimale (ex: index le plus élevé)
             self.background_gradient(False)
-            if hasattr(self.thread, 'set_resolution_level') and hasattr(self.thread, 'get_max_resolution_index'):
-                self.thread.set_resolution_level(0)
+            # if hasattr(self.thread, 'set_resolution_level') and hasattr(self.thread, 'get_max_resolution_index'):
+            #     self.thread.set_resolution_level(0)
             print("[BackgroundManager] is_work(False) : mode REPOS (gradient ON, résolution MIN)", file=sys.stderr)

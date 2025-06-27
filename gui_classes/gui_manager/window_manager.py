@@ -13,37 +13,26 @@ class TimerUpdateDisplay:
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Entering __init__: args={{'window_manager':{window_manager}, 'fps':{fps}}}")
         self.window_manager = window_manager
+        interval_ms = int(1000 / fps) if fps > 0 else 1000 // 60
+        self._timer = QTimer(self.window_manager)
+        self._timer.setInterval(interval_ms)
+        self._timer.timeout.connect(self.update_frame)
+        self._timer.start()
         self._fps = fps if fps > 0 else 60
-        self._interval_ms = int(1000 / self._fps)
-        # Deux timers séparés
-        self._timer_scroll = QTimer(self.window_manager)
-        self._timer_scroll.setInterval(self._interval_ms)
-        self._timer_scroll.timeout.connect(self.update_scroll)
-        self._timer_scroll.start()
-
-        self._timer_background = QTimer(self.window_manager)
-        self._timer_background.setInterval(self._interval_ms)
-        self._timer_background.timeout.connect(self.update_background)
-        self._timer_background.start()
-
-        self._update_scroll = True
-        self._update_background = True
-
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting __init__: return=None")
 
     def set_fps(self, fps: int) -> None:
         """
-        Change dynamiquement le nombre de FPS des timers d'affichage.
+        Change dynamiquement le nombre de FPS du timer d'affichage.
         """
         if fps <= 0:
             fps = 60
+        interval_ms = int(1000 / fps)
+        self._timer.setInterval(interval_ms)
         self._fps = fps
-        self._interval_ms = int(1000 / fps)
-        self._timer_scroll.setInterval(self._interval_ms)
-        self._timer_background.setInterval(self._interval_ms)
         if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] FPS changed to {fps} (interval {self._interval_ms} ms)")
+            print(f"[DEBUG][TimerUpdateDisplay] FPS changed to {fps} (interval {interval_ms} ms)")
 
     def get_fps(self) -> int:
         """
@@ -59,35 +48,20 @@ class TimerUpdateDisplay:
         """
         self._update_scroll = update_scroll
         self._update_background = update_background
-        if update_scroll:
-            if not self._timer_scroll.isActive():
-                self._timer_scroll.start()
-        else:
-            self._timer_scroll.stop()
-        if update_background:
-            if not self._timer_background.isActive():
-                self._timer_background.start()
-        else:
-            self._timer_background.stop()
 
-    def update_scroll(self) -> None:
+    def update_frame(self) -> None:
         if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Entering update_scroll: args={{}}")
+            print(f"[DEBUG][TimerUpdateDisplay] Entering update_frame: args={{}}")
         wm = self.window_manager
-        if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
-            wm.scroll_overlay.update_frame()
+        if getattr(self, '_update_scroll', True):
+            if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
+                wm.scroll_overlay.update_frame()
+        if getattr(self, '_update_background', True):
+            current_widget = wm.stack.currentWidget()
+            if hasattr(current_widget, 'background_manager'):
+                current_widget.background_manager.update_background()
         if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Exiting update_scroll: return=None")
-
-    def update_background(self) -> None:
-        if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Entering update_background: args={{}}")
-        wm = self.window_manager
-        current_widget = wm.stack.currentWidget()
-        if hasattr(current_widget, 'background_manager'):
-            current_widget.background_manager.update_background()
-        if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Exiting update_background: return=None")
+            print(f"[DEBUG][TimerUpdateDisplay] Exiting update_frame: return=None")
 
 class WindowManager(QWidget):
     def __init__(self) -> None:

@@ -253,7 +253,7 @@ class BackgroundManager(QObject):
         """        
         if flag:
             # Résolution maximale (ex: index 0)
-            self.background_gradient(True)
+            self.background_gradient(False)
             # if hasattr(self.thread, 'set_resolution_level'):
             #     self.thread.set_resolution_level(3)
             print("[BackgroundManager] is_work(True) : mode TRAVAIL (gradient ON, résolution MAX)", file=sys.stderr)

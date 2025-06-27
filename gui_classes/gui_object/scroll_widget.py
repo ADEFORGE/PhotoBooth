@@ -181,7 +181,7 @@ class ScrollTab:
         iw, ih = pix.width(), pix.height()
         diag = (view_w ** 2 + view_h ** 2) ** 0.5
         self.num_cols = max(1, int(ceil((diag / iw) * margin_x)))
-        self.num_rows = max(1, int(ceil((view_h / ih) * margin_y))) + 2
+        self.num_rows = max(1, int(ceil((diag / ih) * margin_y))) + 2  # Correction ici
         self.image_paths = image_paths
         self.columns = []
         self._col_params = [

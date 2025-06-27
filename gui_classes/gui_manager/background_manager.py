@@ -36,6 +36,7 @@ class BackgroundManager(QObject):
         self.captured = None
         self.generated = None
         self.current = 'live'
+        self._show_gradient = False  # Par défaut, gradient désactivé
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting __init__: return=None")
 
     def set_rotation(self, angle: int) -> None:
@@ -153,6 +154,18 @@ class BackgroundManager(QObject):
         # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting get_pixmap: return={result}")
         return result
 
+    def background_gradient(self, flag: bool) -> None:
+        """
+        Active ou désactive dynamiquement l'application du gradient sur le fond.
+        Inputs:
+            flag (bool): True pour activer, False pour désactiver le gradient.
+        Outputs:
+            None
+        """
+        self._show_gradient = bool(flag)
+        # Rafraîchit l'affichage immédiatement
+        self.update_background()
+
     def render_pixmap(self, pix: QPixmap) -> None:
         """
         Inputs:
@@ -180,19 +193,20 @@ class BackgroundManager(QObject):
             x = (nw - lw) // 2
             result = scaled.copy(x, 0, lw, lh)
         import os
-        gradient_path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "gradient", "gradient_1.png")
+        gradient_path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "Gradient", "gradient_1.png")
         grad_path_abs = os.path.abspath(gradient_path)
-        if not os.path.exists(grad_path_abs):
-            print(f"[BackgroundManager] Gradient file not found: {grad_path_abs}")
-        grad = QPixmap(grad_path_abs)
-        if grad.isNull():
-            print(f"[BackgroundManager] Gradient QPixmap is null: {grad_path_abs}")
-        if not grad.isNull():
-            gs = grad.scaled(lw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-            p2 = QPainter(result)
-            p2.setOpacity(1.0)
-            p2.drawPixmap(0, 0, gs)
-            p2.end()
+        if self._show_gradient:
+            if not os.path.exists(grad_path_abs):
+                print(f"[BackgroundManager] Gradient file not found: {grad_path_abs}")
+            grad = QPixmap(grad_path_abs)
+            if grad.isNull():
+                print(f"[BackgroundManager] Gradient QPixmap is null: {grad_path_abs}")
+            if not grad.isNull():
+                gs = grad.scaled(lw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                p2 = QPainter(result)
+                p2.setOpacity(1.0)
+                p2.drawPixmap(0, 0, gs)
+                p2.end()
         self.label.setPixmap(result)
         # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting render_pixmap: return=None")
 

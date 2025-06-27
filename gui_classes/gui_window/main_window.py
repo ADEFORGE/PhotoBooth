@@ -325,3 +325,10 @@ class MainWindow(BaseWindow):
             super().paintEvent(event)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting paintEvent: return=None")
+
+    def set_background_gradient(self, flag: bool) -> None:
+        """
+        Wrapper pour activer/désactiver dynamiquement le gradient de fond via MainWindow.
+        """
+        if hasattr(self, 'background_manager'):
+            self.background_manager.background_gradient(flag)

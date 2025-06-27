@@ -84,9 +84,9 @@ class WindowManager(QWidget):
             self.stack.addWidget(w)
         self._pending_index = None
         self.scroll_overlay = ScrollOverlay(self)
-        self.scroll_overlay.hide_overlay()
-        self.set_view(0, initial=True)
+        self.scroll_overlay.hide_overlay()        
         self.display_timer = TimerUpdateDisplay(self, fps=60)
+        self.set_view(0, initial=True)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 
@@ -102,6 +102,7 @@ class WindowManager(QWidget):
         if hasattr(new_widget, 'on_enter'):
             new_widget.on_enter()
         if index == 0:
+            self.display_timer.update_mode(update_scroll=True, update_background=False)            
             self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay(on_shown=callback))
         if callback:
             callback()

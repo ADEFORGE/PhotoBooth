@@ -75,6 +75,8 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering set_live: args=")
         with QMutexLocker(self._mutex):
             self.current = 'live'
+        # Affiche immédiatement le flux live avec gradient
+        self.render_pixmap(self.get_pixmap())
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_live: return=None")
 
     def capture(self) -> None:
@@ -102,6 +104,8 @@ class BackgroundManager(QObject):
         with QMutexLocker(self._mutex):
             self.generated = QPixmap.fromImage(qimage)
             self.current = 'generated'
+        # Affiche immédiatement l'image générée avec gradient
+        self.render_pixmap(self.get_pixmap())
         if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting set_generated: return=None")
 
     def on_generate(self) -> None:

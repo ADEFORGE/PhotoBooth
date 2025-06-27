@@ -40,15 +40,26 @@ class TimerUpdateDisplay:
         """
         return self._fps
 
+    def update_mode(self, update_scroll: bool = True, update_background: bool = True) -> None:
+        """
+        Permet d'activer ou désactiver dynamiquement l'update du scroll_overlay et du background_manager.
+        - update_scroll : active/désactive l'update du scroll_overlay
+        - update_background : active/désactive l'update du background_manager
+        """
+        self._update_scroll = update_scroll
+        self._update_background = update_background
+
     def update_frame(self) -> None:
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Entering update_frame: args={{}}")
         wm = self.window_manager
-        if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
-            wm.scroll_overlay.update_frame()
-        current_widget = wm.stack.currentWidget()
-        if hasattr(current_widget, 'background_manager'):
-            current_widget.background_manager.update_background()
+        if getattr(self, '_update_scroll', True):
+            if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
+                wm.scroll_overlay.update_frame()
+        if getattr(self, '_update_background', True):
+            current_widget = wm.stack.currentWidget()
+            if hasattr(current_widget, 'background_manager'):
+                current_widget.background_manager.update_background()
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting update_frame: return=None")
 
@@ -112,6 +123,7 @@ class WindowManager(QWidget):
         - Après l'animation : passe en mode "travail" (is_work(True))
         - callback : appelé à la toute fin si fourni
         """
+        
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Entering start_change_view: args={{'index':{index}, 'callback':{callback}}}")
         current_index = self.stack.currentIndex()
@@ -119,6 +131,7 @@ class WindowManager(QWidget):
         if 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
             print(f"[DEBUG][WindowManager] Setting MainWindow is_work(False) before transition")
             self.widgets[1].is_work(False)
+            self.display_timer.update_mode(update_scroll=True, update_background=True)
         
         # Si déjà sur la bonne vue ou index invalide, on sort
         if index == current_index or index not in self.widgets:
@@ -134,6 +147,8 @@ class WindowManager(QWidget):
             """
             if 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
                 self.widgets[1].is_work(True)
+                self.display_timer.update_mode(update_scroll=False, update_background=True)
+            
             if callback:
                 callback()
 

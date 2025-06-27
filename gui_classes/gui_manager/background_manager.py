@@ -193,7 +193,7 @@ class BackgroundManager(QObject):
             x = (nw - lw) // 2
             result = scaled.copy(x, 0, lw, lh)
         import os
-        gradient_path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "Gradient", "gradient_1.png")
+        gradient_path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "gradient", "gradient_1.png")
         grad_path_abs = os.path.abspath(gradient_path)
         if self._show_gradient:
             if not os.path.exists(grad_path_abs):

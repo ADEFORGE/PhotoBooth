@@ -1,7 +1,7 @@
 DEBUG_CountdownThread = False
 DEBUG_Thread = False
-DEBUG_ImageGenerationThread = False
-DEBUG_ImageGenerationWorker = False
+DEBUG_ImageGenerationThread = True
+DEBUG_ImageGenerationWorker = True
 DEBUG_CameraCaptureThread = False
 
 import os

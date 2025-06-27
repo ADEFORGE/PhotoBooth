@@ -244,3 +244,22 @@ class BackgroundManager(QObject):
         Retourne le QPixmap actuellement affiché (live, captured ou generated).
         """
         return self.get_pixmap()
+    
+    def is_work(self, flag: bool) -> None:
+        """
+        Active le gradient et ajuste la résolution selon le mode de travail.
+        Si flag=True : gradient ON, résolution MAX.
+        Si flag=False : gradient OFF, résolution MIN.
+        """        
+        if flag:
+            # Résolution maximale (ex: index 0)
+            self.background_gradient(True)
+            if hasattr(self.thread, 'set_resolution_level'):
+                self.thread.set_resolution_level(3)
+            print("[BackgroundManager] is_work(True) : mode TRAVAIL (gradient ON, résolution MAX)", file=sys.stderr)
+        else:
+            # Résolution minimale (ex: index le plus élevé)
+            self.background_gradient(False)
+            if hasattr(self.thread, 'set_resolution_level') and hasattr(self.thread, 'get_max_resolution_index'):
+                self.thread.set_resolution_level(0)
+            print("[BackgroundManager] is_work(False) : mode REPOS (gradient ON, résolution MIN)", file=sys.stderr)

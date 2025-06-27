@@ -85,6 +85,9 @@ class WindowManager(QWidget):
         new_widget = self.widgets[index]
         self.stack.setCurrentWidget(new_widget)
         self.showFullScreen()
+        # Si on passe sur la vue SleepScreen (index 0), on force is_work(False) sur MainWindow
+        if index == 0 and 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
+            self.widgets[1].is_work(False)
         if hasattr(new_widget, 'on_enter'):
             new_widget.on_enter()
         if index == 0:
@@ -102,36 +105,51 @@ class WindowManager(QWidget):
             print(f"[DEBUG][WindowManager] Exiting start: return=None")
 
     def start_change_view(self, index: int = 0, callback=None) -> None:
+        """
+        Gère la transition animée entre les vues principales, ajuste le mode de travail (gradient/résolution)
+        et exécute un callback final si fourni.
+        - Avant la transition : passe en mode "repos" (is_work(False))
+        - Après l'animation : passe en mode "travail" (is_work(True))
+        - callback : appelé à la toute fin si fourni
+        """
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Entering start_change_view: args={{'index':{index}, 'callback':{callback}}}")
         current_index = self.stack.currentIndex()
-        if 1 in self.widgets and hasattr(self.widgets[1], 'set_background_gradient'):
-            print("caca")
 
-            self.widgets[1].set_background_gradient(False)
+        if 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
+            print(f"[DEBUG][WindowManager] Setting MainWindow is_work(False) before transition")
+            self.widgets[1].is_work(False)
+        
+        # Si déjà sur la bonne vue ou index invalide, on sort
         if index == current_index or index not in self.widgets:
             if DEBUG_WindowManager:
                 print(f"[DEBUG][WindowManager] Exiting start_change_view: return=None")
             return
         self._pending_index = index
+
+        def after_animation():
+            """
+            Callback appelé après la fin de l'animation de scroll et le nettoyage du scroll_overlay.
+            Passe en mode travail et exécute le callback utilisateur si fourni.
+            """
+            if 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
+                self.widgets[1].is_work(True)
+            if callback:
+                callback()
+
         def after_set_view():
-            if DEBUG_WindowManager:
-                print(f"[DEBUG][WindowManager] Exiting after_set_view: return=None")
+            """
+            Callback appelé après le changement de vue effectif (set_view).
+            Lance l'animation de scroll, puis le nettoyage, puis after_animation.
+            """
             self.scroll_overlay.start_scroll_animation(
                 stop_speed=30,
                 on_finished=lambda: self.scroll_overlay.hide_overlay(
                     on_hidden=lambda: self.scroll_overlay.clean_scroll(on_cleaned=after_animation)
                 )
             )
-            # Réactive le gradient après le changement de vue
 
-        def after_animation():
-            # Désactive le gradient uniquement après la fin de l'animation
-            if 1 in self.widgets and hasattr(self.widgets[1], 'set_background_gradient'):
-                print("caca2")
-                self.widgets[1].set_background_gradient(True)
-            if callback:
-                callback()
+        # Lance la transition : changement de vue puis animation
         self.scroll_overlay.raise_overlay(on_raised=lambda: self.set_view(index, callback=after_set_view))
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting start_change_view: return=None")

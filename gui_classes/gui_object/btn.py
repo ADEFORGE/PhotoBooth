@@ -157,11 +157,13 @@ class Btn(QPushButton):
         self.setChecked(False)
         self.setFocusPolicy(Qt.NoFocus)
 
+        import tempfile
         def to_bw(path: str):
             if os.path.exists(path):
                 with Image.open(path) as img:
                     buf = io.BytesIO()
-                    img.convert("L").save(buf, "PNG")
+                    # Remove ICC profile to avoid libpng grayscale warning
+                    img.convert("L").save(buf, "PNG", icc_profile=None)
                     return QPixmap.fromImage(QImage.fromData(buf.getvalue()))
             return None
 
@@ -171,20 +173,23 @@ class Btn(QPushButton):
             if pix:
                 self.setIcon(QIcon(pix))
         elif isinstance(self, BtnStyleTwo):
-            p = f"gui_template/btn_textures copy/{self.name}.png"
+            p = f"gui_template/btn_textures/{self.name}.png"  # Correction du chemin
             pix = to_bw(p)
             if pix:
-                tmp = f"/tmp/bw_{self.name}.png"
+                import tempfile
+                tmpdir = tempfile.gettempdir()
+                tmp = os.path.join(tmpdir, f"bw_{self.name}.png")
                 pix.save(tmp)
+                # Entourer le chemin de guillemets simples pour le CSS
                 style = f"""
                     QPushButton {{
                         border:2px solid black; border-radius:5px;
-                        background-image:url({tmp}); background-position:center;
+                        background-image:url('{tmp}'); background-position:center;
                         background-repeat:no-repeat; color:black;
                     }}
                     QPushButton:disabled {{
                         border:2px solid black; border-radius:5px;
-                        background-image:url({tmp}); background-position:center;
+                        background-image:url('{tmp}'); background-position:center;
                         background-repeat:no-repeat; color:black;
                     }}
                 """
@@ -285,7 +290,7 @@ class BtnStyleTwo(Btn):
         if DEBUG_BtnStyleTwo:
             print(f"[DEBUG][BtnStyleTwo] Entering __init__: args={(name, parent)}")
         super().__init__(name, parent)
-        texture_path = f"gui_template/btn_textures copy/{name}.png"
+        texture_path = f"gui_template/btn_textures/{name}.png"  # Correction du chemin
         style = BTN_STYLE_TWO.format(texture=texture_path)
         dyn = _compute_dynamic_size(QSize(80, 80))
         side = max(dyn.width(), dyn.height(), 120)

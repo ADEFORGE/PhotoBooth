@@ -157,39 +157,32 @@ class Btn(QPushButton):
         self.setChecked(False)
         self.setFocusPolicy(Qt.NoFocus)
 
-        import tempfile
-        def to_bw(path: str):
-            if os.path.exists(path):
-                with Image.open(path) as img:
-                    buf = io.BytesIO()
-                    # Remove ICC profile to avoid libpng grayscale warning
-                    img.convert("L").save(buf, "PNG", icc_profile=None)
-                    return QPixmap.fromImage(QImage.fromData(buf.getvalue()))
-            return None
+        def to_bw(src_path: str, dest_path: str):
+            if not os.path.exists(dest_path):
+                if os.path.exists(src_path):
+                    with Image.open(src_path) as img:
+                        img.convert("L").save(dest_path, "PNG", icc_profile=None)
+            return QPixmap(dest_path) if os.path.exists(dest_path) else None
 
         if isinstance(self, BtnStyleOne):
             p = f"gui_template/btn_icons/{self.name}.png"
-            pix = to_bw(p)
-            if pix:
+            pix = QPixmap(p)
+            if not pix.isNull():
                 self.setIcon(QIcon(pix))
         elif isinstance(self, BtnStyleTwo):
-            p = f"gui_template/btn_textures/{self.name}.png"  # Correction du chemin
-            pix = to_bw(p)
-            if pix:
-                import tempfile
-                tmpdir = tempfile.gettempdir()
-                tmp = os.path.join(tmpdir, f"bw_{self.name}.png")
-                pix.save(tmp)
-                # Entourer le chemin de guillemets simples pour le CSS
+            src = f"gui_template/btn_textures/{self.name}.png"
+            dest = f"gui_template/btn_textures/bw_{self.name}.png"
+            pix = to_bw(src, dest)
+            if pix and not pix.isNull():
                 style = f"""
                     QPushButton {{
                         border:2px solid black; border-radius:5px;
-                        background-image:url('{tmp}'); background-position:center;
+                        background-image:url('{dest}'); background-position:center;
                         background-repeat:no-repeat; color:black;
                     }}
                     QPushButton:disabled {{
                         border:2px solid black; border-radius:5px;
-                        background-image:url('{tmp}'); background-position:center;
+                        background-image:url('{dest}'); background-position:center;
                         background-repeat:no-repeat; color:black;
                     }}
                 """

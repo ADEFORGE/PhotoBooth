@@ -6,7 +6,6 @@ from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QW
 from gui_classes.gui_manager.thread_manager import CameraCaptureThread
 
 DEBUG_BackgroundManager = False
-DEBUG_MainWindow = False
 
 class BackgroundManager(QObject):
     """
@@ -59,11 +58,11 @@ class BackgroundManager(QObject):
         Outputs:
             None
         """
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering _on_frame_ready: args={{qimg:{qimg}}}")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering _on_frame_ready: args={{qimg:{qimg}}}")
         pix = QPixmap.fromImage(qimg)
         with QMutexLocker(self._mutex):
             self.last_camera = pix
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting _on_frame_ready: return=None")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting _on_frame_ready: return=None")
 
     def set_live(self) -> None:
         """
@@ -143,7 +142,7 @@ class BackgroundManager(QObject):
         Outputs:
             QPixmap: Appropriate pixmap based on current mode.
         """
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering get_pixmap: args=")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering get_pixmap: args=")
         with QMutexLocker(self._mutex):
             if self.current == 'generated' and self.generated:
                 result = self.generated
@@ -151,7 +150,7 @@ class BackgroundManager(QObject):
                 result = self.captured
             else:
                 result = self.last_camera
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting get_pixmap: return={result}")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting get_pixmap: return={result}")
         return result
 
     def render_pixmap(self, pix: QPixmap) -> None:
@@ -161,7 +160,7 @@ class BackgroundManager(QObject):
         Outputs:
             None
         """
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering render_pixmap: args={{pix:{pix}}}")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering render_pixmap: args={{pix:{pix}}}")
         self.label.lower()
         if self.rotation != 0:
             pix = pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)
@@ -180,7 +179,14 @@ class BackgroundManager(QObject):
         else:
             x = (nw - lw) // 2
             result = scaled.copy(x, 0, lw, lh)
-        grad = QPixmap("./gui_template/Gradient_1.png")
+        import os
+        gradient_path = os.path.join(os.path.dirname(__file__), "..", "..", "gui_template", "gradient", "gradient_1.png")
+        grad_path_abs = os.path.abspath(gradient_path)
+        if not os.path.exists(grad_path_abs):
+            print(f"[BackgroundManager] Gradient file not found: {grad_path_abs}")
+        grad = QPixmap(grad_path_abs)
+        if grad.isNull():
+            print(f"[BackgroundManager] Gradient QPixmap is null: {grad_path_abs}")
         if not grad.isNull():
             gs = grad.scaled(lw, lh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
             p2 = QPainter(result)
@@ -188,7 +194,7 @@ class BackgroundManager(QObject):
             p2.drawPixmap(0, 0, gs)
             p2.end()
         self.label.setPixmap(result)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting render_pixmap: return=None")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting render_pixmap: return=None")
 
     def update_background(self) -> None:
         """
@@ -197,11 +203,11 @@ class BackgroundManager(QObject):
         Outputs:
             None
         """
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering update_background: args=")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Entering update_background: args=")
         pix = self.get_pixmap()
         if pix:
             self.render_pixmap(pix)
-        if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting update_background: return=None")
+        # if DEBUG_BackgroundManager: print(f"[DEBUG][BackgroundManager] Exiting update_background: return=None")
 
     def close(self) -> None:
         """

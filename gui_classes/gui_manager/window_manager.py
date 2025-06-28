@@ -27,7 +27,6 @@ class TimerUpdateDisplay:
     def subscribe(self, func: Callable[[], None]) -> None:
         if func not in self._subscribers:
             self._subscribers.append(func)
-            print(f"[TimerUpdateDisplay] subscribe: {func}")
             if DEBUG_TimerUpdateDisplay:
                 print(f"[DEBUG][TimerUpdateDisplay] Subscribed: {func}")
 
@@ -62,7 +61,8 @@ class TimerUpdateDisplay:
             try:
                 func()
             except Exception as e:
-                print(f"[DEBUG][TimerUpdateDisplay] Exception in subscriber {func}: {e}")
+                if DEBUG_TimerUpdateDisplay:
+                    print(f"[DEBUG][TimerUpdateDisplay] Exception in subscriber {func}: {e}")
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting update_frame: return=None")
 

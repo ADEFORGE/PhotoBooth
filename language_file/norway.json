@@ -10,5 +10,16 @@
   "WelcomeWidget": {
     "title": "Velkommen til PhotoBooth!",
     "message": "Posér og ha det gøy. Klikk på kameraknappen for å starte."
-  }
+  },
+  "main_window": {
+    "title": "",
+    "message": "",
+    "popup":"Velg en stil først"
+  },
+    "style":{
+      "Cyberpunk": "Cyberpunk",
+      "Comic": "Tegneserie",
+      "Oil Paint": "Oljemaleri",
+      "Statue": "Skulptur"
+    } 
 }

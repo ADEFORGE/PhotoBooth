@@ -1,3 +1,4 @@
+from typing import Optional, Callable
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QResizeEvent
@@ -5,54 +6,53 @@ from gui_classes.gui_window.main_window import MainWindow
 from gui_classes.gui_window.sleepscreen_window import SleepScreenWindow
 from gui_classes.gui_object.scroll_widget import ScrollOverlay
 
-DEBUG_TimerUpdateDisplay = False
-DEBUG_WindowManager = False
+DEBUG_TimerUpdateDisplay: bool = False
+DEBUG_WindowManager: bool = True
 
 class TimerUpdateDisplay:
     def __init__(self, window_manager: QWidget, fps: int = 60) -> None:
         if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Entering __init__: args={{'window_manager':{window_manager}, 'fps':{fps}}}")
-        self.window_manager = window_manager
-        interval_ms = int(1000 / fps) if fps > 0 else 1000 // 60
-        self._timer = QTimer(self.window_manager)
+            print(f"[DEBUG][TimerUpdateDisplay] Entering __init__: args={{'window_manager':{window_manager!r}, 'fps':{fps!r}}}")
+        self.window_manager: QWidget = window_manager
+        interval_ms: int = int(1000 / fps) if fps > 0 else 1000 // 60
+        self._timer: QTimer = QTimer(self.window_manager)
         self._timer.setInterval(interval_ms)
         self._timer.timeout.connect(self.update_frame)
         self._timer.start()
-        self._fps = fps if fps > 0 else 60
+        self._fps: int = fps if fps > 0 else 60
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting __init__: return=None")
 
     def set_fps(self, fps: int) -> None:
-        """
-        Change dynamiquement le nombre de FPS du timer d'affichage.
-        """
-        if fps <= 0:
-            fps = 60
-        interval_ms = int(1000 / fps)
-        self._timer.setInterval(interval_ms)
-        self._fps = fps
         if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] FPS changed to {fps} (interval {interval_ms} ms)")
+            print(f"[DEBUG][TimerUpdateDisplay] Entering set_fps: args={{'fps':{fps!r}}}")
+        fps_value: int = fps if fps > 0 else 60
+        interval_ms: int = int(1000 / fps_value)
+        self._timer.setInterval(interval_ms)
+        self._fps = fps_value
+        if DEBUG_TimerUpdateDisplay:
+            print(f"[DEBUG][TimerUpdateDisplay] Exiting set_fps: return=None")
 
     def get_fps(self) -> int:
-        """
-        Retourne le FPS courant du timer.
-        """
-        return self._fps
+        if DEBUG_TimerUpdateDisplay:
+            print(f"[DEBUG][TimerUpdateDisplay] Entering get_fps: args={{}}")
+        result: int = self._fps
+        if DEBUG_TimerUpdateDisplay:
+            print(f"[DEBUG][TimerUpdateDisplay] Exiting get_fps: return={result!r}")
+        return result
 
     def update_mode(self, update_scroll: bool = True, update_background: bool = True) -> None:
-        """
-        Permet d'activer ou désactiver dynamiquement l'update du scroll_overlay et du background_manager.
-        - update_scroll : active/désactive l'update du scroll_overlay
-        - update_background : active/désactive l'update du background_manager
-        """
-        self._update_scroll = update_scroll
-        self._update_background = update_background
+        if DEBUG_TimerUpdateDisplay:
+            print(f"[DEBUG][TimerUpdateDisplay] Entering update_mode: args={{'update_scroll':{update_scroll!r}, 'update_background':{update_background!r}}}")
+        self._update_scroll: bool = update_scroll
+        self._update_background: bool = update_background
+        if DEBUG_TimerUpdateDisplay:
+            print(f"[DEBUG][TimerUpdateDisplay] Exiting update_mode: return=None")
 
     def update_frame(self) -> None:
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Entering update_frame: args={{}}")
-        wm = self.window_manager
+        wm: QWidget = self.window_manager
         if getattr(self, '_update_scroll', True):
             if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
                 wm.scroll_overlay.update_frame()
@@ -71,9 +71,9 @@ class WindowManager(QWidget):
         self.setWindowTitle("PhotoBooth")
         self.setStyleSheet("background: transparent;")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        layout = QVBoxLayout(self)
+        layout: QVBoxLayout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.stack = QStackedWidget()
+        self.stack: QStackedWidget = QStackedWidget()
         self.stack.setStyleSheet("background: transparent;")
         layout.addWidget(self.stack)
         self.widgets = {
@@ -82,26 +82,23 @@ class WindowManager(QWidget):
         }
         for w in self.widgets.values():
             self.stack.addWidget(w)
-        self._pending_index = None
-        self.scroll_overlay = ScrollOverlay(self)
-        self.scroll_overlay.hide_overlay()        
-        self.display_timer = TimerUpdateDisplay(self, fps=90)
+        self._pending_index: Optional[int] = None
+        self.scroll_overlay: ScrollOverlay = ScrollOverlay(self)
+        self.scroll_overlay.hide_overlay()
+        self.display_timer: TimerUpdateDisplay = TimerUpdateDisplay(self, fps=90)
         self.set_view(0)
         self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay())
-        
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 
-
     def resizeEvent(self, event: QResizeEvent) -> None:
         if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Entering resizeEvent: args={{'event':{event}}}")
+            print(f"[DEBUG][WindowManager] Entering resizeEvent: args={{'event':{event!r}}}")
         super().resizeEvent(event)
         if hasattr(self, 'scroll_overlay') and self.scroll_overlay:
             self.scroll_overlay.setGeometry(0, 0, self.width(), self.height())
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting resizeEvent: return=None")
-
 
     def start(self) -> None:
         if DEBUG_WindowManager:
@@ -110,52 +107,43 @@ class WindowManager(QWidget):
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting start: return=None")
 
-
     def set_view(self, index: int) -> None:
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Entering set_view: args={{'index':{index!r}}}")
         new_widget = self.widgets[index]
         self.stack.setCurrentWidget(new_widget)
         self.showFullScreen()
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Exiting set_view: return=None")
 
     def transition_window(self, index: int) -> None:
-        """
-        Effectue une transition animée vers la fenêtre d'index donné.
-        Si l'index est différent de la fenêtre courante :
-        - on_leave de l'appelante
-        - raise_overlay (sans callback)
-        - set_view vers l'index
-        - scroll_animation
-        - en callback de scroll_animation : on_enter de la nouvelle fenêtre
-        """
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Entering transition_window: args={{'index':{index!r}}}")
         current_index = self.stack.currentIndex()
-        print(f"[DEBUG][WindowManager] transition_window appelé avec index={index}, current_index={current_index}")
-        
-        if not index == current_index:        
+        if index != current_index:
             current_widget = self.stack.currentWidget()
-
-            # On_leave de l'appelante
             if hasattr(current_widget, 'on_leave'):
+                print(f"[DEBUG][WindowManager] Calling on_leave on {type(current_widget).__name__}")
                 current_widget.on_leave()
-
-            # Animation overlay (sans callback)
+            print(f"[DEBUG][WindowManager] Calling raise_overlay on scroll_overlay")
             self.scroll_overlay.raise_overlay()
-
-            # Changement de vue
+            print(f"[DEBUG][WindowManager] Calling set_view({index})")
             self.set_view(index)
-
             new_widget = self.stack.currentWidget()
             if hasattr(new_widget, 'on_enter'):
-                self.scroll_animation(1, index, new_widget.on_enter)
+                print(f"[DEBUG][WindowManager] Calling scroll_animation({index}, on_enter of {type(new_widget).__name__})")
+                self.scroll_animation(index, new_widget.on_enter)
             else:
-                self.scroll_animation(1, index)
+                print(f"[DEBUG][WindowManager] Calling scroll_animation({index}) (no on_enter)")
+                self.scroll_animation(index)
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Exiting transition_window: return=None")
 
-
-    def scroll_animation(self, mode: int, index: int, callback=None):
-        """
-        Lance l'animation de scroll, puis le nettoyage, puis le callback utilisateur.
-        Si mode == 1 : lance l'animation complète (comportement actuel).
-        Sinon : appelle directement le callback sans animation.
-        """
-        if mode == 1:
+    def scroll_animation(self, index: int, callback: Optional[Callable[[], None]] = None) -> None:
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Entering scroll_animation: args={{'index':{index!r}, 'callback':{callback!r}}}")
+        if index == 1:
+            print(f"[DEBUG][WindowManager] scroll_animation: index==1, starting scroll animation with stop_speed=30")
             self.scroll_overlay.start_scroll_animation(
                 stop_speed=30,
                 on_finished=lambda: self.scroll_overlay.hide_overlay(
@@ -164,8 +152,14 @@ class WindowManager(QWidget):
                     )
                 )
             )
-        elif mode == 0:
-            self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay(on_shown=callback))
-        
-        if callback:
-            callback()
+            if callback:
+                print(f"[DEBUG][WindowManager] scroll_animation: index==1, calling callback directly after animation trigger")
+                callback()
+        elif index == 0:
+            print(f"[DEBUG][WindowManager] scroll_animation: index==0, lowering overlay then showing overlay")
+            self.scroll_overlay.lower_overlay(on_lowered=lambda: [
+                self.scroll_overlay.show_overlay(),
+                (callback() if callback else None)
+            ])
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Exiting scroll_animation: return=None")

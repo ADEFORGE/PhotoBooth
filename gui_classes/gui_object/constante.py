@@ -440,7 +440,7 @@ QToolTip {
 """
 
 # --- Timer for auto-sleep/restore to welcome screen ---
-SLEEP_TIMER_SECONDS = 20  # Default inactivity timeout in seconds (can be changed)
+SLEEP_TIMER_SECONDS = 5  # Default inactivity timeout in seconds (can be changed)
 
 # --- Taille des boutons et logos (en % de la hauteur de l'écran) ---
 HUD_SIZE_RATIO = 0.08  # 8% de la hauteur de l'écran par défaut

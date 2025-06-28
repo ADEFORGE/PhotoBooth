@@ -10,5 +10,17 @@
   "WelcomeWidget": {
     "title": "Welcome to the PhotoBooth!",
     "message": "Strike a pose and have fun. Click the camera icon to get started."
-  }
+  },
+  "main_window": {
+    "title": "",
+    "message": "",
+    "popup":"Select a style first"
+  },
+    "style":{
+      "Cyberpunk": "Cyberpunk",
+      "Comic": "Comic",
+      "Oil Paint": "Oil Paint",
+      "Statue": "Statue"
+    }
+
 }

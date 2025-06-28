@@ -5,7 +5,7 @@ from gui_classes.gui_window.base_window import BaseWindow
 from gui_classes.gui_manager.language_manager import language_manager
 from gui_classes.gui_object.constante import GRID_WIDTH
 
-DEBUG_SleepScreenWindow: bool = False
+DEBUG_SleepScreenWindow: bool = True
 
 class SleepScreenWindow(BaseWindow):
     def __init__(self, parent: QWidget = None) -> None:

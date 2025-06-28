@@ -10,5 +10,16 @@
   "WelcomeWidget": {
     "title": "Bures boahtin PhotoBoothii!",
     "message": "Čuožžilit ja šaddet liekkus. Coahkkalat kameraoassiid ala vai álggahit."
-  }
+  },
+  "main_window": {
+    "title": "",
+    "message": "",
+    "popup":"Váldde stil evttaš"
+  },
+    "style":{
+      "Cyberpunk": "Cyberpunk",
+      "Comic": "Tegneserie",
+      "Oil Paint": "Olje‑málet",
+      "Statue": "Statua"
+    }
 }

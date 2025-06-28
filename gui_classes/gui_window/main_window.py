@@ -13,6 +13,7 @@ from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager
 from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
 from gui_classes.gui_object.toolbox import QRCodeUtils
+from gui_classes.gui_manager.language_manager import language_manager
 
 
 class MainWindow(BaseWindow):
@@ -40,8 +41,14 @@ class MainWindow(BaseWindow):
             self.overlay_widget.raise_()
         self.bg_label.lower()
         self.background_manager.update_background()
+        self._texts = {}
+        language_manager.subscribe(self.update_language)
+        self.update_language()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting __init__: return=None")
+
+    def update_language(self) -> None:
+        self._texts = language_manager.get_texts('main_window') or {}
 
     def on_enter(self) -> None:
         if DEBUG_MainWindow:
@@ -108,7 +115,8 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Entering take_selfie: args={{}}")
         if not getattr(self, 'selected_style', None):
             if hasattr(self, 'btns'):
-                self.show_message(self.btns.style1_btns, "Select a style first", TOOLTIP_DURATION_MS)
+                popup_msg = self._texts.get("popup", "Select a style first")
+                self.show_message(self.btns.style1_btns, popup_msg, TOOLTIP_DURATION_MS)
         else:
             self.selfie_countdown(
                 on_finished=lambda: (

@@ -116,7 +116,7 @@ class BackgroundManager(QObject):
         img.fill(Qt.red)
         self.set_generated(img)
 
-    def clear(self) -> None:
+    def cleanup(self) -> None:
         with QMutexLocker(self._mutex):
             self.captured = None
             self.generated = None
@@ -195,9 +195,16 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager:
             print("[BackgroundManager] on_enter: gradient ON, résolution 2 (FullHD)")
 
-    def on_leave(self) -> None:
-        """À appeler lors de la sortie de la vue : masque le gradient et met la résolution caméra à 0 (basse)."""
+    def on_leave(self, timer=None) -> None:
+        """À appeler lors de la sortie de la vue : masque le gradient, met la résolution caméra à 0 (basse) et désabonne update_background du timer si fourni."""
         self.show_gradient(False)
         self.set_camera_resolution(0)
+        if timer is not None:
+            timer.unsubscribe(self.update_background)
         if DEBUG_BackgroundManager:
             print("[BackgroundManager] on_leave: gradient OFF, résolution 0 (basse)")
+
+    def preset(self, timer=None):
+        """Abonne update_background au timer passé en argument."""
+        if timer is not None:
+            timer.subscribe(self.update_background)

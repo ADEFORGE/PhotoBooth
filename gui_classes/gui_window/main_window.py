@@ -64,7 +64,7 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Entering on_leave: args={{}}")
         if hasattr(self, 'background_manager'):
             self.background_manager.on_leave()
-        self.clean()
+        self.cleanup()
         self.hide_loading()
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
             try:
@@ -78,9 +78,9 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting on_leave: return=None")
 
-    def clean(self) -> None:
+    def cleanup(self) -> None:
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering clean: args={{}}")
+            print(f"[DEBUG][MainWindow] Entering cleanup: args={{}}")
         self._generation_in_progress = False
         if self._generation_task:
             if hasattr(self._generation_task, 'finished'):
@@ -88,10 +88,10 @@ class MainWindow(BaseWindow):
                     self._generation_task.finished.disconnect()
                 except Exception:
                     pass
-            self._generation_task.clean()
+            self._generation_task.cleanup()
             self._generation_task = None
         if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Exiting clean: return=None")
+            print(f"[DEBUG][MainWindow] Exiting cleanup: return=None")
 
     def set_generation_style(self, checked: bool, style_name: str, generate_image: bool = False) -> None:
         if DEBUG_MainWindow:
@@ -140,7 +140,7 @@ class MainWindow(BaseWindow):
     def selfie(self, callback: Optional[Callable[[], None]] = None) -> None:
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering selfie: args={{'callback':{callback}}}")
-        self.clean()
+        self.cleanup()
         if hasattr(self, 'background_manager'):
             self.background_manager.capture()
             pixmap = self.background_manager.get_background_image()
@@ -157,7 +157,7 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering generation: args={{'style_name':{style_name},'input_image':<QImage>,'callback':{callback}}}")
         if self._generation_task:
-            self.clean()
+            self.cleanup()
         self._generation_task = ImageGenerationThread(style=style_name, input_image=input_image, parent=self)
         if callback:
             self._generation_task.finished.connect(callback)
@@ -323,3 +323,8 @@ class MainWindow(BaseWindow):
             super().paintEvent(event)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting paintEvent: return=None")
+
+    def preset(self):
+        """Appelle le preset du background_manager si présent."""
+        if hasattr(self, 'background_manager'):
+            self.background_manager.preset()

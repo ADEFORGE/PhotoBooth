@@ -7,7 +7,7 @@ from gui_classes.gui_window.sleepscreen_window import SleepScreenWindow
 from gui_classes.gui_object.scroll_widget import ScrollOverlay
 
 DEBUG_TimerUpdateDisplay: bool = False
-DEBUG_WindowManager: bool = True
+DEBUG_WindowManager: bool = False
 
 class TimerUpdateDisplay:
     def __init__(self, window_manager: QWidget, fps: int = 60) -> None:
@@ -20,8 +20,22 @@ class TimerUpdateDisplay:
         self._timer.timeout.connect(self.update_frame)
         self._timer.start()
         self._fps: int = fps if fps > 0 else 60
+        self._subscribers = []  # Liste des callbacks abonnés
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting __init__: return=None")
+
+    def subscribe(self, func: Callable[[], None]) -> None:
+        if func not in self._subscribers:
+            self._subscribers.append(func)
+            print(f"[TimerUpdateDisplay] subscribe: {func}")
+            if DEBUG_TimerUpdateDisplay:
+                print(f"[DEBUG][TimerUpdateDisplay] Subscribed: {func}")
+
+    def unsubscribe(self, func: Callable[[], None]) -> None:
+        if func in self._subscribers:
+            self._subscribers.remove(func)
+            if DEBUG_TimerUpdateDisplay:
+                print(f"[DEBUG][TimerUpdateDisplay] Unsubscribed: {func}")
 
     def set_fps(self, fps: int) -> None:
         if DEBUG_TimerUpdateDisplay:
@@ -41,25 +55,14 @@ class TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting get_fps: return={result!r}")
         return result
 
-    def update_mode(self, update_scroll: bool = True, update_background: bool = True) -> None:
-        if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Entering update_mode: args={{'update_scroll':{update_scroll!r}, 'update_background':{update_background!r}}}")
-        self._update_scroll: bool = update_scroll
-        self._update_background: bool = update_background
-        if DEBUG_TimerUpdateDisplay:
-            print(f"[DEBUG][TimerUpdateDisplay] Exiting update_mode: return=None")
-
     def update_frame(self) -> None:
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Entering update_frame: args={{}}")
-        wm: QWidget = self.window_manager
-        if getattr(self, '_update_scroll', True):
-            if hasattr(wm, 'scroll_overlay') and wm.scroll_overlay.isVisible():
-                wm.scroll_overlay.update_frame()
-        if getattr(self, '_update_background', True):
-            current_widget = wm.stack.currentWidget()
-            if hasattr(current_widget, 'background_manager'):
-                current_widget.background_manager.update_background()
+        for func in self._subscribers:
+            try:
+                func()
+            except Exception as e:
+                print(f"[DEBUG][TimerUpdateDisplay] Exception in subscriber {func}: {e}")
         if DEBUG_TimerUpdateDisplay:
             print(f"[DEBUG][TimerUpdateDisplay] Exiting update_frame: return=None")
 
@@ -86,6 +89,9 @@ class WindowManager(QWidget):
         self.scroll_overlay: ScrollOverlay = ScrollOverlay(self)
         self.scroll_overlay.hide_overlay()
         self.display_timer: TimerUpdateDisplay = TimerUpdateDisplay(self, fps=90)
+        # Abonnement direct de update_frame du scroll_overlay au timer
+        if hasattr(self, 'scroll_overlay') and hasattr(self.scroll_overlay, 'update_frame'):
+            self.display_timer.subscribe(self.scroll_overlay.update_frame)
         self.set_view(0)
         self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay())
         if DEBUG_WindowManager:
@@ -121,6 +127,10 @@ class WindowManager(QWidget):
             print(f"[DEBUG][WindowManager] Entering transition_window: args={{'index':{index!r}}}")
         current_index = self.stack.currentIndex()
         if index != current_index:
+            new_widget = self.widgets[index]
+            if hasattr(new_widget, 'pre_set'):
+                print(f"[DEBUG][WindowManager] Calling pre_set on {type(new_widget).__name__}")
+                new_widget.pre_set()
             current_widget = self.stack.currentWidget()
             if hasattr(current_widget, 'on_leave'):
                 print(f"[DEBUG][WindowManager] Calling on_leave on {type(current_widget).__name__}")
@@ -148,7 +158,11 @@ class WindowManager(QWidget):
                 stop_speed=30,
                 on_finished=lambda: self.scroll_overlay.hide_overlay(
                     on_hidden=lambda: self.scroll_overlay.clean_scroll(
-                        on_cleaned=callback
+                        on_cleaned=lambda: (
+                            callback() if callback else None,
+                            # Désabonnement du scroll_overlay du timer à la toute fin
+                            self.display_timer.unsubscribe(self.scroll_overlay.update_frame) if hasattr(self.display_timer, 'unsubscribe') and hasattr(self.scroll_overlay, 'update_frame') else None
+                        )
                     )
                 )
             )
@@ -157,6 +171,9 @@ class WindowManager(QWidget):
                 callback()
         elif index == 0:
             print(f"[DEBUG][WindowManager] scroll_animation: index==0, lowering overlay then showing overlay")
+            # Abonnement du scroll_overlay au timer
+            if hasattr(self.display_timer, 'subscribe') and hasattr(self.scroll_overlay, 'update_frame'):
+                self.display_timer.subscribe(self.scroll_overlay.update_frame)
             self.scroll_overlay.lower_overlay(on_lowered=lambda: [
                 self.scroll_overlay.show_overlay(),
                 (callback() if callback else None)

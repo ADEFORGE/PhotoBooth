@@ -86,89 +86,12 @@ class WindowManager(QWidget):
         self.scroll_overlay = ScrollOverlay(self)
         self.scroll_overlay.hide_overlay()        
         self.display_timer = TimerUpdateDisplay(self, fps=90)
-        self.set_view(0, initial=True)
+        self.set_view(0)
+        self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay())
+        
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 
-    def set_view(self, index: int, initial: bool = False, callback=None) -> None:
-        if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Entering set_view: args={{'index':{index}, 'initial':{initial}, 'callback':{callback}}}")
-        new_widget = self.widgets[index]
-        self.stack.setCurrentWidget(new_widget)
-        self.showFullScreen()
-        # Si on passe sur la vue SleepScreen (index 0), on force is_work(False) sur MainWindow
-        if index == 0 and 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
-            self.widgets[1].is_work(False)
-        if hasattr(new_widget, 'on_enter'):
-            new_widget.on_enter()
-        if index == 0:
-            self.display_timer.update_mode(update_scroll=True, update_background=False)            
-            self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay(on_shown=callback))
-        if callback:
-            callback()
-        if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Exiting set_view: return=None")
-
-    def start(self) -> None:
-        if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Entering start: args={{}}")
-        self.showFullScreen()
-        if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Exiting start: return=None")
-
-    def start_change_view(self, index: int = 0, callback=None) -> None:
-        """
-        Gère la transition animée entre les vues principales, ajuste le mode de travail (gradient/résolution)
-        et exécute un callback final si fourni.
-        - Avant la transition : passe en mode "repos" (is_work(False))
-        - Après l'animation : passe en mode "travail" (is_work(True))
-        - callback : appelé à la toute fin si fourni
-        """
-        
-        if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Entering start_change_view: args={{'index':{index}, 'callback':{callback}}}")
-        current_index = self.stack.currentIndex()
-
-        if 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
-            print(f"[DEBUG][WindowManager] Setting MainWindow is_work(False) before transition")
-            self.widgets[1].is_work(False)
-            self.display_timer.update_mode(update_scroll=True, update_background=True)
-        
-        # Si déjà sur la bonne vue ou index invalide, on sort
-        if index == current_index or index not in self.widgets:
-            if DEBUG_WindowManager:
-                print(f"[DEBUG][WindowManager] Exiting start_change_view: return=None")
-            return
-        self._pending_index = index
-
-        def after_animation():
-            """
-            Callback appelé après la fin de l'animation de scroll et le nettoyage du scroll_overlay.
-            Passe en mode travail et exécute le callback utilisateur si fourni.
-            """
-            if 1 in self.widgets and hasattr(self.widgets[1], 'is_work'):
-                self.widgets[1].is_work(True)
-                self.display_timer.update_mode(update_scroll=False, update_background=True)
-            
-            if callback:
-                callback()
-
-        def after_set_view():
-            """
-            Callback appelé après le changement de vue effectif (set_view).
-            Lance l'animation de scroll, puis le nettoyage, puis after_animation.
-            """
-            self.scroll_overlay.start_scroll_animation(
-                stop_speed=30,
-                on_finished=lambda: self.scroll_overlay.hide_overlay(
-                    on_hidden=lambda: self.scroll_overlay.clean_scroll(on_cleaned=after_animation)
-                )
-            )
-
-        # Lance la transition : changement de vue puis animation
-        self.scroll_overlay.raise_overlay(on_raised=lambda: self.set_view(index, callback=after_set_view))
-        if DEBUG_WindowManager:
-            print(f"[DEBUG][WindowManager] Exiting start_change_view: return=None")
 
     def resizeEvent(self, event: QResizeEvent) -> None:
         if DEBUG_WindowManager:
@@ -178,3 +101,71 @@ class WindowManager(QWidget):
             self.scroll_overlay.setGeometry(0, 0, self.width(), self.height())
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting resizeEvent: return=None")
+
+
+    def start(self) -> None:
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Entering start: args={{}}")
+        self.showFullScreen()
+        if DEBUG_WindowManager:
+            print(f"[DEBUG][WindowManager] Exiting start: return=None")
+
+
+    def set_view(self, index: int) -> None:
+        new_widget = self.widgets[index]
+        self.stack.setCurrentWidget(new_widget)
+        self.showFullScreen()
+
+    def transition_window(self, index: int) -> None:
+        """
+        Effectue une transition animée vers la fenêtre d'index donné.
+        Si l'index est différent de la fenêtre courante :
+        - on_leave de l'appelante
+        - raise_overlay (sans callback)
+        - set_view vers l'index
+        - scroll_animation
+        - en callback de scroll_animation : on_enter de la nouvelle fenêtre
+        """
+        current_index = self.stack.currentIndex()
+        print(f"[DEBUG][WindowManager] transition_window appelé avec index={index}, current_index={current_index}")
+        
+        if not index == current_index:        
+            current_widget = self.stack.currentWidget()
+
+            # On_leave de l'appelante
+            if hasattr(current_widget, 'on_leave'):
+                current_widget.on_leave()
+
+            # Animation overlay (sans callback)
+            self.scroll_overlay.raise_overlay()
+
+            # Changement de vue
+            self.set_view(index)
+
+            new_widget = self.stack.currentWidget()
+            if hasattr(new_widget, 'on_enter'):
+                self.scroll_animation(1, index, new_widget.on_enter)
+            else:
+                self.scroll_animation(1, index)
+
+
+    def scroll_animation(self, mode: int, index: int, callback=None):
+        """
+        Lance l'animation de scroll, puis le nettoyage, puis le callback utilisateur.
+        Si mode == 1 : lance l'animation complète (comportement actuel).
+        Sinon : appelle directement le callback sans animation.
+        """
+        if mode == 1:
+            self.scroll_overlay.start_scroll_animation(
+                stop_speed=30,
+                on_finished=lambda: self.scroll_overlay.hide_overlay(
+                    on_hidden=lambda: self.scroll_overlay.clean_scroll(
+                        on_cleaned=callback
+                    )
+                )
+            )
+        elif mode == 0:
+            self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay(on_shown=callback))
+        
+        if callback:
+            callback()

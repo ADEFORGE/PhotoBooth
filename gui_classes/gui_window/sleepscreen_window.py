@@ -95,7 +95,7 @@ class SleepScreenWindow(BaseWindow):
     def on_camera_button_clicked(self) -> None:
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={{}}")
-        self.window().start_change_view(1)
+        self.window().transition_window(1)
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None")
 
@@ -132,3 +132,8 @@ class SleepScreenWindow(BaseWindow):
         language_manager.unsubscribe(self.update_language)
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Exiting on_leave: return=None")
+
+    def mousePressEvent(self, event):
+        # Rendre toute la fenêtre cliquable et lancer le même signal que le bouton
+        self.on_camera_button_clicked()
+        super().mousePressEvent(event)

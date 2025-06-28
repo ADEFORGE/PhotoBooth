@@ -296,7 +296,7 @@ class MainWindow(BaseWindow):
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.setGeometry(0, 0, self.width(), self.height())
             self.overlay_widget.raise_()
-        if hasattr(self, 'btns'):
+        if hasattr(self, 'btns') and self.btns is not None:
             self.btns.raise_()
         self.bg_label.lower()
 

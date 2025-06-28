@@ -18,11 +18,11 @@ class StandbyManager:
     def set_standby(self) -> None:
         if DEBUG_StandbyManager:
             print(f"[DEBUG][StandbyManager] Entering set_standby: args=()")
-        if hasattr(self.main_window, 'set_view'):
-            self.main_window.set_view(0)
+        if hasattr(self.main_window, 'transition_window'):
+            self.main_window.transition_window(0)
             ret = None
         else:
-            print("[StandbyManager] main_window has no set_view method!")
+            print("[StandbyManager] main_window has no transition_window method!")
             ret = None
         if DEBUG_StandbyManager:
             print(f"[DEBUG][StandbyManager] Exiting set_standby: return={ret}")

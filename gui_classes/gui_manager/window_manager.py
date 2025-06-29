@@ -170,13 +170,15 @@ class WindowManager(QWidget):
                 print(f"[DEBUG][WindowManager] scroll_animation: index==1, calling callback directly after animation trigger")
                 callback()
         elif index == 0:
-            print(f"[DEBUG][WindowManager] scroll_animation: index==0, lowering overlay then showing overlay")
+            print(f"[DEBUG][WindowManager] scroll_animation: index==0, restart scroll animation")
             # Abonnement du scroll_overlay au timer
             if hasattr(self.display_timer, 'subscribe') and hasattr(self.scroll_overlay, 'update_frame'):
                 self.display_timer.subscribe(self.scroll_overlay.update_frame)
-            self.scroll_overlay.lower_overlay(on_lowered=lambda: [
-                self.scroll_overlay.show_overlay(),
-                (callback() if callback else None)
-            ])
+            self.scroll_overlay.restart_scroll_animation(
+                start_speed=30,
+                on_finished=lambda: (
+                    callback() if callback else None
+                )
+            )
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting scroll_animation: return=None")

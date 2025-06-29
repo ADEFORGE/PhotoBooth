@@ -55,7 +55,7 @@ def get_scaled_pixmap(path: str, width: int, height: int) -> QPixmap:
     return scaled
 
 class Column:
-    def __init__(self, image_paths: list[str], x: float, img_w: int, img_h: int, num_rows: int, direction: int, scene: QGraphicsScene) -> None:
+    def __init__(self, image_paths: list[str], x: float, img_w: int, img_h: int, num_rows: int, direction: int, scene: QGraphicsScene, gradient_only: bool = False) -> None:
         """Inputs: image_paths, x, img_w, img_h, num_rows, direction, scene. Returns: None."""
         if DEBUG_Column:
             print(f"[DEBUG][Column] Entering __init__: args={{'image_paths':..., 'x':{x}, 'img_w':{img_w}, 'img_h':{img_h}, 'num_rows':{num_rows}, 'direction':{direction}}}")
@@ -65,8 +65,15 @@ class Column:
         self.scene = scene
         self.items = []
         self.total_height = img_h * num_rows
-        for _ in range(num_rows):
-            self._add_bottom()
+        self._all_changed_once = False
+        self._changed_count = 0
+        self._changed_total = num_rows
+        if gradient_only:
+            for _ in range(num_rows):
+                self._add_bottom(image_path="gui_template/gradient/gradient_3.png")
+        else:
+            for _ in range(num_rows):
+                self._add_bottom()
         if DEBUG_Column:
             print(f"[DEBUG][Column] Exiting __init__: return=None")
 
@@ -82,24 +89,30 @@ class Column:
             print(f"[DEBUG][Column] Exiting _create_item: return={item}")
         return item
 
-    def _add_top(self) -> None:
-        """Inputs: None. Returns: None."""
+    def _add_top(self, image_path: str = None) -> None:
+        """Ajoute un item en haut. Si image_path est fourni, utilise cette image, sinon choix aléatoire."""
         if not self.items:
             return
         y = min(item.y() for item in self.items) - self.img_h
-        choice = random.choice(self.image_paths)
+        if image_path is not None:
+            choice = image_path
+        else:
+            choice = random.choice(self.image_paths)
         if DEBUG_Column:
-            print(f"[DEBUG][Column] Entering _add_top: args={{}}")
+            print(f"[DEBUG][Column] Entering _add_top: args={{'image_path':{image_path}}}")
         self.items.append(self._create_item(choice, y))
         if DEBUG_Column:
             print(f"[DEBUG][Column] Exiting _add_top: return=None")
 
-    def _add_bottom(self) -> None:
-        """Inputs: None. Returns: None."""
+    def _add_bottom(self, image_path: str = None) -> None:
+        """Ajoute un item en bas. Si image_path est fourni, utilise cette image, sinon choix aléatoire."""
         if DEBUG_Column:
-            print(f"[DEBUG][Column] Entering _add_bottom: args={{}}")
+            print(f"[DEBUG][Column] Entering _add_bottom: args={{'image_path':{image_path}}}")
         y = max((item.y() for item in self.items), default=-self.img_h) + self.img_h
-        choice = random.choice(self.image_paths)
+        if image_path is not None:
+            choice = image_path
+        else:
+            choice = random.choice(self.image_paths)
         self.items.append(self._create_item(choice, y))
         if DEBUG_Column:
             print(f"[DEBUG][Column] Exiting _add_bottom: return=None")
@@ -146,34 +159,47 @@ class Column:
         self.items.clear()
         if DEBUG_Column:
             print(f"[DEBUG][Column] Exiting clear: return=None")
+    
+    def get_endstart(self) -> bool:
+        """Inputs: None. Returns: True if all images have changed at least once, otherwise False."""
+        print(f"[DEBUG][Column] Exiting get_endstart: return={self._all_changed_once}")
+        return self._all_changed_once
+        
 
-    def scroll(self, step: int = 1, infinite: bool = True) -> None:
-        """Inputs: step (int), infinite (bool). Returns: None."""
+    def scroll(self, step: int = 1, infinite: bool = True) -> bool:
+        """Inputs: step (int), infinite (bool). Returns: True la première fois que toutes les images ont été changées, sinon False."""
         if DEBUG_Column:
             print(f"[DEBUG][Column] Entering scroll: args={{'step':{step}, 'infinite':{infinite}}}")
         if not self.items:
             if DEBUG_Column:
                 print(f"[DEBUG][Column] Exiting scroll: return=None")
-            return
+            return False
+        changed_this_call = 0
         for it in list(self.items):
             it.setY(it.y() + step * self.direction)
         if infinite:
             if self.direction < 0:
                 if min(it.y() for it in self.items) + self.img_h < 0:
-                    self.remove_top(); self._add_bottom()
+                    self.remove_top(); self._add_bottom(); changed_this_call += 1
             else:
                 if max(it.y() for it in self.items) > self.total_height:
-                    self.remove_bottom(); self._add_top()
+                    self.remove_bottom(); self._add_top(); changed_this_call += 1
         else:
             if self.direction < 0 and min(it.y() for it in self.items) + self.img_h < 0:
-                self.remove_top()
+                self.remove_top(); changed_this_call += 1
             elif self.direction > 0 and max(it.y() for it in self.items) > self.total_height:
-                self.remove_bottom()
+                self.remove_bottom(); changed_this_call += 1
+        if not self._all_changed_once:
+            self._changed_count += changed_this_call
+            if self._changed_count >= self._changed_total:
+                self._all_changed_once = True
+                print(f"[DEBUG][Column] Exiting scroll: return=True (all images changed once)")
         if DEBUG_Column:
-            print(f"[DEBUG][Column] Exiting scroll: return=None")
+            print(f"[DEBUG][Column] Exiting scroll: return=False")
+        return False
 
 class ScrollTab:
-    def __init__(self, image_paths: list[str], view_w: int, view_h: int, margin_x: float = 2.5, margin_y: float = 2.5) -> None:
+    def __init__(self, image_paths: list[str], view_w: int, view_h: int, margin_x: float = 2.5, margin_y: float = 2.5, gradient_only: bool = False) -> None:
         """Inputs: image_paths, view_w, view_h, margin_x, margin_y. Returns: None."""
         if DEBUG_ScrollTab:
             print(f"[DEBUG][ScrollTab] Entering __init__: args={{...}}")
@@ -184,6 +210,7 @@ class ScrollTab:
         self.num_rows = max(1, int(ceil((diag / ih) * margin_y))) + 2  # Correction ici
         self.image_paths = image_paths
         self.columns = []
+        self.gradient_only = gradient_only
         self._col_params = [
             (i * iw, iw, ih, self.num_rows, -1 if i % 2 == 0 else 1)
             for i in range(self.num_cols)
@@ -197,7 +224,7 @@ class ScrollTab:
             print(f"[DEBUG][ScrollTab] Entering create_columns: args={{}}")
         self.columns.clear()
         for params in self._col_params:
-            self.columns.append(Column(self.image_paths, *params, scene))
+            self.columns.append(Column(self.image_paths, *params, scene, gradient_only=self.gradient_only))
         if DEBUG_ScrollTab:
             print(f"[DEBUG][ScrollTab] Exiting create_columns: return=None")
 
@@ -209,6 +236,13 @@ class ScrollTab:
         if DEBUG_ScrollTab:
             print(f"[DEBUG][ScrollTab] Exiting get_remaining_images: return={count}")
         return count
+    
+    def get_endstart(self) -> bool:
+        for col in self.columns:
+            if col.get_endstart():
+                print(f"[DEBUG][ScrollTab] Exiting get_endstart: return=True")
+                return True
+        return False
 
     def clear(self) -> None:
         """Inputs: None. Returns: None."""
@@ -249,6 +283,9 @@ class InfiniteScrollView(QGraphicsView):
         self._stopping = False
         self._stop_speed = None
         self._stop_callback = None
+        self._starting = False
+        self._start_speed = None
+        self._start_callback = None
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting __init__: return=None")
 
@@ -256,25 +293,24 @@ class InfiniteScrollView(QGraphicsView):
         """Inputs: painter, rect. Returns: None."""
         painter.fillRect(rect, Qt.transparent)
 
-    def reset(self) -> None:
-        """Inputs: None. Returns: None."""
+    def reset(self, gradient_only: bool = True) -> None:
+        """Inputs: gradient_only (bool). Returns: None."""
         if DEBUG_InfiniteScrollView:
-            print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{}}")
-        # self.timer.stop(); self.stop_timer.stop()  # SUPPRIMÉ
+            print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{'gradient_only':{gradient_only}}}")
         screen = QGuiApplication.primaryScreen()
         vw, vh = screen.size().width(), screen.size().height()
-        self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y)
+        self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, gradient_only=gradient_only)
         self.scroll_tab.create_columns(self._scene)
         self.center_view()
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting reset: return=None")
 
-    def start(self) -> None:
-        """Inputs: None. Returns: None."""
+    def start(self, restart: bool = False) -> None:
+        """Inputs: restart (bool). Returns: None."""
         if DEBUG_InfiniteScrollView:
-            print(f"[DEBUG][InfiniteScrollView] Entering start: args={{}}")
+            print(f"[DEBUG][InfiniteScrollView] Entering start: args={{'restart':{restart}}}")
         if self.scroll_tab is None:
-            self.reset()
+            self.reset(gradient_only=restart)
         # self.timer.start(max(1, int(1000 / self.fps)))  # SUPPRIMÉ
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting start: return=None")
@@ -283,6 +319,8 @@ class InfiniteScrollView(QGraphicsView):
         """Appelé par le timer global pour faire défiler le scroll ou l'animation d'arrêt selon l'état interne."""
         if self._stopping:
             self._on_stop_frame()
+        elif self._starting:
+            self._on_start_frame()
         else:
             self._on_frame()
 
@@ -303,6 +341,15 @@ class InfiniteScrollView(QGraphicsView):
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting _begin_stop_animation: return=None")
 
+    def _begin_start_animation(self, start_speed: int = 6, on_finished=None) -> None:
+        """Inputs: start_speed, on_finished. Returns: None."""
+        print(f"[DEBUG][InfiniteScrollView] Entering _begin_start_animation: args={{...}}")
+        self._starting = True
+        self._start_speed = start_speed
+        self._start_callback = on_finished
+        if DEBUG_InfiniteScrollView:
+            print(f"[DEBUG][InfiniteScrollView] Exiting _begin_start_animation: return=None")
+
     def _on_stop_frame(self) -> None:
         """Inputs: None. Returns: None."""
         if not self.scroll_tab:
@@ -317,6 +364,15 @@ class InfiniteScrollView(QGraphicsView):
             self._scene.clear()
             if self._stop_callback:
                 self._stop_callback()
+                
+    def _on_start_frame(self) -> None:
+        """Inputs: None. Returns: None."""
+        for col in self.scroll_tab.columns:
+            col.scroll(self._start_speed, infinite=True)
+            if  self.scroll_tab.get_endstart() and self._starting:
+                self._starting = False
+                if self._start_callback:
+                    self._start_callback()
 
     def stop(self) -> None:
         """Inputs: None. Returns: None."""
@@ -403,12 +459,12 @@ class InfiniteScrollWidget(QWidget):
     def update_frame(self):
         self._view.update_frame()
 
-    def start(self) -> None:
-        """Inputs: None. Returns: None."""
+    def start(self, restart: bool = False) -> None:
+        """Inputs: restart (bool). Returns: None."""
         if DEBUG_InfiniteScrollWidget:
-            print(f"[DEBUG][InfiniteScrollWidget] Entering start: args={{}}")
+            print(f"[DEBUG][InfiniteScrollWidget] Entering start: args={{'restart': {restart}}}")
         if not self._is_running:
-            self._view.start()
+            self._view.start(restart=restart)
             self._is_running = True
         if DEBUG_InfiniteScrollWidget:
             print(f"[DEBUG][InfiniteScrollWidget] Exiting start: return=None")
@@ -433,6 +489,15 @@ class InfiniteScrollWidget(QWidget):
         if DEBUG_InfiniteScrollWidget:
             print(f"[DEBUG][InfiniteScrollWidget] Exiting begin_stop: return=None")
 
+    def begin_start(self, start_speed: int = 1, on_finished=None) -> None:
+        """Inputs: start_speed, on_finished. Returns: None."""
+        print(f"[DEBUG][InfiniteScrollWidget] Entering begin_start: args={{...}}")
+        if self._is_running:
+            self._view._begin_start_animation(start_speed, on_finished)
+        if DEBUG_InfiniteScrollWidget:
+            print(f"[DEBUG][InfiniteScrollWidget] Exiting begin_start: return=None")
+
+  
     def setAngle(self, angle: float) -> None:
         """Inputs: angle. Returns: None."""
         if DEBUG_InfiniteScrollWidget:
@@ -572,6 +637,16 @@ class ScrollOverlay(QWidget):
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting start_scroll_animation: return=None")
 
+    def restart_scroll_animation(self, start_speed=30, on_finished=None):
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Entering restart_scroll_animation: args={{'start_speed': start_speed, 'on_finished': on_finished}}")
+        if self.scroll_widget:
+            self.lower_overlay(on_lowered=lambda: [
+                self.show_overlay(on_shown=lambda: self.scroll_widget.begin_start(start_speed=start_speed, on_finished=on_finished), restart=True)
+            ])
+        if DEBUG_ScrollOverlay:
+            print(f"[DEBUG][ScrollOverlay] Exiting restart_scroll_animation: return=None")
+
     def clean_scroll(self, on_cleaned=None):
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering clean_scroll: args={{'on_cleaned': on_cleaned}}")
@@ -603,16 +678,16 @@ class ScrollOverlay(QWidget):
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting hide_overlay: return=None")
 
-    def show_overlay(self, on_shown=None):
+    def show_overlay(self, on_shown=None, restart: bool = False):
         if DEBUG_ScrollOverlay:
-            print(f"[DEBUG][ScrollOverlay] Entering show_overlay: args={{'on_shown': on_shown}}")
+            print(f"[DEBUG][ScrollOverlay] Entering show_overlay: args={{'on_shown': {on_shown}, 'restart': {restart}}}")
         if not self.isVisible():
             self.show()
         running = False
         if hasattr(self.scroll_widget, 'isRunning'):
             running = self.scroll_widget.isRunning()
         if not running and self.scroll_widget:
-            self.scroll_widget.start()
+            self.scroll_widget.start(restart=restart)
         if on_shown:
             on_shown()
         if DEBUG_ScrollOverlay:

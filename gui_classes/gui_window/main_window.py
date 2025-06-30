@@ -118,6 +118,8 @@ class MainWindow(BaseWindow):
                 popup_msg = self._texts.get("popup", "Select a style first")
                 self.show_message(self.btns.style1_btns, popup_msg, TOOLTIP_DURATION_MS)
         else:
+            if self.standby_manager:
+                self.standby_manager.stop_standby_timer()
             self.selfie_countdown(
                 on_finished=lambda: (
                     self.selfie(

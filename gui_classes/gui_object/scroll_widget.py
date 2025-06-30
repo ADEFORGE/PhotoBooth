@@ -242,7 +242,8 @@ class ScrollTab:
     def get_endstart(self) -> bool:
         for col in self.columns:
             if col.get_endstart():
-                print(f"[DEBUG][ScrollTab] Exiting get_endstart: return=True")
+                if DEBUG_ScrollTab :
+                    print(f"[DEBUG][ScrollTab] Exiting get_endstart: return=True")
                 return True
         return False
 

@@ -236,12 +236,12 @@ class ImageGenerationThread(QObject):
             self._loading_overlay = None
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting hide_loading: return=None")
 
-    def clean(self) -> None:
+    def cleanup(self) -> None:
         """
         Inputs: none
         Outputs: stops and deletes thread and worker
         """
-        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering clean: args=()")
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering cleanup: args=()")
         self.stop()
         if self._thread:
             if QThread.currentThread() != self._thread:
@@ -252,7 +252,7 @@ class ImageGenerationThread(QObject):
                 self._thread = None
             else:
                 QTimer.singleShot(0, self._delete_thread_safe)
-        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting clean: return=None")
+        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting cleanup: return=None")
 
     def _delete_thread_safe(self) -> None:
         """

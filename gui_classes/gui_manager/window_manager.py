@@ -1,10 +1,11 @@
 from typing import Optional, Callable
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QApplication
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QResizeEvent
 from gui_classes.gui_window.main_window import MainWindow
 from gui_classes.gui_window.sleepscreen_window import SleepScreenWindow
 from gui_classes.gui_object.scroll_widget import ScrollOverlay
+from gui_classes.gui_manager.standby_manager import StandbyManager
 
 DEBUG_TimerUpdateDisplay: bool = False
 DEBUG_WindowManager: bool = True
@@ -94,6 +95,9 @@ class WindowManager(QWidget):
             self.display_timer.subscribe(self.scroll_overlay.update_frame)
         self.set_view(0)
         self.scroll_overlay.lower_overlay(on_lowered=lambda: self.scroll_overlay.show_overlay())
+        # Installe le StandbyManager comme eventFilter global
+        self.standby_manager = StandbyManager(self)
+        QApplication.instance().installEventFilter(self.standby_manager)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 

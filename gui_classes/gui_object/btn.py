@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QButtonGroup
 from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt, QEvent
+from PySide6.QtCore import QSize, Qt
 from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
 import os
 from PIL import Image
@@ -28,54 +28,15 @@ def _compute_dynamic_size(original_size: QSize) -> QSize:
 class Btn(QPushButton):
     def __init__(self, name: str, parent: QWidget = None) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering __init__: args={(name, parent)}")
+            print(f"[DEBUG][Btn] Entering __init__: args={{name, parent}}")
         super().__init__(parent)
         self.name = name
         self._connected_slots = []
         self.setObjectName(name)
         self._icon_path = None
-        self._setup_standby_manager_events()
+        # Suppression de la gestion standby
         if DEBUG_Btn:
             print(f"[DEBUG][Btn] Exiting __init__: return=None")
-
-    def _setup_standby_manager_events(self) -> None:
-        if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering _setup_standby_manager_events: args=()")
-        p = self.parent()
-        self._standby_manager = None
-        while p:
-            if getattr(p, "standby_manager", None):
-                self._standby_manager = p.standby_manager
-                break
-            p = p.parent() if hasattr(p, "parent") else None
-        if self._standby_manager:
-            self.installEventFilter(self)
-            self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
-        if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting _setup_standby_manager_events: return=None")
-
-    def eventFilter(self, obj, ev) -> bool:
-        if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering eventFilter: args={(obj, ev)}")
-        if obj is self and self._standby_manager:
-            if ev.type() == QEvent.Enter:
-                self._standby_manager.reset_standby_timer()
-            elif ev.type() == QEvent.MouseButtonPress:
-                self._standby_manager.reset_standby_timer()
-                self._standby_manager.stop_standby_timer()
-        result = super().eventFilter(obj, ev)
-        if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting eventFilter: return={result}")
-        return result
-
-    def _on_btn_clicked_reset_stop_timer(self) -> None:
-        if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering _on_btn_clicked_reset_stop_timer: args=()")
-        if self._standby_manager:
-            self._standby_manager.reset_standby_timer()
-            self._standby_manager.stop_standby_timer()
-        if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting _on_btn_clicked_reset_stop_timer: return=None")
 
     def initialize(self, style: str = None, icon_path: str = None, size: QSize = None, checkable: bool = False) -> None:
         if DEBUG_Btn:

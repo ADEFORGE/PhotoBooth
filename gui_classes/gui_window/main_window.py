@@ -119,7 +119,7 @@ class MainWindow(BaseWindow):
                 self.show_message(self.btns.style1_btns, popup_msg, TOOLTIP_DURATION_MS)
         else:
             if self.standby_manager:
-                self.standby_manager.stop_standby_timer()
+                self.standby_manager.put_standby(False)
             self.selfie_countdown(
                 on_finished=lambda: (
                     self.selfie(
@@ -243,8 +243,7 @@ class MainWindow(BaseWindow):
             self.background_manager.set_live()
             self.background_manager.update_background()
         if self.standby_manager:
-            self.standby_manager.set_timer_from_constante()
-            self.standby_manager.start_standby_timer()
+            self.standby_manager.put_standby(True)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_state_default: return=None")
 
@@ -260,7 +259,7 @@ class MainWindow(BaseWindow):
             self.btns.set_disabled_bw_style2()
         self.update_frame()
         if self.standby_manager:
-            self.standby_manager.stop_standby_timer()
+            self.standby_manager.put_standby(False)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_state_validation: return=None")
 
@@ -273,7 +272,7 @@ class MainWindow(BaseWindow):
                 btn.hide()
         self.update_frame()
         if self.standby_manager:
-            self.standby_manager.stop_standby_timer()
+            self.standby_manager.put_standby(False)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_state_wait: return=None")
 
@@ -293,8 +292,7 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering user_activity: args={{}}")
         if self.standby_manager:
-            self.standby_manager.set_timer_from_constante()
-            self.standby_manager.start_standby_timer()
+            self.standby_manager.put_standby(True)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting user_activity: return=None")
 

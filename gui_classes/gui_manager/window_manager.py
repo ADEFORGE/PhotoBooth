@@ -7,7 +7,7 @@ from gui_classes.gui_window.sleepscreen_window import SleepScreenWindow
 from gui_classes.gui_object.scroll_widget import ScrollOverlay
 
 DEBUG_TimerUpdateDisplay: bool = False
-DEBUG_WindowManager: bool = False
+DEBUG_WindowManager: bool = True
 
 class TimerUpdateDisplay:
     def __init__(self, window_manager: QWidget, fps: int = 60) -> None:

@@ -1,4 +1,4 @@
-DEBUG_MainWindow = False
+DEBUG_MainWindow = True
 
 from typing import Optional, Callable
 
@@ -278,8 +278,6 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Exiting set_state_wait: return=None")
 
     def update_frame(self) -> None:
-        if DEBUG_MainWindow:
-            print(f"[DEBUG][MainWindow] Entering update_frame: args={{}}")
         if self.generated_image and not isinstance(self.generated_image, str):
             self.background_manager.set_generated(self.generated_image)
         elif self.original_photo:

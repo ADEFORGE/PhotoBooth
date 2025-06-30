@@ -129,22 +129,28 @@ class WindowManager(QWidget):
         if index != current_index:
             new_widget = self.widgets[index]
             if hasattr(new_widget, 'pre_set'):
-                print(f"[DEBUG][WindowManager] Calling pre_set on {type(new_widget).__name__}")
+                if DEBUG_WindowManager:
+                    print(f"[DEBUG][WindowManager] Calling pre_set on {type(new_widget).__name__}")
                 new_widget.pre_set()
             current_widget = self.stack.currentWidget()
             if hasattr(current_widget, 'on_leave'):
-                print(f"[DEBUG][WindowManager] Calling on_leave on {type(current_widget).__name__}")
+                if DEBUG_WindowManager:
+                    print(f"[DEBUG][WindowManager] Calling on_leave on {type(current_widget).__name__}")
                 current_widget.on_leave()
-            print(f"[DEBUG][WindowManager] Calling raise_overlay on scroll_overlay")
+            if DEBUG_WindowManager:
+                print(f"[DEBUG][WindowManager] Calling raise_overlay on scroll_overlay")
             self.scroll_overlay.raise_overlay()
-            print(f"[DEBUG][WindowManager] Calling set_view({index})")
+            if DEBUG_WindowManager:
+                print(f"[DEBUG][WindowManager] Calling set_view({index})")
             self.set_view(index)
             new_widget = self.stack.currentWidget()
             if hasattr(new_widget, 'on_enter'):
-                print(f"[DEBUG][WindowManager] Calling scroll_animation({index}, on_enter of {type(new_widget).__name__})")
+                if DEBUG_WindowManager:
+                    print(f"[DEBUG][WindowManager] Calling scroll_animation({index}, on_enter of {type(new_widget).__name__})")
                 self.scroll_animation(index, new_widget.on_enter)
             else:
-                print(f"[DEBUG][WindowManager] Calling scroll_animation({index}) (no on_enter)")
+                if DEBUG_WindowManager:
+                    print(f"[DEBUG][WindowManager] Calling scroll_animation({index}) (no on_enter)")
                 self.scroll_animation(index)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting transition_window: return=None")
@@ -153,7 +159,8 @@ class WindowManager(QWidget):
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Entering scroll_animation: args={{'index':{index!r}, 'callback':{callback!r}}}")
         if index == 1:
-            print(f"[DEBUG][WindowManager] scroll_animation: index==1, starting scroll animation with stop_speed=30")
+            if DEBUG_WindowManager:
+                print(f"[DEBUG][WindowManager] scroll_animation: index==1, starting scroll animation with stop_speed=30")
             self.scroll_overlay.start_scroll_animation(
                 stop_speed=30,
                 on_finished=lambda: self.scroll_overlay.hide_overlay(
@@ -167,10 +174,12 @@ class WindowManager(QWidget):
                 )
             )
             if callback:
-                print(f"[DEBUG][WindowManager] scroll_animation: index==1, calling callback directly after animation trigger")
+                if DEBUG_WindowManager:
+                    print(f"[DEBUG][WindowManager] scroll_animation: index==1, calling callback directement après animation trigger")
                 callback()
         elif index == 0:
-            print(f"[DEBUG][WindowManager] scroll_animation: index==0, restart scroll animation")
+            if DEBUG_WindowManager:
+                print(f"[DEBUG][WindowManager] scroll_animation: index==0, restart scroll animation")
             # Abonnement du scroll_overlay au timer
             if hasattr(self.display_timer, 'subscribe') and hasattr(self.scroll_overlay, 'update_frame'):
                 self.display_timer.subscribe(self.scroll_overlay.update_frame)

@@ -162,7 +162,8 @@ class Column:
     
     def get_endstart(self) -> bool:
         """Inputs: None. Returns: True if all images have changed at least once, otherwise False."""
-        print(f"[DEBUG][Column] Exiting get_endstart: return={self._all_changed_once}")
+        if DEBUG_Column:
+            print(f"[DEBUG][Column] Exiting get_endstart: return={self._all_changed_once}")
         return self._all_changed_once
         
 
@@ -193,7 +194,8 @@ class Column:
             self._changed_count += changed_this_call
             if self._changed_count >= self._changed_total:
                 self._all_changed_once = True
-                print(f"[DEBUG][Column] Exiting scroll: return=True (all images changed once)")
+                if DEBUG_Column:
+                    print(f"[DEBUG][Column] Exiting scroll: return=True (all images changed once)")
         if DEBUG_Column:
             print(f"[DEBUG][Column] Exiting scroll: return=False")
         return False

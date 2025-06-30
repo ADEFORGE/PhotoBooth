@@ -45,12 +45,20 @@ class LanguageManager:
             print(f"[DEBUG][LanguageManager] Exiting load_language: return=None")
 
     def get_texts(self, key: str) -> Any:
-        if DEBUG_LanguageManager:
-            print(f"[DEBUG][LanguageManager] Entering get_texts: args=({key!r})")
-        value = self._lang_data.get(key, {})
-        if DEBUG_LanguageManager:
-            print(f"[DEBUG][LanguageManager] Exiting get_texts: return={value!r}")
-        return value
+        """
+        Retourne la valeur associée à `key` dans le JSON chargé.
+        Si la clé contient des points, on descend dans l’arborescence.
+        Exemples :
+          get_texts("main_window.popup") → "Velg en stil først"
+          get_texts("style")            → { "cyberpunk": "Cyberpunk", … }
+        """
+        parts = key.split('.')
+        node = self._lang_data
+        for part in parts:
+            if not isinstance(node, dict) or part not in node:
+                return {}   # clé non trouvée → fallback vide
+            node = node[part]
+        return node
 
     def subscribe(self, callback: Callable) -> None:
         if DEBUG_LanguageManager:

@@ -1,4 +1,4 @@
-DEBUG_MainWindow = True
+DEBUG_MainWindow = False
 
 from typing import Optional, Callable
 
@@ -227,9 +227,13 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
         self.clear_display()
+        # Prépare la liste des boutons style2 comme liste de paires (name, text_key)
+        style2 = [
+            (name, f"style.{name}") for name in dico_styles.keys()
+        ]
         self.setup_buttons(
             style1_names=["take_selfie"],
-            style2_names=list(dico_styles.keys()),
+            style2_names=style2,
             slot_style1=self.take_selfie,
             slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.text() if btn else None, generate_image=False)
         )

@@ -16,10 +16,10 @@
     "message": "",
     "popup":"Váldde stil evttaš"
   },
-    "style":{
-      "Cyberpunk": "Cyberpunk",
-      "Comic": "Tegneserie",
-      "Oil Paint": "Olje‑málet",
-      "Statue": "Statua"
-    }
+  "style":{
+    "cyberpunk": "Cyberpunk",
+    "comic": "Tegneserie",
+    "oil paint": "Olje‑málet",
+    "statue": "Statua"
+  }
 }

@@ -16,11 +16,11 @@
     "message": "",
     "popup":"Select a style first"
   },
-    "style":{
-      "Cyberpunk": "Cyberpunk",
-      "Comic": "Comic",
-      "Oil Paint": "Oil Paint",
-      "Statue": "Statue"
-    }
+  "style":{
+    "cyberpunk": "Cyberpunk",
+    "comic": "Comic",
+    "oil paint": "Oil Paint",
+    "statue": "Statue"
+  }
 
 }

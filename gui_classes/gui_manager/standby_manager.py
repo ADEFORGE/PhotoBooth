@@ -1,7 +1,7 @@
 from PySide6.QtCore import QTimer, QObject, QEvent
 from gui_classes.gui_object.constante import DEBUG, SLEEP_TIMER_SECONDS
 
-DEBUG_StandbyManager = True
+DEBUG_StandbyManager = False
 
 class StandbyManager(QObject):
     def __init__(self, main_window):
@@ -13,7 +13,7 @@ class StandbyManager(QObject):
         self.timer.setSingleShot(True)
         self._duration = SLEEP_TIMER_SECONDS
         self.timer.timeout.connect(self.set_standby)
-        self._standby_enabled = False  # Flag d'activation du standby
+        self._standby_enabled = True  # Flag d'activation du standby
         if DEBUG_StandbyManager:
             print(f"[DEBUG][StandbyManager] Exiting __init__: return=None")
 

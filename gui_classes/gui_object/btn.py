@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QButtonGroup
 from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QEvent
 from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
+from gui_classes.gui_manager.language_manager import language_manager
 import os
 from PIL import Image
 import io
@@ -28,15 +29,54 @@ def _compute_dynamic_size(original_size: QSize) -> QSize:
 class Btn(QPushButton):
     def __init__(self, name: str, parent: QWidget = None) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering __init__: args={{name, parent}}")
+            print(f"[DEBUG][Btn] Entering __init__: args={(name, parent)}")
         super().__init__(parent)
         self.name = name
         self._connected_slots = []
         self.setObjectName(name)
         self._icon_path = None
-        # Suppression de la gestion standby
+        self._setup_standby_manager_events()
         if DEBUG_Btn:
             print(f"[DEBUG][Btn] Exiting __init__: return=None")
+
+    def _setup_standby_manager_events(self) -> None:
+        if DEBUG_Btn:
+            print(f"[DEBUG][Btn] Entering _setup_standby_manager_events: args=()")
+        p = self.parent()
+        self._standby_manager = None
+        while p:
+            if getattr(p, "standby_manager", None):
+                self._standby_manager = p.standby_manager
+                break
+            p = p.parent() if hasattr(p, "parent") else None
+        if self._standby_manager:
+            self.installEventFilter(self)
+            self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
+        if DEBUG_Btn:
+            print(f"[DEBUG][Btn] Exiting _setup_standby_manager_events: return=None")
+
+    def eventFilter(self, obj, ev) -> bool:
+        if DEBUG_Btn:
+            print(f"[DEBUG][Btn] Entering eventFilter: args={(obj, ev)}")
+        if obj is self and self._standby_manager:
+            if ev.type() == QEvent.Enter:
+                self._standby_manager.reset_standby_timer()
+            elif ev.type() == QEvent.MouseButtonPress:
+                self._standby_manager.reset_standby_timer()
+                self._standby_manager.stop_standby_timer()
+        result = super().eventFilter(obj, ev)
+        if DEBUG_Btn:
+            print(f"[DEBUG][Btn] Exiting eventFilter: return={result}")
+        return result
+
+    def _on_btn_clicked_reset_stop_timer(self) -> None:
+        if DEBUG_Btn:
+            print(f"[DEBUG][Btn] Entering _on_btn_clicked_reset_stop_timer: args=()")
+        if self._standby_manager:
+            self._standby_manager.reset_standby_timer()
+            self._standby_manager.stop_standby_timer()
+        if DEBUG_Btn:
+            print(f"[DEBUG][Btn] Exiting _on_btn_clicked_reset_stop_timer: return=None")
 
     def initialize(self, style: str = None, icon_path: str = None, size: QSize = None, checkable: bool = False) -> None:
         if DEBUG_Btn:
@@ -162,7 +202,6 @@ class Btn(QPushButton):
         if DEBUG_Btn:
             print(f"[DEBUG][Btn] Exiting set_enabled_color: return=None")
 
-
 class BtnStyleOne(Btn):
     def __init__(self, name: str, parent: QWidget = None) -> None:
         if DEBUG_BtnStyleOne:
@@ -238,38 +277,63 @@ class BtnStyleOne(Btn):
         if DEBUG_BtnStyleOne:
             print(f"[DEBUG][BtnStyleOne] Exiting resizeEvent: return=None")
 
-
 class BtnStyleTwo(Btn):
-    def __init__(self, name: str, parent: QWidget = None) -> None:
-        if DEBUG_BtnStyleTwo:
-            print(f"[DEBUG][BtnStyleTwo] Entering __init__: args={(name, parent)}")
+    def __init__(self, name: str, text_key: str, parent: QWidget = None) -> None:
         super().__init__(name, parent)
-        texture_path = f"gui_template/btn_textures/{name}.png"  # Correction du chemin
+        self._text_key = text_key
+
+        # S’abonner aux changements de langue
+        language_manager.subscribe(self._refresh_text)
+
+        # Chemin de la texture et style CSS
+        texture_path = f"gui_template/btn_textures/{name}.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
+
+        # Calcul de la taille carrée
         dyn = _compute_dynamic_size(QSize(80, 80))
         side = max(dyn.width(), dyn.height(), 120)
         square = QSize(side, side)
-        self.setText(name)
+
+        # Initialisation de base
+        self.setText("")  # sera remplacé par _refresh_text()
         self.initialize(style=style, icon_path=None, size=square, checkable=True)
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
+
+        # Configuration de la police
         font = self.font()
         font.setFamily("Arial")
         font.setPointSize(int(side * BTN_STYLE_TWO_FONT_SIZE_PERCENT / 100))
         font.setBold(True)
         self.setFont(font)
         self.setStyleSheet(self.styleSheet() + "\ncolor: white;")
-        if DEBUG_BtnStyleTwo:
-            print(f"[DEBUG][BtnStyleTwo] Exiting __init__: return=None")
 
+        # Texte initial selon la langue courante
+        self._refresh_text()
+
+    def _refresh_text(self) -> None:
+        """
+        Récupère la traduction depuis LanguageManager et met à jour le label.
+        Si get_texts() renvoie un dict (e.g. pour 'style'), on extrait la sous-clé self.name.
+        """
+        value = language_manager.get_texts(self._text_key)
+        if isinstance(value, dict):
+            text = value.get(self.name, self.name)
+        else:
+            text = value or self.name
+        self.setText(text)
+
+    def cleanup(self) -> None:
+        # Désabonnement avant destruction
+        language_manager.unsubscribe(self._refresh_text)
+        super().cleanup()
 
 class Btns:
+    # signature modifiée : style2_names attend désormais une liste de tuples (name, text_key)
     def __init__(self, parent: QWidget, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None) -> None:
-        if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering __init__: args={(parent, style1_names, style2_names, slot_style1, slot_style2)}")
         self.parent = parent
         overlay = getattr(parent, "overlay_widget", parent)
         self.style1_btns = []
@@ -277,8 +341,6 @@ class Btns:
         self.button_group = QButtonGroup(overlay)
         self.button_group.setExclusive(True)
         self.setup_buttons(style1_names, style2_names, slot_style1, slot_style2)
-        if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting __init__: return=None")
 
     def lower_(self) -> None:
         if DEBUG_Btns:
@@ -289,20 +351,17 @@ class Btns:
             print(f"[DEBUG][Btns] Exiting lower_: return=None")
 
     def setup_buttons(self, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None, layout=None, start_row: int = 3) -> None:
-        if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering setup_buttons: args={(style1_names, style2_names, slot_style1, slot_style2, layout, start_row)}")
         self.lower_()
         self.clear_style1_btns()
         self.clear_style2_btns()
         for name in style1_names:
             self.add_style1_btn(name, slot_style1)
-        for name in style2_names:
-            self.add_style2_btn(name, slot_style2)
+        # style2_names est maintenant [(name, text_key), ...]
+        for name, text_key in style2_names:
+            self.add_style2_btn(name, text_key, slot_style2)
         if layout:
             self.place_all(layout, start_row)
         self.raise_()
-        if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting setup_buttons: return=None")
 
     def setup_buttons_style_1(self, style1_names: list, slot_style1=None, layout=None, start_row: int = 3) -> None:
         if DEBUG_Btns:
@@ -344,19 +403,15 @@ class Btns:
             print(f"[DEBUG][Btns] Exiting add_style1_btn: return={btn}")
         return btn
 
-    def add_style2_btn(self, name: str, slot_style2=None):
-        if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering add_style2_btn: args={(name, slot_style2)}")
+    def add_style2_btn(self, name: str, text_key: str, slot_style2=None):
         overlay = getattr(self.parent, "overlay_widget", self.parent)
-        btn = BtnStyleTwo(name, parent=overlay)
+        btn = BtnStyleTwo(name, text_key, parent=overlay)
         if isinstance(slot_style2, str):
             btn.connect_by_name(self.parent, slot_style2)
         elif callable(slot_style2):
             btn.clicked.connect(lambda checked, b=btn: slot_style2(checked, b))
         self.button_group.addButton(btn)
         self.style2_btns.append(btn)
-        if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting add_style2_btn: return={btn}")
         return btn
 
     def remove_style1_btn(self, name: str) -> None:

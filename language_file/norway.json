@@ -16,10 +16,10 @@
     "message": "",
     "popup":"Velg en stil først"
   },
-    "style":{
-      "Cyberpunk": "Cyberpunk",
-      "Comic": "Tegneserie",
-      "Oil Paint": "Oljemaleri",
-      "Statue": "Skulptur"
-    } 
+  "style":{
+    "cyberpunk": "Cyberpunk",
+    "comic": "Tegneserie",
+    "oil paint": "Oljemaleri",
+    "statue": "Skulptur"
+  }
 }

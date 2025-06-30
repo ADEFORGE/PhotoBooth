@@ -102,7 +102,10 @@ class BackgroundManager(QObject):
     def capture(self) -> None:
         with QMutexLocker(self._mutex):
             if self.last_camera:
-                self.captured = QPixmap(self.last_camera)
+                pix = QPixmap(self.last_camera)
+                if self.rotation:
+                    pix = pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)
+                self.captured = pix
             self.current = 'captured'
 
     def set_generated(self, qimage: QImage) -> None:

@@ -13,7 +13,7 @@ class StandbyManager(QObject):
         self.timer.setSingleShot(True)
         self._duration = SLEEP_TIMER_SECONDS
         self.timer.timeout.connect(self.set_standby)
-        self._standby_enabled = True  # Flag d'activation du standby
+        self._standby_enabled = False  # Flag d'activation du standby
         if DEBUG_StandbyManager:
             print(f"[DEBUG][StandbyManager] Exiting __init__: return=None")
 
@@ -26,6 +26,8 @@ class StandbyManager(QObject):
             self.reset_standby_timer()
         else:
             self.stop_standby_timer()
+        if DEBUG_StandbyManager:
+            print(f"[DEBUG][StandbyManager] put_standby: standby_enabled={self._standby_enabled}")
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.MouseButtonPress:
@@ -35,13 +37,19 @@ class StandbyManager(QObject):
 
     def set_standby(self) -> None:
         if DEBUG_StandbyManager:
-            print(f"[DEBUG][StandbyManager] Entering set_standby: args=()")
-        if hasattr(self.main_window, 'transition_window'):
-            self.main_window.transition_window(0)
-            ret = None
+            print(f"[DEBUG][StandbyManager] Entering set_standby: args={self._standby_enabled}")
+        if self._standby_enabled:
+            if DEBUG_StandbyManager:
+                print(f"[DEBUG][StandbyManager] Standby activé, timer expiré")
+            if hasattr(self.main_window, 'transition_window'):
+                self.main_window.transition_window(0)
+                ret = None
+            else:
+                print("[StandbyManager] main_window has no transition_window method!")
+                ret = None
         else:
-            print("[StandbyManager] main_window has no transition_window method!")
-            ret = None
+            if DEBUG_StandbyManager:
+                print(f"[DEBUG][StandbyManager] Standby désactivé, timer non démarré")
         if DEBUG_StandbyManager:
             print(f"[DEBUG][StandbyManager] Exiting set_standby: return={ret}")
 

@@ -31,6 +31,7 @@ class MainWindow(BaseWindow):
         self._generation_in_progress = False
         self._countdown_callback_active = False
         self.standby_manager = StandbyManager(parent) if hasattr(parent, 'set_view') else None
+        QApplication.instance().installEventFilter(self.standby_manager)
         self.bg_label = QLabel(self)
         self.bg_label.setAlignment(Qt.AlignCenter)
         self.bg_label.setStyleSheet("background: black;")
@@ -42,6 +43,7 @@ class MainWindow(BaseWindow):
         self.bg_label.lower()
         self.background_manager.update_background()
         self._texts = {}
+
         language_manager.subscribe(self.update_language)
         self.update_language()
         if DEBUG_MainWindow:

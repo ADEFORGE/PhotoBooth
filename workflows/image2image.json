@@ -1,107 +1,370 @@
 {
   "3": {
     "inputs": {
-      "seed": 156680208700286,
-      "steps": 20,
-      "cfg": 8,
-      "sampler_name": "euler",
-      "scheduler": "normal",
-      "denoise": 1,
-      "model": [
-        "4",
-        0
-      ],
-      "positive": [
-        "6",
-        0
-      ],
-      "negative": [
-        "7",
-        0
-      ],
-      "latent_image": [
-        "5",
-        0
-      ]
+      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
     },
-    "class_type": "KSampler",
+    "class_type": "ControlNetLoader",
     "_meta": {
-      "title": "KSampler"
-    }
-  },
-  "4": {
-    "inputs": {
-      "ckpt_name": "v1-5-pruned-emaonly-fp16.safetensors"
-    },
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "Load Checkpoint"
-    }
-  },
-  "5": {
-    "inputs": {
-      "width": 2048,
-      "height": 2048,
-      "batch_size": 1
-    },
-    "class_type": "EmptyLatentImage",
-    "_meta": {
-      "title": "Empty Latent Image"
+      "title": "Load ControlNet Model"
     }
   },
   "6": {
     "inputs": {
-      "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
-      "clip": [
-        "4",
-        1
+      "images": [
+        "17",
+        0
       ]
     },
-    "class_type": "CLIPTextEncode",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "Preview Image"
     }
   },
   "7": {
     "inputs": {
-      "text": "text, watermark",
-      "clip": [
-        "4",
-        1
+      "images": [
+        "23",
+        5
       ]
     },
-    "class_type": "CLIPTextEncode",
+    "class_type": "PreviewImage",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "8": {
-    "inputs": {
-      "samples": [
-        "3",
-        0
-      ],
-      "vae": [
-        "4",
-        2
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
+      "title": "Preview Image"
     }
   },
   "9": {
     "inputs": {
+      "upscale_model": [
+        "14",
+        0
+      ],
+      "image": [
+        "23",
+        5
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "Upscale Image (using Model)"
+    }
+  },
+  "11": {
+    "inputs": {
+      "images": [
+        "23",
+        5
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "12": {
+    "inputs": {
       "filename_prefix": "ComfyUI",
       "images": [
-        "8",
+        "9",
         0
       ]
     },
     "class_type": "SaveImage",
     "_meta": {
       "title": "Save Image"
+    }
+  },
+  "14": {
+    "inputs": {
+      "model_name": "RealESRGAN_x2.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "16": {
+    "inputs": {
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "17": {
+    "inputs": {
+      "image": "WIN_20250616_12_16_56_Pro.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "18": {
+    "inputs": {
+      "input_mode": "simple",
+      "lora_count": 1,
+      "lora_name_1": "SD1.5\\lcm\\pytorch_lora_weights.safetensors",
+      "lora_wt_1": 1,
+      "model_str_1": 1,
+      "clip_str_1": 1,
+      "lora_name_2": "None",
+      "lora_wt_2": 1,
+      "model_str_2": 1,
+      "clip_str_2": 1,
+      "lora_name_3": "None",
+      "lora_wt_3": 1,
+      "model_str_3": 1,
+      "clip_str_3": 1
+    },
+    "class_type": "LoRA Stacker",
+    "_meta": {
+      "title": "LoRA Stacker"
+    }
+  },
+  "19": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors",
+      "vae_name": "Baked VAE",
+      "clip_skip": -1,
+      "lora_name": "None",
+      "lora_model_strength": 1,
+      "lora_clip_strength": 1,
+      "positive": "A portrait of a person in the style of a traditional oil painting, soft natural lighting, clair obscur, large expressive brush strokes, paint cracks, paint layers, colorful palette, classic painterly aesthetic, elegant and timeless composition, highly detailed, canvas texture visible, inspired by old master techniques",
+      "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
+      "token_normalization": "mean",
+      "weight_interpretation": "comfy",
+      "empty_latent_width": [
+        "20",
+        0
+      ],
+      "empty_latent_height": [
+        "21",
+        0
+      ],
+      "batch_size": 1,
+      "lora_stack": [
+        "18",
+        0
+      ],
+      "cnet_stack": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "Efficient Loader",
+    "_meta": {
+      "title": "Efficient Loader"
+    }
+  },
+  "20": {
+    "inputs": {
+      "expression": "a/b\n\n",
+      "a": [
+        "16",
+        0
+      ],
+      "b": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "Math Expression 🐍"
+    }
+  },
+  "21": {
+    "inputs": {
+      "expression": "a/b",
+      "a": [
+        "16",
+        1
+      ],
+      "b": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "MathExpression|pysssss",
+    "_meta": {
+      "title": "Math Expression 🐍"
+    }
+  },
+  "23": {
+    "inputs": {
+      "seed": 156045693641255,
+      "steps": 30,
+      "cfg": 8,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1,
+      "preview_method": "auto",
+      "vae_decode": "true",
+      "model": [
+        "59",
+        0
+      ],
+      "positive": [
+        "19",
+        1
+      ],
+      "negative": [
+        "19",
+        2
+      ],
+      "latent_image": [
+        "19",
+        3
+      ],
+      "optional_vae": [
+        "19",
+        4
+      ]
+    },
+    "class_type": "KSampler (Efficient)",
+    "_meta": {
+      "title": "KSampler (Efficient)"
+    }
+  },
+  "26": {
+    "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "3",
+        0
+      ],
+      "image": [
+        "45",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
+    }
+  },
+  "42": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "45": {
+    "inputs": {
+      "preprocessor": "CannyEdgePreprocessor",
+      "resolution": [
+        "16",
+        0
+      ],
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "AIO Aux Preprocessor"
+    }
+  },
+  "46": {
+    "inputs": {
+      "images": [
+        "45",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "47": {
+    "inputs": {
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "control_net": [
+        "48",
+        0
+      ],
+      "image": [
+        "17",
+        0
+      ],
+      "cnet_stack": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "Control Net Stacker",
+    "_meta": {
+      "title": "Control Net Stacker"
+    }
+  },
+  "48": {
+    "inputs": {
+      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "59": {
+    "inputs": {
+      "weight": 1,
+      "start_at": 0,
+      "end_at": 1,
+      "weight_type": "prompt is more important",
+      "model": [
+        "61",
+        0
+      ],
+      "ipadapter": [
+        "61",
+        1
+      ],
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "IPAdapter",
+    "_meta": {
+      "title": "IPAdapter"
+    }
+  },
+  "61": {
+    "inputs": {
+      "preset": "FACEID PLUS V2",
+      "lora_strength": 0.6,
+      "provider": "CUDA",
+      "model": [
+        "19",
+        0
+      ]
+    },
+    "class_type": "IPAdapterUnifiedLoaderFaceID",
+    "_meta": {
+      "title": "IPAdapter Unified Loader FaceID"
+    }
+  },
+  "67": {
+    "inputs": {
+      "value": 2
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
     }
   }
 }

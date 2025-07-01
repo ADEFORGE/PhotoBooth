@@ -188,9 +188,9 @@ class WindowManager(QWidget):
             self.scroll_overlay.restart_scroll_animation(
                 start_speed=30,
                 on_finished=lambda: (
-                    callback() if callback else None
+                    (callback() if callback else None),
+                    self.display_timer.set_fps(30)
                 )
             )
-            self.display_timer.set_fps(30)
         if DEBUG_WindowManager:
             print(f"[DEBUG][WindowManager] Exiting scroll_animation: return=None")

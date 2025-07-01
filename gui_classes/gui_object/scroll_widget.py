@@ -45,36 +45,53 @@ def get_scaled_pixmap(path: str, width: int, height: int) -> QPixmap:
     return scaled
 
 class Column:
-    def __init__(self, image_paths: List[str], x: float, img_w: int, img_h: int, num_rows: int, direction: int, scene: QGraphicsScene, gradient_only: bool = False) -> None:
-        if DEBUG_Column:
-            print(f"[DEBUG][Column] Entering __init__: args={{'image_paths':..., 'x':{x}, 'img_w':{img_w}, 'img_h':{img_h}, 'num_rows':{num_rows}, 'direction':{direction}}}")
+    def __init__(
+        self,
+        image_paths: List[str],
+        x: float,
+        img_w: int,
+        img_h: int,
+        num_rows: int,
+        direction: int,
+        scene: QGraphicsScene,
+        gradient_only: bool = False
+    ) -> None:
+        # --- initialisation des attributs de base ---
         self.image_paths = image_paths
         self.x, self.img_w, self.img_h = x, img_w, img_h
         self.num_rows, self.direction = num_rows, direction
         self.scene = scene
-        self.items: List[QGraphicsPixmapItem] = []
         self.total_height = img_h * num_rows
+
+        # on crée **tôt** la liste items pour éviter l'erreur
+        self.items: List[QGraphicsPixmapItem] = []
+
+        # flags de l'animation
         self._all_changed_once = False
         self._changed_count = 0
         self._changed_total = num_rows
+        self.gradient_only = gradient_only
+
+        # cache des pixmaps redimensionnés (une seule fois)
+        self._pixmap_cache = {
+            path: get_scaled_pixmap(path, self.img_w, self.img_h)
+            for path in self.image_paths
+        }
+
+        # remplissage initial (gradient ou aléatoire)
         if gradient_only:
             for _ in range(num_rows):
                 self._add_bottom(image_path="gui_template/gradient/gradient_3.png")
         else:
             for _ in range(num_rows):
                 self._add_bottom()
-        if DEBUG_Column:
-            print(f"[DEBUG][Column] Exiting __init__: return=None")
 
     def _create_item(self, path: str, y: float) -> QGraphicsPixmapItem:
-        if DEBUG_Column:
-            print(f"[DEBUG][Column] Entering _create_item: args={{'path':{path}, 'y':{y}}}")
-        pixmap = get_scaled_pixmap(path, self.img_w, self.img_h)
+        # === MODIF : on prend la pixmap depuis le cache au lieu de la rescaler à chaque fois ===
+        pixmap = self._pixmap_cache[path]
         item = QGraphicsPixmapItem(pixmap)
         item.setPos(self.x, y)
         self.scene.addItem(item)
-        if DEBUG_Column:
-            print(f"[DEBUG][Column] Exiting _create_item: return={item}")
         return item
 
     def _add_top(self, image_path: Optional[str] = None) -> None:
@@ -142,55 +159,89 @@ class Column:
         return self._all_changed_once
 
     def scroll(self, step: int = 1, infinite: bool = True) -> bool:
-        if DEBUG_Column:
-            print(f"[DEBUG][Column] Entering scroll: args={{'step':{step}, 'infinite':{infinite}}}")
-        if not self.items:
-            if DEBUG_Column:
-                print(f"[DEBUG][Column] Exiting scroll: return=None")
-            return False
-        changed_this_call = 0
-        for it in list(self.items):
+        """
+        Nouvelle version sans appel à min()/max() globals.
+        On utilise self._min_y et self._max_y.
+        """
+        # 1) déplacer tous les items
+        for it in self.items:
             it.setY(it.y() + step * self.direction)
+
+        changed = 0
+
         if infinite:
             if self.direction < 0:
-                if min(it.y() for it in self.items) + self.img_h < 0:
-                    self.remove_top(); self._add_bottom(); changed_this_call += 1
+                # scroll vers le haut : on regarde seulement ceux passés au-dessus
+                for it in list(self.items):
+                    if it.y() + self.img_h < 0:
+                        # on recycle en bas, en utilisant _max_y
+                        new_y = self._max_y + self.img_h
+                        it.setY(new_y)
+                        choice = random.choice(self.image_paths)
+                        it.setPixmap(self._pixmap_cache[choice])
+                        changed += 1
+                        # on déplace la borne supérieure
+                        self._max_y = new_y
             else:
-                if max(it.y() for it in self.items) > self.total_height:
-                    self.remove_bottom(); self._add_top(); changed_this_call += 1
+                # scroll vers le bas
+                for it in list(self.items):
+                    if it.y() > self.total_height:
+                        new_y = self._min_y - self.img_h
+                        it.setY(new_y)
+                        choice = random.choice(self.image_paths)
+                        it.setPixmap(self._pixmap_cache[choice])
+                        changed += 1
+                        self._min_y = new_y
+
         else:
-            if self.direction < 0 and min(it.y() for it in self.items) + self.img_h < 0:
-                self.remove_top(); changed_this_call += 1
-            elif self.direction > 0 and max(it.y() for it in self.items) > self.total_height:
-                self.remove_bottom(); changed_this_call += 1
-        if not self._all_changed_once:
-            self._changed_count += changed_this_call
+            # suppression pure, inchangée
+            if self.direction < 0:
+                for it in list(self.items):
+                    if it.y() + self.img_h < 0:
+                        self.scene.removeItem(it)
+                        self.items.remove(it)
+            else:
+                for it in list(self.items):
+                    if it.y() > self.total_height:
+                        self.scene.removeItem(it)
+                        self.items.remove(it)
+
+        # 2) gérer le flag “tout changé une fois”
+        if infinite and not self._all_changed_once:
+            self._changed_count += changed
             if self._changed_count >= self._changed_total:
                 self._all_changed_once = True
-                if DEBUG_Column:
-                    print(f"[DEBUG][Column] Exiting scroll: return=True (all images changed once)")
-        if DEBUG_Column:
-            print(f"[DEBUG][Column] Exiting scroll: return=False")
+                return True
+
         return False
 
+
 class ScrollTab:
-    def __init__(self, image_paths: List[str], view_w: int, view_h: int, margin_x: float = 2.5, margin_y: float = 2.5, gradient_only: bool = False) -> None:
-        if DEBUG_ScrollTab:
-            print(f"[DEBUG][ScrollTab] Entering __init__: args={{...}}")
+    def __init__(self, image_paths: List[str], view_w: int, view_h: int,
+                 margin_x: float = 1.2, margin_y: float = 1.2,
+                 gradient_only: bool = False) -> None:
+        """
+        On remplace le calcul sur la diagonale par un strict covering horizontal/vertical
+        + un petit bonus (margin_x/margin_y ~1.2) pour éviter les trous.
+        """
         pix = QPixmap(image_paths[0])
         iw, ih = pix.width(), pix.height()
-        diag = (view_w ** 2 + view_h ** 2) ** 0.5
-        self.num_cols = max(1, int(ceil((diag / iw) * margin_x)))
-        self.num_rows = max(1, int(ceil((diag / ih) * margin_y))) + 2
+
+        # Nouvelle logique : juste assez de colonnes pour couvrir la largeur
+        self.num_cols = max(1, int(ceil(view_w / iw * margin_x)))
+        # Et de lignes pour couvrir la hauteur (+2 lignes de buffer)
+        self.num_rows = max(1, int(ceil(view_h / ih * margin_y))) + 2
+
         self.image_paths = image_paths
         self.columns: List[Column] = []
         self.gradient_only = gradient_only
+
+        # On stocke les paramètres de chaque colonne :
         self._col_params = [
             (i * iw, iw, ih, self.num_rows, -1 if i % 2 == 0 else 1)
             for i in range(self.num_cols)
         ]
-        if DEBUG_ScrollTab:
-            print(f"[DEBUG][ScrollTab] Exiting __init__: return=None")
+
 
     def create_columns(self, scene: QGraphicsScene) -> None:
         if DEBUG_ScrollTab:

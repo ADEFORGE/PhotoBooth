@@ -2,7 +2,7 @@ import json
 import os
 import glob
 import time
-#import requests
+import requests
 import datetime
 import random
 from gui_classes.gui_object.constante import dico_styles

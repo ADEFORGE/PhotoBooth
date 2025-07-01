@@ -31,7 +31,8 @@ class StandbyManager(QObject):
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.MouseButtonPress:
-            print(f"[StandbyManager] Clic détecté sur {obj} à la position {event.pos()}")
+            if DEBUG_StandbyManager:
+                print(f"[StandbyManager] Clic détecté sur {obj} à la position {event.pos()}")
             self.reset_standby_timer()
         return super().eventFilter(obj, event)
 

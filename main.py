@@ -1,24 +1,16 @@
 # main.py
-from constante import DEBUG
+from gui_classes.gui_object.constante import DEBUG
+from PySide6.QtWidgets import QApplication
+from gui_classes.gui_manager.window_manager import WindowManager
+import sys
 
-
-def main():
-    """Main entry point of the application."""
-    import sys
-    import cProfile
-    import pstats
-
+def main():    
     if DEBUG:
-        print("[MAIN] Starting application with debug mode enabled.")
-
-    from PySide6.QtWidgets import QApplication
-    from gui_mainwindow import MainWindow
-
+        print("[MAIN] Starting application with debug mode enabled.") 
     app = QApplication(sys.argv)
-    win = MainWindow()
-    win.showFullScreen()
+    manager = WindowManager()
+    manager.show()
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main()

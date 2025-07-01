@@ -310,30 +310,32 @@ class ImageGenerationThread(QObject):
                         return
                     arr = ImageUtils.qimage_to_cv(self.input_image)
                     os.makedirs("../ComfyUI/input", exist_ok=True)
+                    import cv2
                     cv2.imwrite("../ComfyUI/input/input.png", arr)
                     self.api.generate_image()
                     if not self._running:
                         self.finished.emit(None)
                         if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
-                    output_dir = os.path.abspath("../ComfyUI/output")
-                    files = glob.glob(os.path.join(output_dir, "*.png"))
-                    if not files:
+                    # Use robust image loading logic
+                    qimg = self.api.get_last_generated_image(timeout=15.0)
+                    if qimg is None or qimg.isNull():
+                        if DEBUG_ImageGenerationWorker:
+                            print(f"[DEBUG][ImageGenerationWorker] Failed to load generated image, falling back to input image.")
                         self.finished.emit(self.input_image)
-                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
-                        return
-                    latest = max(files, key=os.path.getmtime)
-                    img = cv2.imread(latest)
-                    if img is None:
-                        self.finished.emit(self.input_image)
-                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
-                        return
-                    qimg = ImageUtils.cv_to_qimage(img)
+                    else:
+                        if DEBUG_ImageGenerationWorker:
+                            print(f"[DEBUG][ImageGenerationWorker] Successfully loaded generated image.")
+                        self.finished.emit(qimg)
+                    # Clean up input and output images
                     inp = os.path.abspath("../ComfyUI/input/input.png")
                     if os.path.exists(inp): os.remove(inp)
-                    if os.path.exists(latest): os.remove(latest)
-                    self.finished.emit(qimg)
-                except Exception:
+                    # Optionally, clean up output images if desired
+                    # for f in self.api.get_image_paths():
+                    #     if os.path.exists(f): os.remove(f)
+                except Exception as e:
+                    if DEBUG_ImageGenerationWorker:
+                        print(f"[DEBUG][ImageGenerationWorker] Exception: {e}")
                     self.finished.emit(self.input_image)
                 if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
 

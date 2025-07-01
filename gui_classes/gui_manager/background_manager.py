@@ -103,8 +103,7 @@ class BackgroundManager(QObject):
         with QMutexLocker(self._mutex):
             if self.last_camera:
                 pix = QPixmap(self.last_camera)
-                if self.rotation:
-                    pix = pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)
+                # Ne plus appliquer la rotation ici
                 self.captured = pix
             self.current = 'captured'
 
@@ -144,7 +143,12 @@ class BackgroundManager(QObject):
         if pix is None:
             self.label.clear()
             return
-        if self.rotation:
+        # Appliquer la rotation uniquement pour la caméra ou la capture
+        apply_rotation = False
+        with QMutexLocker(self._mutex):
+            if self.current in ('live', 'captured'):
+                apply_rotation = True
+        if apply_rotation and self.rotation:
             pix = pix.transformed(
                 QTransform().rotate(self.rotation),
                 Qt.SmoothTransformation
@@ -182,7 +186,11 @@ class BackgroundManager(QObject):
         self.thread.wait()
 
     def get_background_image(self) -> QPixmap | None:
-        return self.get_pixmap()
+        pix = self.get_pixmap()
+        # Appliquer la rotation uniquement si définie
+        if pix and self.rotation:
+            return pix.transformed(QTransform().rotate(self.rotation), Qt.SmoothTransformation)
+        return pix
 
     def set_camera_resolution(self, level: int) -> None:
         """Change la résolution du flux caméra (wrapper sur CameraCaptureThread.set_resolution_level)."""

@@ -71,8 +71,8 @@ class Column:
 
         # cache des QPixmaps déjà scalés
         self._pixmap_cache = {
-            path: get_scaled_pixmap(path, self.img_w, self.img_h)
-            for path in self.image_paths
+            path: get_scaled_pixmap(path, img_w, img_h)
+            for path in set(image_paths + ["gui_template/gradient/gradient_3.png"])
         }
 
         # remplissage initial dans une liste temporaire
@@ -654,9 +654,11 @@ class ScrollOverlay(QWidget):
 
     def restart_scroll_animation(self, start_speed: int = 30, on_finished: Optional[Callable] = None) -> None:
         if DEBUG_ScrollOverlay:
-            print(f"[DEBUG][ScrollOverlay] Entering restart_scroll_animation: args={{'start_speed':{start_speed}, 'on_finished':{on_finished}}}")
+            print(f"[DEBUG][ScrollOverlay] Entering restart_scroll_animation: args={{'start_speed': start_speed, 'on_finished': on_finished}}")
         if self.scroll_widget:
-            self.scroll_widget.begin_start(start_speed=start_speed, on_finished=on_finished)
+            self.lower_overlay(on_lowered=lambda: [
+                self.show_overlay(on_shown=lambda: self.scroll_widget.begin_start(start_speed=start_speed, on_finished=on_finished), restart=True)
+            ])
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting restart_scroll_animation: return=None")
 

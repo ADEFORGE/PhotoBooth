@@ -54,7 +54,16 @@ class Overlay(QWidget):
 
     def center_overlay(self) -> None:
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering center_overlay: args=()")
-        screen = self.screen() if hasattr(self, 'screen') and self.screen() else QApplication.primaryScreen()
+        # Robust multi-monitor centering: center on the screen containing the parent or window
+        screen = None
+        # Try to get the screen from the parent widget or window
+        parent = self.parentWidget() or self.window() or None
+        if parent is not None and hasattr(parent, 'screen'):
+            screen = parent.screen()
+        if screen is None and hasattr(self, 'screen'):
+            screen = self.screen()
+        if screen is None:
+            screen = QApplication.primaryScreen()
         if screen:
             geometry = screen.geometry()
             w, h = self.width(), self.height()

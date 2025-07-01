@@ -56,35 +56,36 @@ class Column:
         scene: QGraphicsScene,
         gradient_only: bool = False
     ) -> None:
-        # --- initialisation des attributs de base ---
+        # … (autres initialisations inchangées) …
         self.image_paths = image_paths
         self.x, self.img_w, self.img_h = x, img_w, img_h
         self.num_rows, self.direction = num_rows, direction
         self.scene = scene
+        self.items: List[QGraphicsPixmapItem] = []
         self.total_height = img_h * num_rows
 
-        # on crée **tôt** la liste items pour éviter l'erreur
-        self.items: List[QGraphicsPixmapItem] = []
-
-        # flags de l'animation
+        # flags de changement
         self._all_changed_once = False
         self._changed_count = 0
         self._changed_total = num_rows
+
+        # on conserve ce mode pour le scroll
         self.gradient_only = gradient_only
 
-        # cache des pixmaps redimensionnés (une seule fois)
+        # cache des pixmaps déjà scalés
         self._pixmap_cache = {
             path: get_scaled_pixmap(path, self.img_w, self.img_h)
             for path in self.image_paths
         }
 
-        # remplissage initial (gradient ou aléatoire)
+        # remplissage initial
         if gradient_only:
             for _ in range(num_rows):
                 self._add_bottom(image_path="gui_template/gradient/gradient_3.png")
         else:
             for _ in range(num_rows):
                 self._add_bottom()
+
 
     def _create_item(self, path: str, y: float) -> QGraphicsPixmapItem:
         # === MODIF : on prend la pixmap depuis le cache au lieu de la rescaler à chaque fois ===
@@ -93,6 +94,7 @@ class Column:
         item.setPos(self.x, y)
         self.scene.addItem(item)
         return item
+
 
     def _add_top(self, image_path: Optional[str] = None) -> None:
         if not self.items:
@@ -160,53 +162,59 @@ class Column:
 
     def scroll(self, step: int = 1, infinite: bool = True) -> bool:
         """
-        Nouvelle version sans appel à min()/max() globals.
-        On utilise self._min_y et self._max_y.
+        Déplace tous les items de 'step' * direction.
+
+        - Si infinite=True : on recycle (reposition + change pixmap).
+        - Si infinite=False: on supprime les items sortis pour faire baisser le compte.
+
+        Retourne True dès que, en mode gradient_only, chaque ligne aura été scrollée au moins une fois.
         """
-        # 1) déplacer tous les items
+        # 1) Déplacement de tous les items
         for it in self.items:
             it.setY(it.y() + step * self.direction)
 
         changed = 0
 
         if infinite:
+            # ————— Mode infini : recyclage circulaire —————
             if self.direction < 0:
-                # scroll vers le haut : on regarde seulement ceux passés au-dessus
+                # scroll vers le haut
+                max_y = max(it.y() for it in self.items)
                 for it in list(self.items):
                     if it.y() + self.img_h < 0:
-                        # on recycle en bas, en utilisant _max_y
-                        new_y = self._max_y + self.img_h
-                        it.setY(new_y)
+                        # repositionne en bas + nouvelle image
+                        it.setY(max_y + self.img_h)
                         choice = random.choice(self.image_paths)
                         it.setPixmap(self._pixmap_cache[choice])
                         changed += 1
-                        # on déplace la borne supérieure
-                        self._max_y = new_y
+                        max_y += self.img_h
             else:
                 # scroll vers le bas
+                min_y = min(it.y() for it in self.items)
                 for it in list(self.items):
                     if it.y() > self.total_height:
-                        new_y = self._min_y - self.img_h
-                        it.setY(new_y)
+                        it.setY(min_y - self.img_h)
                         choice = random.choice(self.image_paths)
                         it.setPixmap(self._pixmap_cache[choice])
                         changed += 1
-                        self._min_y = new_y
+                        min_y -= self.img_h
 
         else:
-            # suppression pure, inchangée
+            # ————— Mode arrêt : suppression pure —————
             if self.direction < 0:
+                # on retire les items passés au-dessus
                 for it in list(self.items):
                     if it.y() + self.img_h < 0:
                         self.scene.removeItem(it)
                         self.items.remove(it)
             else:
+                # on retire les items passés en-dessous
                 for it in list(self.items):
                     if it.y() > self.total_height:
                         self.scene.removeItem(it)
                         self.items.remove(it)
 
-        # 2) gérer le flag “tout changé une fois”
+        # 2) Gestion du flag “tout changé une fois” (uniquement en infinite)
         if infinite and not self._all_changed_once:
             self._changed_count += changed
             if self._changed_count >= self._changed_total:

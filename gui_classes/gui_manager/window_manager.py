@@ -88,7 +88,7 @@ class WindowManager(QWidget):
         self._pending_index: Optional[int] = None
         self.scroll_overlay: ScrollOverlay = ScrollOverlay(self)
         self.scroll_overlay.hide_overlay()
-        self.display_timer: TimerUpdateDisplay = TimerUpdateDisplay(self, fps=90)
+        self.display_timer: TimerUpdateDisplay = TimerUpdateDisplay(self, fps=30)
         # Abonnement direct de update_frame du scroll_overlay au timer
         if hasattr(self, 'scroll_overlay') and hasattr(self.scroll_overlay, 'update_frame'):
             self.display_timer.subscribe(self.scroll_overlay.update_frame)
@@ -162,6 +162,7 @@ class WindowManager(QWidget):
         if index == 1:
             if DEBUG_WindowManager:
                 print(f"[DEBUG][WindowManager] scroll_animation: index==1, starting scroll animation with stop_speed=30")
+            self.display_timer.set_fps(80)
             self.scroll_overlay.start_scroll_animation(
                 stop_speed=30,
                 on_finished=lambda: self.scroll_overlay.hide_overlay(
@@ -187,7 +188,8 @@ class WindowManager(QWidget):
             self.scroll_overlay.restart_scroll_animation(
                 start_speed=30,
                 on_finished=lambda: (
-                    callback() if callback else None
+                    (callback() if callback else None),
+                    self.display_timer.set_fps(30)
                 )
             )
         if DEBUG_WindowManager:

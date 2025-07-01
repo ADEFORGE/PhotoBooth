@@ -321,6 +321,10 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering paintEvent: args={{'event':{event}}}")
         painter = QPainter(self)
+        if not painter.isActive():
+            if DEBUG_MainWindow:
+                print("[DEBUG][MainWindow] QPainter not active, skipping paintEvent.")
+            return
         painter.fillRect(self.rect(), self._default_background_color)
         painter.end()
         if hasattr(super(), 'paintEvent'):

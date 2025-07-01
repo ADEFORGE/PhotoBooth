@@ -281,6 +281,7 @@ class BtnStyleTwo(Btn):
     def __init__(self, name: str, text_key: str, parent: QWidget = None) -> None:
         super().__init__(name, parent)
         self._text_key = text_key
+        self.style_name = name 
 
         # S’abonner aux changements de langue
         language_manager.subscribe(self._refresh_text)

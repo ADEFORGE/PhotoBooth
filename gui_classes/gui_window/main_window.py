@@ -235,7 +235,7 @@ class MainWindow(BaseWindow):
             style1_names=["take_selfie"],
             style2_names=style2,
             slot_style1=self.take_selfie,
-            slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.text() if btn else None, generate_image=False)
+            slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.style_name if btn else None, generate_image=False)
         )
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.raise_()

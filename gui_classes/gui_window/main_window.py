@@ -26,7 +26,7 @@ class MainWindow(BaseWindow):
         self.setAutoFillBackground(False)
         self.showFullScreen()
         self._default_background_color = QColor(0, 0, 0)
-        self.countdown_overlay_manager = CountdownThread(self, 3)
+        self.countdown_overlay_manager = CountdownThread(self, 5)
         self._generation_task = None
         self._generation_in_progress = False
         self._countdown_callback_active = False

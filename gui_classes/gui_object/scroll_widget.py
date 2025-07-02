@@ -1,5 +1,5 @@
-DEBUG_ImageLoader = True
-DEBUG_Column = True
+DEBUG_ImageLoader = False
+DEBUG_Column = False
 DEBUG_ScrollTab = False
 DEBUG_InfiniteScrollView = False
 DEBUG_InfiniteScrollWidget = False
@@ -16,6 +16,7 @@ from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
 from PySide6.QtWidgets import (
     QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QWidget, QVBoxLayout, QLabel
 )
+from PIL import Image
 
 class ImageLoader:
     @staticmethod
@@ -25,7 +26,7 @@ class ImageLoader:
         if not os.path.isdir(folder_path):
             raise RuntimeError(f"Dossier introuvable: {folder_path}")
         paths = [
-            os.path.join(folder_path, f).replace("\\", "/")
+            os.path.join(folder_path, f)
             for f in sorted(os.listdir(folder_path))
             if os.path.splitext(f.lower())[1] in {'.png', '.jpg', '.jpeg', '.bmp', '.gif'}
         ]
@@ -33,20 +34,36 @@ class ImageLoader:
             print(f"[DEBUG][ImageLoader] Exiting load_paths: return={paths}")
         return paths
 
+    @staticmethod
+    def resize_images_in_folder(folder_path: str, width: int = 340) -> None:
+        """
+        Redimensionne toutes les images du dossier à la largeur donnée (par défaut 340px),
+        conserve le ratio, et remplace les fichiers d'origine.
+        """
+        for f in sorted(os.listdir(folder_path)):
+            ext = os.path.splitext(f.lower())[1]
+            if ext in {'.png', '.jpg', '.jpeg', '.bmp', '.gif'}:
+                img_path = os.path.join(folder_path, f)
+                try:
+                    with Image.open(img_path) as im:
+                        w, h = im.size
+                        if w == width:
+                            continue  # déjà à la bonne taille
+                        ratio = h / w
+                        new_h = int(width * ratio)
+                        im = im.resize((width, new_h), Image.LANCZOS)
+                        im.save(img_path)
+                except Exception as e:
+                    print(f"[ImageLoader] Erreur lors du redimensionnement de {img_path}: {e}")
+
 @lru_cache(maxsize=256)
-def get_scaled_pixmap(path: str, width: int = 340, height: int = None) -> QPixmap:
+def get_scaled_pixmap(path: str, width: int, height: int) -> QPixmap:
     if DEBUG_ImageLoader:
         print(f"[DEBUG][ImageLoader] Entering get_scaled_pixmap: args={{'path':{path}, 'width':{width}, 'height':{height}}}")
     pix = QPixmap(path)
     if pix.isNull():
         raise RuntimeError(f"Impossible de charger l'image: {path}")
-    # Fixe la largeur à 340 et calcule la hauteur pour garder le ratio
-    if width is None:
-        width = 340
-    if height is None:
-        ratio = pix.height() / pix.width()
-        height = int(width * ratio)
-    scaled = pix.scaled(width, height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    scaled = pix.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
     if DEBUG_ImageLoader:
         print(f"[DEBUG][ImageLoader] Exiting get_scaled_pixmap: return={scaled}")
     return scaled
@@ -64,26 +81,22 @@ class Column:
         gradient_only: bool = False
     ) -> None:
         self.image_paths = image_paths
-        self.x = x
+        self.x, self.img_w, self.img_h = x, img_w, img_h
         self.num_rows, self.direction = num_rows, direction
         self.scene = scene
-        self.gradient_only = gradient_only
-
-        # cache des QPixmaps déjà scalés (largeur 340, hauteur auto)
-        self._pixmap_cache = {
-            path: get_scaled_pixmap(path, 340)
-            for path in set(image_paths + ["gui_template/gradient/gradient_3.png"])
-        }
-        # On récupère la hauteur réelle de la pixmap redimensionnée
-        sample_pixmap = next(iter(self._pixmap_cache.values()))
-        self.img_w = sample_pixmap.width()
-        self.img_h = sample_pixmap.height()
-        self.total_height = self.img_h * num_rows
+        self.total_height = img_h * num_rows
 
         # flags
         self._all_changed_once = False
         self._changed_count = 0
         self._changed_total = num_rows
+        self.gradient_only = gradient_only
+
+        # cache des QPixmaps déjà scalés
+        self._pixmap_cache = {
+            path: get_scaled_pixmap(path, img_w, img_h)
+            for path in set(image_paths + ["gui_template/gradient/gradient_3.png"])
+        }
 
         # remplissage initial dans une liste temporaire
         temp_items = []
@@ -322,6 +335,8 @@ class InfiniteScrollView(QGraphicsView):
         self._scene = QGraphicsScene(self)
         self._scene.setBackgroundBrush(Qt.transparent)
         self.setScene(self._scene)
+        # Redimensionne toutes les images du dossier avant de les charger
+        ImageLoader.resize_images_in_folder(folder_path, width=340)
         self.image_paths = ImageLoader.load_paths(folder_path)
         self.speed, self.fps = float(scroll_speed), fps
         self.margin_x, self.margin_y = margin_x, margin_y

@@ -72,7 +72,12 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Entering paintEvent: args={{'event': {event}}}")
         painter = QPainter(self)
+        if not painter.isActive():
+            if DEBUG_BaseWindow:
+                print("[DEBUG][BaseWindow] QPainter not active, skipping paintEvent.")
+            return
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.end()
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting paintEvent: return=None")
 

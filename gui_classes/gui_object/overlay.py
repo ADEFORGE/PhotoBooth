@@ -98,11 +98,16 @@ class Overlay(QWidget):
     def paintEvent(self, event: QEvent) -> None:
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering paintEvent: args={(event,)}")
         painter = QPainter(self)
+        if not painter.isActive():
+            if DEBUG_Overlay:
+                print("[DEBUG][Overlay] QPainter not active, skipping paintEvent.")
+            return
         painter.setRenderHint(QPainter.Antialiasing)
         path = QPainterPath()
         radius = 18
         path.addRoundedRect(self.rect(), radius, radius)
         painter.fillPath(path, self.get_overlay_bg_color())
+        painter.end()
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting paintEvent: return=None")
 
     def setup_buttons(

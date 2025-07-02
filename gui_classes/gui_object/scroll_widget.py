@@ -168,7 +168,7 @@ class Column:
             print(f"[DEBUG][Column] Exiting get_endstart: return={self._all_changed_once}")
         return self._all_changed_once
 
-    def scroll(self, step: int = 1, infinite: bool = True) -> bool:
+    def scroll(self, step: float = 1.0, infinite: bool = True) -> bool:
         """
         - infinite=True : on recalcule le nombre d'items sortis et on les recycle exactement.
         - infinite=False: on supprime simplement les items hors-écran.
@@ -294,7 +294,7 @@ class ScrollTab:
             print(f"[DEBUG][ScrollTab] Exiting clear: return=None")
 
 class InfiniteScrollView(QGraphicsView):
-    def __init__(self, folder_path: str, scroll_speed: int = 1, fps: int = 60,
+    def __init__(self, folder_path: str, scroll_speed: float = 1.0, fps: int = 60,
                  margin_x: float = 2.5, margin_y: float = 2.5, angle: float = 0, parent=None) -> None:
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering __init__: args={{...}}")
@@ -313,7 +313,7 @@ class InfiniteScrollView(QGraphicsView):
         self._scene.setBackgroundBrush(Qt.transparent)
         self.setScene(self._scene)
         self.image_paths = ImageLoader.load_paths(folder_path)
-        self.speed, self.fps = scroll_speed, fps
+        self.speed, self.fps = float(scroll_speed), fps
         self.margin_x, self.margin_y = margin_x, margin_y
         self.angle = angle
         self.scroll_tab: Optional[ScrollTab] = None
@@ -363,19 +363,20 @@ class InfiniteScrollView(QGraphicsView):
         for col in self.scroll_tab.columns:
             col.scroll(self.speed, infinite=True)
 
-    def _begin_stop_animation(self, stop_speed: int = 6, on_finished: Optional[Callable] = None) -> None:
+    def _begin_stop_animation(self, stop_speed: float = 6.0, on_finished: Optional[Callable] = None) -> None:
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering _begin_stop_animation: args={{...}}")
         self._stopping = True
-        self._stop_speed = stop_speed
+        self._stop_speed = float(stop_speed)
         self._stop_callback = on_finished
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting _begin_stop_animation: return=None")
 
-    def _begin_start_animation(self, start_speed: int = 6, on_finished: Optional[Callable] = None) -> None:
-        print(f"[DEBUG][InfiniteScrollView] Entering _begin_start_animation: args={{...}}")
+    def _begin_start_animation(self, start_speed: float = 6.0, on_finished: Optional[Callable] = None) -> None:
+        if DEBUG_InfiniteScrollView:
+            print(f"[DEBUG][InfiniteScrollView] Entering _begin_start_animation: args={{...}}")
         self._starting = True
-        self._start_speed = start_speed
+        self._start_speed = float(start_speed)
         self._start_callback = on_finished
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Exiting _begin_start_animation: return=None")
@@ -462,7 +463,7 @@ class InfiniteScrollView(QGraphicsView):
             print(f"[DEBUG][InfiniteScrollView] Exiting set_angle: return=None")
 
 class InfiniteScrollWidget(QWidget):
-    def __init__(self, folder_path: str, scroll_speed: int = 1, fps: int = 60,
+    def __init__(self, folder_path: str, scroll_speed: float = 1.0, fps: int = 60,
                  margin_x: float = 2.5, margin_y: float = 2.5, angle: float = 0, parent=None) -> None:
         if DEBUG_InfiniteScrollWidget:
             print(f"[DEBUG][InfiniteScrollWidget] Entering __init__: args={{...}}")
@@ -506,7 +507,8 @@ class InfiniteScrollWidget(QWidget):
             print(f"[DEBUG][InfiniteScrollWidget] Exiting begin_stop: return=None")
 
     def begin_start(self, start_speed: int = 1, on_finished: Optional[Callable] = None) -> None:
-        print(f"[DEBUG][InfiniteScrollWidget] Entering begin_start: args={{...}}")
+        if DEBUG_InfiniteScrollWidget:
+            print(f"[DEBUG][InfiniteScrollWidget] Entering begin_start: args={{...}}")
         if self._is_running:
             self._view._begin_start_animation(start_speed, on_finished)
         if DEBUG_InfiniteScrollWidget:
@@ -548,10 +550,10 @@ class InfiniteScrollWidget(QWidget):
             print(f"[DEBUG][InfiniteScrollWidget] Exiting isRunning: return={state}")
         return state
 
-    def setSpeed(self, speed: int) -> None:
+    def setSpeed(self, speed: float) -> None:
         if DEBUG_InfiniteScrollWidget:
             print(f"[DEBUG][InfiniteScrollWidget] Entering setSpeed: args={{'speed':{speed}}}")
-        self._view.speed = speed
+        self._view.speed = float(speed)
         if DEBUG_InfiniteScrollWidget:
             print(f"[DEBUG][InfiniteScrollWidget] Exiting setSpeed: return=None")
 
@@ -579,8 +581,8 @@ class ScrollOverlay(QWidget):
         layout.setSpacing(0)
         self.scroll_widget = InfiniteScrollWidget(
             './gui_template/sleep_picture',
-            scroll_speed=2,
-            fps=80,
+            scroll_speed=0.4,
+            fps=20,
             margin_x=1,
             margin_y=1,
             angle=15

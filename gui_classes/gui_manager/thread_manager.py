@@ -1,7 +1,6 @@
 DEBUG_CountdownThread = False
 DEBUG_Thread = False
 DEBUG_ImageGenerationThread = False
-DEBUG_ImageGenerationWorker = False
 DEBUG_CameraCaptureThread = False
 
 import os
@@ -288,63 +287,65 @@ class ImageGenerationThread(QObject):
                     api (ImageGeneratorAPIWrapper), style (any), input_image (QImage)
                 Outputs: initializes worker
                 """
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering __init__: args={{(api, style, input_image)}}")
+                if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Entering __init__: args={{(api, style, input_image)}}")
                 super().__init__()
                 self.api = api
                 self.style = style
                 self.input_image = input_image
                 self._running = True
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting __init__: return=None")
+                if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting __init__: return=None")
 
             def run(self) -> None:
                 """
                 Inputs: none
                 Outputs: emits generated QImage or None
                 """
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering run: args=()")
+                if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Entering run: args=()")
                 try:
                     self.api.set_style(self.style)
                     if not self._running:
                         self.finished.emit(None)
-                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
                     arr = ImageUtils.qimage_to_cv(self.input_image)
                     os.makedirs("../ComfyUI/input", exist_ok=True)
+                    import cv2
                     cv2.imwrite("../ComfyUI/input/input.png", arr)
                     self.api.generate_image()
                     if not self._running:
                         self.finished.emit(None)
-                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                        if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
-                    output_dir = os.path.abspath("../ComfyUI/output")
-                    files = glob.glob(os.path.join(output_dir, "*.png"))
-                    if not files:
+                    # Use robust image loading logic
+                    qimg = self.api.get_last_generated_image(timeout=15.0)
+                    if qimg is None or qimg.isNull():
+                        if DEBUG_ImageGenerationThread:
+                            print(f"[DEBUG][ImageGenerationWorker] Failed to load generated image, falling back to input image.")
                         self.finished.emit(self.input_image)
-                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
-                        return
-                    latest = max(files, key=os.path.getmtime)
-                    img = cv2.imread(latest)
-                    if img is None:
-                        self.finished.emit(self.input_image)
-                        if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
-                        return
-                    qimg = ImageUtils.cv_to_qimage(img)
+                    else:
+                        if DEBUG_ImageGenerationThread:
+                            print(f"[DEBUG][ImageGenerationWorker] Successfully loaded generated image.")
+                        self.finished.emit(qimg)
+                    # Clean up input and output images
                     inp = os.path.abspath("../ComfyUI/input/input.png")
                     if os.path.exists(inp): os.remove(inp)
-                    if os.path.exists(latest): os.remove(latest)
-                    self.finished.emit(qimg)
-                except Exception:
+                    # Optionally, clean up output images if desired
+                    # for f in self.api.get_image_paths():
+                    #     if os.path.exists(f): os.remove(f)
+                except Exception as e:
+                    if DEBUG_ImageGenerationThread:
+                        print(f"[DEBUG][ImageGenerationWorker] Exception: {e}")
                     self.finished.emit(self.input_image)
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
+                if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
 
             def stop(self) -> None:
                 """
                 Inputs: none
                 Outputs: flags stop
                 """
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Entering stop: args=()")
+                if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Entering stop: args=()")
                 self._running = False
-                if DEBUG_ImageGenerationWorker: print(f"[DEBUG][ImageGenerationWorker] Exiting stop: return=None")
+                if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting stop: return=None")
 
         self._worker = ImageGenerationWorker(self.api, self.style, self.input_image)
         self._worker.moveToThread(self._thread)
@@ -416,7 +417,19 @@ class CameraCaptureThread(QThread):
         self._running = True
         self.cap = None
         self.current_res = 0
+        # Initialisation de la résolution à 0 (basse conso CPU)
+        self.set_resolution_level(0)
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting __init__: return=None")
+
+    def set_capture_interval(self, interval_ms: int) -> None:
+        """
+        Change dynamiquement l'intervalle de capture (en ms).
+        """
+        if DEBUG_CameraCaptureThread:
+            print(f"[DEBUG][CameraCaptureThread] Entering set_capture_interval: args={{'interval_ms':{interval_ms}}}")
+        self.capture_interval_ms = max(1, int(interval_ms))
+        if DEBUG_CameraCaptureThread:
+            print(f"[DEBUG][CameraCaptureThread] Exiting set_capture_interval: interval now {self.capture_interval_ms} ms")
 
     def set_resolution_level(self, level: int) -> None:
         """
@@ -424,6 +437,15 @@ class CameraCaptureThread(QThread):
             level (int)
         Outputs: applies new resolution if valid
         """
+        # Choix de l'intervalle selon la résolution
+        if level == 0:
+            self.set_capture_interval(50)  # 20 fps
+            if DEBUG_CameraCaptureThread:
+                print(f"[DEBUG][CameraCaptureThread] set_resolution_level: niveau 0, intervalle capture 50ms (20 fps)")
+        else:
+            self.set_capture_interval(13)  # ~75 fps
+            if DEBUG_CameraCaptureThread:
+                print(f"[DEBUG][CameraCaptureThread] set_resolution_level: niveau {level}, intervalle capture 13ms (~75 fps)")
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Entering set_resolution_level: args={{(level,)}}")
         if level in self.RESOLUTIONS:
             self.current_res = level
@@ -445,6 +467,9 @@ class CameraCaptureThread(QThread):
             if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
             return
         self.set_resolution_level(self.current_res)
+        # Valeur par défaut si jamais set_capture_interval n'a pas été appelée
+        if not hasattr(self, 'capture_interval_ms'):
+            self.capture_interval_ms = 10
         while self._running:
             ret, frame = self.cap.read()
             if ret and frame is not None:
@@ -452,7 +477,7 @@ class CameraCaptureThread(QThread):
                 h, w, ch = rgb.shape
                 qimg = QImage(rgb.data, w, h, ch * w, QImage.Format_RGB888).copy()
                 self.frame_ready.emit(qimg)
-            self.msleep(10)
+            self.msleep(self.capture_interval_ms)
         self.cap.release()
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting run: return=None")
 

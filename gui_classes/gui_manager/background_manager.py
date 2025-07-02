@@ -15,7 +15,7 @@ class BackgroundManager(QObject):
 
     def __init__(self, label: QLabel,
                  gradient_path: str = './gui_template/gradient/gradient_1.png',
-                 resolution_level: int = 2,
+                 resolution_level: int = 0,
                  rotation: int = 270,
                  parent=None) -> None:
         super().__init__(parent)

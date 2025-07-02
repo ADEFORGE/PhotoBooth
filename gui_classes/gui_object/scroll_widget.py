@@ -373,7 +373,8 @@ class InfiniteScrollView(QGraphicsView):
             print(f"[DEBUG][InfiniteScrollView] Exiting _begin_stop_animation: return=None")
 
     def _begin_start_animation(self, start_speed: float = 6.0, on_finished: Optional[Callable] = None) -> None:
-        print(f"[DEBUG][InfiniteScrollView] Entering _begin_start_animation: args={{...}}")
+        if DEBUG_InfiniteScrollView:
+            print(f"[DEBUG][InfiniteScrollView] Entering _begin_start_animation: args={{...}}")
         self._starting = True
         self._start_speed = float(start_speed)
         self._start_callback = on_finished
@@ -506,7 +507,8 @@ class InfiniteScrollWidget(QWidget):
             print(f"[DEBUG][InfiniteScrollWidget] Exiting begin_stop: return=None")
 
     def begin_start(self, start_speed: int = 1, on_finished: Optional[Callable] = None) -> None:
-        print(f"[DEBUG][InfiniteScrollWidget] Entering begin_start: args={{...}}")
+        if DEBUG_InfiniteScrollWidget:
+            print(f"[DEBUG][InfiniteScrollWidget] Entering begin_start: args={{...}}")
         if self._is_running:
             self._view._begin_start_animation(start_speed, on_finished)
         if DEBUG_InfiniteScrollWidget:

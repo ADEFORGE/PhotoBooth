@@ -25,7 +25,7 @@ class ImageLoader:
         if not os.path.isdir(folder_path):
             raise RuntimeError(f"Dossier introuvable: {folder_path}")
         paths = [
-            os.path.join(folder_path, f)
+            os.path.join(folder_path, f).replace("\\", "/")
             for f in sorted(os.listdir(folder_path))
             if os.path.splitext(f.lower())[1] in {'.png', '.jpg', '.jpeg', '.bmp', '.gif'}
         ]

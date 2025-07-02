@@ -606,7 +606,7 @@ class ScrollOverlay(QWidget):
         layout.setSpacing(0)
         self.scroll_widget = InfiniteScrollWidget(
             './gui_template/sleep_picture',
-            scroll_speed=0.4,
+            scroll_speed=0.2,
             fps=20,
             margin_x=1,
             margin_y=1,

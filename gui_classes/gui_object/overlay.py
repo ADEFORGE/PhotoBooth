@@ -13,15 +13,15 @@ from gui_classes.gui_object.btn import Btns
 from gui_classes.gui_object.toolbox import normalize_btn_name, LoadingBar
 from gui_classes.gui_manager.language_manager import language_manager
 
-DEBUG_Overlay = True
-DEBUG_OverlayGray = True
-DEBUG_OverlayWhite = True
-DEBUG_OverlayLoading = True
-DEBUG_OverlayRules = True
-DEBUG_OverlayQrcode = True
-DEBUG_OverlayInfo = True
-DEBUG_OverlayCountdown = True
-DEBUG_OverlayLang = True
+DEBUG_Overlay = False
+DEBUG_OverlayGray = False
+DEBUG_OverlayWhite = False
+DEBUG_OverlayLoading = False
+DEBUG_OverlayRules = False
+DEBUG_OverlayQrcode = False
+DEBUG_OverlayInfo = False
+DEBUG_OverlayCountdown = False
+DEBUG_OverlayLang = False
 
 CHANGED_NAMES = {}
 

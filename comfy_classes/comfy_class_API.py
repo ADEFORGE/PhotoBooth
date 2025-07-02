@@ -11,32 +11,6 @@ from gui_classes.gui_object.constante import dico_styles
 
 DEBUG_ComfyAPI = False
 
-def wait_and_read_image(image_path: str, timeout: float = 10.0, poll_interval: float = 0.1) -> Optional[QImage]:
-    """
-    Waits for an image file to be fully written and reads it robustly as a QImage.
-    Returns QImage if successful, None otherwise.
-    """
-    start = time.time()
-    last_size = -1
-    while time.time() - start < timeout:
-        if os.path.exists(image_path):
-            try:
-                size = os.path.getsize(image_path)
-                if size > 0 and size == last_size:
-                    img = QImage(image_path)
-                    if not img.isNull():
-                        if DEBUG_ComfyAPI:
-                            print(f"[DEBUG][wait_and_read_image] Successfully loaded image: {image_path}")
-                        return img
-                last_size = size
-            except Exception as e:
-                if DEBUG_ComfyAPI:
-                    print(f"[DEBUG][wait_and_read_image] Exception: {e}")
-        time.sleep(poll_interval)
-    if DEBUG_ComfyAPI:
-        print(f"[DEBUG][wait_and_read_image] Timeout or failed to load image: {image_path}")
-    return None
-
 class ImageGeneratorAPIWrapper:
     def __init__(self, server_url="http://127.0.0.1:8188"):
         self.server_url = server_url
@@ -46,7 +20,7 @@ class ImageGeneratorAPIWrapper:
         self._negative_prompt = "watermark, text"
         self._base_prompt = self._load_base_prompt()
 
-########### Prompts and styles ###########
+    ########### Prompts and styles ###########
     def _load_base_prompt(self):
         with open("workflows/image2image.json", encoding="utf-8") as f:
             return json.load(f)
@@ -122,6 +96,32 @@ class ImageGeneratorAPIWrapper:
     def get_image_paths(self):
         return sorted(glob.glob(os.path.join(self._output_folder, "*.png")), key=os.path.getmtime)
 
+    def wait_and_read_image(self, image_path: str, timeout: float = 10.0, poll_interval: float = 0.1) -> Optional[QImage]:
+        """
+        Waits for an image file to be fully written and reads it robustly as a QImage.
+        Returns QImage if successful, None otherwise.
+        """
+        start = time.time()
+        last_size = -1
+        while time.time() - start < timeout:
+            if os.path.exists(image_path):
+                try:
+                    size = os.path.getsize(image_path)
+                    if size > 0 and size == last_size:
+                        img = QImage(image_path)
+                        if not img.isNull():
+                            if DEBUG_ComfyAPI:
+                                print(f"[DEBUG][wait_and_read_image] Successfully loaded image: {image_path}")
+                            return img
+                    last_size = size
+                except Exception as e:
+                    if DEBUG_ComfyAPI:
+                        print(f"[DEBUG][wait_and_read_image] Exception: {e}")
+            time.sleep(poll_interval)
+        if DEBUG_ComfyAPI:
+            print(f"[DEBUG][wait_and_read_image] Timeout or failed to load image: {image_path}")
+        return None
+
     def get_last_generated_image(self, timeout: float = 10.0) -> Optional[QImage]:
         """
         Returns the last generated image as a QImage, using robust wait-and-read logic.
@@ -132,7 +132,7 @@ class ImageGeneratorAPIWrapper:
                 print("[DEBUG][get_last_generated_image] No images found.")
             return None
         image_path = images[-1]
-        return wait_and_read_image(image_path, timeout=timeout)
+        return self.wait_and_read_image(image_path, timeout=timeout)
 
 
 '''

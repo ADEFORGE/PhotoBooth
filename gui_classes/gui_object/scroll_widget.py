@@ -1,5 +1,5 @@
-DEBUG_ImageLoader = False
-DEBUG_Column = False
+DEBUG_ImageLoader = True
+DEBUG_Column = True
 DEBUG_ScrollTab = False
 DEBUG_InfiniteScrollView = False
 DEBUG_InfiniteScrollWidget = False

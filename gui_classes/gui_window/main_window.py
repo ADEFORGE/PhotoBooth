@@ -26,7 +26,7 @@ class MainWindow(BaseWindow):
         self.setAutoFillBackground(False)
         self.showFullScreen()
         self._default_background_color = QColor(0, 0, 0)
-        self.countdown_overlay_manager = CountdownThread(self, 3)
+        self.countdown_overlay_manager = CountdownThread(self, 5)
         self._generation_task = None
         self._generation_in_progress = False
         self._countdown_callback_active = False
@@ -50,9 +50,12 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Exiting __init__: return=None")
 
     def update_language(self) -> None:
+        self.update_frame()
         self._texts = language_manager.get_texts('main_window') or {}
+        self.update_frame()
 
     def on_enter(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering on_enter: args={{}}")
         if hasattr(self, 'background_manager'):
@@ -60,8 +63,10 @@ class MainWindow(BaseWindow):
         self.set_state_default()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting on_enter: return=None")
+        self.update_frame()
 
     def on_leave(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering on_leave: args={{}}")
         if hasattr(self, 'background_manager'):
@@ -79,8 +84,10 @@ class MainWindow(BaseWindow):
         self.set_state_default()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting on_leave: return=None")
+        self.update_frame()
 
     def cleanup(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering cleanup: args={{}}")
         self._generation_in_progress = False
@@ -94,13 +101,16 @@ class MainWindow(BaseWindow):
             self._generation_task = None
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting cleanup: return=None")
+        self.update_frame()
 
     def set_generation_style(self, checked: bool, style_name: str, generate_image: bool = False) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering set_generation_style: args={{'checked':{checked},'style_name':{style_name},'generate_image':{generate_image}}}")
         if self._generation_in_progress:
             if DEBUG_MainWindow:
                 print(f"[DEBUG][MainWindow] Exiting set_generation_style: return=None")
+            self.update_frame()
             return
         if checked:
             self.selected_style = style_name
@@ -111,8 +121,10 @@ class MainWindow(BaseWindow):
                 self.start(self.selected_style, self.original_photo)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_generation_style: return=None")
+        self.update_frame()
 
     def take_selfie(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering take_selfie: args={{}}")
         if not getattr(self, 'selected_style', None):
@@ -137,11 +149,15 @@ class MainWindow(BaseWindow):
             )
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting take_selfie: return=None")
+        self.update_frame()
 
     def selfie_countdown(self, on_finished: Optional[Callable[[], None]] = None) -> None:
+        self.update_frame()
         self.countdown_overlay_manager.start_countdown(on_finished=on_finished)
+        self.update_frame()
 
     def selfie(self, callback: Optional[Callable[[], None]] = None) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering selfie: args={{'callback':{callback}}}")
         self.cleanup()
@@ -156,8 +172,10 @@ class MainWindow(BaseWindow):
             callback()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting selfie: return=None")
+        self.update_frame()
 
     def generation(self, style_name: str, input_image: QImage, callback: Optional[Callable[[], None]] = None) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering generation: args={{'style_name':{style_name},'input_image':<QImage>,'callback':{callback}}}")
         if self._generation_task:
@@ -168,8 +186,10 @@ class MainWindow(BaseWindow):
         self._generation_task.start()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting generation: return=None")
+        self.update_frame()
 
     def show_generation(self, qimg: QImage) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering show_generation: args={{'qimg':<QImage>}}")
         self._generation_task = None
@@ -179,8 +199,10 @@ class MainWindow(BaseWindow):
         self.set_state_validation()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting show_generation: return=None")
+        self.update_frame()
 
     def _on_accept_close(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering _on_accept_close: args={{}}")
         sender = self.sender()
@@ -210,8 +232,10 @@ class MainWindow(BaseWindow):
             self.set_state_default()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting _on_accept_close: return=None")
+        self.update_frame()
 
     def reset_generation_state(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering reset_generation_state: args={{}}")
         self._generation_in_progress = False
@@ -221,8 +245,10 @@ class MainWindow(BaseWindow):
         self.selected_style = None
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting reset_generation_state: return=None")
+        self.update_frame()
 
     def set_state_default(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
@@ -252,8 +278,10 @@ class MainWindow(BaseWindow):
             self.standby_manager.put_standby(True)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_state_default: return=None")
+        self.update_frame()
 
     def set_state_validation(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering set_state_validation: args={{}}")
         self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close)
@@ -268,8 +296,10 @@ class MainWindow(BaseWindow):
             self.standby_manager.put_standby(False)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_state_validation: return=None")
+        self.update_frame()
 
     def set_state_wait(self) -> None:
+        self.update_frame()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering set_state_wait: args={{}}")
         if hasattr(self, 'btns'):
@@ -281,16 +311,18 @@ class MainWindow(BaseWindow):
             self.standby_manager.put_standby(False)
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting set_state_wait: return=None")
+        self.update_frame()
 
     def update_frame(self) -> None:
-        if self.generated_image and not isinstance(self.generated_image, str):
-            self.background_manager.set_generated(self.generated_image)
-        elif self.original_photo:
-            self.background_manager.capture()
-        else:
-            self.background_manager.clear()
-        self.background_manager.update_background()
-        self.update()
+        # Sécurité : update uniquement si les objets existent
+        if hasattr(self, 'background_manager') and self.background_manager:
+            if hasattr(self, 'generated_image') and self.generated_image and not isinstance(self.generated_image, str):
+                self.background_manager.set_generated(self.generated_image)
+            elif hasattr(self, 'original_photo') and self.original_photo:
+                self.background_manager.capture()
+            self.background_manager.update_background()
+        if hasattr(self, 'update') and callable(self.update):
+            self.update()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting update_frame: return=None")
 

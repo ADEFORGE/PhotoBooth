@@ -302,7 +302,7 @@ class ScrollTab:
 
         # Utilise view_width et view_height pour le calcul des colonnes et lignes
         self.num_cols = max(1, int(ceil((view_width / iw) * margin_x)))
-        self.num_rows = max(1, int(ceil((view_height / ih) * margin_y)))        
+        self.num_rows = max(1, int(ceil((view_height / ih) * margin_y))) +1       
 
         # Ajout du print debug demandé
         if DEBUG_ScrollTab:

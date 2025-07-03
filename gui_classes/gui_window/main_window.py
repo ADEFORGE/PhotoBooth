@@ -210,17 +210,19 @@ class MainWindow(BaseWindow):
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
+            data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
+            pil_img = QRCodeUtils.generate_qrcode(data)
+            qimg = QRCodeUtils.pil_to_qimage(pil_img)
+            def on_qrcode_close():
+                    self.set_state_default()
             overlay_qr = OverlayQrcode(
                     parent=self.window(),
                     qimage=qimg,
                     on_close=on_qrcode_close
                 )
             def on_rules_validated():
-                def on_qrcode_close():
-                    self.set_state_default()
-                data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
-                pil_img = QRCodeUtils.generate_qrcode(data)
-                qimg = QRCodeUtils.pil_to_qimage(pil_img)
+                
+                
                 overlay_qr.show_overlay()
             def on_rules_refused():
                 self.set_state_default()

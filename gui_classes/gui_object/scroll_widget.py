@@ -305,7 +305,8 @@ class ScrollTab:
         self.num_rows = max(1, int(ceil((view_height / ih) * margin_y)))        
 
         # Ajout du print debug demandé
-        print(f"[DEBUG][ScrollTab] view_w={self.screen_width}, view_h={self.screen_height}, view_width={view_width}, view_height={view_height}, image_width={iw}, num_cols={self.num_cols}")
+        if DEBUG_ScrollTab:
+            print(f"[DEBUG][ScrollTab] view_w={self.screen_width}, view_h={self.screen_height}, view_width={view_width}, view_height={view_height}, image_width={iw}, num_cols={self.num_cols}")
 
         self.image_paths = image_paths
         self.columns: List[Column] = []
@@ -397,7 +398,8 @@ class InfiniteScrollView(QGraphicsView):
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{'gradient_only':{gradient_only}}}")
         vw, vh = self.get_physical_screen_resolution()
-        print(f"[DEBUG][InfiniteScrollView] Résolution physique détectée (screeninfo, widget): {vw}x{vh}")
+        if DEBUG_InfiniteScrollView:
+            print(f"[DEBUG][InfiniteScrollView] Résolution physique détectée (screeninfo, widget): {vw}x{vh}")
         self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, self.angle, gradient_only=gradient_only)
         self.scroll_tab.create_columns(self._scene)
         self.center_view()
@@ -660,6 +662,7 @@ class ScrollOverlay(QWidget):
             print(f"[DEBUG][ScrollOverlay] Exiting __init__: return=None")
 
     def resizeEvent(self, event) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering resizeEvent: args={{'event': event}}")
         if self.parent():
@@ -668,8 +671,10 @@ class ScrollOverlay(QWidget):
         self._resize_gradient()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting resizeEvent: return=None")
+        self.update_frame()
 
     def _set_gradient_pixmap(self, path: str = "gui_template/gradient/gradient_0.png") -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering _set_gradient_pixmap: args={{'path':{path}}}")
         pixmap = QPixmap(path)
@@ -679,8 +684,10 @@ class ScrollOverlay(QWidget):
             self.gradient_label.raise_()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting _set_gradient_pixmap: return=None")
+        self.update_frame()
 
     def _resize_gradient(self) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering _resize_gradient: args={{}}")
         pixmap = self.gradient_label.pixmap()
@@ -690,8 +697,10 @@ class ScrollOverlay(QWidget):
             self.gradient_label.raise_()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting _resize_gradient: return=None")
+        self.update_frame()
 
     def raise_overlay(self, on_raised: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering raise_overlay: args={{'on_raised':{on_raised}}}")
         self.raise_()
@@ -699,8 +708,10 @@ class ScrollOverlay(QWidget):
             on_raised()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting raise_overlay: return=None")
+        self.update_frame()
 
     def lower_overlay(self, on_lowered: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering lower_overlay: args={{'on_lowered':{on_lowered}}}")
         self.lower()
@@ -708,16 +719,20 @@ class ScrollOverlay(QWidget):
             on_lowered()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting lower_overlay: return=None")
+        self.update_frame()
 
     def start_scroll_animation(self, stop_speed: int = 30, on_finished: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering start_scroll_animation: args={{'stop_speed':{stop_speed}, 'on_finished':{on_finished}}}")
         if self.scroll_widget:
             self.scroll_widget.begin_stop(stop_speed=stop_speed, on_finished=on_finished)
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting start_scroll_animation: return=None")
+        self.update_frame()
 
     def restart_scroll_animation(self, start_speed: int = 30, on_finished: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering restart_scroll_animation: args={{'start_speed': start_speed, 'on_finished': on_finished}}")
         if self.scroll_widget:
@@ -726,8 +741,10 @@ class ScrollOverlay(QWidget):
             ])
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting restart_scroll_animation: return=None")
+        self.update_frame()
 
     def clean_scroll(self, on_cleaned: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering clean_scroll: args={{'on_cleaned':{on_cleaned}}}")
         if self.scroll_widget:
@@ -736,8 +753,10 @@ class ScrollOverlay(QWidget):
             on_cleaned()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting clean_scroll: return=None")
+        self.update_frame()
 
     def clear_overlay(self, on_cleared: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering clear_overlay: args={{'on_cleared':{on_cleared}}}")
         self.hide()
@@ -747,8 +766,10 @@ class ScrollOverlay(QWidget):
             on_cleared()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting clear_overlay: return=None")
+        self.update_frame()
 
     def hide_overlay(self, on_hidden: Optional[Callable] = None) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering hide_overlay: args={{'on_hidden':{on_hidden}}}")
         if self.isVisible():
@@ -757,8 +778,10 @@ class ScrollOverlay(QWidget):
             on_hidden()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting hide_overlay: return=None")
+        self.update_frame()
 
     def show_overlay(self, on_shown: Optional[Callable] = None, restart: bool = False) -> None:
+        self.update_frame()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Entering show_overlay: args={{'on_shown': {on_shown}, 'restart': {restart}}}")
         if not self.isVisible():
@@ -772,6 +795,7 @@ class ScrollOverlay(QWidget):
             on_shown()
         if DEBUG_ScrollOverlay:
             print(f"[DEBUG][ScrollOverlay] Exiting show_overlay: return=None")
+        self.update_frame()
 
     def update_frame(self) -> None:
         if DEBUG_ScrollOverlay:

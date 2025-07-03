@@ -29,14 +29,6 @@ class Overlay(QWidget):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:
         print(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
         super().__init__(parent)
-        # --- ENFORCEMENT: Parent must be a BaseWindow ---
-        try:
-            from gui_classes.gui_window.base_window import BaseWindow
-            if parent is not None and not isinstance(parent, BaseWindow):
-                import warnings
-                warnings.warn(f"[Overlay ENFORCEMENT] Overlay parent should be a BaseWindow, got {type(parent)}. This may break overlay management.")
-        except ImportError:
-            pass
         self._is_visible = False
         self._is_alive = True
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -179,17 +171,6 @@ class Overlay(QWidget):
             self.raise_()
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting setup_buttons_style_2: return=None")
 
-    def show(self) -> None:
-        """
-        ENFORCEMENT: Overlays must be shown using .show_overlay(), not .show().
-        """
-        import warnings
-        warnings.warn("[Overlay ENFORCEMENT] Do NOT use .show() on overlays. Use .show_overlay() instead for correct lifecycle and modality.")
-        # Optionally, call show_overlay() automatically:
-        # self.show_overlay()
-        # Or, do nothing:
-        # pass
-
     def show_overlay(self) -> None:
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering show_overlay: args=()")
         if not self._is_alive or self._is_visible:
@@ -197,21 +178,6 @@ class Overlay(QWidget):
         self.setVisible(True)
         self.raise_()
         self._disable_all_buttons_except_overlay()
-        # --- ENFORCEMENT: Check if overlay is referenced by parent window ---
-        parent = self.parentWidget()
-        try:
-            from gui_classes.gui_window.base_window import BaseWindow
-            if parent is not None and isinstance(parent, BaseWindow):
-                found = False
-                for attr in dir(parent):
-                    if getattr(parent, attr, None) is self:
-                        found = True
-                        break
-                if not found:
-                    import warnings
-                    warnings.warn(f"[Overlay ENFORCEMENT] Overlay {self} is not referenced by any attribute of its parent window {parent}. It may be garbage collected prematurely.")
-        except ImportError:
-            pass
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting show_overlay: return=None")
 
     def hide_overlay(self) -> None:

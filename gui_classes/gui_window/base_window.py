@@ -253,11 +253,13 @@ class BaseWindow(QWidget):
 
     def register_overlay(self, overlay):
         """Ajoute un overlay à la liste centralisée."""
+        print(f"[BaseWindow] register_overlay called with overlay={overlay}")
         if overlay not in self._overlays:
             self._overlays.append(overlay)
 
     def clean_all_overlays(self):
         """Nettoie tous les overlays enregistrés et vide la liste."""
+        print("[BaseWindow] clean_all_overlays called, cleaning overlays.")
         for overlay in list(self._overlays):
             try:
                 overlay.clean_overlay()
@@ -267,6 +269,7 @@ class BaseWindow(QWidget):
 
     def on_leave(self):
         """Appelée lors du changement de fenêtre, nettoie les overlays."""
+        print("[BaseWindow] on_leave called, cleaning overlays.")
         self.clean_all_overlays()
 
     def setup_buttons(

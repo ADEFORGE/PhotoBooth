@@ -314,14 +314,17 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def update_frame(self) -> None:
-        if self.generated_image and not isinstance(self.generated_image, str):
-            self.background_manager.set_generated(self.generated_image)
-        elif self.original_photo:
-            self.background_manager.capture()
-        else:
-            self.background_manager.clear()
-        self.background_manager.update_background()
-        self.update()
+        # Sécurité : update uniquement si les objets existent
+        if hasattr(self, 'background_manager') and self.background_manager:
+            if hasattr(self, 'generated_image') and self.generated_image and not isinstance(self.generated_image, str):
+                self.background_manager.set_generated(self.generated_image)
+            elif hasattr(self, 'original_photo') and self.original_photo:
+                self.background_manager.capture()
+            else:
+                self.background_manager.clear()
+            self.background_manager.update_background()
+        if hasattr(self, 'update') and callable(self.update):
+            self.update()
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting update_frame: return=None")
 

@@ -13,6 +13,8 @@ from collections import deque
 from typing import List, Optional, Callable
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QTransform, QPainter, QGuiApplication
+from math import cos, radians
+from math import atan2, degrees
 from PySide6.QtWidgets import (
     QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QWidget, QVBoxLayout, QLabel
 )
@@ -261,17 +263,34 @@ class ScrollTab:
         image_paths: List[str],
         view_w: int,
         view_h: int,
-        margin_x: float = 2.5,
-        margin_y: float = 2.5,
+        margin_x: float = 1.1,
+        margin_y: float = 1.1,
+        angle: float = 0.0,
         gradient_only: bool = False
     ) -> None:
         pix = QPixmap(image_paths[0])
         iw, ih = pix.width(), pix.height()
         diag = (view_w ** 2 + view_h ** 2) ** 0.5
+        
+        # Largeur (D) et hauteur (H) de l'écran
+        self.screen_width = view_w
+        self.screen_height = view_h
+        self.max_angle = degrees(atan2(self.screen_width, self.screen_height))
+        if 0<=angle<=self.max_angle:
+            phi = cos(radians(angle))
+        elif angle < 0:
+            phi = cos(radians(0))
+        else:
+            phi = cos(radians(self.max_angle))
+        if phi == 0 :
+            phi = 1
 
-        # Retour au calcul diagonal pour bien couvrir écran
-        self.num_cols = max(1, int(ceil((diag / iw) * margin_x)))
-        self.num_rows = max(1, int(ceil((diag / ih) * margin_y))) + 2
+        view_width = self.screen_width / phi
+        view_height = self.screen_height / phi
+
+        # Utilise view_width et view_height pour le calcul des colonnes et lignes
+        self.num_cols = max(1, int(ceil((view_width / iw) * margin_x)))
+        self.num_rows = max(1, int(ceil((view_height / ih) * margin_y)))        
 
         self.image_paths = image_paths
         self.columns: List[Column] = []
@@ -360,7 +379,7 @@ class InfiniteScrollView(QGraphicsView):
             print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{'gradient_only':{gradient_only}}}")
         screen = QGuiApplication.primaryScreen()
         vw, vh = screen.size().width(), screen.size().height()
-        self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, gradient_only=gradient_only)
+        self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, self.angle, gradient_only=gradient_only)
         self.scroll_tab.create_columns(self._scene)
         self.center_view()
         if DEBUG_InfiniteScrollView:

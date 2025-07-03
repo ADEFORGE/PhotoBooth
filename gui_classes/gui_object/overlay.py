@@ -27,7 +27,7 @@ CHANGED_NAMES = {}
 
 class Overlay(QWidget):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
+        print(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
         super().__init__(parent)
         self._is_visible = False
         self._is_alive = True

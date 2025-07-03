@@ -21,6 +21,17 @@ from PySide6.QtWidgets import (
 from PIL import Image
 from screeninfo import get_monitors
 
+
+
+def get_monitor_for_widget(widget):
+    pos = widget.mapToGlobal(widget.rect().center())
+    x, y = pos.x(), pos.y()
+    for m in get_monitors():
+        if m.x <= x < m.x + m.width and m.y <= y < m.y + m.height:
+            return m
+    return get_monitors()[0]
+
+
 class ImageLoader:
     @staticmethod
     def load_paths(folder_path: str) -> List[str]:
@@ -379,15 +390,14 @@ class InfiniteScrollView(QGraphicsView):
         painter.fillRect(rect, Qt.transparent)
 
     def get_physical_screen_resolution(self):
-        monitor = get_monitors()[0]
+        monitor = get_monitor_for_widget(self)
         return monitor.width, monitor.height
 
     def reset(self, gradient_only: bool = True) -> None:
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{'gradient_only':{gradient_only}}}")
-        # Utiliser la résolution physique de l'écran via screeninfo
         vw, vh = self.get_physical_screen_resolution()
-        print(f"[DEBUG][InfiniteScrollView] Résolution physique détectée (screeninfo): {vw}x{vh}")
+        print(f"[DEBUG][InfiniteScrollView] Résolution physique détectée (screeninfo, widget): {vw}x{vh}")
         self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, self.angle, gradient_only=gradient_only)
         self.scroll_tab.create_columns(self._scene)
         self.center_view()

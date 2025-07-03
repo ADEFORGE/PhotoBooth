@@ -52,7 +52,9 @@ class Overlay(QWidget):
         except ImportError:
             return
         parent = self.parentWidget()
+        print(f"[DEBUG][Overlay] Entering _register_to_parent_window: args=()")
         while parent is not None:
+            print(f"[DEBUG][Overlay] Found parent: {parent}")
             if isinstance(parent, BaseWindow):
                 print(f"[DEBUG][Overlay] Registering to parent window: {parent}")
                 if hasattr(parent, "register_overlay"):

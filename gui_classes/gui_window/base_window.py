@@ -377,8 +377,8 @@ class BaseWindow(QWidget):
                 data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
                 pil_img = QRCodeUtils.generate_qrcode(data)
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
-                OverlayQrcode(parent=parent, qimage=qimg, on_close=None).show_overlay()
-        OverlayRules(parent=parent, on_validate=show_qrcode_overlay, on_close=None).show_overlay()
+                OverlayQrcode(self, qimage=qimg, on_close=None).show_overlay()
+        OverlayRules(self, on_validate=show_qrcode_overlay, on_close=None).show_overlay()
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting show_rules_dialog: return=None")
 

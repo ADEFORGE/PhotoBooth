@@ -320,8 +320,6 @@ class MainWindow(BaseWindow):
                 self.background_manager.set_generated(self.generated_image)
             elif hasattr(self, 'original_photo') and self.original_photo:
                 self.background_manager.capture()
-            else:
-                self.background_manager.clear()
             self.background_manager.update_background()
         if hasattr(self, 'update') and callable(self.update):
             self.update()

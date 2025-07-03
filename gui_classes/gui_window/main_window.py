@@ -203,6 +203,16 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Exiting show_generation: return=None")
         self.update_frame()
 
+    def show_qrcode_overlay(self, qimg):
+        def on_qrcode_close():
+            self.set_state_default()
+        overlay_qr = OverlayQrcode(
+            self,
+            qimage=qimg,
+            on_close=on_qrcode_close
+        )
+        overlay_qr.show_overlay()
+
     def _on_accept_close(self) -> None:
         self.update_frame()
         if DEBUG_MainWindow:
@@ -213,17 +223,8 @@ class MainWindow(BaseWindow):
             data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
             pil_img = QRCodeUtils.generate_qrcode(data)
             qimg = QRCodeUtils.pil_to_qimage(pil_img)
-            def on_qrcode_close():
-                    self.set_state_default()
-            overlay_qr = OverlayQrcode(
-                    self,
-                    qimage=qimg,
-                    on_close=on_qrcode_close
-                )
             def on_rules_validated():
-                
-                
-                overlay_qr.show_overlay()
+                self.show_qrcode_overlay(qimg)
             def on_rules_refused():
                 self.set_state_default()
             overlay = OverlayRules(

@@ -254,7 +254,7 @@ class BaseWindow(QWidget):
     def register_overlay(self, overlay):
         """Ferme tous les overlays actifs avant d'enregistrer le nouvel overlay."""
         print(f"[BaseWindow] register_overlay called with overlay={overlay}")
-        self.clean_all_overlays()
+        #self.clean_all_overlays()
         if overlay not in self._overlays:
             self._overlays.append(overlay)
 

@@ -381,7 +381,9 @@ class InfiniteScrollView(QGraphicsView):
         if DEBUG_InfiniteScrollView:
             print(f"[DEBUG][InfiniteScrollView] Entering reset: args={{'gradient_only':{gradient_only}}}")
         screen = QGuiApplication.primaryScreen()
-        vw, vh = screen.size().width(), screen.size().height()
+        # Correction : utiliser geometry() pour la vraie taille physique de l'écran
+        vw, vh = screen.geometry().width(), screen.geometry().height()
+        print(f"[DEBUG][InfiniteScrollView] screen.size(): {screen.size()}, screen.geometry(): {screen.geometry()}, screen.availableGeometry(): {screen.availableGeometry()}")
         self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, self.angle, gradient_only=gradient_only)
         self.scroll_tab.create_columns(self._scene)
         self.center_view()

@@ -130,6 +130,8 @@ class SleepScreenWindow(BaseWindow):
             self.btns.cleanup()
             self.btns = None
         language_manager.unsubscribe(self.update_language)
+        # Appel du on_leave de la classe parente pour nettoyage overlays
+        super().on_leave()
         if DEBUG_SleepScreenWindow:
             print(f"[DEBUG][SleepScreenWindow] Exiting on_leave: return=None")
 

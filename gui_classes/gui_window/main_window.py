@@ -71,6 +71,8 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Entering on_leave: args={{}}")
         if hasattr(self, 'background_manager'):
             self.background_manager.on_leave()
+        # Appel du on_leave de la classe parente pour nettoyage overlays
+        super().on_leave()
         self.cleanup()
         self.hide_loading()
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:

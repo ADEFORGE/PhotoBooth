@@ -42,7 +42,18 @@ class Overlay(QWidget):
             self.overlay_widget.setAttribute(Qt.WA_TranslucentBackground)
             self.overlay_widget.setStyleSheet("background: transparent; border-radius: 18px;")
         self.setStyleSheet("background: transparent;")
+        self._register_to_parent_window()
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting __init__: return=None")
+
+    def _register_to_parent_window(self):
+        """Recherche la première fenêtre parente de type BaseWindow et s'y enregistre."""
+        parent = self.parentWidget()
+        while parent is not None:
+            if parent.__class__.__name__ == "BaseWindow":
+                if hasattr(parent, "register_overlay"):
+                    parent.register_overlay(self)
+                break
+            parent = parent.parentWidget() if hasattr(parent, 'parentWidget') else None
 
     def setVisible(self, visible: bool) -> None:
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering setVisible: args={(visible,)}")

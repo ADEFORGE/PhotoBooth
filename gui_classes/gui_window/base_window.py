@@ -51,6 +51,7 @@ class BaseWindow(QWidget):
         self._rules_btn.clicked.connect(self.show_rules_dialog)
         self.overlay_widget.raise_()
         self.raise_()
+        self._overlays = []  # Liste centralisée des overlays créés par cette fenêtre
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting __init__: return=None")
 
@@ -249,6 +250,24 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting _ensure_overlay: return={self.loading_overlay}")
         return self.loading_overlay
+
+    def register_overlay(self, overlay):
+        """Ajoute un overlay à la liste centralisée."""
+        if overlay not in self._overlays:
+            self._overlays.append(overlay)
+
+    def clean_all_overlays(self):
+        """Nettoie tous les overlays enregistrés et vide la liste."""
+        for overlay in list(self._overlays):
+            try:
+                overlay.clean_overlay()
+            except Exception:
+                pass
+        self._overlays.clear()
+
+    def on_leave(self):
+        """Appelée lors du changement de fenêtre, nettoie les overlays."""
+        self.clean_all_overlays()
 
     def setup_buttons(
         self,

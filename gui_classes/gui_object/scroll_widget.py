@@ -292,6 +292,9 @@ class ScrollTab:
         self.num_cols = max(1, int(ceil((view_width / iw) * margin_x)))
         self.num_rows = max(1, int(ceil((view_height / ih) * margin_y)))        
 
+        # Ajout du print debug demandé
+        print(f"[DEBUG][ScrollTab] view_w={self.screen_width}, view_h={self.screen_height}, view_width={view_width}, view_height={view_height}, image_width={iw}, num_cols={self.num_cols}")
+
         self.image_paths = image_paths
         self.columns: List[Column] = []
         self.gradient_only = gradient_only

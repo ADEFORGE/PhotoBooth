@@ -47,9 +47,11 @@ class Overlay(QWidget):
 
     def _register_to_parent_window(self):
         """Recherche la première fenêtre parente de type BaseWindow et s'y enregistre."""
+        print("[Overlay] Registering to parent window...")
         parent = self.parentWidget()
         while parent is not None:
             if parent.__class__.__name__ == "BaseWindow":
+                print(f"[Overlay] Found parent BaseWindow: {parent}")
                 if hasattr(parent, "register_overlay"):
                     parent.register_overlay(self)
                 break

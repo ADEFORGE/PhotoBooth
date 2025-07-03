@@ -216,7 +216,7 @@ class MainWindow(BaseWindow):
             def on_qrcode_close():
                     self.set_state_default()
             overlay_qr = OverlayQrcode(
-                    parent=self.window(),
+                    self,
                     qimage=qimg,
                     on_close=on_qrcode_close
                 )
@@ -227,7 +227,7 @@ class MainWindow(BaseWindow):
             def on_rules_refused():
                 self.set_state_default()
             overlay = OverlayRules(
-                parent=self.window(),
+                self,
                 on_validate=on_rules_validated,
                 on_close=on_rules_refused
             )

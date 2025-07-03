@@ -370,8 +370,8 @@ class BaseWindow(QWidget):
     def show_rules_dialog(self) -> None:
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Entering show_rules_dialog: args={{}}")
-        app = QApplication.instance()
-        parent = app.activeWindow() if app else self
+        # Toujours utiliser self comme parent pour garantir l'enregistrement correct
+        parent = self
         def show_qrcode_overlay() -> None:
             if self.generated_image is not None:
                 data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"

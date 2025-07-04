@@ -71,6 +71,8 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Entering on_leave: args={{}}")
         if hasattr(self, 'background_manager'):
             self.background_manager.on_leave()
+        # Appel du on_leave de la classe parente pour nettoyage overlays
+        super().on_leave()
         self.cleanup()
         self.hide_loading()
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
@@ -201,6 +203,16 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Exiting show_generation: return=None")
         self.update_frame()
 
+    def show_qrcode_overlay(self, qimg):
+        def on_qrcode_close():
+            self.set_state_default()
+        overlay_qr = OverlayQrcode(
+            self,
+            qimage=qimg,
+            on_close=on_qrcode_close
+        )
+        overlay_qr.show_overlay()
+
     def _on_accept_close(self) -> None:
         self.update_frame()
         if DEBUG_MainWindow:
@@ -208,22 +220,15 @@ class MainWindow(BaseWindow):
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
+            data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
+            pil_img = QRCodeUtils.generate_qrcode(data)
+            qimg = QRCodeUtils.pil_to_qimage(pil_img)
             def on_rules_validated():
-                def on_qrcode_close():
-                    self.set_state_default()
-                data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
-                pil_img = QRCodeUtils.generate_qrcode(data)
-                qimg = QRCodeUtils.pil_to_qimage(pil_img)
-                overlay_qr = OverlayQrcode(
-                    parent=self.window(),
-                    qimage=qimg,
-                    on_close=on_qrcode_close
-                )
-                overlay_qr.show_overlay()
+                self.show_qrcode_overlay(qimg)
             def on_rules_refused():
                 self.set_state_default()
             overlay = OverlayRules(
-                parent=self.window(),
+                self,
                 on_validate=on_rules_validated,
                 on_close=on_rules_refused
             )

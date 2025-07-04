@@ -27,7 +27,7 @@ CHANGED_NAMES = {}
 
 class Overlay(QWidget):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
+        print(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
         super().__init__(parent)
         self._is_visible = False
         self._is_alive = True
@@ -42,7 +42,25 @@ class Overlay(QWidget):
             self.overlay_widget.setAttribute(Qt.WA_TranslucentBackground)
             self.overlay_widget.setStyleSheet("background: transparent; border-radius: 18px;")
         self.setStyleSheet("background: transparent;")
+        self._register_to_parent_window()
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting __init__: return=None")
+
+    def _register_to_parent_window(self):
+        """Recherche la première fenêtre parente héritant de BaseWindow et s'y enregistre."""
+        try:
+            from gui_classes.gui_window.base_window import BaseWindow
+        except ImportError:
+            return
+        parent = self.parentWidget()
+        print(f"[DEBUG][Overlay] Entering _register_to_parent_window: args=()")
+        while parent is not None:
+            print(f"[DEBUG][Overlay] Found parent: {parent}")
+            if isinstance(parent, BaseWindow):
+                print(f"[DEBUG][Overlay] Registering to parent window: {parent}")
+                if hasattr(parent, "register_overlay"):
+                    parent.register_overlay(self)
+                break
+            parent = parent.parentWidget() if hasattr(parent, 'parentWidget') else None
 
     def setVisible(self, visible: bool) -> None:
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering setVisible: args={(visible,)}")

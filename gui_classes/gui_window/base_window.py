@@ -51,6 +51,7 @@ class BaseWindow(QWidget):
         self._rules_btn.clicked.connect(self.show_rules_dialog)
         self.overlay_widget.raise_()
         self.raise_()
+        self._overlays = []  # Liste centralisée des overlays créés par cette fenêtre
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting __init__: return=None")
 
@@ -250,6 +251,28 @@ class BaseWindow(QWidget):
             print(f"[DEBUG][BaseWindow] Exiting _ensure_overlay: return={self.loading_overlay}")
         return self.loading_overlay
 
+    def register_overlay(self, overlay):
+        """Ferme tous les overlays actifs avant d'enregistrer le nouvel overlay."""
+        print(f"[BaseWindow] register_overlay called with overlay={overlay}")
+        #self.clean_all_overlays()
+        if overlay not in self._overlays:
+            self._overlays.append(overlay)
+
+    def clean_all_overlays(self):
+        """Nettoie tous les overlays enregistrés et vide la liste."""
+        print("[BaseWindow] clean_all_overlays called, cleaning overlays.")
+        for overlay in list(self._overlays):
+            try:
+                overlay.clean_overlay()
+            except Exception:
+                pass
+        self._overlays.clear()
+
+    def on_leave(self):
+        """Appelée lors du changement de fenêtre, nettoie les overlays."""
+        print("[BaseWindow] on_leave called, cleaning overlays.")
+        self.clean_all_overlays()
+
     def setup_buttons(
         self,
         style1_names: List[str],
@@ -347,15 +370,15 @@ class BaseWindow(QWidget):
     def show_rules_dialog(self) -> None:
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Entering show_rules_dialog: args={{}}")
-        app = QApplication.instance()
-        parent = app.activeWindow() if app else self
+        # Toujours utiliser self comme parent pour garantir l'enregistrement correct
+        parent = self
         def show_qrcode_overlay() -> None:
             if self.generated_image is not None:
                 data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
                 pil_img = QRCodeUtils.generate_qrcode(data)
                 qimg = QRCodeUtils.pil_to_qimage(pil_img)
-                OverlayQrcode(parent=parent, qimage=qimg, on_close=None).show_overlay()
-        OverlayRules(parent=parent, on_validate=show_qrcode_overlay, on_close=None).show_overlay()
+                OverlayQrcode(self, qimage=qimg, on_close=None).show_overlay()
+        OverlayRules(self, on_validate=show_qrcode_overlay, on_close=None).show_overlay()
         if DEBUG_BaseWindow:
             print(f"[DEBUG][BaseWindow] Exiting show_rules_dialog: return=None")
 

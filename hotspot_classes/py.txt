@@ -1,0 +1,46 @@
+partie serveur flask
+
+# Active la synchronisation NTP automatique
+sudo timedatectl set-ntp true
+
+# Vérifie la date
+timedatectl
+
+sudo date -s "2025-07-04 12:00:00"
+
+
+sudo apt update
+sudo apt install python3 python3-pip python3-flask python3-pil
+
+python3 - <<'EOF'
+import flask, PIL
+print("Flask", flask.__version__)
+print("Pillow", PIL.__version__)
+EOF
+
+
+mkdir -p ~/flask_rpi
+cd ~/flask_rpi
+
+nano app.py
+
+
+chmod +x ~/flask_rpi/app.py
+
+sudo nano /etc/systemd/system/flask_rpi.service
+
+
+
+chmod +x app.py
+sudo systemctl daemon-reload
+sudo systemctl enable flask_rpi.service
+sudo systemctl start flask_rpi.service
+sudo systemctl restart flask_rpi.service
+sudo systemctl status flask_rpi.service
+
+
+
+sudo apt install python3-flask python3-pil hostapd dnsmasq nodogsplash
+pip3 install qrcode
+
+

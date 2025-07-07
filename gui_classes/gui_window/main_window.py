@@ -220,11 +220,32 @@ class MainWindow(BaseWindow):
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
-            data = "https://youtu.be/xvFZjo5PgG0?si=pp6hBg7rL4zineRX"
-            pil_img = QRCodeUtils.generate_qrcode(data)
-            qimg = QRCodeUtils.pil_to_qimage(pil_img)
+            from hotspot_classes.hotspot_client import HotspotClient
+            from PySide6.QtGui import QImage
+            # Vérifier qu'une image a bien été générée
+            if not hasattr(self, 'generated_image') or self.generated_image is None:
+                print("Aucune image générée disponible.")
+                self.set_state_default()
+                return
+            client = HotspotClient(url="http://192.168.10.2:5000/share")
+            client.set_qimage(self.generated_image)
+            try:
+                client.run()
+                qr_bytes = client.qr_bytes
+                if not qr_bytes:
+                    raise RuntimeError("QR code non reçu.")
+                qimg = QImage()
+                qimg.loadFromData(qr_bytes)
+            except Exception as e:
+                print(f"Erreur lors de la récupération du QR code: {e}")
+                qimg = None
+            finally:
+                client.cleanup_temp_image()
             def on_rules_validated():
-                self.show_qrcode_overlay(qimg)
+                if qimg is not None and not qimg.isNull():
+                    self.show_qrcode_overlay(qimg)
+                else:
+                    self.set_state_default()
             def on_rules_refused():
                 self.set_state_default()
             overlay = OverlayRules(

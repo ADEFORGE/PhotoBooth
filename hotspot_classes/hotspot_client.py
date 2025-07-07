@@ -27,6 +27,29 @@ class HotspotClient:
             raise FileNotFoundError(f"Fichier image introuvable: {path}")
         self.image_path = p
 
+    def set_qimage(self, qimg):
+        """Définit l'image à envoyer à partir d'un QImage (PySide6), sauvegardée dans gui_template/tm."""
+        import os
+        from PySide6.QtGui import QImage
+        temp_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'gui_template', 'tm')
+        temp_dir = os.path.abspath(temp_dir)
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_img_path = os.path.join(temp_dir, "hotspotclient_qimage.png")
+        if not qimg.save(temp_img_path):
+            raise RuntimeError("Impossible de sauvegarder le QImage en PNG.")
+        self.set_image(temp_img_path)
+        self._temp_img_path = temp_img_path  # Pour suppression après usage
+
+    def cleanup_temp_image(self):
+        """Supprime le fichier temporaire créé par set_qimage, si présent."""
+        import os
+        if hasattr(self, '_temp_img_path') and self._temp_img_path:
+            try:
+                os.remove(self._temp_img_path)
+            except Exception:
+                pass
+            self._temp_img_path = None
+
     def run(self):
         """Envoie l'image au serveur, récupère les données et le QR code. Timeout et fallback gérés."""
         if self.image_path is None:

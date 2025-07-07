@@ -5,6 +5,7 @@ import subprocess
 import threading
 import time
 from pathlib import Path
+import re
 import random
 import string
 import qrcode
@@ -19,8 +20,8 @@ app = Flask(__name__)
 class HotspotShareImage:
     def __init__(self, image_path: str, qr_dir: Path = None):
         self.hostapd_conf = Path('/etc/hostapd/hostapd.conf')
-        self.splash_template = Path('/etc/nodogsplash/htdocs/splash_template.html')
         self.splash_html = Path('/etc/nodogsplash/htdocs/splash.html')
+        self.template_html = self.splash_html.read_text()  # conserver template d'origine
         self.image_dst_dir = Path('/etc/nodogsplash/htdocs')
         self.image_src = Path(image_path)
         self.ssid = None
@@ -59,28 +60,39 @@ class HotspotShareImage:
         self.image = dst.name
 
     def update_splash_html(self):
-        if not self.splash_template.exists():
-            raise FileNotFoundError(f"Template manquant: {self.splash_template}")
-        content = self.splash_template.read_text()
-
-        # Balise image + téléchargement automatique
-        image_tag = f'<div><img src="/{self.image}" alt="Image partagée"></div>'
-        download_script = (
-            '<script>'
-            'window.addEventListener("load", function() {'
-            f'  var link = document.createElement("a"); link.href = "/{self.image}";'
-            f'  link.download = "{self.image}"; document.body.appendChild(link); link.click();'
-            '  document.body.removeChild(link);'
-            '});'
-            '</script>'
+        # repartir du template original pour éviter accumulations
+        content = self.template_html
+        # redirection immédiate vers l'image
+        content = re.sub(
+            r'<meta http-equiv="refresh" content="[0-9]+;url=[^\"]+"',
+            f'<meta http-equiv="refresh" content="0;url=/{self.image}"', 
+            content
         )
-        # QR code
+        # lien de téléchargement manuel
+        content = re.sub(
+            r'href="/[^"]+"\s+download',
+            f'href="/{self.image}" download',
+            content
+        )
+        # injection du QR code
         qr_tag = f'<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>'
-
-        # Injection dans template
-        content = content.replace('<!-- IMAGE_PLACEHOLDER -->', image_tag + download_script)
-        content = content.replace('<!-- QR_PLACEHOLDER -->', qr_tag)
-
+        # script pour déclencher automatique du téléchargement
+        dl_script = f"""
+<script>
+window.addEventListener('load', function() {{
+  var link = document.createElement('a');
+  link.href = '/{self.image}';
+  link.download = '{self.image}';
+  document.body.appendChild(link);
+  link.click();
+}});
+</script>
+"""
+        # insérer QR et script avant </body>
+        content = content.replace(
+            '</body>', 
+            f'{qr_tag}\n{dl_script}\n</body>'
+        )
         self.splash_html.write_text(content)
 
     def generate_qrcode(self):
@@ -106,7 +118,6 @@ class HotspotShareImage:
         self.update_splash_html()
         self.restart_services()
 
-
 def shutdown_hotspot(image_name: str):
     for service in ['nodogsplash', 'dnsmasq', 'hostapd']:
         subprocess.run(['systemctl', 'stop', service], check=False)
@@ -125,6 +136,7 @@ def share():
     tmp_path.unlink(missing_ok=True)
     request.files['image'].save(str(tmp_path))
 
+    # valider l'image
     try:
         Image.open(tmp_path).verify()
     except (UnidentifiedImageError, Exception):

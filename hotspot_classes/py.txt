@@ -65,55 +65,64 @@ sudo systemctl status dnsmasq --no-pager
 sudo systemctl status nodogsplash --no-pager
 
 
-
-
+sudo systemctl daemon-reload
+sudo systemctl restart flask_rpi.service
+sudo systemctl status flask_rpi.service
 
 
 Pense à créer /etc/nodogsplash/htdocs/splash_template.html ainsi :
 
-html
-Copy
-Edit
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Hotspot Image</title>
-</head>
-<body>
-  <!-- IMAGE_PLACEHOLDER -->
-  <!-- QR_PLACEHOLDER -->
-</body>
-</html>
-Ensuite, relance ton service :
+Oui, c’est ça – en gros tu vas remplacer ton `app.py` actuel par cette nouvelle version, puis redémarrer ton application (et les services système associés) pour que la modif prenne effet. Concrètement :
 
-bash
-Copy
-Edit
-sudo systemctl restart flask_rpi.service
+1. **Sauvegarde**
 
+   * Fais une copie de ton `app.py` actuel :
 
-sudo systemctl status flask_rpi.service
-Ping la Pi en Ethernet :
+     ```bash
+     cp /chemin/vers/app.py /chemin/vers/app.py.bak
+     ```
+   * (Optionnel) Sauvegarde aussi ton `splash.html` original s’il contient déjà des modifs utiles :
 
-powershell
-Copy
-Edit
-ping 192.168.10.2
+     ```bash
+     cp /etc/nodogsplash/htdocs/splash.html /etc/nodogsplash/htdocs/splash.html.bak
+     ```
 
-J’ai corrigé la balise mal fermée (</nscript> → </script>) dans le script de téléchargement automatique. Le service Flask devrait maintenant démarrer sans erreur.
+2. **Déploie le nouveau code**
 
-🚀 Relance le service :
+   * Remplace le contenu de `/chemin/vers/app.py` par le code que je t’ai fourni.
+   * Vérifie les droits et la shebang (exécutable, propriétaire root si besoin).
 
-bash
-Copy
-Edit
-sudo systemctl daemon-reload
-sudo systemctl restart flask_rpi.service
-Puis vérifie :
+3. **Vérifie le template**
 
-bash
-Copy
-Edit
-sudo systemctl status flask_rpi.service
-Tout devrait être active (running).
+   * Assure-toi que `/etc/nodogsplash/htdocs/splash.html` contient bien ton HTML original (avant injection du QR et du script) – c’est ce fichier qui sera lu au démarrage pour `ORIGINAL_SPLASH_HTML`.
+
+4. **Redémarre ton service Flask**
+
+   * Si tu lances ton app en tant que service systemd, par exemple `hotspot-share.service`, fais :
+
+     ```bash
+     systemctl restart hotspot-share
+     ```
+   * Sinon, si tu lances manuellement :
+
+     ```bash
+     pkill -f 'python3.*app.py'
+     python3 /chemin/vers/app.py &
+     ```
+
+5. **Teste**
+
+   * Fais un nouvel appel POST sur `/share` avec une image.
+   * Vérifie que le téléchargement automatique ne s’empile plus (une seule fois).
+
+6. **Vérifie les services réseau**
+
+   * Après chaque génération, `hostapd`, `dnsmasq` et `nodogsplash` sont automatiquement redémarrés par le code. Tu peux néanmoins contrôler leur statut global :
+
+     ```bash
+     systemctl status hostapd dnsmasq nodogsplash
+     ```
+
+Après ça, à chaque test, tu devrais voir dans `/etc/nodogsplash/htdocs/splash.html` **une seule** balise `<meta>` et **un seul** script d’auto-download, et l’image ne se téléchargera qu’une fois.
+
+Dis-moi si tu rencontres un souci à l’une de ces étapes !

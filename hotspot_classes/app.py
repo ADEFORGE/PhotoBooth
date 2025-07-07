@@ -2,12 +2,18 @@
 import base64
 import json
 import subprocess
+import threading
+import time
 from pathlib import Path
 import re
 import random
 import string
 import qrcode
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, send_file, jsonify, abort
+from PIL import Image, UnidentifiedImageError
+
+# Durée avant extinction du hotspot (en secondes)
+HOTSPOT_TIMEOUT_SEC = 300  # 5 minutes
 
 app = Flask(__name__)
 
@@ -31,7 +37,6 @@ class HotspotShareImage:
         return self.ssid, self.password
 
     def update_hostapd_conf(self):
-        # Lire les lignes existantes
         lines = self.hostapd_conf.read_text().splitlines()
         with self.hostapd_conf.open('w') as f:
             has_ignore = False
@@ -45,7 +50,6 @@ class HotspotShareImage:
                     has_ignore = True
                 else:
                     f.write(line + '\n')
-            # Ajouter ignore_broadcast_ssid si absent
             if not has_ignore:
                 f.write('ignore_broadcast_ssid=1\n')
 
@@ -70,9 +74,8 @@ class HotspotShareImage:
         img.save(self.qr_path)
 
     def restart_services(self):
-        subprocess.run(['systemctl', 'restart', 'hostapd'], check=True)
-        subprocess.run(['systemctl', 'restart', 'dnsmasq'], check=True)
-        subprocess.run(['systemctl', 'restart', 'nodogsplash'], check=True)
+        for service in ['hostapd', 'dnsmasq', 'nodogsplash']:
+            subprocess.run(['systemctl', 'restart', service], check=True)
 
     def run(self, use_random=True, ssid=None, password=None):
         if use_random:
@@ -87,29 +90,55 @@ class HotspotShareImage:
         self.update_splash_html()
         self.restart_services()
 
-@app.post("/share")
-def share():
-    if 'image' not in request.files:
-        abort(400, "Image manquante")
-    img_file = request.files['image']
-    tmp_path = Path('/tmp/uploaded_image.png')
+def shutdown_hotspot(image_name: str):
+    # Stop services
+    for service in ['nodogsplash', 'dnsmasq', 'hostapd']:
+        subprocess.run(['systemctl', 'stop', service], check=False)
+    # Remove shared image
     try:
-        tmp_path.unlink()
+        path = Path('/etc/nodogsplash/htdocs') / image_name
+        path.unlink()
     except Exception:
         pass
-    img_file.save(str(tmp_path))
 
+@app.post('/share')
+def share():
+    error_img = Path(__file__).parent / 'error.png'
+    # Vérifier présence de l'image
+    if 'image' not in request.files:
+        return send_file(str(error_img), mimetype='image/png')
+
+    tmp_path = Path('/tmp/uploaded_image.png')
+    try:
+        tmp_path.unlink(missing_ok=True)
+    except Exception:
+        pass
+    request.files['image'].save(str(tmp_path))
+
+    # Vérifier lisibilité de l'image
+    try:
+        Image.open(tmp_path).verify()
+    except (UnidentifiedImageError, Exception):
+        return send_file(str(error_img), mimetype='image/png')
+
+    # Lancer partage
     h = HotspotShareImage(str(tmp_path), qr_dir=Path('/tmp'))
     h.run()
+    ssid, pwd = h.get_credentials()
 
+    # Programmer extinction du hotspot
+    threading.Timer(HOTSPOT_TIMEOUT_SEC, shutdown_hotspot, args=[h.image]).start()
+
+    # Lire QR code
     qr_bytes = (Path('/tmp') / 'wifi_qr.png').read_bytes()
     qr_b64 = base64.b64encode(qr_bytes).decode()
-    ssid, pwd = h.get_credentials()
+
     return jsonify({
-        "ssid": ssid,
-        "password": pwd,
-        "qr_code_base64": qr_b64
+        'ssid': ssid,
+        'password': pwd,
+        'qr_code_base64': qr_b64
     })
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host='0.0.0.0', port=5000)
+

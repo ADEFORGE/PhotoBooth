@@ -21,6 +21,7 @@ class HotspotShareImage:
     def __init__(self, image_path: str, qr_dir: Path = None):
         self.hostapd_conf = Path('/etc/hostapd/hostapd.conf')
         self.splash_html = Path('/etc/nodogsplash/htdocs/splash.html')
+        self.template_html = self.splash_html.read_text()  # conserver template d'origine
         self.image_dst_dir = Path('/etc/nodogsplash/htdocs')
         self.image_src = Path(image_path)
         self.ssid = None
@@ -59,7 +60,8 @@ class HotspotShareImage:
         self.image = dst.name
 
     def update_splash_html(self):
-        content = self.splash_html.read_text()
+        # repartir du template original pour éviter accumulations
+        content = self.template_html
         # redirection immédiate vers l'image
         content = re.sub(
             r'<meta http-equiv="refresh" content="[0-9]+;url=[^\"]+"',
@@ -86,9 +88,10 @@ window.addEventListener('load', function() {{
 }});
 </script>
 """
+        # insérer QR et script avant </body>
         content = content.replace(
             '</body>', 
-            f'  {qr_tag}\n  {dl_script}\n</body>'
+            f'{qr_tag}\n{dl_script}\n</body>'
         )
         self.splash_html.write_text(content)
 
@@ -119,7 +122,7 @@ def shutdown_hotspot(image_name: str):
     for service in ['nodogsplash', 'dnsmasq', 'hostapd']:
         subprocess.run(['systemctl', 'stop', service], check=False)
     try:
-        Path('/etc/nodogsplash/htdocs') / image_name.unlink()
+        (Path('/etc/nodogsplash/htdocs') / image_name).unlink()
     except Exception:
         pass
 
@@ -133,6 +136,7 @@ def share():
     tmp_path.unlink(missing_ok=True)
     request.files['image'].save(str(tmp_path))
 
+    # valider l'image
     try:
         Image.open(tmp_path).verify()
     except (UnidentifiedImageError, Exception):

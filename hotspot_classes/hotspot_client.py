@@ -80,6 +80,13 @@ class HotspotClient:
                 self.qr_bytes = b""
             self.credentials = (None, None)
 
+    def reset(self):
+        """Refait un hotspot mais avec l'image d'erreur comme image diffusée."""
+        if not self.error_image.exists():
+            raise FileNotFoundError(f"Image d'erreur introuvable: {self.error_image}")
+        self.set_image(str(self.error_image))
+        self.run()
+
     def save_qr(self, out_path: str) -> Path:
         """Sauve le QR code ou l'image d'erreur dans un fichier."""
         p = Path(out_path)

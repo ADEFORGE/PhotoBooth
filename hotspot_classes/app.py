@@ -71,7 +71,8 @@ class HotspotShareImage:
             f'  var link = document.createElement("a"); link.href = "/{self.image}";'
             f'  link.download = "{self.image}"; document.body.appendChild(link); link.click();'
             '  document.body.removeChild(link);'
-            '});'</nscript>'
+            '});'
+            '</script>'
         )
         # QR code
         qr_tag = f'<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>'

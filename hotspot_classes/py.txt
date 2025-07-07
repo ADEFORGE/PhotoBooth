@@ -101,118 +101,19 @@ Copy
 Edit
 ping 192.168.10.2
 
+J’ai corrigé la balise mal fermée (</nscript> → </script>) dans le script de téléchargement automatique. Le service Flask devrait maintenant démarrer sans erreur.
 
+🚀 Relance le service :
 
-Même si tu peux pinguer la Pi sur `192.168.10.2`, l’erreur **10061** signifie que **rien n’écoute le port 5000** à ce moment‑là. Voici comment tu peux le résoudre :
+bash
+Copy
+Edit
+sudo systemctl daemon-reload
+sudo systemctl restart flask_rpi.service
+Puis vérifie :
 
----
-
-## 1. Vérifier que le serveur Flask tourne bien
-
-Sur ta Raspberry Pi, exécute :
-
-```bash
+bash
+Copy
+Edit
 sudo systemctl status flask_rpi.service
-```
-
-Tu dois voir :
-
-```
-Active: active (running) since ...
-```
-
-* Si c’est **inactive** ou **failed**, redémarre-le :
-
-  ```bash
-  sudo systemctl restart flask_rpi.service
-  ```
-* Vérifie les logs pour comprendre un éventuel échec :
-
-  ```bash
-  journalctl -u flask_rpi.service -n 20 --no-pager
-  ```
-
----
-
-## 2. Vérifier que Flask écoute sur le port 5000
-
-Toujours sur la Pi :
-
-```bash
-sudo ss -tlnp | grep 5000
-```
-
-Tu devrais voir une ligne du genre :
-
-```
-LISTEN  0  128  0.0.0.0:5000  0.0.0.0:*  users:(("python3",pid=1234,fd=3))
-```
-
-* Si rien n’apparaît, cela veut dire que Flask n’est pas lancé ou qu’il écoute seulement sur `127.0.0.1`.
-* Dans ce cas, relance-le en mode débug pour voir les erreurs :
-
-  ```bash
-  cd ~/flask_rpi
-  ./app.py
-  ```
-
-  Vérifie qu’il renvoie :
-
-  ```
-   * Running on http://0.0.0.0:5000/
-  ```
-
----
-
-## 3. Assure-toi qu’il n’y a pas de firewall qui bloque
-
-Si tu utilises `ufw` ou `iptables` :
-
-```bash
-sudo ufw status
-# ou
-sudo iptables -L INPUT -n
-```
-
-Autorise le port 5000 en TCP si nécessaire :
-
-```bash
-sudo ufw allow 5000/tcp
-```
-
----
-
-## 4. Retester depuis le PC
-
-Une fois que :
-
-* `flask_rpi.service` est **active (running)**
-* et que `ss -tlnp` montre bien le port 5000
-* et qu’aucun firewall ne bloque
-
-Tu relances sur Windows ou Ubuntu :
-
-```powershell
-python3 .\hotspot_client.py .\in_image.png
-```
-
-Tu ne devrais plus avoir la **connection refused**.
-
----
-
-### Récapitulatif rapide
-
-1. **Sur la Pi**
-
-   * `sudo systemctl status flask_rpi.service`
-   * `sudo systemctl restart flask_rpi.service`
-   * `journalctl -u flask_rpi.service -n 20`
-   * `sudo ss -tlnp | grep 5000`
-   * (éventuellement) `sudo ufw allow 5000/tcp`
-
-2. **Sur le PC**
-
-   * Vérifier que tu es toujours en Ethernet vers `192.168.10.2`
-   * Lancer de nouveau le client
-
-Dis-moi ce que tu obtiens !
+Tout devrait être active (running).

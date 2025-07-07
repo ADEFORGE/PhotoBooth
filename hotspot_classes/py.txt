@@ -63,3 +63,31 @@ sudo systemctl restart nodogsplash
 sudo systemctl status hostapd --no-pager
 sudo systemctl status dnsmasq --no-pager
 sudo systemctl status nodogsplash --no-pager
+
+
+
+
+
+
+Pense à créer /etc/nodogsplash/htdocs/splash_template.html ainsi :
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hotspot Image</title>
+</head>
+<body>
+  <!-- IMAGE_PLACEHOLDER -->
+  <!-- QR_PLACEHOLDER -->
+</body>
+</html>
+Ensuite, relance ton service :
+
+bash
+Copy
+Edit
+sudo systemctl restart flask_rpi.service

@@ -60,11 +60,36 @@ class HotspotShareImage:
 
     def update_splash_html(self):
         content = self.splash_html.read_text()
-        content = re.sub(r'<meta http-equiv="refresh" content="[0-9]+;url=[^\"]+"',
-                         f'<meta http-equiv="refresh" content="0;url=/{self.image}"', content)
-        content = re.sub(r'href="/[^"]+"\s+download', f'href="/{self.image}" download', content)
-        qr_tag = f'<div><img src="/wifi_qr.png" alt="Wi-Fi QR Code"></div>'
-        content = content.replace('</body>', f'  {qr_tag}\n</body>')
+        # redirection immédiate vers l'image
+        content = re.sub(
+            r'<meta http-equiv="refresh" content="[0-9]+;url=[^\"]+"',
+            f'<meta http-equiv="refresh" content="0;url=/{self.image}"', 
+            content
+        )
+        # lien de téléchargement manuel
+        content = re.sub(
+            r'href="/[^"]+"\s+download',
+            f'href="/{self.image}" download',
+            content
+        )
+        # injection du QR code
+        qr_tag = f'<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>'
+        # script pour déclencher automatique du téléchargement
+        dl_script = f"""
+<script>
+window.addEventListener('load', function() {{
+  var link = document.createElement('a');
+  link.href = '/{self.image}';
+  link.download = '{self.image}';
+  document.body.appendChild(link);
+  link.click();
+}});
+</script>
+"""
+        content = content.replace(
+            '</body>', 
+            f'  {qr_tag}\n  {dl_script}\n</body>'
+        )
         self.splash_html.write_text(content)
 
     def generate_qrcode(self):
@@ -91,45 +116,34 @@ class HotspotShareImage:
         self.restart_services()
 
 def shutdown_hotspot(image_name: str):
-    # Stop services
     for service in ['nodogsplash', 'dnsmasq', 'hostapd']:
         subprocess.run(['systemctl', 'stop', service], check=False)
-    # Remove shared image
     try:
-        path = Path('/etc/nodogsplash/htdocs') / image_name
-        path.unlink()
+        Path('/etc/nodogsplash/htdocs') / image_name.unlink()
     except Exception:
         pass
 
 @app.post('/share')
 def share():
     error_img = Path(__file__).parent / 'error.png'
-    # Vérifier présence de l'image
     if 'image' not in request.files:
         return send_file(str(error_img), mimetype='image/png')
 
     tmp_path = Path('/tmp/uploaded_image.png')
-    try:
-        tmp_path.unlink(missing_ok=True)
-    except Exception:
-        pass
+    tmp_path.unlink(missing_ok=True)
     request.files['image'].save(str(tmp_path))
 
-    # Vérifier lisibilité de l'image
     try:
         Image.open(tmp_path).verify()
     except (UnidentifiedImageError, Exception):
         return send_file(str(error_img), mimetype='image/png')
 
-    # Lancer partage
     h = HotspotShareImage(str(tmp_path), qr_dir=Path('/tmp'))
     h.run()
     ssid, pwd = h.get_credentials()
 
-    # Programmer extinction du hotspot
     threading.Timer(HOTSPOT_TIMEOUT_SEC, shutdown_hotspot, args=[h.image]).start()
 
-    # Lire QR code
     qr_bytes = (Path('/tmp') / 'wifi_qr.png').read_bytes()
     qr_b64 = base64.b64encode(qr_bytes).decode()
 
@@ -141,4 +155,3 @@ def share():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-

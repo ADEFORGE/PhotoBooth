@@ -91,3 +91,12 @@ bash
 Copy
 Edit
 sudo systemctl restart flask_rpi.service
+
+
+sudo systemctl status flask_rpi.service
+Ping la Pi en Ethernet :
+
+powershell
+Copy
+Edit
+ping 192.168.10.2

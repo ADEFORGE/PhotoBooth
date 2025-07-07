@@ -44,3 +44,22 @@ sudo apt install python3-flask python3-pil hostapd dnsmasq nodogsplash
 pip3 install qrcode
 
 
+# a) Remettre wlan0 en place avec son IP statique
+sudo ip link set wlan0 down
+sudo ip addr flush dev wlan0
+sudo ip addr add 192.168.5.1/24 dev wlan0
+sudo ip link set wlan0 up
+
+# b) Redémarrer hostapd (le point d’accès)
+sudo systemctl restart hostapd
+
+# c) Redémarrer dnsmasq (DHCP/DNS captive)
+sudo systemctl restart dnsmasq
+
+# d) Redémarrer Nodogsplash (portail captif)
+sudo systemctl restart nodogsplash
+
+# e) Vérifier que tout est UP
+sudo systemctl status hostapd --no-pager
+sudo systemctl status dnsmasq --no-pager
+sudo systemctl status nodogsplash --no-pager

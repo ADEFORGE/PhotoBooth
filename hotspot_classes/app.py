@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
 import base64
-import json
 import subprocess
 import threading
-import time
 from pathlib import Path
 import re
 import random
 import string
 import qrcode
-from flask import Flask, request, send_file, jsonify, abort
+from flask import Flask, request, send_file, jsonify
 from PIL import Image, UnidentifiedImageError
 
 # Durée avant extinction du hotspot (en secondes)
 HOTSPOT_TIMEOUT_SEC = 300  # 5 minutes
+
+# --- On pointe vers le template vierge (jamais modifié) ---
+SPLASH_TEMPLATE_PATH = Path('/etc/nodogsplash/htdocs/splash.tmpl')
+ORIGINAL_SPLASH_HTML = SPLASH_TEMPLATE_PATH.read_text()
 
 app = Flask(__name__)
 
 class HotspotShareImage:
     def __init__(self, image_path: str, qr_dir: Path = None):
         self.hostapd_conf = Path('/etc/hostapd/hostapd.conf')
-        self.splash_html = Path('/etc/nodogsplash/htdocs/splash.html')
-        self.template_html = self.splash_html.read_text()  # conserver template d'origine
+        # Template vierge, lu une seule fois au démarrage
+        self.template_html = ORIGINAL_SPLASH_HTML
         self.image_dst_dir = Path('/etc/nodogsplash/htdocs')
         self.image_src = Path(image_path)
         self.ssid = None
@@ -31,8 +33,12 @@ class HotspotShareImage:
         self.qr_path = self.qr_dir / 'wifi_qr.png'
 
     def generate_random_credentials(self, ssid_length=8, pass_length=12):
-        self.ssid = 'HSI_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=ssid_length))
-        self.password = ''.join(random.choices(string.ascii_letters + string.digits, k=pass_length))
+        self.ssid = 'HSI_' + ''.join(
+            random.choices(string.ascii_uppercase + string.digits, k=ssid_length)
+        )
+        self.password = ''.join(
+            random.choices(string.ascii_letters + string.digits, k=pass_length)
+        )
 
     def get_credentials(self):
         return self.ssid, self.password
@@ -60,12 +66,12 @@ class HotspotShareImage:
         self.image = dst.name
 
     def update_splash_html(self):
-        # repartir du template original pour éviter accumulations
+        # On repart toujours du template vierge
         content = self.template_html
-        # redirection immédiate vers l'image
+        # meta-refresh immédiat vers l’image
         content = re.sub(
-            r'<meta http-equiv="refresh" content="[0-9]+;url=[^\"]+"',
-            f'<meta http-equiv="refresh" content="0;url=/{self.image}"', 
+            r'<meta http-equiv="refresh" content="[0-9]+;url=[^"]+"',
+            f'<meta http-equiv="refresh" content="0;url=/{self.image}"',
             content
         )
         # lien de téléchargement manuel
@@ -75,8 +81,11 @@ class HotspotShareImage:
             content
         )
         # injection du QR code
-        qr_tag = f'<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>'
-        # script pour déclencher automatique du téléchargement
+
+        img_tag = f'<div><img src="/{self.image}" alt="Image partagée"></div>'
+
+
+        # script de téléchargement automatique
         dl_script = f"""
 <script>
 window.addEventListener('load', function() {{
@@ -88,12 +97,13 @@ window.addEventListener('load', function() {{
 }});
 </script>
 """
-        # insérer QR et script avant </body>
+        # on injecte QR et script juste avant </body>
         content = content.replace(
-            '</body>', 
-            f'{qr_tag}\n{dl_script}\n</body>'
+            '</body>',
+            f'{img_tag}\n{dl_script}\n</body>'
         )
-        self.splash_html.write_text(content)
+        # on écrit dans splash.html (fichier servi)
+        (self.image_dst_dir / 'splash.html').write_text(content)
 
     def generate_qrcode(self):
         self.qr_dir.mkdir(parents=True, exist_ok=True)
@@ -102,8 +112,8 @@ window.addEventListener('load', function() {{
         img.save(self.qr_path)
 
     def restart_services(self):
-        for service in ['hostapd', 'dnsmasq', 'nodogsplash']:
-            subprocess.run(['systemctl', 'restart', service], check=True)
+        for svc in ['hostapd', 'dnsmasq', 'nodogsplash']:
+            subprocess.run(['systemctl', 'restart', svc], check=True)
 
     def run(self, use_random=True, ssid=None, password=None):
         if use_random:
@@ -119,8 +129,8 @@ window.addEventListener('load', function() {{
         self.restart_services()
 
 def shutdown_hotspot(image_name: str):
-    for service in ['nodogsplash', 'dnsmasq', 'hostapd']:
-        subprocess.run(['systemctl', 'stop', service], check=False)
+    for svc in ['nodogsplash', 'dnsmasq', 'hostapd']:
+        subprocess.run(['systemctl', 'stop', svc], check=False)
     try:
         (Path('/etc/nodogsplash/htdocs') / image_name).unlink()
     except Exception:
@@ -136,7 +146,6 @@ def share():
     tmp_path.unlink(missing_ok=True)
     request.files['image'].save(str(tmp_path))
 
-    # valider l'image
     try:
         Image.open(tmp_path).verify()
     except (UnidentifiedImageError, Exception):

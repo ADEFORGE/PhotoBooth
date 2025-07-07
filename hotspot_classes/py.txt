@@ -67,8 +67,12 @@ sudo systemctl status nodogsplash --no-pager
 
 sudo systemctl daemon-reload
 sudo systemctl restart flask_rpi.service
-sudo systemctl status flask_rpi.service
+sudo systemctl status flask_rpi.service --no-pager
 
+sudo systemctl enable flask_rpi.service
+sudo systemctl start flask_rpi.service
+sudo systemctl restart flask_rpi.service
+sudo systemctl status flask_rpi.service --no-pager
 
 Pense à créer /etc/nodogsplash/htdocs/splash_template.html ainsi :
 

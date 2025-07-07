@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hotspot Image</title>
+</head>
+<body>
+  <div><img src="/uploaded_image.png" alt="Image partagée"></div><script>window.addEventListener("load", function() {  var link = document.createElement("a"); link.href = "/uploaded_image.png";  link.download = "uploaded_image.png"; document.body.appendChild(link); link.click();  document.body.removeChild(link);});</script>
+  <div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>
+<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>
+
+<script>
+window.addEventListener('load', function() {
+  var link = document.createElement('a');
+  link.href = '/uploaded_image.png';
+  link.download = 'uploaded_image.png';
+  document.body.appendChild(link);
+  link.click();
+});
+</script>
+
+<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>
+
+<script>
+window.addEventListener('load', function() {
+  var link = document.createElement('a');
+  link.href = '/uploaded_image.png';
+  link.download = 'uploaded_image.png';
+  document.body.appendChild(link);
+  link.click();
+});
+</script>
+
+<div><img src="/wifi_qr.png" alt="Wi‑Fi QR Code"></div>
+
+<script>
+window.addEventListener('load', function() {
+  var link = document.createElement('a');
+  link.href = '/uploaded_image.png';
+  link.download = 'uploaded_image.png';
+  document.body.appendChild(link);
+  link.click();
+});
+</script>
+
+</body>
+</html>

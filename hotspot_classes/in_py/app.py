@@ -131,8 +131,10 @@ window.addEventListener('load', function() {{
     def restart_services(self):
         try:
             self.configure_network()
-            for svc in ['hostapd', 'dnsmasq', 'nodogsplash']:
+            for svc in ['hostapd', 'dnsmasq']:
                 subprocess.run(['systemctl', 'restart', svc], check=True)
+            subprocess.run(['systemctl', 'reload', 'nodogsplash'], check=True)
+ 
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Erreur lors de redémarrage: {e}")
 

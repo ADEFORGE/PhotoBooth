@@ -39,7 +39,7 @@ class HotspotShareImage:
         self.hidden = hidden
 
     def generate_random_credentials(self, ssid_length=8, pass_length=12):
-        self.ssid = 'HSI_' + ''.join(random.choices(
+        self.ssid = 'PhotoBooth_' + ''.join(random.choices(
             string.ascii_uppercase + string.digits,
             k=ssid_length
         ))

@@ -50,6 +50,15 @@ sudo ip addr flush dev wlan0
 sudo ip addr add 192.168.5.1/24 dev wlan0
 sudo ip link set wlan0 up
 
+
+
+sudo systemctl daemon-reload
+sudo systemctl restart hostapd
+sudo systemctl restart dnsmasq
+sudo systemctl restart nodogsplash
+sudo systemctl restart flask_rpi.service
+
+
 # b) Redémarrer hostapd (le point d’accès)
 sudo systemctl restart hostapd
 

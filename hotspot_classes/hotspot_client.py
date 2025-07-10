@@ -18,8 +18,8 @@ class HotspotClient:
         self.resp_data: dict = {}
         self.qr_bytes: bytes = b""
         self.credentials: tuple = (None, None)
-        self.error_image = Path(__file__).parent / 'hotspot_classes/template/error.png'
-
+        self.error_image = Path(__file__).parent.parent / 'template' / 'error.png'
+        
     def set_image(self, path: str):
         """Définit le chemin de l'image à envoyer"""
         p = Path(path)

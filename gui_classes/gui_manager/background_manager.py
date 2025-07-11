@@ -217,6 +217,7 @@ class BackgroundManager(QObject):
 
     def preset(self, timer=None):
         """Abonne update_background au timer passé en argument."""
+        self.set_camera_resolution(2)
+        print("test1234")
         if timer is not None:
             timer.subscribe(self.update_background)
-        self.set_camera_resolution(2)

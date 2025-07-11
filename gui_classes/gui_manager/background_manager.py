@@ -202,7 +202,7 @@ class BackgroundManager(QObject):
     def on_enter(self) -> None:
         """À appeler lors de l'entrée dans la vue : affiche le gradient et met la résolution caméra à 2 (FullHD)."""
         self.show_gradient(True)
-        self.set_camera_resolution(2)
+
         if DEBUG_BackgroundManager:
             print("[BackgroundManager] on_enter: gradient ON, résolution 2 (FullHD)")
 
@@ -219,3 +219,4 @@ class BackgroundManager(QObject):
         """Abonne update_background au timer passé en argument."""
         if timer is not None:
             timer.subscribe(self.update_background)
+        self.set_camera_resolution(2)

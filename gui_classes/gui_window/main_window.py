@@ -218,8 +218,13 @@ class MainWindow(BaseWindow):
     def show_rules_overlay(self, qimg):
         """
         Initialise et affiche l'overlay des règles.
-        En validation, affiche l'overlay QR code. En fermeture, reset l'état.
+        Si ShareByHotspot est False, saute l'overlay et revient à l'état par défaut.
         """
+        from gui_classes.gui_object.constante import ShareByHotspot
+        if not ShareByHotspot:
+            print("[MainWindow] ShareByHotspot désactivé, retour à l'état par défaut.")
+            self.set_state_default()
+            return
         def on_rules_validated():
             self.show_qrcode_overlay(qimg)
         def on_rules_refused():

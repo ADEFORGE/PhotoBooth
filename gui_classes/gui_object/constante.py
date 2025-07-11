@@ -1,3 +1,5 @@
+# --- Activation/désactivation du partage Hotspot ---
+ShareByHotspot = True  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py
 
 # =========================

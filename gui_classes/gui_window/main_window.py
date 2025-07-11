@@ -105,11 +105,6 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Exiting cleanup: return=None")
         self.update_frame()
 
-    def preset(self):
-        """Appelle le preset du background_manager si présent."""
-        if hasattr(self, 'background_manager'):
-            self.background_manager.preset()
-
     def set_generation_style(self, checked: bool, style_name: str, generate_image: bool = False) -> None:
         self.update_frame()
         if DEBUG_MainWindow:
@@ -392,4 +387,8 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Exiting paintEvent: return=None")
 
-
+    def preset(self):
+        """Appelle le preset du background_manager si présent."""
+        print("[MainWindow] Calling preset on background_manager")
+        if hasattr(self, 'background_manager'):
+            self.background_manager.preset()

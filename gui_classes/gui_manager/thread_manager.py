@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QW
 from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.gui_object.overlay import OverlayCountdown, OverlayLoading
 from gui_classes.gui_object.toolbox import ImageUtils
+from hotspot_classes.hotspot_client import HotspotClient
 
 class CountdownThread(QObject):
     overlay_finished = Signal()
@@ -490,3 +491,75 @@ class CameraCaptureThread(QThread):
         self._running = False
         self.wait()
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting stop: return=None")
+
+class ThreadShareImage(QThread):
+    """
+    Thread pour envoyer une image à la Raspberry Pi via HotspotClient sans bloquer l'UI.
+    Utilisation :
+        thread = ThreadShareImage(url, image_path_or_qimage)
+        thread.finished.connect(slot)
+        thread.start()
+    Résultat : thread.qr_bytes, thread.credentials, thread.error (None si OK)
+    """
+    def __init__(self, url: str, image=None, timeout: float = 10.0, parent=None):
+        print(f"[ThreadShareImage] __init__ called with url={url}, image={type(image)}, timeout={timeout}")
+        super().__init__(parent)
+        self.url = url
+        self.image = image  # Peut être un chemin (str/Path) ou un QImage
+        self.timeout = timeout
+        self.qr_bytes = b""
+        self.credentials = (None, None)
+        self.error = None
+
+    def run(self):
+        print(f"[ThreadShareImage] run called for url={self.url}, image={type(self.image)}")
+        try:
+            client = HotspotClient(self.url, timeout=self.timeout)
+            # Détection du type d'image
+            if hasattr(self.image, 'save') and callable(self.image.save):
+                print(f"[ThreadShareImage] Detected QImage, using set_qimage.")
+                client.set_qimage(self.image)
+            else:
+                print(f"[ThreadShareImage] Detected path, using set_image.")
+                client.set_image(str(self.image))
+            client.run()
+            self.qr_bytes = client.qr_bytes
+            self.credentials = client.credentials
+            self.error = None
+            client.cleanup_temp_image()
+            print(f"[ThreadShareImage] run finished successfully.")
+        except Exception as e:
+            print(f"[ThreadShareImage] Exception: {e}")
+            self.qr_bytes = b""
+            self.credentials = (None, None)
+            self.error = e
+    def cleanup(self):
+        print(f"[ThreadShareImage] cleanup called")
+        # Tentative de reset du hotspot si possible
+        try:
+            if hasattr(self, 'url') and self.url:
+                try:
+                    client = HotspotClient(self.url, timeout=2.0)
+                    if hasattr(client, 'reset') and callable(client.reset):
+                        print(f"[ThreadShareImage] Calling client.reset()")
+                        client.reset()
+                except Exception as e:
+                    print(f"[ThreadShareImage] Exception during client.reset: {e}")
+        except Exception as e:
+            print(f"[ThreadShareImage] Exception in cleanup: {e}")
+        # Arrêt du thread si encore actif
+        if self.isRunning():
+            try:
+                self.requestInterruption()
+            except Exception as e:
+                print(f"[ThreadShareImage] Exception during requestInterruption: {e}")
+            try:
+                self.quit()
+                self.wait(2000)
+            except Exception as e:
+                print(f"[ThreadShareImage] Exception during quit/wait: {e}")
+        # Libération des ressources
+        try:
+            self.deleteLater()
+        except Exception as e:
+            print(f"[ThreadShareImage] Exception during deleteLater: {e}")

@@ -17,6 +17,7 @@ from gui_classes.gui_manager.language_manager import language_manager
 
 
 class MainWindow(BaseWindow):
+
     def __init__(self, parent: Optional[object] = None) -> None:
         if DEBUG_MainWindow:
             print(f"[DEBUG][MainWindow] Entering __init__: args={{'parent':{parent}}}")
@@ -43,8 +44,6 @@ class MainWindow(BaseWindow):
         self.bg_label.lower()
         self.background_manager.update_background()
         self._texts = {}
-        from hotspot_classes.hotspot_client import HotspotClient
-        self.hotspot_client = HotspotClient(url="http://192.168.10.2:5000/share")
         language_manager.subscribe(self.update_language)
         self.update_language()
         if DEBUG_MainWindow:
@@ -204,16 +203,34 @@ class MainWindow(BaseWindow):
             print(f"[DEBUG][MainWindow] Exiting show_generation: return=None")
         self.update_frame()
 
-    def show_qrcode_overlay(self, qimg):
-        def on_qrcode_close():
-            self.hotspot_client.reset()
-            self.set_state_default()
+    def show_qrcode_overlay(self, image_to_send):
+        print(f"[MainWindow] show_qrcode_overlay called with image_to_send={type(image_to_send)}")
+        # URL du hotspot, à adapter selon la config réseau
+        hotspot_url = "http://192.168.10.2:5000/share"
         overlay_qr = OverlayQrcode(
             self,
-            qimage=qimg,
-            on_close=on_qrcode_close
+            on_close=self.set_state_default,
+            hotspot_url=hotspot_url,
+            image_to_send=image_to_send
         )
         overlay_qr.show_overlay()
+
+    def show_rules_overlay(self, qimg):
+        """
+        Initialise et affiche l'overlay des règles.
+        En validation, affiche l'overlay QR code. En fermeture, reset l'état.
+        """
+        def on_rules_validated():
+            self.show_qrcode_overlay(qimg)
+        def on_rules_refused():
+            self.set_state_default()
+        overlay = OverlayRules(
+            self,
+            on_validate=on_rules_validated,
+            on_close=on_rules_refused
+        )
+        overlay.show_overlay()
+
 
     def _on_accept_close(self) -> None:
         self.update_frame()
@@ -222,38 +239,13 @@ class MainWindow(BaseWindow):
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
-            from PySide6.QtGui import QImage
             # Vérifier qu'une image a bien été générée
             if not hasattr(self, 'generated_image') or self.generated_image is None:
                 print("Aucune image générée disponible.")
                 self.set_state_default()
                 return
-            self.hotspot_client.set_qimage(self.generated_image)
-            try:
-                self.hotspot_client.run()
-                qr_bytes = self.hotspot_client.qr_bytes
-                if not qr_bytes:
-                    raise RuntimeError("QR code non reçu.")
-                qimg = QImage()
-                qimg.loadFromData(qr_bytes)
-            except Exception as e:
-                print(f"Erreur lors de la récupération du QR code: {e}")
-                qimg = None
-            finally:
-                self.hotspot_client.cleanup_temp_image()
-            def on_rules_validated():
-                if qimg is not None and not qimg.isNull():
-                    self.show_qrcode_overlay(qimg)
-                else:
-                    self.set_state_default()
-            def on_rules_refused():
-                self.set_state_default()
-            overlay = OverlayRules(
-                self,
-                on_validate=on_rules_validated,
-                on_close=on_rules_refused
-            )
-            overlay.show_overlay()
+            qimg = self.generated_image
+            self.show_rules_overlay(qimg)
         else:
             self.set_state_default()
         if DEBUG_MainWindow:

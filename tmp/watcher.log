@@ -1,0 +1,179 @@
+/usr/lib/python3/dist-packages/requests/__init__.py:87: RequestsDependencyWarning: urllib3 (2.5.0) or chardet (4.0.0) doesn't match a supported version!
+warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
+[START] Security scan
+[DONE] Security scan
+## ComfyUI-Manager: installing dependencies done.
+** ComfyUI startup time: 2025-07-14 14:39:24.806
+** Platform: Linux
+** Python version: 3.10.12 (main, May 27 2025, 17:12:29) [GCC 11.4.0]
+** Python executable: /usr/bin/python3
+** ComfyUI Path: /home/mlgroup/comfy/ComfyUI
+** ComfyUI Base Folder Path: /home/mlgroup/comfy/ComfyUI
+** User directory: /home/mlgroup/comfy/ComfyUI/user
+** ComfyUI-Manager config path: /home/mlgroup/comfy/ComfyUI/user/default/ComfyUI-Manager/config.ini
+** Log path: /home/mlgroup/comfy/ComfyUI/user/comfyui.log
+
+Prestartup times for custom nodes:
+1.5 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI-Manager
+
+Checkpoint files will always be loaded safely.
+Total VRAM 7967 MB, total RAM 31809 MB
+pytorch version: 2.7.0+cu126
+Set vram state to: NORMAL_VRAM
+Device: cuda:0 NVIDIA GeForce RTX 3080 Laptop GPU : cudaMallocAsync
+Using pytorch attention
+Python version: 3.10.12 (main, May 27 2025, 17:12:29) [GCC 11.4.0]
+ComfyUI version: 0.3.40
+________________________________________________________________________
+WARNING WARNING WARNING WARNING WARNING
+
+Installed frontend version 1.20.6 is lower than the recommended version 1.21.7.
+
+Please install the updated requirements.txt file by running:
+/usr/bin/python3 -m pip install -r /home/mlgroup/comfy/ComfyUI/requirements.txt
+
+This error is happening because the ComfyUI frontend is no longer shipped as part of the main repo but as a pip package instead.
+
+If you are on the portable package you can run: update\update_comfyui.bat to solve this problem
+________________________________________________________________________
+[Prompt Server] web root: /home/mlgroup/.local/lib/python3.10/site-packages/comfyui_frontend_package/static
+### Loading: ComfyUI-Impact-Subpack (V1.3.2)
+[Impact Pack/Subpack] Using folder_paths to determine whitelist path: /home/mlgroup/comfy/ComfyUI/user/default/ComfyUI-Impact-Subpack/model-whitelist.txt
+[Impact Pack/Subpack] Ensured whitelist directory exists: /home/mlgroup/comfy/ComfyUI/user/default/ComfyUI-Impact-Subpack
+[Impact Pack/Subpack] Loaded 0 model(s) from whitelist: /home/mlgroup/comfy/ComfyUI/user/default/ComfyUI-Impact-Subpack/model-whitelist.txt
+[Impact Subpack] ultralytics_bbox: /home/mlgroup/comfy/ComfyUI/models/ultralytics/bbox
+[Impact Subpack] ultralytics_segm: /home/mlgroup/comfy/ComfyUI/models/ultralytics/segm
+### Loading: ComfyUI-Impact-Pack (V8.16)
+[Impact Pack] Wildcards loading done.
+### Loading: ComfyUI-Manager (V3.32.8)
+[ComfyUI-Manager] network_mode: public
+### ComfyUI Revision: 3550 [866f6cda] *DETACHED | Released on '2025-06-04'
+Adding /home/mlgroup/comfy/ComfyUI/custom_nodes to sys.path
+[ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/alter-list.json
+
+[36mEfficiency Nodes:[0m Attempting to add Control Net options to the 'HiRes-Fix Script' Node (comfyui_controlnet_aux add-on)...[92mSuccess![0m
+Loaded Efficiency nodes from /home/mlgroup/comfy/ComfyUI/custom_nodes/efficiency-nodes-comfyui[ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/model-list.json
+
+Loaded ControlNetPreprocessors nodes from /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux
+Could not find AdvancedControlNet nodes
+Could not find AnimateDiff nodes
+Could not find IPAdapter nodes
+[ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/github-stats.json
+Could not find VideoHelperSuite nodes
+Could not load ImpactPack nodes Could not find ImpactPack nodes
+[36;20m[/home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux] | INFO -> Using ckpts path: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux/ckpts[0m
+[36;20m[/home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux] | INFO -> Using symlinks: False[0m
+[36;20m[/home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux] | INFO -> Using ort providers: ['CUDAExecutionProvider', 'DirectMLExecutionProvider', 'OpenVINOExecutionProvider', 'ROCMExecutionProvider', 'CPUExecutionProvider', 'CoreMLExecutionProvider'][0m
+[ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/extension-node-map.json
+ComfyUI-GGUF: Partial torch compile only, consider updating pytorch
+
+[36mEfficiency Nodes:[0m Attempting to add Control Net options to the 'HiRes-Fix Script' Node (comfyui_controlnet_aux add-on)...[92mSuccess![0m
+[ComfyUI-Manager] default cache updated: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/custom-node-list.json
+ComfyUI found: /home/mlgroup/comfy/ComfyUI
+'/home/mlgroup/comfy/ComfyUI' added to sys.path
+### Loading: ComfyUI-Inspire-Pack (V1.19.1)
+
+Import times for custom nodes:
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/websocket_image_save.py
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/canvas_tab
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI-UltimateSDUpscale-GGUF
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_ultimatesdupscale
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI-PanoCard
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI_essentials
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/efficiency-nodes-comfyui
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI-GGUF
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui-impact-pack
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI-Manager
+0.0 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui-inspire-pack
+0.1 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/ComfyUI-to-Python-Extension
+0.1 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui-impact-subpack
+0.4 seconds: /home/mlgroup/comfy/ComfyUI/custom_nodes/comfyui-art-venture
+
+comfyui-embedded-docs package not found
+________________________________________________________________________
+WARNING WARNING WARNING WARNING WARNING
+
+Installed frontend version 1.20.6 is lower than the recommended version 1.21.7.
+
+Please install the updated requirements.txt file by running:
+/usr/bin/python3 -m pip install -r /home/mlgroup/comfy/ComfyUI/requirements.txt
+
+This error is happening because the ComfyUI frontend is no longer shipped as part of the main repo but as a pip package instead.
+
+If you are on the portable package you can run: update\update_comfyui.bat to solve this problem
+________________________________________________________________________
+Starting server
+
+To see the GUI go to: http://127.0.0.1:8188
+FETCH ComfyRegistry Data: 5/91
+FETCH ComfyRegistry Data: 10/91
+FETCH ComfyRegistry Data: 15/91
+FETCH ComfyRegistry Data: 20/91
+FETCH ComfyRegistry Data: 25/91
+FETCH ComfyRegistry Data: 30/91
+FETCH ComfyRegistry Data: 35/91
+FETCH ComfyRegistry Data: 40/91
+FETCH ComfyRegistry Data: 45/91
+FETCH ComfyRegistry Data: 50/91
+FETCH ComfyRegistry Data: 55/91
+FETCH ComfyRegistry Data: 60/91
+FETCH ComfyRegistry Data: 65/91
+FETCH ComfyRegistry Data: 70/91
+FETCH ComfyRegistry Data: 75/91
+FETCH ComfyRegistry Data: 80/91
+FETCH ComfyRegistry Data: 85/91
+FETCH ComfyRegistry Data: 90/91
+FETCH ComfyRegistry Data [DONE]
+[ComfyUI-Manager] default cache updated: https://api.comfy.org/nodes
+FETCH DATA from: https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/custom-node-list.json [DONE]
+[ComfyUI-Manager] All startup tasks have been completed.
+got prompt
+model weight dtype torch.float16, manual cast: None
+model_type EPS
+Using pytorch attention in VAE
+Using pytorch attention in VAE
+VAE load device: cuda:0, offload device: cpu, dtype: torch.bfloat16
+CLIP/text encoder model load device: cuda:0, offload device: cpu, current: cpu, dtype: torch.float16
+Requested to load AutoencoderKL
+loaded completely 4222.8203125 159.55708122253418 True
+Requested to load SD1ClipModel
+loaded completely 6294.117918777466 235.84423828125 True
+Requested to load BaseModel
+loaded completely 6042.1485584259035 1639.406135559082 True
+
+0%|          | 0/30 [00:00<?, ?it/s]
+3%|▎         | 1/30 [00:00<00:11,  2.46it/s]
+7%|▋         | 2/30 [00:00<00:10,  2.72it/s]
+10%|█         | 3/30 [00:01<00:09,  2.83it/s]
+13%|█▎        | 4/30 [00:01<00:09,  2.87it/s]
+17%|█▋        | 5/30 [00:01<00:08,  2.91it/s]
+20%|██        | 6/30 [00:02<00:08,  2.93it/s]
+23%|██▎       | 7/30 [00:02<00:07,  2.94it/s]
+27%|██▋       | 8/30 [00:02<00:07,  2.94it/s]
+30%|███       | 9/30 [00:03<00:07,  2.95it/s]
+33%|███▎      | 10/30 [00:03<00:06,  2.95it/s]
+37%|███▋      | 11/30 [00:03<00:06,  2.95it/s]
+40%|████      | 12/30 [00:04<00:06,  2.95it/s]
+43%|████▎     | 13/30 [00:04<00:05,  2.95it/s]
+47%|████▋     | 14/30 [00:04<00:05,  2.95it/s]
+50%|█████     | 15/30 [00:05<00:05,  2.95it/s]
+53%|█████▎    | 16/30 [00:05<00:04,  2.94it/s]
+57%|█████▋    | 17/30 [00:05<00:04,  2.94it/s]
+60%|██████    | 18/30 [00:06<00:04,  2.94it/s]
+63%|██████▎   | 19/30 [00:06<00:03,  2.94it/s]
+67%|██████▋   | 20/30 [00:06<00:03,  2.94it/s]
+70%|███████   | 21/30 [00:07<00:03,  2.94it/s]
+73%|███████▎  | 22/30 [00:07<00:02,  2.93it/s]
+77%|███████▋  | 23/30 [00:07<00:02,  2.93it/s]
+80%|████████  | 24/30 [00:08<00:02,  2.93it/s]
+83%|████████▎ | 25/30 [00:08<00:01,  2.93it/s]
+87%|████████▋ | 26/30 [00:08<00:01,  2.92it/s]
+90%|█████████ | 27/30 [00:09<00:01,  2.93it/s]
+93%|█████████▎| 28/30 [00:09<00:00,  2.93it/s]
+97%|█████████▋| 29/30 [00:09<00:00,  2.92it/s]
+100%|██████████| 30/30 [00:10<00:00,  2.93it/s]
+100%|██████████| 30/30 [00:10<00:00,  2.92it/s]
+Prompt executed in 12.12 seconds
+
+Stopped server

@@ -209,14 +209,12 @@ class LoadingBar(QWidget):
         percent = self._get_progress_from_log()
         if percent is not None:
             self.progress.setValue(percent)
-            if percent >= self.progress.maximum():
-                self.timer.stop()
-                self.close()
+            # Ne rien faire de plus si 100% atteint, laisser la barre affichée
         else:
             val = self.progress.value() + 1
             if val > self.progress.maximum():
                 self.timer.stop()
-                self.close()
+                # Ne pas fermer la barre, juste arrêter le timer
             else:
                 self.progress.setValue(val)
         if DEBUG_LoadingBar:

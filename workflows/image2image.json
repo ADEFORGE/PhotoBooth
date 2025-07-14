@@ -1,23 +1,11 @@
 {
   "3": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11p_sd15_lineart_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
       "title": "Load ControlNet Model"
-    }
-  },
-  "6": {
-    "inputs": {
-      "images": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   },
   "7": {
@@ -46,18 +34,6 @@
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
       "title": "Upscale Image (using Model)"
-    }
-  },
-  "11": {
-    "inputs": {
-      "images": [
-        "23",
-        5
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   },
   "12": {
@@ -103,36 +79,14 @@
       "title": "Load Image"
     }
   },
-  "18": {
-    "inputs": {
-      "input_mode": "simple",
-      "lora_count": 1,
-      "lora_name_1": "SD1.5\\lcm\\pytorch_lora_weights.safetensors",
-      "lora_wt_1": 1,
-      "model_str_1": 1,
-      "clip_str_1": 1,
-      "lora_name_2": "None",
-      "lora_wt_2": 1,
-      "model_str_2": 1,
-      "clip_str_2": 1,
-      "lora_name_3": "None",
-      "lora_wt_3": 1,
-      "model_str_3": 1,
-      "clip_str_3": 1
-    },
-    "class_type": "LoRA Stacker",
-    "_meta": {
-      "title": "LoRA Stacker"
-    }
-  },
   "19": {
     "inputs": {
-      "ckpt_name": "dreamshaper_8.safetensors",
+      "ckpt_name": "dreamshaper_8LCM.safetensors",
       "vae_name": "Baked VAE",
       "clip_skip": -1,
       "lora_name": "None",
-      "lora_model_strength": 1,
-      "lora_clip_strength": 1,
+      "lora_model_strength": 1.0000000000000002,
+      "lora_clip_strength": 1.0000000000000002,
       "positive": "A portrait of a person in the style of a traditional oil painting, soft natural lighting, clair obscur, large expressive brush strokes, paint cracks, paint layers, colorful palette, classic painterly aesthetic, elegant and timeless composition, highly detailed, canvas texture visible, inspired by old master techniques",
       "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
       "token_normalization": "mean",
@@ -146,12 +100,8 @@
         0
       ],
       "batch_size": 1,
-      "lora_stack": [
-        "18",
-        0
-      ],
       "cnet_stack": [
-        "47",
+        "26",
         0
       ]
     },
@@ -162,13 +112,13 @@
   },
   "20": {
     "inputs": {
-      "expression": "a/b\n\n",
+      "expression": "a//b\n\n",
       "a": [
         "16",
         0
       ],
       "b": [
-        "67",
+        "71",
         0
       ]
     },
@@ -179,13 +129,13 @@
   },
   "21": {
     "inputs": {
-      "expression": "a/b",
+      "expression": "a//b",
       "a": [
         "16",
         1
       ],
       "b": [
-        "67",
+        "71",
         0
       ]
     },
@@ -197,12 +147,12 @@
   "23": {
     "inputs": {
       "seed": 156045693641255,
-      "steps": 30,
+      "steps": 10,
       "cfg": 8,
       "sampler_name": "dpmpp_2m",
-      "scheduler": "karras",
+      "scheduler": "AYS SD1",
       "denoise": 1,
-      "preview_method": "auto",
+      "preview_method": "none",
       "vae_decode": "true",
       "model": [
         "59",
@@ -232,7 +182,7 @@
   },
   "26": {
     "inputs": {
-      "strength": 1,
+      "strength": 1.0000000000000002,
       "start_percent": 0,
       "end_percent": 1,
       "control_net": [
@@ -249,18 +199,9 @@
       "title": "Control Net Stacker"
     }
   },
-  "42": {
-    "inputs": {
-      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
   "45": {
     "inputs": {
-      "preprocessor": "CannyEdgePreprocessor",
+      "preprocessor": "AnyLineArtPreprocessor_aux",
       "resolution": [
         "16",
         0
@@ -275,21 +216,9 @@
       "title": "AIO Aux Preprocessor"
     }
   },
-  "46": {
-    "inputs": {
-      "images": [
-        "45",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
   "47": {
     "inputs": {
-      "strength": 1,
+      "strength": 2.0000000000000004,
       "start_percent": 0,
       "end_percent": 1,
       "control_net": [
@@ -298,10 +227,6 @@
       ],
       "image": [
         "17",
-        0
-      ],
-      "cnet_stack": [
-        "26",
         0
       ]
     },
@@ -321,7 +246,7 @@
   },
   "59": {
     "inputs": {
-      "weight": 1,
+      "weight": 1.0000000000000002,
       "start_at": 0,
       "end_at": 1,
       "weight_type": "prompt is more important",
@@ -346,8 +271,8 @@
   "61": {
     "inputs": {
       "preset": "FACEID PLUS V2",
-      "lora_strength": 0.6,
-      "provider": "CUDA",
+      "lora_strength": 1,
+      "provider": "CPU",
       "model": [
         "19",
         0
@@ -358,13 +283,13 @@
       "title": "IPAdapter Unified Loader FaceID"
     }
   },
-  "67": {
+  "71": {
     "inputs": {
-      "value": 2
+      "value": 2.1
     },
-    "class_type": "PrimitiveInt",
+    "class_type": "PrimitiveFloat",
     "_meta": {
-      "title": "Int"
+      "title": "Float"
     }
   }
 }

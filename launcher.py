@@ -16,11 +16,11 @@ class AppLauncher(QObject):
         percentage_updated = Signal(float)
         comfy_ready = Signal()
 
-        def __init__(self, comfyui_path: str, log_file_path: Path) -> None:
+        def __init__(self, comfy_exe_path: str, log_file_path: Path) -> None:
             if DEBUG_ComfyWatcherThread:
-                print(f"[DEBUG][ComfyWatcherThread] Entering __init__: args={(comfyui_path, log_file_path)}")
+                print(f"[DEBUG][ComfyWatcherThread] Entering __init__: args={(comfy_exe_path, log_file_path)}")
             super().__init__()
-            self.comfyui_path = comfyui_path
+            self.comfy_exe_path = comfy_exe_path
             self._process: Optional[subprocess.Popen] = None
             self._running = True
             self.log_file_path = log_file_path
@@ -34,8 +34,7 @@ class AppLauncher(QObject):
 
             with open(self.log_file_path, 'a', encoding='utf-8') as log_file:
                 self._process = subprocess.Popen(
-                    ['python3', 'main.py'],
-                    cwd=self.comfyui_path,
+                    [self.comfy_exe_path],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     bufsize=1,
@@ -80,19 +79,20 @@ class AppLauncher(QObject):
             if DEBUG_ComfyWatcherThread:
                 print(f"[DEBUG][ComfyWatcherThread] Exiting stop: return=None")
 
-    def __init__(self, comfyui_dir: str, photobooth_dir: str) -> None:
+    def __init__(self, comfy_exe_path: str, photobooth_dir: str) -> None:
         if DEBUG_AppLauncher:
-            print(f"[DEBUG][AppLauncher] Entering __init__: args={(comfyui_dir, photobooth_dir)}")
+            print(f"[DEBUG][AppLauncher] Entering __init__: args={(comfy_exe_path, photobooth_dir)}")
         super().__init__()
-        self.comfyui_dir = comfyui_dir
+        self.comfy_exe_path = comfy_exe_path
         self.photobooth_dir = photobooth_dir
         self._percentage = 0.0
         self._comfy_thread: Optional[AppLauncher.ComfyWatcherThread] = None
         self._photobooth_process: Optional[subprocess.Popen] = None
         self.log_file_path = Path(__file__).parent / 'tmp' / 'watcher.log'
-        if os.path.exists(self.log_file_path):
+        os.makedirs(self.log_file_path.parent, exist_ok=True)
+        if self.log_file_path.exists():
             try:
-                os.remove(self.log_file_path)
+                self.log_file_path.unlink()
             except Exception:
                 pass
         signal.signal(signal.SIGINT, self._signal_handler)
@@ -128,7 +128,7 @@ class AppLauncher(QObject):
             if DEBUG_AppLauncher:
                 print(f"[DEBUG][AppLauncher] Exiting launch_comfyui: return=None")
             return
-        self._comfy_thread = self.ComfyWatcherThread(self.comfyui_dir, self.log_file_path)
+        self._comfy_thread = self.ComfyWatcherThread(self.comfy_exe_path, self.log_file_path)
         self._comfy_thread.percentage_updated.connect(self._on_percentage_updated)
         self._comfy_thread.comfy_ready.connect(self._on_comfy_ready)
         self._comfy_thread.start()
@@ -187,11 +187,11 @@ class AppLauncher(QObject):
 
 
 if __name__ == "__main__":
+    comfy_exe_path = r"C:\Users\vitensenteret_ml3\AppData\Local\Programs\@comfyorgcomfyui-electron\ComfyUI.exe"
     base_dir = os.path.abspath(os.path.dirname(__file__))
-    comfy_dir = os.path.join(base_dir, '..', 'ComfyUI')
     photobooth_dir = os.path.join(base_dir, '..', 'PhotoBooth')
 
     app = QApplication(sys.argv)
-    launcher = AppLauncher(comfy_dir, photobooth_dir)
+    launcher = AppLauncher(comfy_exe_path, photobooth_dir)
     launcher.launch_full_app_in_order()
     sys.exit(app.exec())

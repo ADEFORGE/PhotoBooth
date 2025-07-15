@@ -179,9 +179,9 @@ class ImageGenerationThread(QObject):
         """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering __init__: args={{(style, input_image, parent)}}")
         super().__init__(parent)
-        self.api = ImageGeneratorAPIWrapper()
-        self.input_image = input_image
         self.style = style
+        self.input_image = input_image
+        self.api = ImageGeneratorAPIWrapper(style=style, qimg=input_image)
         self._running = True
         self._thread = None
         self._worker = None
@@ -308,17 +308,14 @@ class ImageGenerationThread(QObject):
                         self.finished.emit(None)
                         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
-                    arr = ImageUtils.qimage_to_cv(self.input_image)
-                    os.makedirs("../ComfyUI/input", exist_ok=True)
-                    import cv2
-                    cv2.imwrite("../ComfyUI/input/input.png", arr)
+                    self.api.set_img(self.input_image)
                     self.api.generate_image()
                     if not self._running:
                         self.finished.emit(None)
                         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
                     # Use robust image loading logic
-                    qimg = self.api.get_last_generated_image(timeout=15.0)
+                    qimg = self.api.wait_for_and_load_image(timeout=15.0)
                     if qimg is None or qimg.isNull():
                         if DEBUG_ImageGenerationThread:
                             print(f"[DEBUG][ImageGenerationWorker] Failed to load generated image, falling back to input image.")
@@ -328,11 +325,7 @@ class ImageGenerationThread(QObject):
                             print(f"[DEBUG][ImageGenerationWorker] Successfully loaded generated image.")
                         self.finished.emit(qimg)
                     # Clean up input and output images
-                    inp = os.path.abspath("../ComfyUI/input/input.png")
-                    if os.path.exists(inp): os.remove(inp)
-                    # Optionally, clean up output images if desired
-                    # for f in self.api.get_image_paths():
-                    #     if os.path.exists(f): os.remove(f)
+                    self.api.delete_input_and_output_images()
                 except Exception as e:
                     if DEBUG_ImageGenerationThread:
                         print(f"[DEBUG][ImageGenerationWorker] Exception: {e}")
@@ -406,7 +399,7 @@ class CameraCaptureThread(QThread):
     frame_ready = Signal(QImage)
     RESOLUTIONS = {0: (640, 480), 1: (1280, 720), 2: (1920, 1080), 3: (2560, 1440)}
 
-    def __init__(self, camera_id: int = 0, parent: QObject = None):
+    def __init__(self, camera_id: int = 1, parent: QObject = None):
         """
         Inputs:
             camera_id (int), parent (QObject)

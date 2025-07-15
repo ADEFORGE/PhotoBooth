@@ -106,7 +106,7 @@ class ImageGeneratorAPIWrapper(QObject):
                 pass
 
     def _prepare_prompt(self, custom_prompt: Optional[dict]) -> dict:
-        """Prepare full prompt dict with inputs set."""
+        """Prepare full prompt dict with inputs set. Modifies preview_method if KSampler (Efficient) node exists."""
         prompt = json.loads(json.dumps(custom_prompt or self._base_prompt))
         for nid, node in prompt.items():
             ctype = node.get('class_type', '')
@@ -117,10 +117,19 @@ class ImageGeneratorAPIWrapper(QObject):
                 )
             elif ctype in ('KSampler', 'KSampler (Efficient)'):
                 inputs['seed'] = random.randint(0, 2**32 - 1)
+                # Force preview_method to 'auto' if present
+                if 'preview_method' in inputs:
+                    old_preview = inputs['preview_method']
+                    inputs['preview_method'] = 'auto'
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG_ImageGeneratorAPIWrapper] Changed preview_method for node {nid} from {old_preview} to 'auto'")
             elif ctype == 'LoadImage':
                 inputs['image'] = INPUT_IMAGE_PATH
             elif ctype == 'SaveImage':
                 inputs['filename_prefix'] = 'output'
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print("[DEBUG_ImageGeneratorAPIWrapper] Prompt envoyé:")
+            print(json.dumps(prompt, indent=2, ensure_ascii=False))
         return prompt
 
     def generate_image(self, custom_prompt: Optional[dict] = None, timeout: int = 30000) -> None:

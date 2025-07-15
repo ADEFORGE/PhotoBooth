@@ -8,41 +8,23 @@ from typing import List, Optional
 
 import requests
 from websocket import WebSocketConnectionClosedException, WebSocketTimeoutException, create_connection
+from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QImage
 
 DEBUG_ImageGeneratorAPIWrapper = True
-WS_URL = "ws://127.0.0.1:8188/ws"
-HTTP_BASE_URL = "http://127.0.0.1:8188"
-
-# Paths
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-COMFY_OUTPUT_FOLDER = os.path.abspath(
-    os.path.join(BASE_DIR, "../../ComfyUI/output")
+from gui_classes.gui_object.constante import (
+    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, DICO_STYLES
 )
-INPUT_IMAGE_PATH = os.path.abspath(
-    os.path.join(BASE_DIR, "../../ComfyUI/input/input.png")
-)
-COMFY_WORKFLOW_DIR = os.path.abspath(
-    os.path.join(BASE_DIR, "../workflows")
-)
-
-# Style dictionary
-DICO_STYLES = {
-    "clay": "A playful, cartoonish 3D portrait of a person entirely made from colorful modeling clay...",
-    "comic": "A dynamic comic book-style portrait of a person, bold inking...",
-    "oil paint": "A portrait of a person in the style of a traditional oil painting...",
-    "statue": "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style..."
-}
 
 # Progress tracking globals
 TOTAL_STEPS: dict[str, float] = {}
 TOTAL_STEPS_SUM: float = 0
 PROGRESS_ACCUM: dict[str, float] = {}
 
-
-class ImageGeneratorAPIWrapper:
+class ImageGeneratorAPIWrapper(QObject):
+    progress_changed = Signal(float)  # Signal: percentage (0.0 to 100.0)
     def __init__(self, style: Optional[str] = None, qimg: Optional[QImage] = None) -> None:
-        """Initialize API wrapper with a given style and optional QImage input."""
+        super().__init__()
         if DEBUG_ImageGeneratorAPIWrapper:
             print(f"[DEBUG_ImageGeneratorAPIWrapper] Initializing with style={style}")
         self.server_url = HTTP_BASE_URL
@@ -70,6 +52,7 @@ class ImageGeneratorAPIWrapper:
             self.set_img(qimg)
         if DEBUG_ImageGeneratorAPIWrapper:
             print(f"[DEBUG_ImageGeneratorAPIWrapper] Initialized. Total steps sum = {TOTAL_STEPS_SUM}")
+            
     def set_img(self, qimg: QImage) -> None:
         """
         Set the input image for the workflow by saving the provided QImage to the input directory as 'input.png'.
@@ -174,6 +157,7 @@ class ImageGeneratorAPIWrapper:
                     PROGRESS_ACCUM[node] = raw
                     done = sum(PROGRESS_ACCUM.values())
                     pct = (done / TOTAL_STEPS_SUM * 100) if TOTAL_STEPS_SUM else 0
+                    self.progress_changed.emit(pct)
                     if DEBUG_ImageGeneratorAPIWrapper:
                         print(f"[DEBUG_ImageGeneratorAPIWrapper][PROG] {pct:.2f}% ({done}/{TOTAL_STEPS_SUM}) [{node}: {raw}/{TOTAL_STEPS.get(node)}]")
                 elif t.lower() in ('done', 'execution_success', 'execution_complete', 'execution_end'):

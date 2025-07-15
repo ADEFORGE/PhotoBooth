@@ -148,74 +148,16 @@ class LoadingBar(QWidget):
             "}"
         )
         main_layout.addWidget(self.progress)
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._update_progress)
-        self._duration_ms = 2000
         if DEBUG_LoadingBar:
             print(f"[DEBUG][LoadingBar] Exiting __init__: return=None")
 
-    def setDuration(self, seconds: float) -> None:
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Entering setDuration: args={(seconds,)}")
-        self._duration_ms = int(seconds * 1000)
-        self.timer.setInterval(max(1, self._duration_ms // 100))
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Exiting setDuration: return=None")
 
-    def start(self) -> None:
+    def set_percent(self, percent: int) -> None:
+        """
+        Set the progress bar value (0-100).
+        """
         if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Entering start: args=()")
-        self.progress.setValue(0)
-        self.setDuration(self._duration_ms / 1000)
-        self.show()
-        self.timer.start()
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Exiting start: return=None")
+            print(f"[DEBUG][LoadingBar] set_percent: {percent}")
+        self.progress.setValue(max(0, min(100, percent)))
 
-    def _get_progress_from_log(self) -> int | None:
-        import os
-        log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'tmp', 'watcher.log')
-        if not os.path.exists(log_path):
-            if DEBUG_LoadingBar:
-                print(f"[DEBUG][LoadingBar] watcher.log not found at {log_path}")
-            return None
-        try:
-            with open(log_path, 'r') as f:
-                lines = f.readlines()
-            print(f"[LoadingBar] watcher.log opened successfully: {log_path}")
-            import re
-            percent_re = re.compile(r'(\d{1,3})%')
-            for line in reversed(lines):
-                line = line.strip()
-                match = percent_re.search(line)
-                if match:
-                    try:
-                        percent = int(match.group(1))
-                        if 0 <= percent <= 100:
-                            return percent
-                    except Exception:
-                        continue
-            # If file opened but no % found, return 0
-            print(f"[LoadingBar] No % found in watcher.log, returning 0%")
-            return 0
-        except Exception as e:
-            print(f"[LoadingBar] Failed to open watcher.log: {e}")
-            pass
-        return None
 
-    def _update_progress(self) -> None:
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Entering _update_progress: args=()")
-        percent = self._get_progress_from_log()
-        if percent is not None:
-            self.progress.setValue(percent)
-            # Ne rien faire de plus si 100% atteint, laisser la barre affichée
-        else:
-            val = self.progress.value() + 1
-            if val > self.progress.maximum():
-                self.timer.stop()
-                # Ne pas fermer la barre, juste arrêter le timer
-            else:
-                self.progress.setValue(val)
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Exiting _update_progress: return=None")

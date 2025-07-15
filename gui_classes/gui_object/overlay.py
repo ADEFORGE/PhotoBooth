@@ -360,6 +360,14 @@ class OverlayLoading(OverlayWhite):
             self.loading_bar.timer.stop()
         super().__del__()
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting __del__: return=None")
+    
+    def set_percent(self, percent: int) -> None:
+        """
+        Set the progress bar value (0-100) for the loading bar.
+        """
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.set_percent(percent)
+        
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent: QWidget = None, on_validate: callable = None, on_close: callable = None) -> None:

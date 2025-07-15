@@ -191,7 +191,7 @@ class ImageGenerationThread(QObject):
     def show_loading(self) -> None:
         """
         Inputs: none
-        Outputs: displays loading overlay
+        Outputs: displays loading overlay and connects progress signal
         """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering show_loading: args=()")
         for widget in QApplication.allWidgets():
@@ -208,9 +208,23 @@ class ImageGenerationThread(QObject):
             self._loading_overlay = None
         if self.parent():
             self._loading_overlay = OverlayLoading(self.parent())
+            # Connect the progress_changed signal to the overlay's set_percent slot
+            try:
+                self.api.progress_changed.disconnect()
+            except Exception:
+                pass
+            self.api.progress_changed.connect(self._on_progress_changed)
             self._loading_overlay.show()
             self._loading_overlay.raise_()
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting show_loading: return=None")
+
+    def _on_progress_changed(self, percent: float) -> None:
+        """
+        Slot to update the loading overlay's progress bar.
+        """
+        if self._loading_overlay is not None:
+            # Overlay expects int percent (0-100)
+            self._loading_overlay.set_percent(int(percent))
 
     def hide_loading(self) -> None:
         """
@@ -399,7 +413,7 @@ class CameraCaptureThread(QThread):
     frame_ready = Signal(QImage)
     RESOLUTIONS = {0: (640, 480), 1: (1280, 720), 2: (1920, 1080), 3: (2560, 1440)}
 
-    def __init__(self, camera_id: int = 1, parent: QObject = None):
+    def __init__(self, camera_id: int = 2, parent: QObject = None):
         """
         Inputs:
             camera_id (int), parent (QObject)

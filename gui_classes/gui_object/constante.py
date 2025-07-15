@@ -1,3 +1,27 @@
+# === ComfyUI API/Workflow constants ===
+WS_URL = "ws://127.0.0.1:8188/ws"
+HTTP_BASE_URL = "http://127.0.0.1:8188"
+
+# Paths
+import os
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+COMFY_OUTPUT_FOLDER = os.path.abspath(
+    os.path.join(BASE_DIR, "../../../ComfyUI/output")
+)
+INPUT_IMAGE_PATH = os.path.abspath(
+    os.path.join(BASE_DIR, "../../../ComfyUI/input/input.png")
+)
+COMFY_WORKFLOW_DIR = os.path.abspath(
+    os.path.join(BASE_DIR, "../../workflows")
+)
+
+# Style dictionary
+DICO_STYLES = {
+    "clay": "A playful, cartoonish 3D portrait of a person entirely made from colorful modeling clay...",
+    "comic": "A dynamic comic book-style portrait of a person, bold inking...",
+    "oil paint": "A portrait of a person in the style of a traditional oil painting...",
+    "statue": "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style..."
+}
 # --- Activation/désactivation du partage Hotspot ---
 ShareByHotspot = True  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py

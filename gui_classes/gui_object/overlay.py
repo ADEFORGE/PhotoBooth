@@ -16,7 +16,7 @@ from gui_classes.gui_manager.language_manager import language_manager
 DEBUG_Overlay = False
 DEBUG_OverlayGray = False
 DEBUG_OverlayWhite = False
-DEBUG_OverlayLoading = False
+DEBUG_OverlayLoading = True
 DEBUG_OverlayRules = False
 DEBUG_OverlayQrcode = False
 DEBUG_OverlayInfo = False
@@ -275,6 +275,14 @@ class OverlayWhite(Overlay):
         return result
 
 class OverlayLoading(OverlayWhite):
+
+    def set_percent(self, percent: int) -> None:
+        """
+        Set the progress bar value (0-100) for the loading bar.
+        """
+        if hasattr(self, 'loading_bar'):
+            self.loading_bar.set_percent(percent)
+
     def __init__(
         self,
         parent: QWidget = None,
@@ -298,7 +306,6 @@ class OverlayLoading(OverlayWhite):
         self.overlay_layout.setContentsMargins(0, 0, 0, 0)
         self.overlay_layout.setSpacing(0)
         self.loading_bar = LoadingBar(width_percent, height_percent, border_thickness, parent=self)
-        self.loading_bar.setDuration(duration)
         self.overlay_layout.addWidget(self.loading_bar, 0, 0, alignment=Qt.AlignCenter)
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -317,50 +324,38 @@ class OverlayLoading(OverlayWhite):
 
     def showEvent(self, event: QEvent) -> None:
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Entering showEvent: args={(event,)}")
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.progress.setValue(0)
-            self.loading_bar.timer.stop()
+
         super().showEvent(event)
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.start()
+
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting showEvent: return=None")
 
     def hideEvent(self, event: QEvent) -> None:
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Entering hideEvent: args={(event,)}")
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.timer.stop()
-            self.loading_bar.progress.setValue(0)
         super().hideEvent(event)
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting hideEvent: return=None")
 
     def clean_overlay(self) -> None:
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Entering clean_overlay: args=()")
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.timer.stop()
-            self.loading_bar.deleteLater()
         super().clean_overlay()
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting clean_overlay: return=None")
 
     def stop_animation(self) -> None:
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Entering stop_animation: args=()")
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.timer.stop()
+
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting stop_animation: return=None")
 
     def hide_overlay(self) -> None:
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Entering hide_overlay: args=()")
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.timer.stop()
+
         super().hide_overlay()
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting hide_overlay: return=None")
 
     def __del__(self) -> None:
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Entering __del__: args=()")
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.timer.stop()
+
         super().__del__()
         if DEBUG_OverlayLoading: print(f"[DEBUG][OverlayLoading] Exiting __del__: return=None")
-    
+
     def set_percent(self, percent: int) -> None:
         """
         Set the progress bar value (0-100) for the loading bar.

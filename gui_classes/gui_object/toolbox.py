@@ -11,7 +11,7 @@ DEBUG_Module = False
 DEBUG_ImageUtils = False
 DEBUG_QRCodeUtils = False
 DEBUG_OutlinedLabel = False
-DEBUG_LoadingBar = False
+DEBUG_LoadingBar = True
 
 
 class ImageUtils:

@@ -413,7 +413,7 @@ class CameraCaptureThread(QThread):
     frame_ready = Signal(QImage)
     RESOLUTIONS = {0: (640, 480), 1: (1280, 720), 2: (1920, 1080), 3: (2560, 1440)}
 
-    def __init__(self, camera_id: int = 2, parent: QObject = None):
+    def __init__(self, camera_id: int = 0, parent: QObject = None):
         """
         Inputs:
             camera_id (int), parent (QObject)

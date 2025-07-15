@@ -10,7 +10,7 @@ import requests
 from websocket import WebSocketConnectionClosedException, WebSocketTimeoutException, create_connection
 from PySide6.QtGui import QImage
 
-DEBUG = True
+DEBUG_ImageGeneratorAPIWrapper = True
 WS_URL = "ws://127.0.0.1:8188/ws"
 HTTP_BASE_URL = "http://127.0.0.1:8188"
 
@@ -43,8 +43,8 @@ PROGRESS_ACCUM: dict[str, float] = {}
 class ImageGeneratorAPIWrapper:
     def __init__(self, style: Optional[str] = None, qimg: Optional[QImage] = None) -> None:
         """Initialize API wrapper with a given style and optional QImage input."""
-        if DEBUG:
-            print(f"[DEBUG] Initializing with style={style}")
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print(f"[DEBUG_ImageGeneratorAPIWrapper] Initializing with style={style}")
         self.server_url = HTTP_BASE_URL
         self._styles_prompts = DICO_STYLES
         self._output_folder = COMFY_OUTPUT_FOLDER
@@ -68,8 +68,8 @@ class ImageGeneratorAPIWrapper:
         self._negative_prompt = 'watermark, text'
         if qimg is not None:
             self.set_img(qimg)
-        if DEBUG:
-            print(f"[DEBUG] Initialized. Total steps sum = {TOTAL_STEPS_SUM}")
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print(f"[DEBUG_ImageGeneratorAPIWrapper] Initialized. Total steps sum = {TOTAL_STEPS_SUM}")
     def set_img(self, qimg: QImage) -> None:
         """
         Set the input image for the workflow by saving the provided QImage to the input directory as 'input.png'.
@@ -95,8 +95,8 @@ class ImageGeneratorAPIWrapper:
             if isinstance(node.get('inputs', {}).get('steps'), (int, float))
         }
         TOTAL_STEPS_SUM = sum(TOTAL_STEPS.values())
-        if DEBUG:
-            print(f"[DEBUG] Style set to {style}. Total steps = {TOTAL_STEPS_SUM}")
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print(f"[DEBUG_ImageGeneratorAPIWrapper] Style set to {style}. Total steps = {TOTAL_STEPS_SUM}")
 
     @staticmethod
     def find_json_by_name(directory: str, name: str) -> str:
@@ -142,8 +142,8 @@ class ImageGeneratorAPIWrapper:
 
     def generate_image(self, custom_prompt: Optional[dict] = None, timeout: int = 30000) -> None:
         """Generate an image synchronously, blocking until completion."""
-        if DEBUG:
-            print(f"[DEBUG] Starting image generation...")
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print(f"[DEBUG_ImageGeneratorAPIWrapper] Starting image generation...")
         self._clear_output_folder()
         prompt = self._prepare_prompt(custom_prompt)
 
@@ -174,19 +174,19 @@ class ImageGeneratorAPIWrapper:
                     PROGRESS_ACCUM[node] = raw
                     done = sum(PROGRESS_ACCUM.values())
                     pct = (done / TOTAL_STEPS_SUM * 100) if TOTAL_STEPS_SUM else 0
-                    if DEBUG:
-                        print(f"[DEBUG][PROG] {pct:.2f}% ({done}/{TOTAL_STEPS_SUM}) [{node}: {raw}/{TOTAL_STEPS.get(node)}]")
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG_ImageGeneratorAPIWrapper][PROG] {pct:.2f}% ({done}/{TOTAL_STEPS_SUM}) [{node}: {raw}/{TOTAL_STEPS.get(node)}]")
                 elif t.lower() in ('done', 'execution_success', 'execution_complete', 'execution_end'):
-                    if DEBUG:
-                        print(f"[DEBUG][EVENT] Generation complete (type={t})")
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG_ImageGeneratorAPIWrapper][EVENT] Generation complete (type={t})")
                     break
         except WebSocketConnectionClosedException:
-            if DEBUG:
-                print("[DEBUG] WebSocket closed by server.")
+            if DEBUG_ImageGeneratorAPIWrapper:
+                print("[DEBUG_ImageGeneratorAPIWrapper] WebSocket closed by server.")
         finally:
             ws.close()
-            if DEBUG:
-                print("[DEBUG] WebSocket closed.")
+            if DEBUG_ImageGeneratorAPIWrapper:
+                print("[DEBUG_ImageGeneratorAPIWrapper] WebSocket closed.")
 
     def get_progress_percentage(self) -> float:
         """Get current global progress percentage."""
@@ -215,8 +215,8 @@ class ImageGeneratorAPIWrapper:
         save_path = os.path.join(directory, "input.png")
         success = image.save(save_path)
         
-        if DEBUG:
-            print(f"[DEBUG] Image sauvegardée dans : {save_path if success else 'Échec de la sauvegarde'}")
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print(f"[DEBUG_ImageGeneratorAPIWrapper] Image sauvegardée dans : {save_path if success else 'Échec de la sauvegarde'}")
         
         if not success:
             raise IOError(f"Échec de la sauvegarde de l'image à {save_path}")
@@ -234,8 +234,8 @@ class ImageGeneratorAPIWrapper:
                 time.sleep(poll_interval)
                 size2 = os.path.getsize(latest)
                 if size1 == size2 and size1 > 0:
-                    if DEBUG:
-                        print(f"[DEBUG] Image file ready: {latest}")
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG_ImageGeneratorAPIWrapper] Image file ready: {latest}")
                     return QImage(latest)
                 paths_prev = paths
             time.sleep(poll_interval)
@@ -247,21 +247,21 @@ class ImageGeneratorAPIWrapper:
         if os.path.exists(INPUT_IMAGE_PATH):
             try:
                 os.remove(INPUT_IMAGE_PATH)
-                if DEBUG:
-                    print(f"[DEBUG] Deleted input image: {INPUT_IMAGE_PATH}")
+                if DEBUG_ImageGeneratorAPIWrapper:
+                    print(f"[DEBUG_ImageGeneratorAPIWrapper] Deleted input image: {INPUT_IMAGE_PATH}")
             except OSError as e:
-                if DEBUG:
-                    print(f"[DEBUG] Failed to delete input image: {e}")
+                if DEBUG_ImageGeneratorAPIWrapper:
+                    print(f"[DEBUG_ImageGeneratorAPIWrapper] Failed to delete input image: {e}")
 
         # Delete output images
         for fpath in glob.glob(os.path.join(self._output_folder, '*.png')):
             try:
                 os.remove(fpath)
-                if DEBUG:
-                    print(f"[DEBUG] Deleted output image: {fpath}")
+                if DEBUG_ImageGeneratorAPIWrapper:
+                    print(f"[DEBUG_ImageGeneratorAPIWrapper] Deleted output image: {fpath}")
             except OSError as e:
-                if DEBUG:
-                    print(f"[DEBUG] Failed to delete output image {fpath}: {e}")
+                if DEBUG_ImageGeneratorAPIWrapper:
+                    print(f"[DEBUG_ImageGeneratorAPIWrapper] Failed to delete output image {fpath}: {e}")
 
 
 

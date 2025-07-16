@@ -11,6 +11,10 @@ from websocket import WebSocketConnectionClosedException, WebSocketTimeoutExcept
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QImage
 
+import traceback
+from websocket import WebSocketConnectionClosedException, WebSocketTimeoutException, create_connection
+
+
 DEBUG_ImageGeneratorAPIWrapper = True
 from gui_classes.gui_object.constante import (
     WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, DICO_STYLES
@@ -132,54 +136,122 @@ class ImageGeneratorAPIWrapper(QObject):
             print(json.dumps(prompt, indent=2, ensure_ascii=False))
         return prompt
 
+
     def generate_image(self, custom_prompt: Optional[dict] = None, timeout: int = 30000) -> None:
-        """Generate an image synchronously, blocking until completion."""
+        """Generate an image synchronously, blocking until completion, with detailed WebSocket logging,
+        message truncation, et filtration des pourcentages non désirés."""
         if DEBUG_ImageGeneratorAPIWrapper:
-            print(f"[DEBUG_ImageGeneratorAPIWrapper] Starting image generation...")
+            print(f"[DEBUG] Starting image generation…")
         self._clear_output_folder()
         prompt = self._prepare_prompt(custom_prompt)
 
-        # Open WebSocket
-        ws = create_connection(WS_URL)
-        welcome = json.loads(ws.recv())
-        client_id = welcome.get('data', {}).get('sid') or welcome.get('data', {}).get('client_id')
+        # --- Ouvrir WS sans timeout ---
+        ws = create_connection(WS_URL, timeout=None)
+        ws.settimeout(None)
 
-        # Send prompt via HTTP
+        # Thread de keep-alive
+        import threading
+        def _keep_alive():
+            while True:
+                try:
+                    ws.ping()
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print("[DEBUG][KEEPALIVE] ping envoyé")
+                except Exception as e:
+                    print(f"[DEBUG][KEEPALIVE] Exception ping: {e!r}")
+                    break
+                time.sleep(15)
+        threading.Thread(target=_keep_alive, daemon=True).start()
+
+        # Récupérer client_id
+        welcome = ws.recv()
+        try:
+            welcome_data = json.loads(welcome)
+        except Exception:
+            welcome_data = {}
+        client_id = welcome_data.get('data', {}).get('sid') or welcome_data.get('data', {}).get('client_id')
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print(f"[DEBUG] Received welcome, client_id={client_id!r}")
+
+        # Envoi du prompt par HTTP
         payload = {'client_id': client_id, 'prompt': prompt, 'outputs': [['8', 0]], 'force': True}
         resp = requests.post(f"{self.server_url}/prompt", json=payload)
         resp.raise_for_status()
+        if DEBUG_ImageGeneratorAPIWrapper:
+            print("[DEBUG] Prompt envoyé via HTTP.")
 
-        # Listen synchronously for events
+        # Boucle d'écoute
+        MAX_LOG_LEN = 500
         try:
             while True:
+                if DEBUG_ImageGeneratorAPIWrapper:
+                    print(f"[DEBUG] Avant ws.recv() — connected={ws.connected}")
                 try:
                     msg = ws.recv()
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG] Après ws.recv() — connected={ws.connected}, raw type: {type(msg).__name__}")
                 except WebSocketTimeoutException:
+                    print("[DEBUG] WebSocketTimeoutException: pas de message, on continue.")
                     continue
-                data = json.loads(msg)
+                except WebSocketConnectionClosedException as e:
+                    print(f"[DEBUG] WebSocketConnectionClosedException: {e!r}")
+                    traceback.print_exc()
+                    break
+                except Exception as e:
+                    print(f"[DEBUG] Exception inattendue sur ws.recv(): {type(e).__name__}: {e!r}")
+                    traceback.print_exc()
+                    break
+
+                # Filtrer le binaire
+                if isinstance(msg, (bytes, bytearray)):
+                    continue
+
+                # Tronquer long messages
+                if len(msg) > MAX_LOG_LEN:
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        snippet = msg[:MAX_LOG_LEN].replace('\n', '\\n')
+                        print(f"[DEBUG] msg trop long, snippet:\n{snippet}…")
+                else:
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG] Message texte reçu ({len(msg)} car.)")
+
+                # Parser JSON
+                try:
+                    data = json.loads(msg)
+                except json.JSONDecodeError:
+                    continue
+
                 t = data.get('type', '')
                 d = data.get('data', {})
-                node = d.get('node') or '<?>?>'
-
-                if t == 'progress':
+                node = d.get('node')
+                # On ne traite les progress que si node est en TOTAL_STEPS
+                if t == 'progress' and node in TOTAL_STEPS:
                     raw = d.get('value', 0)
+                    max_steps = TOTAL_STEPS[node]
                     PROGRESS_ACCUM[node] = raw
                     done = sum(PROGRESS_ACCUM.values())
-                    pct = (done / TOTAL_STEPS_SUM * 100) if TOTAL_STEPS_SUM else 0
+                    pct = done / TOTAL_STEPS_SUM * 100 if TOTAL_STEPS_SUM else 0
                     self.progress_changed.emit(pct)
                     if DEBUG_ImageGeneratorAPIWrapper:
-                        print(f"[DEBUG_ImageGeneratorAPIWrapper][PROG] {pct:.2f}% ({done}/{TOTAL_STEPS_SUM}) [{node}: {raw}/{TOTAL_STEPS.get(node)}]")
+                        print(f"[DEBUG][PROG] {pct:.2f}% — node {node}: {raw}/{max_steps}")
+                elif t == 'progress':
+                    # cas ignoré : soit pas de node, soit node non suivi
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        print(f"[DEBUG] Ignored progress for unknown node {node!r}")
+                    continue
+
                 elif t.lower() in ('done', 'execution_success', 'execution_complete', 'execution_end'):
                     if DEBUG_ImageGeneratorAPIWrapper:
-                        print(f"[DEBUG_ImageGeneratorAPIWrapper][EVENT] Generation complete (type={t})")
+                        print(f"[DEBUG][EVENT] Génération terminée (type={t})")
                     break
-        except WebSocketConnectionClosedException:
-            if DEBUG_ImageGeneratorAPIWrapper:
-                print("[DEBUG_ImageGeneratorAPIWrapper] WebSocket closed by server.")
+
         finally:
+            code = getattr(getattr(ws, 'sock', None), 'close_code', None)
+            reason = getattr(getattr(ws, 'sock', None), 'close_reason', None)
+            print(f"[DEBUG] Avant fermeture ws — connected={ws.connected}, close_code={code}, close_reason={reason!r}")
             ws.close()
-            if DEBUG_ImageGeneratorAPIWrapper:
-                print("[DEBUG_ImageGeneratorAPIWrapper] WebSocket closed.")
+            print(f"[DEBUG] Après ws.close() — connected={ws.connected}")
+
 
     def get_progress_percentage(self) -> float:
         """Get current global progress percentage."""

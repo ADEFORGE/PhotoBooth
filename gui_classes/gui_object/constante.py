@@ -23,7 +23,7 @@ DICO_STYLES = {
     "statue": "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style..."
 }
 # --- Activation/désactivation du partage Hotspot ---
-ShareByHotspot = True  # Mettre à False pour désactiver le workflow Hotspot/QR
+ShareByHotspot = False  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py
 
 # =========================
@@ -472,5 +472,5 @@ SLEEP_TIMER_SECONDS = 20  # Default inactivity timeout in seconds (can be change
 HUD_SIZE_RATIO = 0.08  # 8% de la hauteur de l'écran par défaut
 
 # --- Affichage des logos dans le HUD ---
-SHOW_LOGOS = True  # Mettre à False pour masquer les logos dans le HUD
+SHOW_LOGOS = False  # Mettre à False pour masquer les logos dans le HUD
 

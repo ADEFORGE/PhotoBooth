@@ -17,7 +17,7 @@ from websocket import WebSocketConnectionClosedException, WebSocketTimeoutExcept
 
 DEBUG_ImageGeneratorAPIWrapper = True
 from gui_classes.gui_object.constante import (
-    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, DICO_STYLES
+    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, dico_styles
 )
 
 # Progress tracking globals
@@ -32,7 +32,7 @@ class ImageGeneratorAPIWrapper(QObject):
         if DEBUG_ImageGeneratorAPIWrapper:
             print(f"[DEBUG_ImageGeneratorAPIWrapper] Initializing with style={style}")
         self.server_url = HTTP_BASE_URL
-        self._styles_prompts = DICO_STYLES
+        self._styles_prompts = dico_styles
         self._output_folder = COMFY_OUTPUT_FOLDER
         self._workflow_dir = COMFY_WORKFLOW_DIR
         self._style = style if style in self._styles_prompts else next(iter(self._styles_prompts))

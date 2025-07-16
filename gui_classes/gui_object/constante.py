@@ -15,14 +15,6 @@ COMFY_WORKFLOW_DIR = os.path.abspath(
     os.path.join(BASE_DIR, "../../workflows")
 )
 
-# Style dictionary
-DICO_STYLES = {
-    "clay": "A playful, cartoonish 3D portrait of a person entirely made from colorful modeling clay...",
-    "comic": "A dynamic comic book-style portrait of a person, bold inking...",
-    "oil paint": "A portrait of a person in the style of a traditional oil painting...",
-    "statue": "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style..."
-}
-# --- Activation/désactivation du partage Hotspot ---
 ShareByHotspot = False  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py
 
@@ -80,6 +72,7 @@ dico_styles = {
     "oil paint": "A portrait of a person in the style of a traditional oil painting, soft natural lighting, expressive brush strokes, realistic skin textures, warm color palette, classic painterly aesthetic, elegant and timeless composition, highly detailed, canvas texture visible, inspired by old master techniques",
     "statue" : "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style, intricate facial details, soft chiseled edges, polished marble texture, standing on a stone pedestal in a grand museum hall, soft ambient lighting, blurred museum background, exhibition setting, timeless and elegant"
 }
+
 
 # =========================
 # === Constantes ESTHÉTIQUES ===

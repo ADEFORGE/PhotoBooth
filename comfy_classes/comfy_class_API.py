@@ -110,17 +110,19 @@ class ImageGeneratorAPIWrapper(QObject):
                 pass
 
     def _prepare_prompt(self, custom_prompt: Optional[dict]) -> dict:
-        """Prepare full prompt dict with inputs set. Modifies preview_method if KSampler (Efficient) node exists."""
+        """Prepare full prompt dict with inputs set. Modifies preview_method if KSampler (Efficient) node exists, and replaces text for Text Multiline nodes."""
         prompt = json.loads(json.dumps(custom_prompt or self._base_prompt))
         for nid, node in prompt.items():
             ctype = node.get('class_type', '')
             inputs = node.setdefault('inputs', {})
-            if ctype == 'Text MultiLine':
+            if DEBUG_ImageGeneratorAPIWrapper:
+                print(f"[DEBUG_ImageGeneratorAPIWrapper] Traitement node {nid} ({ctype})")
+            # Correction : remplacer le texte de tous les nodes Text Multiline
+            if ctype.lower().replace(' ', '') in ('textmultiline', 'textmultilinewidget', 'textmultilineprompt') or ctype in ('Text Multiline', 'TextMultiLine'):
                 if DEBUG_ImageGeneratorAPIWrapper:
-                    print("[DEBUG_ImageGeneratorAPIWrapper] Prompt modifier <Text MultiLine> found, setting inputs['text']")
-                inputs['text'] = (
-                    self._styles_prompts[self._style] if nid == '6' else self._negative_prompt
-                )
+                    print(f"[DEBUG_ImageGeneratorAPIWrapper] Remplacement inputs['text'] pour node {nid} (Text Multiline)")
+                # Toujours utiliser le prompt du style pour tous les nodes Text Multiline
+                inputs['text'] = self._styles_prompts[self._style]
             elif ctype in ('KSampler', 'KSampler (Efficient)'):
                 inputs['seed'] = random.randint(0, 2**32 - 1)
                 # Force preview_method to 'auto' if present

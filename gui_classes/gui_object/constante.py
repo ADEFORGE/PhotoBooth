@@ -70,7 +70,7 @@ dico_styles = {
     "clay":  "Transform this person into a claymation character. Give them a handcrafted look with soft, rounded features, visible fingerprints or texture in the clay, and slightly exaggerated expressions. Use stop-motion lighting and a warm, tactile feel. Background should look like a miniature set made of clay or craft materials.",
     "comic": "Turn this person into a bold comic book style character. Use clean black ink outlines, vibrant cel-shading, and dramatic contrast. Emphasize comic-style features like expressive eyes, stylized hair, and sharp facial structure. Keep the background minimal or graphic, like in classic comic panels",
     "oil paint": "Convert this person into a classical oil painting portrait. Use rich brush strokes, textured canvas, and a painterly look with warm, layered colors. Emphasize shadows and highlights as seen in traditional oil portraits. The background should be soft and muted, like an old master painting.",
-    "statue" : "Turn this person into a marble statue. Sculpt the figure in smooth, white or slightly weathered marble with finely chiseled details. Emphasize realistic anatomy and elegant features, like classical Greek or Roman statues. The texture should show stone grain, subtle cracks, and surface reflections. Use soft studio or museum lighting"
+    "statue" : "Turn this person into a marble statue while preserving their original identity, age, and gender exactly. Sculpt them in smooth, white marble with realistic but modest features. Avoid any exaggeration or changes to body shape or facial structure. The statue should resemble classical art with respectful, child-appropriate detail. Use soft lighting and natural stone texture, with no added accessories or fantasy elements."
 }
 
 

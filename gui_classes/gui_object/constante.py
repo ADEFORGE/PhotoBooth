@@ -1,3 +1,21 @@
+# === ComfyUI API/Workflow constants ===
+WS_URL = "ws://127.0.0.1:8188/ws"
+HTTP_BASE_URL = "http://127.0.0.1:8188"
+
+# Paths
+import os
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+COMFY_OUTPUT_FOLDER = os.path.abspath(
+    os.path.join(BASE_DIR, "../../../ComfyUI/output")
+)
+INPUT_IMAGE_PATH = os.path.abspath(
+    os.path.join(BASE_DIR, "../../../ComfyUI/input/input.png")
+)
+COMFY_WORKFLOW_DIR = os.path.abspath(
+    os.path.join(BASE_DIR, "../../workflows")
+)
+
+ShareByHotspot = False  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py
 
 # =========================
@@ -49,11 +67,12 @@ GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
 
 # --- Styles disponibles ---
 dico_styles = {
-    "clay":  "A playful, cartoonish 3D portrait of a person entirely made from colorful modeling clay, with extremely rounded, soft shapes and exaggerated, friendly facial features. The texture of the face clearly shows the look of hand-sculpted modeling clay — visible fingerprints, slight uneven surfaces, and playful seams typical of freshly shaped Play-Doh. Use bold, saturated colors dominated by vibrant yellow, blue, and red, combined with a soft, matte clay finish. The eyes and facial details are large, expressive, and fun, with an overall toy-like, collectible appearance. The background features playful, oversized shapes made of modeling clay, enhancing the whimsical, childlike atmosphere.",
-    "comic": "A dynamic comic book-style portrait of a person, bold inking, clean line art, vivid cel-shading, high contrast colors, expressive facial features, dramatic lighting, graphic novel aesthetics, detailed costume elements, heroic composition, inspired by Marvel and DC comic book art",
-    "oil paint": "A portrait of a person in the style of a traditional oil painting, soft natural lighting, expressive brush strokes, realistic skin textures, warm color palette, classic painterly aesthetic, elegant and timeless composition, highly detailed, canvas texture visible, inspired by old master techniques",
-    "statue" : "a hyper-realistic white marble statue of a person, carved in classical Greco-Roman style, intricate facial details, soft chiseled edges, polished marble texture, standing on a stone pedestal in a grand museum hall, soft ambient lighting, blurred museum background, exhibition setting, timeless and elegant"
+    "clay":  "Transform this person into a claymation character. Give them a handcrafted look with soft, rounded features, visible fingerprints or texture in the clay, and slightly exaggerated expressions. Use stop-motion lighting and a warm, tactile feel. Background should look like a miniature set made of clay or craft materials.",
+    "comic": "Turn this person into a bold comic book style character. Use clean black ink outlines, vibrant cel-shading, and dramatic contrast. Emphasize comic-style features like expressive eyes, stylized hair, and sharp facial structure. Keep the background minimal or graphic, like in classic comic panels",
+    "oil paint": "Convert this person into a classical oil painting portrait. Use rich brush strokes, textured canvas, and a painterly look with warm, layered colors. Emphasize shadows and highlights as seen in traditional oil portraits. The background should be soft and muted, like an old master painting.",
+    "statue" : "Turn this person into a marble statue while preserving their original identity, age, and gender exactly. Sculpt them in smooth, white marble with realistic but modest features. Avoid any exaggeration or changes to body shape or facial structure. The statue should resemble classical art with respectful, child-appropriate detail. Use soft lighting and natural stone texture, with no added accessories or fantasy elements."
 }
+
 
 # =========================
 # === Constantes ESTHÉTIQUES ===

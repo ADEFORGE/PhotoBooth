@@ -11,7 +11,7 @@ DEBUG_Module = False
 DEBUG_ImageUtils = False
 DEBUG_QRCodeUtils = False
 DEBUG_OutlinedLabel = False
-DEBUG_LoadingBar = False
+DEBUG_LoadingBar = True
 
 
 class ImageUtils:
@@ -148,38 +148,16 @@ class LoadingBar(QWidget):
             "}"
         )
         main_layout.addWidget(self.progress)
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._update_progress)
-        self._duration_ms = 2000
         if DEBUG_LoadingBar:
             print(f"[DEBUG][LoadingBar] Exiting __init__: return=None")
 
-    def setDuration(self, seconds: float) -> None:
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Entering setDuration: args={(seconds,)}")
-        self._duration_ms = int(seconds * 1000)
-        self.timer.setInterval(max(1, self._duration_ms // 100))
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Exiting setDuration: return=None")
 
-    def start(self) -> None:
+    def set_percent(self, percent: int) -> None:
+        """
+        Set the progress bar value (0-100).
+        """
         if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Entering start: args=()")
-        self.progress.setValue(0)
-        self.setDuration(self._duration_ms / 1000)
-        self.show()
-        self.timer.start()
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Exiting start: return=None")
+            print(f"[DEBUG][LoadingBar] set_percent: {percent}")
+        self.progress.setValue(max(0, min(100, percent)))
 
-    def _update_progress(self) -> None:
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Entering _update_progress: args=()")
-        val = self.progress.value() + 1
-        if val > self.progress.maximum():
-            self.timer.stop()
-            self.close()
-        else:
-            self.progress.setValue(val)
-        if DEBUG_LoadingBar:
-            print(f"[DEBUG][LoadingBar] Exiting _update_progress: return=None")
+

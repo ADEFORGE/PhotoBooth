@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QW
 from comfy_classes.comfy_class_API import ImageGeneratorAPIWrapper
 from gui_classes.gui_object.overlay import OverlayCountdown, OverlayLoading
 from gui_classes.gui_object.toolbox import ImageUtils
+from hotspot_classes.hotspot_client import HotspotClient
 
 class CountdownThread(QObject):
     overlay_finished = Signal()
@@ -178,9 +179,9 @@ class ImageGenerationThread(QObject):
         """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering __init__: args={{(style, input_image, parent)}}")
         super().__init__(parent)
-        self.api = ImageGeneratorAPIWrapper()
-        self.input_image = input_image
         self.style = style
+        self.input_image = input_image
+        self.api = ImageGeneratorAPIWrapper(style=style, qimg=input_image)
         self._running = True
         self._thread = None
         self._worker = None
@@ -190,7 +191,7 @@ class ImageGenerationThread(QObject):
     def show_loading(self) -> None:
         """
         Inputs: none
-        Outputs: displays loading overlay
+        Outputs: displays loading overlay and connects progress signal
         """
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Entering show_loading: args=()")
         for widget in QApplication.allWidgets():
@@ -207,9 +208,23 @@ class ImageGenerationThread(QObject):
             self._loading_overlay = None
         if self.parent():
             self._loading_overlay = OverlayLoading(self.parent())
+            # Connect the progress_changed signal to the overlay's set_percent slot
+            try:
+                self.api.progress_changed.disconnect()
+            except Exception:
+                pass
+            self.api.progress_changed.connect(self._on_progress_changed)
             self._loading_overlay.show()
             self._loading_overlay.raise_()
         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationThread] Exiting show_loading: return=None")
+
+    def _on_progress_changed(self, percent: float) -> None:
+        """
+        Slot to update the loading overlay's progress bar.
+        """
+        if self._loading_overlay is not None:
+            # Overlay expects int percent (0-100)
+            self._loading_overlay.set_percent(int(percent))
 
     def hide_loading(self) -> None:
         """
@@ -307,17 +322,14 @@ class ImageGenerationThread(QObject):
                         self.finished.emit(None)
                         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
-                    arr = ImageUtils.qimage_to_cv(self.input_image)
-                    os.makedirs("../ComfyUI/input", exist_ok=True)
-                    import cv2
-                    cv2.imwrite("../ComfyUI/input/input.png", arr)
+                    self.api.set_img(self.input_image)
                     self.api.generate_image()
                     if not self._running:
                         self.finished.emit(None)
                         if DEBUG_ImageGenerationThread: print(f"[DEBUG][ImageGenerationWorker] Exiting run: return=None")
                         return
                     # Use robust image loading logic
-                    qimg = self.api.get_last_generated_image(timeout=15.0)
+                    qimg = self.api.wait_for_and_load_image(timeout=15.0)
                     if qimg is None or qimg.isNull():
                         if DEBUG_ImageGenerationThread:
                             print(f"[DEBUG][ImageGenerationWorker] Failed to load generated image, falling back to input image.")
@@ -327,11 +339,7 @@ class ImageGenerationThread(QObject):
                             print(f"[DEBUG][ImageGenerationWorker] Successfully loaded generated image.")
                         self.finished.emit(qimg)
                     # Clean up input and output images
-                    inp = os.path.abspath("../ComfyUI/input/input.png")
-                    if os.path.exists(inp): os.remove(inp)
-                    # Optionally, clean up output images if desired
-                    # for f in self.api.get_image_paths():
-                    #     if os.path.exists(f): os.remove(f)
+                    self.api.delete_input_and_output_images()
                 except Exception as e:
                     if DEBUG_ImageGenerationThread:
                         print(f"[DEBUG][ImageGenerationWorker] Exception: {e}")
@@ -490,3 +498,75 @@ class CameraCaptureThread(QThread):
         self._running = False
         self.wait()
         if DEBUG_CameraCaptureThread: print(f"[DEBUG][CameraCaptureThread] Exiting stop: return=None")
+
+class ThreadShareImage(QThread):
+    """
+    Thread pour envoyer une image à la Raspberry Pi via HotspotClient sans bloquer l'UI.
+    Utilisation :
+        thread = ThreadShareImage(url, image_path_or_qimage)
+        thread.finished.connect(slot)
+        thread.start()
+    Résultat : thread.qr_bytes, thread.credentials, thread.error (None si OK)
+    """
+    def __init__(self, url: str, image=None, timeout: float = 10.0, parent=None):
+        print(f"[ThreadShareImage] __init__ called with url={url}, image={type(image)}, timeout={timeout}")
+        super().__init__(parent)
+        self.url = url
+        self.image = image  # Peut être un chemin (str/Path) ou un QImage
+        self.timeout = timeout
+        self.qr_bytes = b""
+        self.credentials = (None, None)
+        self.error = None
+
+    def run(self):
+        print(f"[ThreadShareImage] run called for url={self.url}, image={type(self.image)}")
+        try:
+            client = HotspotClient(self.url, timeout=self.timeout)
+            # Détection du type d'image
+            if hasattr(self.image, 'save') and callable(self.image.save):
+                print(f"[ThreadShareImage] Detected QImage, using set_qimage.")
+                client.set_qimage(self.image)
+            else:
+                print(f"[ThreadShareImage] Detected path, using set_image.")
+                client.set_image(str(self.image))
+            client.run()
+            self.qr_bytes = client.qr_bytes
+            self.credentials = client.credentials
+            self.error = None
+            client.cleanup_temp_image()
+            print(f"[ThreadShareImage] run finished successfully.")
+        except Exception as e:
+            print(f"[ThreadShareImage] Exception: {e}")
+            self.qr_bytes = b""
+            self.credentials = (None, None)
+            self.error = e
+    def cleanup(self):
+        print(f"[ThreadShareImage] cleanup called")
+        # Tentative de reset du hotspot si possible
+        try:
+            if hasattr(self, 'url') and self.url:
+                try:
+                    client = HotspotClient(self.url, timeout=2.0)
+                    if hasattr(client, 'reset') and callable(client.reset):
+                        print(f"[ThreadShareImage] Calling client.reset()")
+                        client.reset()
+                except Exception as e:
+                    print(f"[ThreadShareImage] Exception during client.reset: {e}")
+        except Exception as e:
+            print(f"[ThreadShareImage] Exception in cleanup: {e}")
+        # Arrêt du thread si encore actif
+        if self.isRunning():
+            try:
+                self.requestInterruption()
+            except Exception as e:
+                print(f"[ThreadShareImage] Exception during requestInterruption: {e}")
+            try:
+                self.quit()
+                self.wait(2000)
+            except Exception as e:
+                print(f"[ThreadShareImage] Exception during quit/wait: {e}")
+        # Libération des ressources
+        try:
+            self.deleteLater()
+        except Exception as e:
+            print(f"[ThreadShareImage] Exception during deleteLater: {e}")

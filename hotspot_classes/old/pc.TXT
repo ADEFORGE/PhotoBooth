@@ -1,0 +1,7 @@
+pip install requests pillow
+
+sudo nano client_share.py
+
+
+chmod +x client_share.py
+

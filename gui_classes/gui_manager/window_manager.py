@@ -129,10 +129,10 @@ class WindowManager(QWidget):
         current_index = self.stack.currentIndex()
         if index != current_index:
             new_widget = self.widgets[index]
-            if hasattr(new_widget, 'pre_set'):
+            if hasattr(new_widget, 'preset'):
                 if DEBUG_WindowManager:
-                    print(f"[DEBUG][WindowManager] Calling pre_set on {type(new_widget).__name__}")
-                new_widget.pre_set()
+                    print(f"[DEBUG][WindowManager] Calling preset on {type(new_widget).__name__}")
+                new_widget.preset()
             current_widget = self.stack.currentWidget()
             if hasattr(current_widget, 'on_leave'):
                 if DEBUG_WindowManager:

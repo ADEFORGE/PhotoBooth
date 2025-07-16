@@ -149,8 +149,8 @@
   },
   "23": {
     "inputs": {
-      "seed": 59479560733077,
-      "steps": 15,
+      "seed": 1089789284519586,
+      "steps": 10,
       "cfg": 4.5,
       "sampler_name": "dpmpp_2m",
       "scheduler": "AYS SD1",
@@ -185,9 +185,9 @@
   },
   "26": {
     "inputs": {
-      "strength": 1.0000000000000002,
+      "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.9000000000000002,
+      "end_percent": 0.8000000000000002,
       "control_net": [
         "3",
         0
@@ -225,15 +225,15 @@
   },
   "47": {
     "inputs": {
-      "strength": 1.0000000000000002,
+      "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.9000000000000002,
+      "end_percent": 1,
       "control_net": [
         "48",
         0
       ],
       "image": [
-        "17",
+        "96",
         0
       ]
     },
@@ -253,7 +253,7 @@
   },
   "71": {
     "inputs": {
-      "value": 1.8
+      "value": 1.5
     },
     "class_type": "PrimitiveFloat",
     "_meta": {
@@ -286,7 +286,7 @@
   },
   "88": {
     "inputs": {
-      "text": "a hyper-realistic pure white marble statue of a person, carved in classical Greco-Roman style, intricate facial details, soft chiseled edges, polished marble texture, standing on a stone pedestal in a grand museum hall, soft ambient lighting, blurred museum background, exhibition setting, timeless and elegant\n"
+      "text": "Transform this person into a claymation character. Give them a handcrafted look with soft, rounded features, visible fingerprints or texture in the clay, and slightly exaggerated expressions. Use stop-motion lighting and a warm, tactile feel. Background should look like a miniature set made of clay or craft materials. Use playdoh colors, and add fingerprint details on the surfaces"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -333,6 +333,23 @@
     "class_type": "IPAdapterFaceID",
     "_meta": {
       "title": "IPAdapter FaceID"
+    }
+  },
+  "96": {
+    "inputs": {
+      "preprocessor": "ImageLuminanceDetector",
+      "resolution": [
+        "16",
+        0
+      ],
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "AIO Aux Preprocessor"
     }
   }
 }

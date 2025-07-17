@@ -23,7 +23,7 @@ DEBUG_OverlayInfo = False
 DEBUG_OverlayCountdown = False
 DEBUG_OverlayLang = False
 
-CHANGED_NAMES = {}
+
 
 class Overlay(QWidget):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:

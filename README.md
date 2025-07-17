@@ -27,21 +27,9 @@ PhotoBooth/
 ├── constante.py                # Style dictionary and constants
 ```
 
-## Requirements
+##  Installation
 
-- Python 3.8+
-- [ComfyUI](https://github.com/comfyanonymous/ComfyUI) running as a backend server
-- [PySide6](https://pypi.org/project/PySide6/)
-- [OpenCV](https://pypi.org/project/opencv-python/)
-- NumPy
-
-Install dependencies with:
-
-```sh
-pip install -r requirements.txt
-```
-
-## Setup
+### Setup
 
 1. **Clone this repository in the `comfy` folder and enter the directory:**
     ```sh
@@ -55,6 +43,64 @@ pip install -r requirements.txt
 
 
 3. **Edit `constante.py`** to define your available styles and prompts.
+
+
+### Requirements
+
+Suivez ces instructions pour configurer votre environnement et installer les dépendances nécessaires à l'application.
+
+#### Linux / macOS
+
+```bash
+# 1. Installer le package venv (si nécessaire)
+sudo apt update && sudo apt install -y python3-venv
+
+# 2. Créer l'environnement virtuel
+python3 -m venv .venv
+
+# 3. Activer l'environnement virtuel
+source .venv/bin/activate
+
+# 4. Mettre à jour pip
+pip install --upgrade pip
+
+# 5. Installer les dépendances
+pip install -r requirements.txt
+
+# 6. Lancer l'application
+python3 main.py
+
+# 7. (Optionnel) Sortir de l'environnement virtuel
+deactivate
+```
+
+#### Windows (PowerShell)
+
+```powershell
+# 0. Si le module venv n'est pas disponible, installer virtualenv
+pip install virtualenv
+
+# 1. Créer l'environnement virtuel
+python -m venv .venv
+
+# 2. Activer l'environnement virtuel
+.\.venv\Scripts\Activate.ps1
+
+# 3. Mettre à jour pip
+pip install --upgrade pip
+
+# 4. Installer les dépendances
+pip install -r requirements.txt
+
+# 5. Lancer l'application
+python3 ./main.py
+
+# 6. (Optionnel) Sortir de l'environnement virtuel
+deactivate
+```
+
+```
+
 
 ## Usage
 

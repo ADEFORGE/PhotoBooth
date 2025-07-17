@@ -1,4 +1,25 @@
 # main.py
+
+import logging
+
+# Configuration du logger pour fichier
+logging.basicConfig(
+    filename='app.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Ajout du handler console pour afficher aussi les logs dans le terminal
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(
+    logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+)
+logging.getLogger().addHandler(console_handler)
+
+# Logger principal de ce module
+logger = logging.getLogger(__name__)
+
 from gui_classes.gui_object.constante import DEBUG
 from PySide6.QtWidgets import QApplication
 from gui_classes.gui_manager.window_manager import WindowManager
@@ -6,7 +27,7 @@ import sys
 
 def main():    
     if DEBUG:
-        print("[MAIN] Starting application with debug mode enabled.") 
+        logger.info("[MAIN] Starting application with debug mode enabled.")
     app = QApplication(sys.argv)
     manager = WindowManager()
     manager.show()

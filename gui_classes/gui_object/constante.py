@@ -444,6 +444,7 @@ COUNTDOWN_FONT_STYLE = "font-size: 120px; font-weight: bold; color: #fff; font-f
 
 # DEBUG constant for controlling debug prints
 DEBUG = True
+DEBUG_FULL = False
 
 # Tooltip configuration
 TOOLTIP_DURATION_MS = 3000  # Duration in milliseconds

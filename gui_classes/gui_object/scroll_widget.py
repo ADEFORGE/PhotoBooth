@@ -648,7 +648,7 @@ class ScrollOverlay(QWidget):
             './gui_template/sleep_picture',
             scroll_speed=0.2,
             fps=20,
-            margin_x=1,
+            margin_x=1.05,
             margin_y=1,
             angle=15
         )

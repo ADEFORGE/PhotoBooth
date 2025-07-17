@@ -68,7 +68,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # 6. Lancer l'application
-python main.py
+python3 main.py
 
 # 7. (Optionnel) Sortir de l'environnement virtuel
 deactivate
@@ -93,7 +93,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # 5. Lancer l'application
-python main.py
+python3 ./main.py
 
 # 6. (Optionnel) Sortir de l'environnement virtuel
 deactivate

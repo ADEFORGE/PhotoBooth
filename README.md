@@ -77,6 +77,9 @@ deactivate
 #### Windows (PowerShell)
 
 ```powershell
+# 0. Si le module venv n'est pas disponible, installer virtualenv
+pip install virtualenv
+
 # 1. Créer l'environnement virtuel
 python -m venv .venv
 

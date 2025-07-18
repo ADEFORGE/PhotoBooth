@@ -256,6 +256,12 @@ class MainWindow(BaseWindow):
                 return
             qimg = self.generated_image
             self.show_rules_overlay(qimg)
+        elif sender and sender.objectName() == 'regenerate':
+            self.generation(
+                self.selected_style,
+                self.original_photo,
+                callback=self.show_generation
+            )
         else:
             self.set_state_default()
         if DEBUG_MainWindow:
@@ -312,7 +318,7 @@ class MainWindow(BaseWindow):
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_validation: args={{}}")
-        self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close)
+        self.setup_buttons_style_1(['accept', 'close','regenerate'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
             self.btns.raise_()
             for btn in self.btns.style1_btns:

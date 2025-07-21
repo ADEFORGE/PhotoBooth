@@ -1,7 +1,7 @@
 {
   "3": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11f1p_sd15_depth_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11p_sd15_lineart_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
@@ -150,8 +150,8 @@
   "23": {
     "inputs": {
       "seed": 1089789284519586,
-      "steps": 15,
-      "cfg": 3.6,
+      "steps": 10,
+      "cfg": 4.5,
       "sampler_name": "dpmpp_2m",
       "scheduler": "AYS SD1",
       "denoise": 1,
@@ -187,7 +187,7 @@
     "inputs": {
       "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.8000000000000002,
+      "end_percent": 0.9000000000000002,
       "control_net": [
         "3",
         0
@@ -208,7 +208,7 @@
   },
   "45": {
     "inputs": {
-      "preprocessor": "MiDaS-DepthMapPreprocessor",
+      "preprocessor": "LineArtPreprocessor",
       "resolution": [
         "16",
         0
@@ -227,13 +227,13 @@
     "inputs": {
       "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.8000000000000002,
+      "end_percent": 1,
       "control_net": [
         "48",
         0
       ],
       "image": [
-        "98",
+        "96",
         0
       ]
     },
@@ -286,7 +286,7 @@
   },
   "88": {
     "inputs": {
-      "text": "Turn this person into a marble statue while preserving their original identity, age, and gender exactly. Sculpt them in smooth, white marble with realistic but modest features. Avoid any exaggeration or changes to body shape or facial structure. The statue should resemble classical art with respectful, child-appropriate detail. Use soft lighting and natural stone texture, with no added accessories or fantasy elements. Make sure the whole statue is white without colors"
+      "text": "Transform this person into a claymation character. Give them a handcrafted look with soft, rounded features, visible fingerprints or texture in the clay, and slightly exaggerated expressions. Use stop-motion lighting and a warm, tactile feel. Background should look like a miniature set made of clay or craft materials. Use playdoh colors, and add fingerprint details on the surfaces"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -295,8 +295,8 @@
   },
   "92": {
     "inputs": {
-      "preset": "FACEID PORTRAIT (style transfer)",
-      "lora_strength": 0.6000000000000001,
+      "preset": "FACEID",
+      "lora_strength": 0.6,
       "provider": "CPU",
       "model": [
         "19",
@@ -337,7 +337,7 @@
   },
   "96": {
     "inputs": {
-      "preprocessor": "none",
+      "preprocessor": "ImageLuminanceDetector",
       "resolution": [
         "16",
         0
@@ -350,50 +350,6 @@
     "class_type": "AIO_Preprocessor",
     "_meta": {
       "title": "AIO Aux Preprocessor"
-    }
-  },
-  "97": {
-    "inputs": {
-      "images": [
-        "96",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "98": {
-    "inputs": {
-      "brightness": 0,
-      "contrast": 1,
-      "saturation": 0,
-      "sharpness": 1,
-      "blur": 0,
-      "gaussian_blur": 0,
-      "edge_enhance": 0,
-      "detail_enhance": "false",
-      "image": [
-        "96",
-        0
-      ]
-    },
-    "class_type": "Image Filter Adjustments",
-    "_meta": {
-      "title": "Image Filter Adjustments"
-    }
-  },
-  "99": {
-    "inputs": {
-      "images": [
-        "98",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   }
 }

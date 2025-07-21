@@ -261,3 +261,1247 @@
 2025-07-18 09:15:54,227 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
 2025-07-18 09:15:54,231 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
 2025-07-18 09:15:54,235 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:18:45,197 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-18 09:18:45,256 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x21e83affc00) at 0x0000021E9AC56CC0>}
+2025-07-18 09:18:45,256 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x21e83affc00) at 0x0000021E9AC56CC0>}
+2025-07-18 09:18:45,257 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-18 09:18:45,257 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-18 09:18:45,402 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x21e83ba5ba0) at 0x0000021E9AD41200>
+2025-07-18 09:18:45,405 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-18 09:18:45,431 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-18 09:18:45,432 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-18 09:18:45,432 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-18 09:18:45,432 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-18 09:18:45,433 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-18 09:18:45,447 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-18 09:18:45,447 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:18:45,447 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:18:45,455 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:18:45,455 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-18 09:18:45,456 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-18 09:18:45,456 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-18 09:18:45,456 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x21e83affc00) at 0x0000021E9AC56CC0>}
+2025-07-18 09:18:45,457 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x21e83affc00) at 0x0000021E9AC56CC0>}
+2025-07-18 09:18:45,457 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-18 09:18:45,457 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-18 09:18:45,585 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x21e83d6eec0) at 0x0000021E9AD37E00>
+2025-07-18 09:18:45,589 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-18 09:18:45,594 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-18 09:18:45,596 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-18 09:18:45,596 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-18 09:18:45,597 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-18 09:18:45,597 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-18 09:18:45,656 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-18 09:18:49,587 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-18 09:18:49,587 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-18 09:18:50,597 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-18 09:18:50,598 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-18 09:18:50,598 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-18 09:18:50,598 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-18 09:18:50,610 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-18 09:18:50,621 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:18:50,633 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:18:50,633 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:18:50,644 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:18:50,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:18:50,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000021E9A4C44A0>}
+2025-07-18 09:18:50,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:18:50,646 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:18:50,809 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:18:50,828 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:18:50,839 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:18:50,851 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-18 09:18:53,385 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-18 09:18:53,397 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:18:53,410 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:18:53,410 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:18:53,423 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:18:53,424 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:18:53,424 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000021E9E92C180>}
+2025-07-18 09:18:53,424 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:18:53,501 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:18:53,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:18:53,666 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:18:53,679 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:19:13,682 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_leave: args={}
+2025-07-18 09:19:14,663 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-18 09:19:14,663 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-18 09:19:14,678 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-18 09:19:14,679 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-18 09:19:14,692 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering hide_loading: args={}
+2025-07-18 09:19:14,692 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting hide_loading: return=None
+2025-07-18 09:19:14,710 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:19:14,732 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:19:14,733 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:19:14,752 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:19:14,753 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:19:14,753 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000021E9A4C44A0>}
+2025-07-18 09:19:14,753 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:19:14,851 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:19:15,025 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:19:15,047 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:19:15,063 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_leave: return=None
+2025-07-18 09:19:17,591 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_enter: args={}
+2025-07-18 09:19:17,591 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-18 09:19:17,591 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-18 09:19:17,591 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-18 09:19:17,591 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:19:17,592 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:19:17,606 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:19:17,607 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_enter: return=None
+2025-07-18 09:21:10,649 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-18 09:21:10,649 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-18 09:21:11,696 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-18 09:21:11,697 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-18 09:21:11,697 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-18 09:21:11,698 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-18 09:21:11,710 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-18 09:21:11,722 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:21:11,733 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:21:11,734 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:21:11,745 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:21:11,745 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:21:11,746 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000021E9E673EC0>}
+2025-07-18 09:21:11,746 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:21:11,820 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:21:11,961 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:21:11,980 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:21:11,993 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:21:12,005 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-18 09:21:14,268 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-18 09:21:14,281 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:21:14,293 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:21:14,294 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:21:14,308 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:21:14,308 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:21:14,308 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000021E9E673E20>}
+2025-07-18 09:21:14,308 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:21:14,381 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:21:14,525 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:21:14,545 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:21:14,559 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:21:18,520 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':oil paint,'generate_image':False}
+2025-07-18 09:21:18,521 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-18 09:21:19,120 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-18 09:21:19,143 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x21ea05fba90) at 0x0000021E9E8F1E80>
+2025-07-18 09:21:20,651 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-18 09:21:26,666 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x0000021E9E673D80>}
+2025-07-18 09:21:26,678 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-18 09:21:26,678 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-18 09:21:26,708 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':oil paint,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>}
+2025-07-18 09:21:27,658 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x21ea05fb7f0) at 0x0000021E9E608D00>
+2025-07-18 09:21:27,659 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x21ea05fb7f0) at 0x0000021E9E608D00>)
+2025-07-18 09:21:27,670 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-18 09:21:27,686 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-18 09:21:27,700 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-18 09:21:51,372 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-18 09:21:53,250 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-18 09:21:55,106 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-18 09:21:56,950 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-18 09:21:58,795 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-18 09:22:00,621 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-18 09:22:02,465 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-18 09:22:04,323 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-18 09:22:06,174 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-18 09:22:07,648 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-18 09:22:15,680 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-18 09:22:15,716 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-18 09:22:15,716 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>}
+2025-07-18 09:22:15,739 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-18 09:22:15,934 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-18 09:22:15,953 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-18 09:22:18,396 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-18 09:22:18,412 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':oil paint,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>}
+2025-07-18 09:22:19,311 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x21ea05fb5b0) at 0x0000021E9E951540>
+2025-07-18 09:22:19,312 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x21ea05fb5b0) at 0x0000021E9E951540>)
+2025-07-18 09:22:19,312 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-18 09:22:19,315 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-18 09:22:19,334 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-18 09:22:23,367 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-18 09:22:25,219 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-18 09:22:27,070 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-18 09:22:28,913 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-18 09:22:30,754 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-18 09:22:32,623 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-18 09:22:34,468 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-18 09:22:36,321 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-18 09:22:38,178 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-18 09:22:39,618 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-18 09:22:46,914 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-18 09:22:46,947 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-18 09:22:46,948 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x21e83d6c8e0) at 0x0000021E9AD40080>>}
+2025-07-18 09:22:46,968 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-18 09:22:47,155 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-18 09:22:47,172 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-18 09:59:39,826 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-18 09:59:39,848 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x16dab7574a0) at 0x0000016DC350AB80>}
+2025-07-18 09:59:39,848 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x16dab7574a0) at 0x0000016DC350AB80>}
+2025-07-18 09:59:39,849 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-18 09:59:39,849 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-18 09:59:39,981 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x16dab752b60) at 0x0000016DC3601380>
+2025-07-18 09:59:39,985 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-18 09:59:39,993 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-18 09:59:39,995 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-18 09:59:39,995 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-18 09:59:39,995 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-18 09:59:39,996 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-18 09:59:40,029 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-18 09:59:40,029 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:59:40,029 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:59:40,037 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:59:40,038 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-18 09:59:40,038 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-18 09:59:40,038 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-18 09:59:40,038 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x16dab7574a0) at 0x0000016DC350AB80>}
+2025-07-18 09:59:40,039 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x16dab7574a0) at 0x0000016DC350AB80>}
+2025-07-18 09:59:40,039 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-18 09:59:40,039 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-18 09:59:40,162 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x16dabdf2f20) at 0x0000016DC3600BC0>
+2025-07-18 09:59:40,167 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-18 09:59:40,173 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-18 09:59:40,174 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-18 09:59:40,174 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-18 09:59:40,174 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-18 09:59:40,175 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-18 09:59:40,229 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-18 09:59:41,385 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-18 09:59:41,386 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-18 09:59:42,899 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-18 09:59:42,900 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-18 09:59:43,850 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-18 09:59:43,850 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-18 09:59:43,851 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-18 09:59:43,851 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-18 09:59:43,862 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-18 09:59:43,874 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:59:43,887 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:59:43,888 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:59:43,900 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:59:43,900 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:59:43,900 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000016DC7455760>}
+2025-07-18 09:59:43,901 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:59:43,901 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:59:44,066 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:59:44,088 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:59:44,100 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:59:44,113 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-18 09:59:46,699 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-18 09:59:46,711 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-18 09:59:46,725 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-18 09:59:46,726 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-18 09:59:46,739 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-18 09:59:46,739 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-18 09:59:46,739 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000016DC7455D00>}
+2025-07-18 09:59:46,739 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-18 09:59:46,818 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-18 09:59:46,969 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-18 09:59:46,993 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-18 09:59:47,006 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-18 09:59:48,993 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':comic,'generate_image':False}
+2025-07-18 09:59:48,994 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-18 09:59:50,870 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-18 09:59:50,884 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x16dc80db410) at 0x0000016DC72B9D00>
+2025-07-18 09:59:51,372 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-18 09:59:57,380 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x0000016DC74559E0>}
+2025-07-18 09:59:57,393 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-18 09:59:57,394 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-18 09:59:57,421 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':comic,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>}
+2025-07-18 09:59:58,234 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x16dc80de1d0) at 0x0000016DC748E780>
+2025-07-18 09:59:58,234 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x16dc80de1d0) at 0x0000016DC748E780>)
+2025-07-18 09:59:58,235 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-18 09:59:58,238 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-18 09:59:58,254 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-18 10:00:05,757 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-18 10:00:07,607 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-18 10:00:09,454 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-18 10:00:11,308 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-18 10:00:13,157 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-18 10:00:15,004 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-18 10:00:16,844 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-18 10:00:18,696 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-18 10:00:20,539 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-18 10:00:22,008 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-18 10:00:29,325 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-18 10:00:29,361 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-18 10:00:29,362 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>}
+2025-07-18 10:00:29,399 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-18 10:00:29,587 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-18 10:00:29,605 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-18 10:00:38,654 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-18 10:00:38,670 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':comic,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>}
+2025-07-18 10:00:39,418 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x16dabf74d90) at 0x0000016DC72AC940>
+2025-07-18 10:00:39,418 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x16dabf74d90) at 0x0000016DC72AC940>)
+2025-07-18 10:00:39,419 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-18 10:00:39,421 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-18 10:00:39,437 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-18 10:00:43,291 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-18 10:00:45,147 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-18 10:00:47,020 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-18 10:00:48,876 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-18 10:00:50,727 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-18 10:00:52,586 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-18 10:00:54,418 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-18 10:00:56,280 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-18 10:00:58,153 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-18 10:00:59,624 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-18 10:01:06,706 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-18 10:01:06,740 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-18 10:01:06,740 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>}
+2025-07-18 10:01:06,771 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-18 10:01:06,960 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-18 10:01:06,978 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-18 10:01:19,107 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-18 10:01:19,125 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':comic,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>}
+2025-07-18 10:01:19,882 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x16dc80dd630) at 0x0000016DC7404FC0>
+2025-07-18 10:01:19,883 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x16dc80dd630) at 0x0000016DC7404FC0>)
+2025-07-18 10:01:19,884 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-18 10:01:19,886 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-18 10:01:19,904 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-18 10:01:23,721 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-18 10:01:25,558 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-18 10:01:27,452 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-18 10:01:29,305 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-18 10:01:31,163 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-18 10:01:33,017 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-18 10:01:34,875 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-18 10:01:36,731 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-18 10:01:38,600 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-18 10:01:40,080 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-18 10:01:47,155 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-18 10:01:47,188 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-18 10:01:47,188 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x16dabdf0940) at 0x0000016DC35EFE00>>}
+2025-07-18 10:01:47,217 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-18 10:01:47,403 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-18 10:01:47,420 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 10:17:11,539 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-21 10:17:11,594 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x19f649ff360) at 0x0000019F7C02BEC0>}
+2025-07-21 10:17:11,595 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x19f649ff360) at 0x0000019F7C02BEC0>}
+2025-07-21 10:17:11,596 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 10:17:11,596 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 10:17:11,737 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x19f64bd0420) at 0x0000019F7C171380>
+2025-07-21 10:17:11,742 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 10:17:11,765 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 10:17:11,767 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 10:17:11,768 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 10:17:11,768 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 10:17:11,769 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 10:17:11,784 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 10:17:11,785 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 10:17:11,785 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 10:17:11,793 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 10:17:11,793 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 10:17:11,794 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 10:17:11,794 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-21 10:17:11,794 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x19f649ff360) at 0x0000019F7C02BEC0>}
+2025-07-21 10:17:11,795 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x19f649ff360) at 0x0000019F7C02BEC0>}
+2025-07-21 10:17:11,795 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 10:17:11,795 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 10:17:11,919 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x19f64cf3440) at 0x0000019F7C1980C0>
+2025-07-21 10:17:11,924 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 10:17:11,930 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 10:17:11,931 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 10:17:11,932 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 10:17:11,932 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 10:17:11,932 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 10:17:12,000 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-21 10:17:22,906 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 10:17:22,906 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 10:17:23,955 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 10:17:23,956 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 10:17:23,956 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 10:17:23,957 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 10:17:23,968 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 10:17:23,979 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 10:17:23,990 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 10:17:23,991 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 10:17:24,003 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 10:17:24,003 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 10:17:24,004 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000019F638C4360>}
+2025-07-21 10:17:24,004 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 10:17:24,004 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 10:17:24,163 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 10:17:24,182 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 10:17:24,195 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 10:17:24,208 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 10:17:26,737 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 10:17:26,751 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 10:17:26,763 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 10:17:26,763 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 10:17:26,774 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 10:17:26,774 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 10:17:26,775 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000019F7EA5FEC0>}
+2025-07-21 10:17:26,775 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 10:17:26,849 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 10:17:26,994 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 10:17:27,013 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 10:17:27,029 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 10:17:31,834 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':statue,'generate_image':False}
+2025-07-21 10:17:31,834 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 10:17:52,254 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_leave: args={}
+2025-07-21 10:17:53,187 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 10:17:53,187 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 10:17:53,200 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 10:17:53,200 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 10:17:53,212 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering hide_loading: args={}
+2025-07-21 10:17:53,212 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting hide_loading: return=None
+2025-07-21 10:17:53,225 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 10:17:53,237 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 10:17:53,237 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 10:17:53,249 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 10:17:53,250 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 10:17:53,250 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000019F638C4360>}
+2025-07-21 10:17:53,251 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 10:17:53,326 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 10:17:53,468 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 10:17:53,490 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 10:17:53,504 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_leave: return=None
+2025-07-21 10:17:54,752 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 10:17:54,752 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 10:17:55,731 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 10:17:55,731 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 10:17:55,731 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 10:17:55,731 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 10:17:55,743 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 10:17:55,756 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 10:17:55,768 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 10:17:55,769 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 10:17:55,781 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 10:17:55,781 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 10:17:55,782 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000019F7EA5FE20>}
+2025-07-21 10:17:55,782 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 10:17:55,856 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 10:17:56,000 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 10:17:56,020 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 10:17:56,033 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 10:17:56,047 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 10:17:58,224 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 10:17:58,237 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 10:17:58,249 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 10:17:58,249 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 10:17:58,262 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 10:17:58,263 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 10:17:58,263 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000019F7EA5FCE0>}
+2025-07-21 10:17:58,264 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 10:17:58,340 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 10:17:58,484 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 10:17:58,504 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 10:17:58,518 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 10:17:59,185 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':statue,'generate_image':False}
+2025-07-21 10:17:59,187 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 10:18:00,061 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 10:18:00,077 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x19f804cbe90) at 0x0000019F7E9F8F80>
+2025-07-21 10:18:00,543 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 10:18:06,557 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x0000019F7EA5FF60>}
+2025-07-21 10:18:06,571 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 10:18:06,571 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 10:18:06,602 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:18:07,554 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x19f804cbcb0) at 0x0000019F7EB45CC0>
+2025-07-21 10:18:07,554 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x19f804cbcb0) at 0x0000019F7EB45CC0>)
+2025-07-21 10:18:07,556 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 10:18:07,561 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 10:18:07,579 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 10:18:29,922 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 10:18:31,890 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 10:18:33,871 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 10:18:35,788 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 10:18:37,637 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 10:18:39,493 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 10:18:41,368 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 10:18:43,206 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 10:18:45,046 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 10:18:46,471 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 10:18:54,035 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 10:18:54,080 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 10:18:54,080 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:18:54,115 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 10:18:54,317 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 10:18:54,338 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 10:21:49,860 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 10:21:49,876 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:21:50,806 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x19f64ed3650) at 0x0000019F7EB79800>
+2025-07-21 10:21:50,807 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x19f64ed3650) at 0x0000019F7EB79800>)
+2025-07-21 10:21:50,808 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 10:21:50,810 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 10:21:50,826 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 10:21:54,928 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 10:21:56,775 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 10:21:58,628 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 10:22:00,487 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 10:22:02,346 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 10:22:04,208 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 10:22:06,051 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 10:22:07,899 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 10:22:09,761 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 10:22:11,232 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 10:22:18,492 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 10:22:18,526 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 10:22:18,526 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:22:18,555 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 10:22:18,745 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 10:22:18,765 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 10:22:43,746 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 10:22:43,762 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:22:44,638 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x19f64cf3e00) at 0x0000019F7EB5D640>
+2025-07-21 10:22:44,638 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x19f64cf3e00) at 0x0000019F7EB5D640>)
+2025-07-21 10:22:44,639 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 10:22:44,642 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 10:22:44,658 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 10:22:48,564 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 10:22:50,448 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 10:22:52,353 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 10:22:54,182 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 10:22:56,022 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 10:22:57,880 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 10:22:59,724 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 10:23:01,574 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 10:23:03,412 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 10:23:04,876 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 10:23:11,750 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 10:23:11,786 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 10:23:11,787 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:23:11,819 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 10:23:12,014 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 10:23:12,034 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 10:24:09,333 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 10:24:09,349 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:24:10,251 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x19f804ca3f0) at 0x0000019F7EB7A300>
+2025-07-21 10:24:10,251 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x19f804ca3f0) at 0x0000019F7EB7A300>)
+2025-07-21 10:24:10,252 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 10:24:10,254 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 10:24:10,275 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 10:24:14,099 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 10:24:15,967 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 10:24:17,860 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 10:24:19,719 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 10:24:21,563 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 10:24:23,426 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 10:24:25,274 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 10:24:27,139 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 10:24:28,996 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 10:24:30,467 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 10:24:37,667 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 10:24:37,702 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 10:24:37,702 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x19f64cf0980) at 0x0000019F7C163E80>>}
+2025-07-21 10:24:37,733 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 10:24:37,921 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 10:24:37,938 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:37:05,275 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-21 14:37:05,358 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x24b7b7dc0c0) at 0x0000024B81005E80>}
+2025-07-21 14:37:05,358 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x24b7b7dc0c0) at 0x0000024B81005E80>}
+2025-07-21 14:37:05,360 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:37:05,360 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:37:05,531 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x24b7bbf20c0) at 0x0000024B81580800>
+2025-07-21 14:37:05,539 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:37:05,565 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:37:05,566 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:37:05,566 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:37:05,567 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:37:05,568 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:37:05,608 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:37:05,608 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:37:05,609 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:37:05,618 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:37:05,618 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:37:05,620 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:37:05,620 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-21 14:37:05,620 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x24b7b7dc0c0) at 0x0000024B81005E80>}
+2025-07-21 14:37:05,621 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x24b7b7dc0c0) at 0x0000024B81005E80>}
+2025-07-21 14:37:05,621 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:37:05,621 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:37:05,752 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x24b7bd1f920) at 0x0000024B815803C0>
+2025-07-21 14:37:05,758 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:37:05,764 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:37:05,766 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:37:05,766 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:37:05,766 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:37:05,767 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:37:05,831 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-21 14:37:28,937 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 14:37:28,938 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 14:37:29,984 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 14:37:29,985 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:37:29,986 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:37:29,986 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 14:37:30,001 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:37:30,013 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:37:30,027 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:37:30,027 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:37:30,039 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:37:30,040 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:37:30,040 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x24b7bd20a00) at 0x0000024B81580900>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000024B7AD04360>}
+2025-07-21 14:37:30,040 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:37:30,040 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:37:30,208 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:37:30,231 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:37:30,243 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:37:30,256 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 14:37:32,866 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:37:32,879 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:37:32,893 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:37:32,894 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:37:32,907 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:37:32,907 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:37:32,907 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x24b7bd20a00) at 0x0000024B81580900>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000024B83E9FEC0>}
+2025-07-21 14:37:32,907 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:37:32,988 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:37:33,137 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:37:33,165 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:37:33,179 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:37:34,569 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':statue,'generate_image':False}
+2025-07-21 14:37:34,569 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:37:35,877 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:37:35,906 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x24b7bd20760) at 0x0000024B83DA86C0>
+2025-07-21 14:37:36,314 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:37:42,343 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x0000024B83E9FC40>}
+2025-07-21 14:37:42,356 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:37:42,356 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:37:42,385 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x24b7bd20a00) at 0x0000024B81580900>>}
+2025-07-21 14:37:43,337 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x24b85419bd0) at 0x0000024B860365C0>
+2025-07-21 14:37:43,337 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x24b85419bd0) at 0x0000024B860365C0>)
+2025-07-21 14:37:43,342 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:37:43,361 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:37:43,375 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:37:51,900 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 14:37:53,749 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:37:55,615 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 14:37:57,455 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:37:59,280 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 14:38:01,105 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:38:02,925 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 14:38:04,766 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:38:06,594 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 14:38:08,047 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:38:15,113 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:38:15,147 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:38:15,147 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x24b7bd20a00) at 0x0000024B81580900>>}
+2025-07-21 14:38:15,176 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:38:15,368 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:38:15,387 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:38:19,110 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:38:19,129 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_wait: args={}
+2025-07-21 14:38:19,322 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_wait: return=None
+2025-07-21 14:38:19,344 - gui_classes.gui_window.main_window - INFO - [MainWindow] ShareByHotspot désactivé, retour à l'état par défaut.
+2025-07-21 14:38:19,362 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:38:19,379 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:38:19,380 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:38:19,390 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:38:19,391 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:38:19,391 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x24b7bd20a00) at 0x0000024B81580900>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000024B86051B20>}
+2025-07-21 14:38:19,391 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:38:19,521 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:38:19,675 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:38:19,698 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:38:19,711 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:38:52,766 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-21 14:38:52,782 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x1646b73cec0) at 0x000001646AB66BC0>}
+2025-07-21 14:38:52,782 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x1646b73cec0) at 0x000001646AB66BC0>}
+2025-07-21 14:38:52,783 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:38:52,783 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:38:52,920 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x1646b7388c0) at 0x0000016481572380>
+2025-07-21 14:38:52,926 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:38:52,933 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:38:52,934 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:38:52,934 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:38:52,934 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:38:52,935 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:38:52,940 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:38:52,940 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:38:52,941 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:38:52,948 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:38:52,948 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:38:52,948 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:38:52,948 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-21 14:38:52,948 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x1646b73cec0) at 0x000001646AB66BC0>}
+2025-07-21 14:38:52,948 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x1646b73cec0) at 0x000001646AB66BC0>}
+2025-07-21 14:38:52,949 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:38:52,949 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:38:53,074 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x1646be803c0) at 0x000001648155FA00>
+2025-07-21 14:38:53,081 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:38:53,086 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:38:53,088 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:38:53,088 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:38:53,088 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:38:53,088 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:38:53,142 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-21 14:38:56,884 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 14:38:56,884 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 14:38:57,906 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 14:38:57,907 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:38:57,908 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:38:57,908 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 14:38:57,921 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:38:57,934 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:38:57,948 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:38:57,948 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:38:57,961 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:38:57,961 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:38:57,961 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1646b746020) at 0x0000016481570080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001646AC74400>}
+2025-07-21 14:38:57,961 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:38:57,961 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:38:58,119 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:38:58,141 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:38:58,153 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:38:58,166 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 14:39:00,673 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:39:00,687 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:39:00,699 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:39:00,700 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:39:00,713 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:39:00,713 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:39:00,713 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1646b746020) at 0x0000016481570080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000016483E0FEC0>}
+2025-07-21 14:39:00,713 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:39:00,791 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:39:00,943 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:39:00,963 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:39:00,976 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:39:02,254 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':comic,'generate_image':False}
+2025-07-21 14:39:02,254 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:39:02,814 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:39:02,827 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x164854ac350) at 0x0000016481570340>
+2025-07-21 14:39:03,307 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:39:09,326 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x0000016483E0FC40>}
+2025-07-21 14:39:09,339 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:39:09,340 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:39:09,366 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':comic,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x1646b746020) at 0x0000016481570080>>}
+2025-07-21 14:39:10,336 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x164854ac410) at 0x0000016483EC4D00>
+2025-07-21 14:39:10,336 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x164854ac410) at 0x0000016483EC4D00>)
+2025-07-21 14:39:10,337 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:39:10,341 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:39:10,358 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:39:17,313 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 14:39:19,156 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:39:21,013 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 14:39:22,852 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:39:24,682 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 14:39:26,532 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:39:28,373 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 14:39:30,212 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:39:32,053 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 14:39:33,507 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:39:40,525 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:39:40,557 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:39:40,557 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x1646b746020) at 0x0000016481570080>>}
+2025-07-21 14:39:40,584 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:39:40,766 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:39:40,782 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:39:43,017 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:39:43,033 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_wait: args={}
+2025-07-21 14:39:43,219 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_wait: return=None
+2025-07-21 14:39:43,237 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayRules(0x1646befcbb0) at 0x0000016483D8A100>
+2025-07-21 14:39:43,263 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:39:44,666 - gui_classes.gui_window.main_window - INFO - [MainWindow] show_qrcode_overlay called with image_to_send=<class 'PySide6.QtGui.QImage'>
+2025-07-21 14:39:44,667 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayQrcode(0x164854aa4f0) at 0x0000016483F00700>
+2025-07-21 14:39:53,263 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:39:53,279 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:39:53,280 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:39:53,290 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:39:53,290 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:39:53,291 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1646b746020) at 0x0000016481570080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000016483EDE840>}
+2025-07-21 14:39:53,291 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:39:53,420 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:39:53,565 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:39:53,585 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:40:13,605 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_leave: args={}
+2025-07-21 14:40:14,494 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:40:14,494 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:40:14,526 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:40:14,526 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:40:14,540 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering hide_loading: args={}
+2025-07-21 14:40:14,540 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting hide_loading: return=None
+2025-07-21 14:40:14,553 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:40:14,565 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:40:14,566 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:40:14,578 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:40:14,579 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:40:14,579 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1646b746020) at 0x0000016481570080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000016483E0FEC0>}
+2025-07-21 14:40:14,579 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:40:14,653 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:40:14,794 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:40:14,815 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:40:14,827 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_leave: return=None
+2025-07-21 14:40:16,644 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_enter: args={}
+2025-07-21 14:40:16,645 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:40:16,645 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:40:16,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:40:16,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:40:16,645 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:40:16,652 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:40:16,653 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_enter: return=None
+2025-07-21 14:43:11,326 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-21 14:43:11,345 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x25be073a440) at 0x0000025BF765A300>}
+2025-07-21 14:43:11,345 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x25be073a440) at 0x0000025BF765A300>}
+2025-07-21 14:43:11,345 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:43:11,345 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:43:11,473 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x25be06a4aa0) at 0x0000025BF7A511C0>
+2025-07-21 14:43:11,478 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:43:11,485 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:43:11,486 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:43:11,486 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:43:11,486 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:43:11,487 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:43:11,515 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:43:11,516 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:43:11,516 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:43:11,523 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:43:11,523 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:43:11,524 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:43:11,524 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-21 14:43:11,524 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x25be073a440) at 0x0000025BF765A300>}
+2025-07-21 14:43:11,525 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x25be073a440) at 0x0000025BF765A300>}
+2025-07-21 14:43:11,525 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:43:11,525 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:43:11,647 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x25be0dc5e60) at 0x0000025BF7A43A00>
+2025-07-21 14:43:11,652 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:43:11,658 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:43:11,659 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:43:11,659 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:43:11,659 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:43:11,660 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:43:11,714 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-21 14:43:13,745 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 14:43:13,745 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 14:43:14,721 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 14:43:14,722 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:43:14,722 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:43:14,722 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 14:43:14,734 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:43:14,746 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:43:14,759 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:43:14,759 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:43:14,774 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:43:14,775 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:43:14,775 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x25be0748500) at 0x0000025BF7A50180>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000025BF71D4360>}
+2025-07-21 14:43:14,775 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:43:14,775 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:43:14,925 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:43:14,943 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:43:14,959 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:43:14,971 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 14:43:17,507 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:43:17,520 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:43:17,532 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:43:17,534 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:43:17,546 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:43:17,546 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:43:17,546 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x25be0748500) at 0x0000025BF7A50180>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x0000025BFB76FF60>}
+2025-07-21 14:43:17,546 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:43:17,621 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:43:17,760 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:43:17,781 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:43:17,795 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:43:18,873 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':statue,'generate_image':False}
+2025-07-21 14:43:18,873 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:43:19,773 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:43:19,788 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x25bfd20b790) at 0x0000025BFB6ECA00>
+2025-07-21 14:43:20,151 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:43:26,176 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x0000025BFB76FBA0>}
+2025-07-21 14:43:26,190 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:43:26,190 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:43:26,219 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x25be0748500) at 0x0000025BF7A50180>>}
+2025-07-21 14:43:26,947 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x25bfd20f030) at 0x0000025BFB861900>
+2025-07-21 14:43:26,947 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x25bfd20f030) at 0x0000025BFB861900>)
+2025-07-21 14:43:26,948 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:43:26,952 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:43:26,968 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:43:33,760 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 14:43:35,609 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:43:37,474 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 14:43:39,312 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:43:41,140 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 14:43:42,979 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:43:44,806 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 14:43:46,640 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:43:48,469 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 14:43:49,920 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:43:57,085 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:43:57,118 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:43:57,118 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x25be0748500) at 0x0000025BF7A50180>>}
+2025-07-21 14:43:57,145 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:43:57,327 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:43:57,345 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:43:58,970 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:43:58,988 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_wait: args={}
+2025-07-21 14:43:59,175 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_wait: return=None
+2025-07-21 14:43:59,194 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayRules(0x25be0747360) at 0x0000025BFB795280>
+2025-07-21 14:43:59,217 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:44:00,051 - gui_classes.gui_window.main_window - INFO - [MainWindow] show_qrcode_overlay called with image_to_send=<class 'PySide6.QtGui.QImage'>
+2025-07-21 14:44:00,052 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayQrcode(0x25bfd20e1f0) at 0x0000025BFB855E00>
+2025-07-21 14:48:03,234 - __main__ - INFO - [MAIN] Starting application with debug mode enabled.
+2025-07-21 14:48:03,250 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x1f67c7425c0) at 0x000001F67D59A1C0>}
+2025-07-21 14:48:03,250 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x1f67c7425c0) at 0x000001F67D59A1C0>}
+2025-07-21 14:48:03,251 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:48:03,251 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:48:03,378 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x1f67c73dc20) at 0x000001F67FE12380>
+2025-07-21 14:48:03,383 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:48:03,389 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:48:03,390 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:48:03,391 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:48:03,391 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:48:03,391 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:48:03,420 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:48:03,420 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:48:03,421 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:48:03,428 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:48:03,429 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:48:03,429 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:48:03,429 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting __init__: return=None
+2025-07-21 14:48:03,430 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering __init__: args={'parent':<gui_classes.gui_manager.window_manager.WindowManager(0x1f67c7425c0) at 0x000001F67D59A1C0>}
+2025-07-21 14:48:03,430 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering __init__: args={'parent': <gui_classes.gui_manager.window_manager.WindowManager(0x1f67c7425c0) at 0x000001F67D59A1C0>}
+2025-07-21 14:48:03,430 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setupcontainer: args={}
+2025-07-21 14:48:03,430 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_logo: args={}
+2025-07-21 14:48:03,552 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_logo: return=<PySide6.QtWidgets.QWidget(0x1f67cdea0a0) at 0x000001F67FE07F00>
+2025-07-21 14:48:03,557 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_interaction_btn: args={}
+2025-07-21 14:48:03,563 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_interaction_btn: return={widget}
+2025-07-21 14:48:03,564 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setupcontainer: return=None
+2025-07-21 14:48:03,564 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_row_stretches: args={}
+2025-07-21 14:48:03,564 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_row_stretches: return=None
+2025-07-21 14:48:03,564 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting __init__: return=None
+2025-07-21 14:48:03,615 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting __init__: return=None
+2025-07-21 14:48:27,041 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 14:48:27,041 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 14:48:28,016 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 14:48:28,016 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:48:28,016 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:48:28,017 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 14:48:28,029 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:48:28,041 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:48:28,054 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:48:28,054 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:48:28,066 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:48:28,067 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:48:28,067 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F67D514400>}
+2025-07-21 14:48:28,067 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:48:28,067 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:48:28,218 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:48:28,236 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:48:28,250 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:48:28,265 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 14:48:30,697 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:48:30,710 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:48:30,722 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:48:30,722 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:48:30,735 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:48:30,736 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:48:30,736 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683AE3EC0>}
+2025-07-21 14:48:30,736 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:48:30,813 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:48:30,955 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:48:30,978 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:48:30,992 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:48:35,319 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':statue,'generate_image':False}
+2025-07-21 14:48:35,320 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:48:36,955 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':comic,'generate_image':False}
+2025-07-21 14:48:36,955 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:48:37,494 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:48:37,508 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x1f6854db0b0) at 0x000001F683A6C780>
+2025-07-21 14:48:37,984 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:48:43,992 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x000001F683AE3C40>}
+2025-07-21 14:48:44,005 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:48:44,005 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:48:44,032 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':comic,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:48:44,988 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x1f6854dccd0) at 0x000001F683B9EE00>
+2025-07-21 14:48:44,988 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x1f6854dccd0) at 0x000001F683B9EE00>)
+2025-07-21 14:48:44,989 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:48:44,996 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:48:45,013 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:48:52,143 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 14:48:54,001 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:48:55,857 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 14:48:57,681 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:48:59,506 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 14:49:01,347 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:49:03,187 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 14:49:05,023 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:49:06,864 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 14:49:08,321 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:49:15,226 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:49:15,260 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:49:15,260 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:49:15,288 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:49:15,470 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:49:15,488 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:49:24,471 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:49:24,487 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':comic,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:49:25,364 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x1f67c74b480) at 0x000001F683B81A40>
+2025-07-21 14:49:25,365 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x1f67c74b480) at 0x000001F683B81A40>)
+2025-07-21 14:49:25,365 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:49:25,367 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:49:25,384 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:49:29,297 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 14:49:31,174 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:49:33,039 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 14:49:34,878 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:49:36,719 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 14:49:38,547 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:49:40,388 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 14:49:42,232 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:49:44,063 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 14:49:45,520 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:49:52,276 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:49:52,310 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:49:52,311 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:49:52,339 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:49:52,527 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:49:52,546 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:50:00,902 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:50:00,919 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_wait: args={}
+2025-07-21 14:50:01,103 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_wait: return=None
+2025-07-21 14:50:01,120 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayRules(0x1f6854d9e50) at 0x000001F683C3A680>
+2025-07-21 14:50:01,144 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:50:02,017 - gui_classes.gui_window.main_window - INFO - [MainWindow] show_qrcode_overlay called with image_to_send=<class 'PySide6.QtGui.QImage'>
+2025-07-21 14:50:02,019 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayQrcode(0x1f679fb2ab0) at 0x000001F683A79400>
+2025-07-21 14:51:11,104 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:51:11,122 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:51:11,122 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:51:11,135 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:51:11,135 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:51:11,135 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683BC6E80>}
+2025-07-21 14:51:11,135 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:51:11,267 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:51:11,417 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:51:11,441 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:51:35,410 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_leave: args={}
+2025-07-21 14:51:36,329 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:51:36,330 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:51:36,362 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:51:36,362 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:51:36,376 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering hide_loading: args={}
+2025-07-21 14:51:36,376 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting hide_loading: return=None
+2025-07-21 14:51:36,388 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:51:36,401 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:51:36,401 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:51:36,413 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:51:36,413 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:51:36,413 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683AE3EC0>}
+2025-07-21 14:51:36,414 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:51:36,488 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:51:36,628 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:51:36,650 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:51:36,663 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_leave: return=None
+2025-07-21 14:51:38,460 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_enter: args={}
+2025-07-21 14:51:38,460 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:51:38,461 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:51:38,461 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:51:38,461 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:51:38,461 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:51:38,468 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:51:38,472 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_enter: return=None
+2025-07-21 14:51:44,270 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 14:51:44,270 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 14:51:45,269 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 14:51:45,270 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:51:45,270 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:51:45,270 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 14:51:45,284 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:51:45,299 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:51:45,310 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:51:45,311 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:51:45,324 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:51:45,324 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:51:45,324 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683BC6F20>}
+2025-07-21 14:51:45,324 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:51:45,398 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:51:45,537 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:51:45,558 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:51:45,571 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:51:45,584 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 14:51:48,019 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:51:48,032 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:51:48,045 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:51:48,045 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:51:48,058 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:51:48,058 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:51:48,059 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683BC4180>}
+2025-07-21 14:51:48,059 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:51:48,133 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:51:48,275 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:51:48,296 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:51:48,311 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:51:50,485 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':comic,'generate_image':False}
+2025-07-21 14:51:50,486 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:51:51,790 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':clay,'generate_image':False}
+2025-07-21 14:51:51,790 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:51:52,722 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:51:52,735 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x1f679fb16d0) at 0x000001F683972140>
+2025-07-21 14:51:52,750 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:51:58,764 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x000001F683AE3F60>}
+2025-07-21 14:51:58,777 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:51:58,778 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:51:58,803 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':clay,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:51:59,755 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x1f679fb1550) at 0x000001F683B9E480>
+2025-07-21 14:51:59,755 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x1f679fb1550) at 0x000001F683B9E480>)
+2025-07-21 14:51:59,756 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:51:59,759 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:51:59,772 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:52:06,787 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 10
+2025-07-21 14:52:08,648 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:52:10,501 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 30
+2025-07-21 14:52:12,341 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:52:14,181 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 50
+2025-07-21 14:52:16,007 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:52:17,845 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 70
+2025-07-21 14:52:19,685 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:52:21,510 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 90
+2025-07-21 14:52:22,965 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:52:30,034 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:52:30,068 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:52:30,068 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:52:30,097 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:52:30,282 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:52:30,300 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:52:39,575 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:52:39,592 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_wait: args={}
+2025-07-21 14:52:39,776 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_wait: return=None
+2025-07-21 14:52:39,796 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayRules(0x1f679fb5bd0) at 0x000001F683C38540>
+2025-07-21 14:52:39,816 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:52:41,131 - gui_classes.gui_window.main_window - INFO - [MainWindow] show_qrcode_overlay called with image_to_send=<class 'PySide6.QtGui.QImage'>
+2025-07-21 14:52:41,132 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayQrcode(0x1f679fabf70) at 0x000001F683BF6F40>
+2025-07-21 14:53:21,658 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:53:21,676 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:53:21,677 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:53:21,688 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:53:21,689 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:53:21,689 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F67BC9A020>}
+2025-07-21 14:53:21,689 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:53:21,822 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:53:21,972 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:53:21,996 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:53:42,012 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_leave: args={}
+2025-07-21 14:53:42,949 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:53:42,949 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:53:42,983 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:53:42,984 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:53:42,996 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering hide_loading: args={}
+2025-07-21 14:53:42,997 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting hide_loading: return=None
+2025-07-21 14:53:43,009 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:53:43,021 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:53:43,021 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:53:43,033 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:53:43,033 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:53:43,033 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683BC4040>}
+2025-07-21 14:53:43,033 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:53:43,109 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:53:43,250 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:53:43,271 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:53:43,284 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_leave: return=None
+2025-07-21 14:53:45,142 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_enter: args={}
+2025-07-21 14:53:45,142 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering update_language: args={}
+2025-07-21 14:53:45,142 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting update_language: return=None
+2025-07-21 14:53:45,142 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['camera'], 'style2_names': [], 'slot_style1': on_camera_button_clicked, 'slot_style2': None}
+2025-07-21 14:53:45,142 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:53:45,142 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:53:45,149 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:53:45,150 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_enter: return=None
+2025-07-21 14:55:27,233 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={}
+2025-07-21 14:55:27,233 - gui_classes.gui_window.main_window - INFO - [MainWindow] Calling preset on background_manager
+2025-07-21 14:55:28,331 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Entering on_leave: args={}
+2025-07-21 14:55:28,332 - gui_classes.gui_window.base_window - INFO - [BaseWindow] on_leave called, cleaning overlays.
+2025-07-21 14:55:28,332 - gui_classes.gui_window.base_window - INFO - [BaseWindow] clean_all_overlays called, cleaning overlays.
+2025-07-21 14:55:28,332 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_leave: return=None
+2025-07-21 14:55:28,345 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:55:28,358 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:55:28,372 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:55:28,372 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:55:28,385 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:55:28,386 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:55:28,386 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683BC77E0>}
+2025-07-21 14:55:28,386 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:55:28,460 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:55:28,607 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:55:28,628 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:55:28,641 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:55:28,653 - gui_classes.gui_window.sleepscreen_window - INFO - [DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None
+2025-07-21 14:55:30,941 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering on_enter: args={}
+2025-07-21 14:55:30,953 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:55:30,966 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:55:30,967 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:55:30,979 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:55:30,979 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:55:30,980 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F683BC4180>}
+2025-07-21 14:55:30,980 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:55:31,053 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:55:31,198 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:55:31,218 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:55:31,230 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting on_enter: return=None
+2025-07-21 14:55:33,094 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':clay,'generate_image':False}
+2025-07-21 14:55:33,095 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:55:34,010 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:55:34,023 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x1f67cf7a550) at 0x000001F683A5C900>
+2025-07-21 14:55:34,038 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:55:40,053 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x000001F683BC77E0>}
+2025-07-21 14:55:40,066 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:55:40,067 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:55:40,095 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':clay,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:55:41,043 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x1f679fab550) at 0x000001F68B007280>
+2025-07-21 14:55:41,044 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x1f679fab550) at 0x000001F68B007280>)
+2025-07-21 14:55:41,045 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:55:41,048 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:55:41,062 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:55:51,003 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 6
+2025-07-21 14:55:52,860 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 13
+2025-07-21 14:55:54,717 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:55:56,555 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 26
+2025-07-21 14:55:58,399 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 33
+2025-07-21 14:56:00,238 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:56:02,093 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 46
+2025-07-21 14:56:03,947 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 53
+2025-07-21 14:56:05,786 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:56:07,626 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 66
+2025-07-21 14:56:09,466 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 73
+2025-07-21 14:56:10,540 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:56:11,610 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 86
+2025-07-21 14:56:12,668 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 93
+2025-07-21 14:56:13,740 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:56:21,176 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:56:21,210 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:56:21,210 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:56:21,239 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:56:21,430 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:56:21,449 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None
+2025-07-21 14:56:42,351 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering _on_accept_close: args={}
+2025-07-21 14:56:42,367 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_default: args={}
+2025-07-21 14:56:42,386 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering reset_generation_state: args={}
+2025-07-21 14:56:42,387 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting reset_generation_state: return=None
+2025-07-21 14:56:42,397 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_display: args={}
+2025-07-21 14:56:42,397 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_display: return=None
+2025-07-21 14:56:42,398 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons: args={'style1_names': ['take_selfie'], 'style2_names': [('clay', 'style.clay'), ('comic', 'style.comic'), ('oil paint', 'style.oil paint'), ('statue', 'style.statue')], 'slot_style1': <bound method MainWindow.take_selfie of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>, 'slot_style2': <function MainWindow.set_state_default.<locals>.<lambda> at 0x000001F67BC9A020>}
+2025-07-21 14:56:42,398 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering clear_buttons: args={}
+2025-07-21 14:56:42,530 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting clear_buttons: return=None
+2025-07-21 14:56:42,682 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons: return=None
+2025-07-21 14:56:42,703 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_default: return=None
+2025-07-21 14:56:42,718 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting _on_accept_close: return=None
+2025-07-21 14:57:04,056 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_generation_style: args={'checked':True,'style_name':statue,'generate_image':False}
+2025-07-21 14:57:04,056 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_generation_style: return=None
+2025-07-21 14:57:05,111 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering take_selfie: args={}
+2025-07-21 14:57:05,125 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayCountdown(0x1f679fad6b0) at 0x000001F683BBC180>
+2025-07-21 14:57:05,139 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting take_selfie: return=None
+2025-07-21 14:57:11,168 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering selfie: args={'callback':<function MainWindow.take_selfie.<locals>.<lambda>.<locals>.<lambda> at 0x000001F683BC7100>}
+2025-07-21 14:57:11,181 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering cleanup: args={}
+2025-07-21 14:57:11,181 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting cleanup: return=None
+2025-07-21 14:57:11,207 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering generation: args={'style_name':statue,'input_image':<QImage>,'callback':<bound method MainWindow.show_generation of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:57:12,202 - gui_classes.gui_window.base_window - INFO - [BaseWindow] register_overlay called with overlay=<gui_classes.gui_object.overlay.OverlayLoading(0x1f679fac990) at 0x000001F68B01F100>
+2025-07-21 14:57:12,203 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Entering __init__: args=(0.6, 0.05, 8, <gui_classes.gui_object.overlay.OverlayLoading(0x1f679fac990) at 0x000001F68B01F100>)
+2025-07-21 14:57:12,203 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] Exiting __init__: return=None
+2025-07-21 14:57:12,206 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting generation: return=None
+2025-07-21 14:57:12,221 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting selfie: return=None
+2025-07-21 14:57:20,442 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 6
+2025-07-21 14:57:22,292 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 13
+2025-07-21 14:57:24,159 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 20
+2025-07-21 14:57:26,001 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 26
+2025-07-21 14:57:27,854 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 33
+2025-07-21 14:57:29,693 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 40
+2025-07-21 14:57:31,532 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 46
+2025-07-21 14:57:33,375 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 53
+2025-07-21 14:57:35,217 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 60
+2025-07-21 14:57:37,070 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 66
+2025-07-21 14:57:38,910 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 73
+2025-07-21 14:57:39,981 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 80
+2025-07-21 14:57:41,037 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 86
+2025-07-21 14:57:42,106 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 93
+2025-07-21 14:57:43,177 - gui_classes.gui_object.toolbox - INFO - [DEBUG][LoadingBar] set_percent: 100
+2025-07-21 14:57:50,811 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering show_generation: args={'qimg':<QImage>}
+2025-07-21 14:57:50,844 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Entering set_state_validation: args={}
+2025-07-21 14:57:50,845 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Entering setup_buttons_style_1: args={'style1_names': ['accept', 'close', 'regenerate'], 'slot_style1': <bound method MainWindow._on_accept_close of <gui_classes.gui_window.main_window.MainWindow(0x1f67c74c200) at 0x000001F67FE10080>>}
+2025-07-21 14:57:50,873 - gui_classes.gui_window.base_window - INFO - [DEBUG][BaseWindow] Exiting setup_buttons_style_1: return=None
+2025-07-21 14:57:51,055 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting set_state_validation: return=None
+2025-07-21 14:57:51,072 - gui_classes.gui_window.main_window - INFO - [DEBUG][MainWindow] Exiting show_generation: return=None

@@ -212,7 +212,7 @@ class MainWindow(BaseWindow):
     def show_qrcode_overlay(self, image_to_send):
         logger.info(f"[MainWindow] show_qrcode_overlay called with image_to_send={type(image_to_send)}")
         # URL du hotspot, à adapter selon la config réseau
-        hotspot_url = "http://192.168.10.2:5000/share"
+        hotspot_url = "https://192.168.10.2:5000/share"
         overlay_qr = OverlayQrcode(
             self,
             on_close=self.set_state_default,

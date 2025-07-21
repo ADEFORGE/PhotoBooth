@@ -15,7 +15,7 @@ COMFY_WORKFLOW_DIR = os.path.abspath(
     os.path.join(BASE_DIR, "../../workflows")
 )
 
-ShareByHotspot = False  # Mettre à False pour désactiver le workflow Hotspot/QR
+ShareByHotspot = True  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py
 
 # =========================

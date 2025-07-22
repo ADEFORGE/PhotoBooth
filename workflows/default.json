@@ -208,7 +208,7 @@
   },
   "45": {
     "inputs": {
-      "preprocessor": "MiDaS-DepthMapPreprocessor",
+      "preprocessor": "DepthAnythingV2Preprocessor",
       "resolution": [
         "16",
         0

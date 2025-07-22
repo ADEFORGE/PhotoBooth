@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QButtonGroup
 from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
 from PySide6.QtCore import QSize, Qt, QEvent
-from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT
+from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT, GRID_WIDTH
 from gui_classes.gui_manager.language_manager import language_manager
 import os
 from PIL import Image
@@ -478,18 +478,23 @@ class Btns:
     def place_style2(self, layout, start_row: int = 4) -> None:
         if DEBUG_Btns:
             print(f"[DEBUG][Btns] Entering place_style2: args={(layout, start_row)}")
-        col_max = layout.columnCount() if hasattr(layout, "columnCount") else 7
-        n = len(self.style2_btns)
-        if n:
-            if n % 2 == 0:
-                left = (col_max - n - 1) // 2
-                for i, btn in enumerate(self.style2_btns):
-                    col = left + i if i < n // 2 else left + i + 1
-                    btn.place(layout, start_row, col)
-            else:
-                col2 = (col_max - n) // 2
-                for i, btn in enumerate(self.style2_btns):
-                    btn.place(layout, start_row, col2 + i)
+        col_max = (GRID_WIDTH-2)
+        nb_btn = len(self.style2_btns)
+        
+        if nb_btn:        
+            end_row = start_row + nb_btn // col_max
+            for row in range(start_row, end_row):
+               nb_btn_in_row = min(col_max, nb_btn)
+               nb_btn -= nb_btn_in_row
+               if nb_btn_in_row % 2 == 0:
+                   left = (col_max - nb_btn_in_row - 1) // 2
+                   for i, btn in enumerate(self.style2_btns):
+                       col = left + i if i < nb_btn_in_row // 2 else left + i + 1
+                       btn.place(layout, row, col)
+               else:
+                    col2 = (col_max - nb_btn_in_row) // 2
+                    for i, btn in enumerate(self.style2_btns):
+                        btn.place(layout, row, col2 + i)
         if DEBUG_Btns:
             print(f"[DEBUG][Btns] Exiting place_style2: return=None")
 

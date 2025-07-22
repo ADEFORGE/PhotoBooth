@@ -7,10 +7,11 @@ import os
 from PIL import Image
 import io
 
-DEBUG_Btn = False
+DEBUG_Btn = True
+DEBUG_Btn_FULL = False
 DEBUG_BtnStyleOne = False
 DEBUG_BtnStyleTwo = False
-DEBUG_Btns = False
+DEBUG_Btns = True
 DEBUG__compute_dynamic_size = False
 
 Changed_names = []
@@ -56,7 +57,7 @@ class Btn(QPushButton):
             print(f"[DEBUG][Btn] Exiting _setup_standby_manager_events: return=None")
 
     def eventFilter(self, obj, ev) -> bool:
-        if DEBUG_Btn:
+        if DEBUG_Btn_FULL:
             print(f"[DEBUG][Btn] Entering eventFilter: args={(obj, ev)}")
         if obj is self and self._standby_manager:
             if ev.type() == QEvent.Enter:
@@ -65,7 +66,7 @@ class Btn(QPushButton):
                 self._standby_manager.reset_standby_timer()
                 self._standby_manager.stop_standby_timer()
         result = super().eventFilter(obj, ev)
-        if DEBUG_Btn:
+        if DEBUG_Btn_FULL:
             print(f"[DEBUG][Btn] Exiting eventFilter: return={result}")
         return result
 
@@ -97,7 +98,7 @@ class Btn(QPushButton):
             print(f"[DEBUG][Btn] Exiting initialize: return=None")
 
     def resizeEvent(self, event) -> None:
-        if DEBUG_Btn:
+        if DEBUG_Btn_FULL:
             print(f"[DEBUG][Btn] Entering resizeEvent: args={(event,)}")
         side = min(self.width(), self.height())
         self.resize(side, side)
@@ -106,7 +107,7 @@ class Btn(QPushButton):
             icon_side = int(side * pad)
             self.setIconSize(QSize(icon_side, icon_side))
         super().resizeEvent(event)
-        if DEBUG_Btn:
+        if DEBUG_Btn_FULL:
             print(f"[DEBUG][Btn] Exiting resizeEvent: return=None")
 
     def place(self, layout, row: int, col: int, alignment=Qt.AlignCenter) -> None:
@@ -478,22 +479,32 @@ class Btns:
     def place_style2(self, layout, start_row: int = 4) -> None:
         if DEBUG_Btns:
             print(f"[DEBUG][Btns] Entering place_style2: args={(layout, start_row)}")
-        col_max = (GRID_WIDTH-2)
+        col_max = (GRID_WIDTH)
         nb_btn = len(self.style2_btns)
         
         if nb_btn:        
             end_row = start_row + nb_btn // col_max
+            if nb_btn % col_max != 0:
+                end_row += 1
             for row in range(start_row, end_row):
                nb_btn_in_row = min(col_max, nb_btn)
+               if DEBUG_Btns: print(f"[DEBUG][Btns] Row {row}: placing {nb_btn_in_row} buttons")
                nb_btn -= nb_btn_in_row
+               if DEBUG_Btns: print(f"[DEBUG][Btns] Remaining buttons: {nb_btn}")
+               nb_btn_will_be_placed = nb_btn_in_row
+               if DEBUG_Btns: print(f"[DEBUG][Btns] Buttons to be placed in this row: {nb_btn_will_be_placed}")
+               i_start_btn_will_be_placed = (row - start_row) * col_max
+               if DEBUG_Btns: print(f"[DEBUG][Btns] Starting index for buttons in this row: {i_start_btn_will_be_placed}")
+               i_end_btn_will_be_placed = i_start_btn_will_be_placed + nb_btn_will_be_placed
+               if DEBUG_Btns: print(f"[DEBUG][Btns] Ending index for buttons in this row: {i_end_btn_will_be_placed}")
                if nb_btn_in_row % 2 == 0:
                    left = (col_max - nb_btn_in_row - 1) // 2
-                   for i, btn in enumerate(self.style2_btns):
+                   for i, btn in enumerate(self.style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
                        col = left + i if i < nb_btn_in_row // 2 else left + i + 1
                        btn.place(layout, row, col)
                else:
                     col2 = (col_max - nb_btn_in_row) // 2
-                    for i, btn in enumerate(self.style2_btns):
+                    for i, btn in enumerate(self.style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
                         btn.place(layout, row, col2 + i)
         if DEBUG_Btns:
             print(f"[DEBUG][Btns] Exiting place_style2: return=None")

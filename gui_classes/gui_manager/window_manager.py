@@ -74,6 +74,9 @@ class WindowManager(QWidget):
         self.setWindowTitle("PhotoBooth")
         self.setStyleSheet("background: transparent;")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
+        # Always on top and fullscreen
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.showFullScreen()
         layout: QVBoxLayout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.stack: QStackedWidget = QStackedWidget()

@@ -31,7 +31,8 @@ class MainWindow(BaseWindow):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
         self.setAutoFillBackground(False)
-        self.showFullScreen()
+        # Always on top and fullscreen
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self._default_background_color = QColor(0, 0, 0)
         self.countdown_overlay_manager = CountdownThread(self, 5)
         self._generation_task = None
@@ -52,6 +53,8 @@ class MainWindow(BaseWindow):
         self._texts = {}
         language_manager.subscribe(self.update_language)
         self.update_language()
+        # Move showFullScreen to the very end to ensure all widgets exist
+        self.showFullScreen()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Exiting __init__: return=None")
 

@@ -174,6 +174,9 @@ class Btn(QPushButton):
         elif isinstance(self, BtnStyleTwo):
             src = f"gui_template/btn_textures/{self.name}.png"
             dest = f"gui_template/btn_textures/bw_{self.name}.png"
+            if not os.path.exists(src):
+                src = "gui_template/btn_textures/default.png"
+                dest = "gui_template/btn_textures/bw_default.png"
             pix = to_bw(src, dest)
             if pix and not pix.isNull():
                 style = f"""
@@ -289,6 +292,8 @@ class BtnStyleTwo(Btn):
 
         # Chemin de la texture et style CSS
         texture_path = f"gui_template/btn_textures/{name}.png"
+        if not os.path.exists(texture_path):
+            texture_path = "gui_template/btn_textures/default.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
 
         # Calcul de la taille carrée
@@ -486,17 +491,11 @@ class Btns:
             end_row = start_row + nb_btn // col_max
             if nb_btn % col_max != 0:
                 end_row += 1
-            for row in range(start_row, end_row):
-               nb_btn_in_row = min(col_max, nb_btn)
-               if DEBUG_Btns: print(f"[DEBUG][Btns] Row {row}: placing {nb_btn_in_row} buttons")
-               nb_btn -= nb_btn_in_row
-               if DEBUG_Btns: print(f"[DEBUG][Btns] Remaining buttons: {nb_btn}")
-               nb_btn_will_be_placed = nb_btn_in_row
-               if DEBUG_Btns: print(f"[DEBUG][Btns] Buttons to be placed in this row: {nb_btn_will_be_placed}")
+            for row in range(start_row, end_row):    
+               nb_btn_in_row = min(col_max, nb_btn)               
+               nb_btn -= nb_btn_in_row               
                i_start_btn_will_be_placed = (row - start_row) * col_max
-               if DEBUG_Btns: print(f"[DEBUG][Btns] Starting index for buttons in this row: {i_start_btn_will_be_placed}")
-               i_end_btn_will_be_placed = i_start_btn_will_be_placed + nb_btn_will_be_placed
-               if DEBUG_Btns: print(f"[DEBUG][Btns] Ending index for buttons in this row: {i_end_btn_will_be_placed}")
+               i_end_btn_will_be_placed = i_start_btn_will_be_placed + nb_btn_in_row  
                if nb_btn_in_row % 2 == 0:
                    left = (col_max - nb_btn_in_row - 1) // 2
                    for i, btn in enumerate(self.style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):

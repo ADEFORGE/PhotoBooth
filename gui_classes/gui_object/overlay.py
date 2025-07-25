@@ -13,29 +13,37 @@ from gui_classes.gui_object.btn import Btns
 from gui_classes.gui_object.toolbox import normalize_btn_name, LoadingBar
 from gui_classes.gui_manager.language_manager import language_manager
 
-
 import logging
 logger = logging.getLogger(__name__)
 
 from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
 
-
-DEBUG_Overlay = False
-
-DEBUG_OverlayGray = False
-DEBUG_OverlayWhite = False
-DEBUG_OverlayLoading = True
-DEBUG_OverlayRules = False
-DEBUG_OverlayQrcode = False
-DEBUG_OverlayInfo = False
-DEBUG_OverlayCountdown = False
-DEBUG_OverlayLang = False
-
-
+DEBUG_Overlay = DEBUG
+DEBUG_Overlay_FULL = DEBUG_FULL
+DEBUG_OverlayGray = DEBUG
+DEBUG_OverlayGray_FULL = DEBUG_FULL
+DEBUG_OverlayWhite = DEBUG
+DEBUG_OverlayWhite_FULL = DEBUG_FULL
+DEBUG_OverlayLoading = DEBUG
+DEBUG_OverlayLoading_FULL = DEBUG_FULL
+DEBUG_OverlayRules = DEBUG
+DEBUG_OverlayRules_FULL = DEBUG_FULL
+DEBUG_OverlayQrcode = DEBUG
+DEBUG_OverlayQrcode_FULL = DEBUG_FULL
+DEBUG_OverlayInfo = DEBUG
+DEBUG_OverlayInfo_FULL = DEBUG_FULL
+DEBUG_OverlayCountdown = DEBUG
+DEBUG_OverlayCountdown_FULL = DEBUG_FULL
+DEBUG_OverlayLang = DEBUG
+DEBUG_OverlayLang_FULL = DEBUG_FULL
 
 class Overlay(QWidget):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:
-        print(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
+        """
+        Initialize the Overlay widget with optional parent and centering.
+        """
+        if DEBUG_Overlay:
+            logger.info(f"[DEBUG][Overlay] Entering __init__: args={(parent, center_on_screen)}")
         super().__init__(parent)
         self._is_visible = False
         self._is_alive = True
@@ -51,10 +59,13 @@ class Overlay(QWidget):
             self.overlay_widget.setStyleSheet("background: transparent; border-radius: 18px;")
         self.setStyleSheet("background: transparent;")
         self._register_to_parent_window()
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting __init__: return=None")
+        if DEBUG_Overlay: 
+            logger.info(f"[DEBUG][Overlay] Exiting __init__: return=None")
 
-    def _register_to_parent_window(self):
-        """Recherche la première fenêtre parente héritant de BaseWindow et s'y enregistre."""
+    def _register_to_parent_window(self) -> None:
+        """
+        Register the overlay to its parent window if applicable.
+        """
         try:
             from gui_classes.gui_window.base_window import BaseWindow
         except ImportError:
@@ -71,6 +82,9 @@ class Overlay(QWidget):
             parent = parent.parentWidget() if hasattr(parent, 'parentWidget') else None
 
     def setVisible(self, visible: bool) -> None:
+        """
+        Set the visibility of the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering setVisible: args={(visible,)}")
         if not self._is_alive:
             return
@@ -79,6 +93,9 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting setVisible: return=None")
 
     def center_overlay(self) -> None:
+        """
+        Center the overlay on the screen of the parent window.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering center_overlay: args=()")
         # Always center on the screen of the parent window (not primary screen)
         parent_window = self.window()
@@ -96,6 +113,9 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting center_overlay: return=None")
 
     def showEvent(self, event: QEvent) -> None:
+        """
+        Handle the show event for the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering showEvent: args={(event,)}")
         super().showEvent(event)
         self._is_visible = True
@@ -106,6 +126,9 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting showEvent: return=None")
 
     def hideEvent(self, event: QEvent) -> None:
+        """
+        Handle the hide event for the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering hideEvent: args={(event,)}")
         super().hideEvent(event)
         self._is_visible = False
@@ -113,12 +136,18 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting hideEvent: return=None")
 
     def get_overlay_bg_color(self) -> QColor:
+        """
+        Get the background color for the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering get_overlay_bg_color: args=()")
         result = QColor(0, 0, 0, 0)
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting get_overlay_bg_color: return={result}")
         return result
 
     def paintEvent(self, event: QEvent) -> None:
+        """
+        Handle the paint event for the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering paintEvent: args={(event,)}")
         painter = QPainter(self)
         if not painter.isActive():
@@ -133,7 +162,7 @@ class Overlay(QWidget):
         painter.end()
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting paintEvent: return=None")
 
-    def setup_buttons(
+    def _setup_buttons(
         self,
         style1_names: list[str],
         style2_names: list[str],
@@ -141,42 +170,54 @@ class Overlay(QWidget):
         slot_style2: callable = None,
         start_row: int = 3
     ) -> None:
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering setup_buttons: args={(style1_names, style2_names, slot_style1, slot_style2, start_row)}")
+        """
+        Set up style 1 and style 2 buttons in the overlay.
+        """
+        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering _setup_buttons: args={(style1_names, style2_names, slot_style1, slot_style2, start_row)}")
         if hasattr(self, 'btns') and self.btns:
             self.btns.cleanup()
         self.btns = Btns(self, [], [], None, None)
-        self.btns.setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self.overlay_layout, start_row=start_row)
+        self.btns._setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self.overlay_layout, start_row=start_row)
         self.overlay_widget.raise_()
         self.raise_()
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting setup_buttons: return=None")
+        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting _setup_buttons: return=None")
 
-    def setup_buttons_style_1(
+    def _setup_buttons_style_1(
         self,
         style1_names: list[str],
         slot_style1: callable = None,
         start_row: int = 3
     ) -> None:
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering setup_buttons_style_1: args={(style1_names, slot_style1, start_row)}")
+        """
+        Set up only style 1 buttons in the overlay.
+        """
+        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering _setup_buttons_style_1: args={(style1_names, slot_style1, start_row)}")
         if hasattr(self, 'btns') and self.btns:
-            self.btns.setup_buttons_style_1(style1_names, slot_style1, layout=self.overlay_layout, start_row=start_row)
+            self.btns._setup_buttons_style_1(style1_names, slot_style1, layout=self.overlay_layout, start_row=start_row)
             self.overlay_widget.raise_()
             self.raise_()
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting setup_buttons_style_1: return=None")
+        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting _setup_buttons_style_1: return=None")
 
-    def setup_buttons_style_2(
+    def _setup_buttons_style_2(
         self,
         style2_names: list[str],
         slot_style2: callable = None,
         start_row: int = 4
     ) -> None:
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering setup_buttons_style_2: args={(style2_names, slot_style2, start_row)}")
+        """
+        Set up only style 2 buttons in the overlay.
+        """
+        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering _setup_buttons_style_2: args={(style2_names, slot_style2, start_row)}")
         if hasattr(self, 'btns') and self.btns:
-            self.btns.setup_buttons_style_2(style2_names, slot_style2, layout=self.overlay_layout, start_row=start_row)
+            self.btns._setup_buttons_style_2(style2_names, slot_style2, layout=self.overlay_layout, start_row=start_row)
             self.overlay_widget.raise_()
             self.raise_()
-        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting setup_buttons_style_2: return=None")
+        if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting _setup_buttons_style_2: return=None")
 
     def show_overlay(self) -> None:
+        """
+        Show the overlay and disable other buttons.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering show_overlay: args=()")
         if not self._is_alive or self._is_visible:
             return
@@ -186,6 +227,9 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting show_overlay: return=None")
 
     def hide_overlay(self) -> None:
+        """
+        Hide the overlay and re-enable other buttons.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering hide_overlay: args=()")
         if not self._is_alive or not self._is_visible:
             return
@@ -195,6 +239,9 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting hide_overlay: return=None")
 
     def clean_overlay(self) -> None:
+        """
+        Clean up and remove the overlay from the UI.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering clean_overlay: args=()")
         if not self._is_alive:
             return
@@ -215,11 +262,17 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting clean_overlay: return=None")
 
     def __del__(self) -> None:
+        """
+        Destructor for the overlay, marks it as not alive.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering __del__: args=()")
         self._is_alive = False
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting __del__: return=None")
 
     def _disable_all_buttons_except_overlay(self) -> None:
+        """
+        Disable all buttons except those managed by the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering _disable_all_buttons_except_overlay: args=()")
         app = QApplication.instance()
         self._disabled_widgets.clear()
@@ -239,6 +292,9 @@ class Overlay(QWidget):
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Exiting _disable_all_buttons_except_overlay: return=None")
 
     def _reenable_all_buttons(self) -> None:
+        """
+        Re-enable all buttons that were previously disabled by the overlay.
+        """
         if DEBUG_Overlay: print(f"[DEBUG][Overlay] Entering _reenable_all_buttons: args=()")
         app = QApplication.instance()
         if app:
@@ -394,7 +450,7 @@ class OverlayRules(OverlayWhite):
         self.overlay_layout.addWidget(self.msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.btns = Btns(self, [], [], None, None)
-        self.setup_buttons(
+        self._setup_buttons(
             style1_names=["accept", "close"],
             style2_names=[],
             slot_style1=self._on_accept_close,
@@ -489,7 +545,7 @@ class OverlayQrcode(OverlayWhite):
 
     def _init_buttons(self):
         self.btns = Btns(self, [], [], None, None)
-        self.setup_buttons(
+        self._setup_buttons(
             style1_names=["close"],
             style2_names=[],
             slot_style1=self._on_close_btn,

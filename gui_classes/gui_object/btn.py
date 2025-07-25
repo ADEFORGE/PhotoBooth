@@ -325,13 +325,13 @@ class BtnStyleOne(Btn):
         Handle the toggled event and update the icon accordingly.
         """
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Entering _on_toggled: args={(checked,)}")
+            logger.info(f"[DEBUG][BtnStyleOne] Entering _on_toggled: args={(checked,)}")
         if checked:
             self._set_pressed_icon()
         else:
             self._set_passive_icon()
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Exiting _on_toggled: return=None")
+            logger.info(f"[DEBUG][BtnStyleOne] Exiting _on_toggled: return=None")
 
     def resizeEvent(self, event: QEvent) -> None:
         """

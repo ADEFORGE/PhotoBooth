@@ -39,7 +39,7 @@ class Btn(QPushButton):
         if DEBUG_Btn:
             logger.info(f"[DEBUG][Btn] Entering __init__: args={(name, parent)}")
         super().__init__(parent)
-        self.name = name
+        self._name = name
         self._connected_slots = []
         self.setObjectName(name)
         self._icon_path = None
@@ -325,9 +325,9 @@ class BtnStyleTwo(Btn):
             logger.info(f"[DEBUG][BtnStyleTwo] Entering _refresh_text: args=()")
         value = language_manager.get_texts(self._text_key)
         if isinstance(value, dict):
-            text = value.get(self.name, self.name)
+            text = value.get(self._name, self._name)
         else:
-            text = value or self.name
+            text = value or self._name
         self.setText(text)
         if DEBUG_BtnStyleTwo:
             logger.info(f"[DEBUG][BtnStyleTwo] Exiting _refresh_text: return=None")

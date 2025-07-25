@@ -7,30 +7,37 @@ import os
 from PIL import Image
 import io
 
-DEBUG_Btn = True
-DEBUG_Btn_FULL = False
-DEBUG_BtnStyleOne = False
-DEBUG_BtnStyleTwo = False
-DEBUG_Btns = True
-DEBUG__compute_dynamic_size = False
+import logging
+logger = logging.getLogger(__name__)
 
-Changed_names = []
+from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+
+DEBUG_Btn = DEBUG
+DEBUG_Btn_FULL = DEBUG_FULL
+DEBUG_BtnStyleOne = DEBUG
+DEBUG_BtnStyleOne_FULL = DEBUG_FULL
+DEBUG_BtnStyleTwo = DEBUG
+DEBUG_BtnStyleTwo_FULL = DEBUG_FULL
+DEBUG_Btns = DEBUG
+DEBUG_Btns_FULL = DEBUG_FULL
+DEBUG__compute_dynamic_size = DEBUG
+
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:
     if DEBUG__compute_dynamic_size:
-        print(f"[DEBUG][__compute_dynamic_size] Entering _compute_dynamic_size: args={(original_size,)}")
+        logger.info(f"[DEBUG][__compute_dynamic_size] Entering _compute_dynamic_size: args={(original_size,)}")
     screen = QGuiApplication.primaryScreen()
     geom = screen.availableGeometry()
     target = int(min(geom.width(), geom.height()) * 0.07)
     result = QSize(target, target)
     if DEBUG__compute_dynamic_size:
-        print(f"[DEBUG][__compute_dynamic_size] Exiting _compute_dynamic_size: return={result}")
+        logger.info(f"[DEBUG][__compute_dynamic_size] Exiting _compute_dynamic_size: return={result}")
     return result
 
 class Btn(QPushButton):
     def __init__(self, name: str, parent: QWidget = None) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering __init__: args={(name, parent)}")
+            logger.info(f"[DEBUG][Btn] Entering __init__: args={(name, parent)}")
         super().__init__(parent)
         self.name = name
         self._connected_slots = []
@@ -38,11 +45,11 @@ class Btn(QPushButton):
         self._icon_path = None
         self._setup_standby_manager_events()
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting __init__: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting __init__: return=None")
 
     def _setup_standby_manager_events(self) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering _setup_standby_manager_events: args=()")
+            logger.info(f"[DEBUG][Btn] Entering _setup_standby_manager_events: args=()")
         p = self.parent()
         self._standby_manager = None
         while p:
@@ -54,11 +61,11 @@ class Btn(QPushButton):
             self.installEventFilter(self)
             self.clicked.connect(self._on_btn_clicked_reset_stop_timer)
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting _setup_standby_manager_events: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting _setup_standby_manager_events: return=None")
 
     def eventFilter(self, obj, ev) -> bool:
         if DEBUG_Btn_FULL:
-            print(f"[DEBUG][Btn] Entering eventFilter: args={(obj, ev)}")
+            logger.info(f"[DEBUG][Btn] Entering eventFilter: args={(obj, ev)}")
         if obj is self and self._standby_manager:
             if ev.type() == QEvent.Enter:
                 self._standby_manager.reset_standby_timer()
@@ -67,21 +74,21 @@ class Btn(QPushButton):
                 self._standby_manager.stop_standby_timer()
         result = super().eventFilter(obj, ev)
         if DEBUG_Btn_FULL:
-            print(f"[DEBUG][Btn] Exiting eventFilter: return={result}")
+            logger.info(f"[DEBUG][Btn] Exiting eventFilter: return={result}")
         return result
 
     def _on_btn_clicked_reset_stop_timer(self) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering _on_btn_clicked_reset_stop_timer: args=()")
+            logger.info(f"[DEBUG][Btn] Entering _on_btn_clicked_reset_stop_timer: args=()")
         if self._standby_manager:
             self._standby_manager.reset_standby_timer()
             self._standby_manager.stop_standby_timer()
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting _on_btn_clicked_reset_stop_timer: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting _on_btn_clicked_reset_stop_timer: return=None")
 
     def initialize(self, style: str = None, icon_path: str = None, size: QSize = None, checkable: bool = False) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering initialize: args={(style, icon_path, size, checkable)}")
+            logger.info(f"[DEBUG][Btn] Entering initialize: args={(style, icon_path, size, checkable)}")
         if style:
             self.setStyleSheet(style)
         if size:
@@ -95,11 +102,11 @@ class Btn(QPushButton):
             self._icon_path = icon_path
             self.setIcon(QIcon(self._icon_path))
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting initialize: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting initialize: return=None")
 
     def resizeEvent(self, event) -> None:
         if DEBUG_Btn_FULL:
-            print(f"[DEBUG][Btn] Entering resizeEvent: args={(event,)}")
+            logger.info(f"[DEBUG][Btn] Entering resizeEvent: args={(event,)}")
         side = min(self.width(), self.height())
         self.resize(side, side)
         if self._icon_path:
@@ -108,37 +115,37 @@ class Btn(QPushButton):
             self.setIconSize(QSize(icon_side, icon_side))
         super().resizeEvent(event)
         if DEBUG_Btn_FULL:
-            print(f"[DEBUG][Btn] Exiting resizeEvent: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting resizeEvent: return=None")
 
     def place(self, layout, row: int, col: int, alignment=Qt.AlignCenter) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering place: args={(layout, row, col, alignment)}")
+            logger.info(f"[DEBUG][Btn] Entering place: args={(layout, row, col, alignment)}")
         layout.addWidget(self, row, col, alignment=alignment)
         self.setVisible(True)
         self.raise_()
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting place: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting place: return=None")
 
-    def connect_slot(self, slot, signal: str = "clicked") -> None:
+    def _connect_slot(self, slot, signal: str = "clicked") -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering connect_slot: args={(slot, signal)}")
+            logger.info(f"[DEBUG][Btn] Entering _connect_slot: args={(slot, signal)}")
         if hasattr(self, signal):
             getattr(self, signal).connect(slot)
             self._connected_slots.append((signal, slot))
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting connect_slot: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting _connect_slot: return=None")
 
     def connect_by_name(self, obj, method_name: str, signal: str = "clicked") -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering connect_by_name: args={(obj, method_name, signal)}")
+            logger.info(f"[DEBUG][Btn] Entering connect_by_name: args={(obj, method_name, signal)}")
         if hasattr(obj, method_name):
-            self.connect_slot(getattr(obj, method_name), signal)
+            self._connect_slot(getattr(obj, method_name), signal)
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting connect_by_name: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting connect_by_name: return=None")
 
     def cleanup(self) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering cleanup: args=()")
+            logger.info(f"[DEBUG][Btn] Entering cleanup: args=()")
         for sig, sl in self._connected_slots:
             try:
                 getattr(self, sig).disconnect(sl)
@@ -148,11 +155,11 @@ class Btn(QPushButton):
         self.setParent(None)
         self.deleteLater()
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting cleanup: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting cleanup: return=None")
 
     def set_disabled_bw(self) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering set_disabled_bw: args=()")
+            logger.info(f"[DEBUG][Btn] Entering set_disabled_bw: args=()")
         self.setEnabled(False)
         self.blockSignals(True)
         self.setCheckable(False)
@@ -167,13 +174,13 @@ class Btn(QPushButton):
             return QPixmap(dest_path) if os.path.exists(dest_path) else None
 
         if isinstance(self, BtnStyleOne):
-            p = f"gui_template/btn_icons/{self.name}.png"
+            p = f"gui_template/btn_icons/{self._name}.png"
             pix = QPixmap(p)
             if not pix.isNull():
                 self.setIcon(QIcon(pix))
         elif isinstance(self, BtnStyleTwo):
-            src = f"gui_template/btn_textures/{self.name}.png"
-            dest = f"gui_template/btn_textures/bw_{self.name}.png"
+            src = f"gui_template/btn_textures/{self._name}.png"
+            dest = f"gui_template/btn_textures/bw_{self._name}.png"
             if not os.path.exists(src):
                 src = "gui_template/btn_textures/default.png"
                 dest = "gui_template/btn_textures/bw_default.png"
@@ -193,23 +200,23 @@ class Btn(QPushButton):
                 """
                 self.setStyleSheet(style)
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting set_disabled_bw: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting set_disabled_bw: return=None")
 
     def set_enabled_color(self) -> None:
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Entering set_enabled_color: args=()")
+            logger.info(f"[DEBUG][Btn] Entering set_enabled_color: args=()")
         self.setEnabled(True)
-        p = f"gui_template/btn_icons/{self.name}.png"
+        p = f"gui_template/btn_icons/{self._name}.png"
         if os.path.exists(p):
             self.setIcon(QIcon(p))
         self.setStyleSheet(self.styleSheet().replace(";opacity:0.5;", ""))
         if DEBUG_Btn:
-            print(f"[DEBUG][Btn] Exiting set_enabled_color: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting set_enabled_color: return=None")
 
 class BtnStyleOne(Btn):
     def __init__(self, name: str, parent: QWidget = None) -> None:
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Entering __init__: args={(name, parent)}")
+            logger.info(f"[DEBUG][BtnStyleOne] Entering __init__: args={(name, parent)}")
         super().__init__(name, parent)
         base = f"gui_template/btn_icons/{name}"
         self._icon_path_passive = f"{base}_passive.png"
@@ -230,11 +237,11 @@ class BtnStyleOne(Btn):
         self.released.connect(self._set_passive_icon)
         self.toggled.connect(self._on_toggled)
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Exiting __init__: return=None")
+            logger.info(f"[DEBUG][BtnStyleOne] Exiting __init__: return=None")
 
     def _set_pressed_icon(self) -> None:
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Entering _set_pressed_icon: args=()")
+            logger.info(f"[DEBUG][BtnStyleOne] Entering _set_pressed_icon: args=()")
         if os.path.exists(self._icon_path_pressed):
             pix = QPixmap(self._icon_path_pressed)
             if not pix.isNull():
@@ -243,11 +250,11 @@ class BtnStyleOne(Btn):
                 self.setIcon(QIcon(icon))
                 self.setIconSize(QSize(size, size))
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Exiting _set_pressed_icon: return=None")
+            logger.info(f"[DEBUG][BtnStyleOne] Exiting _set_pressed_icon: return=None")
 
     def _set_passive_icon(self) -> None:
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Entering _set_passive_icon: args=()")
+            logger.info(f"[DEBUG][BtnStyleOne] Entering _set_passive_icon: args=()")
         if os.path.exists(self._icon_path_passive):
             pix = QPixmap(self._icon_path_passive)
             if not pix.isNull():
@@ -256,7 +263,7 @@ class BtnStyleOne(Btn):
                 self.setIcon(QIcon(icon))
                 self.setIconSize(QSize(size, size))
         if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Exiting _set_passive_icon: return=None")
+            logger.info(f"[DEBUG][BtnStyleOne] Exiting _set_passive_icon: return=None")
 
     def _on_toggled(self, checked: bool) -> None:
         if DEBUG_BtnStyleOne:
@@ -269,8 +276,8 @@ class BtnStyleOne(Btn):
             print(f"[DEBUG][BtnStyleOne] Exiting _on_toggled: return=None")
 
     def resizeEvent(self, event) -> None:
-        if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Entering resizeEvent: args={(event,)}")
+        if DEBUG_BtnStyleOne_FULL:
+            logger.info(f"[DEBUG][BtnStyleOne] Entering resizeEvent: args={(event,)}")
         side = min(self.width(), self.height())
         self._btn_side = side
         if self.isDown() or self.isChecked():
@@ -278,68 +285,62 @@ class BtnStyleOne(Btn):
         else:
             self._set_passive_icon()
         super().resizeEvent(event)
-        if DEBUG_BtnStyleOne:
-            print(f"[DEBUG][BtnStyleOne] Exiting resizeEvent: return=None")
+        if DEBUG_BtnStyleOne_FULL:
+            logger.info(f"[DEBUG][BtnStyleOne] Exiting resizeEvent: return=None")
 
 class BtnStyleTwo(Btn):
     def __init__(self, name: str, text_key: str, parent: QWidget = None) -> None:
+        if DEBUG_BtnStyleTwo:
+            logger.info(f"[DEBUG][BtnStyleTwo] Entering __init__: args={(name, text_key, parent)}")
         super().__init__(name, parent)
         self._text_key = text_key
-        self.style_name = name 
-
-        # S’abonner aux changements de langue
+        self._style_name = name 
         language_manager.subscribe(self._refresh_text)
-
-        # Chemin de la texture et style CSS
         texture_path = f"gui_template/btn_textures/{name}.png"
         if not os.path.exists(texture_path):
             texture_path = "gui_template/btn_textures/default.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
-
-        # Calcul de la taille carrée
         dyn = _compute_dynamic_size(QSize(80, 80))
         side = max(dyn.width(), dyn.height(), 120)
         square = QSize(side, side)
-
-        # Initialisation de base
-        self.setText("")  # sera remplacé par _refresh_text()
+        self.setText("") 
         self.initialize(style=style, icon_path=None, size=square, checkable=True)
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setVisible(True)
         self.raise_()
-
-        # Configuration de la police
         font = self.font()
         font.setFamily("Arial")
         font.setPointSize(int(side * BTN_STYLE_TWO_FONT_SIZE_PERCENT / 100))
         font.setBold(True)
         self.setFont(font)
         self.setStyleSheet(self.styleSheet() + "\ncolor: white;")
-
-        # Texte initial selon la langue courante
         self._refresh_text()
+        if DEBUG_BtnStyleTwo:
+            logger.info(f"[DEBUG][BtnStyleTwo] Exiting __init__: return=None")
 
     def _refresh_text(self) -> None:
-        """
-        Récupère la traduction depuis LanguageManager et met à jour le label.
-        Si get_texts() renvoie un dict (e.g. pour 'style'), on extrait la sous-clé self.name.
-        """
+        if DEBUG_BtnStyleTwo:
+            logger.info(f"[DEBUG][BtnStyleTwo] Entering _refresh_text: args=()")
         value = language_manager.get_texts(self._text_key)
         if isinstance(value, dict):
             text = value.get(self.name, self.name)
         else:
             text = value or self.name
         self.setText(text)
+        if DEBUG_BtnStyleTwo:
+            logger.info(f"[DEBUG][BtnStyleTwo] Exiting _refresh_text: return=None")
 
     def cleanup(self) -> None:
-        # Désabonnement avant destruction
+        if DEBUG_BtnStyleTwo:
+            logger.info(f"[DEBUG][BtnStyleTwo] Entering cleanup: args=()")
         language_manager.unsubscribe(self._refresh_text)
         super().cleanup()
+        if DEBUG_BtnStyleTwo:
+            logger.info(f"[DEBUG][BtnStyleTwo] Exiting cleanup: return=None")
 
 class Btns:
-    # signature modifiée : style2_names attend désormais une liste de tuples (name, text_key)
     def __init__(self, parent: QWidget, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None) -> None:
         self.parent = parent
         overlay = getattr(parent, "overlay_widget", parent)

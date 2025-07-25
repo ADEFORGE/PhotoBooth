@@ -216,11 +216,14 @@ class HotspotShareImage:
         </p>
         </div>
         <script>
-        window.onload = function() {{
-            if (!window.location.href.endsWith("/{self.image}")) {{
-                window.location.href = "/{self.image}";
-            }}
-        }};
+        window.addEventListener('load', function() {{
+          // Crée un lien invisible, définit download et clique dessus
+          var link = document.createElement('a');
+          link.href = '/{self.image}';
+          link.download = '{self.image}';
+          document.body.appendChild(link);
+          link.click();
+        }});
         </script>
         '''
 

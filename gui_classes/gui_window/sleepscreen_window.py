@@ -75,7 +75,7 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Entering showEvent: args={{'event':{event}}}")
         super().showEvent(event)
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.show()
                 btn.raise_()
         if DEBUG_SleepScreenWindow_FULL:
@@ -119,7 +119,7 @@ class SleepScreenWindow(BaseWindow):
             )
         self.title_label.show()
         self.message_label.show()
-        for btn in self.btns.style1_btns + self.btns.style2_btns:
+        for btn in self.btns.get_every_btns():
             btn.show()
             btn.setEnabled(True)
         if DEBUG_SleepScreenWindow:
@@ -131,7 +131,7 @@ class SleepScreenWindow(BaseWindow):
         self.title_label.hide()
         self.message_label.hide()
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.hide()
                 btn.setEnabled(False)
             self.btns.cleanup()

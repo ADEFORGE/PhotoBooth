@@ -223,7 +223,7 @@ class Overlay(QWidget):
                     widget.setEnabled(False)
                     self._disabled_widgets.add(widget)
             if hasattr(self, 'btns'):
-                for btn in self.btns.style1_btns + self.btns.style2_btns:
+                for btn in self.btns.get_every_btns():
                     btn.setEnabled(True)
                     btn.raise_()
         except Exception:

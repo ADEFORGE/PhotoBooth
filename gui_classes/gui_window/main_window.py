@@ -141,7 +141,7 @@ class MainWindow(BaseWindow):
         if not getattr(self, 'selected_style', None):
             if hasattr(self, 'btns'):
                 popup_msg = self._texts.get("popup", "Select a style first")
-                self.show_message(self.btns.style1_btns, popup_msg, TOOLTIP_DURATION_MS)
+                self.show_message(self.btns.get_style1_btns(), popup_msg, TOOLTIP_DURATION_MS)
         else:
             if self.standby_manager:
                 self.standby_manager.put_standby(False)
@@ -304,7 +304,7 @@ class MainWindow(BaseWindow):
             self.overlay_widget.raise_()
         if hasattr(self, 'btns'):
             self.btns.raise_()
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.show()
                 btn.setEnabled(True)
         self.bg_label.lower()
@@ -324,7 +324,7 @@ class MainWindow(BaseWindow):
         self.setup_buttons_style_1(['accept', 'close','regenerate'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
             self.btns.raise_()
-            for btn in self.btns.style1_btns:
+            for btn in self.btns.get_style1_btns():
                 btn.show()
                 btn.setEnabled(True)
             self.btns.set_disabled_bw_style2()
@@ -341,7 +341,7 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Entering set_state_wait: args={{}}")
         if hasattr(self, 'btns'):
             self.btns.set_disabled_bw_style2()
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.hide()
         self.update_frame()
         if self.standby_manager:

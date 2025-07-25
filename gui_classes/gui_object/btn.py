@@ -20,18 +20,18 @@ DEBUG_BtnStyleTwo = DEBUG
 DEBUG_BtnStyleTwo_FULL = DEBUG_FULL
 DEBUG_Btns = DEBUG
 DEBUG_Btns_FULL = DEBUG_FULL
-DEBUG__compute_dynamic_size = DEBUG
+DEBUG_compute_dynamic_size = DEBUG
 
 
 def _compute_dynamic_size(original_size: QSize) -> QSize:
-    if DEBUG__compute_dynamic_size:
-        logger.info(f"[DEBUG][__compute_dynamic_size] Entering _compute_dynamic_size: args={(original_size,)}")
+    if DEBUG_compute_dynamic_size:
+        logger.info(f"[DEBUG][_compute_dynamic_size] Entering _compute_dynamic_size: args={(original_size,)}")
     screen = QGuiApplication.primaryScreen()
     geom = screen.availableGeometry()
     target = int(min(geom.width(), geom.height()) * 0.07)
     result = QSize(target, target)
-    if DEBUG__compute_dynamic_size:
-        logger.info(f"[DEBUG][__compute_dynamic_size] Exiting _compute_dynamic_size: return={result}")
+    if DEBUG_compute_dynamic_size:
+        logger.info(f"[DEBUG][_compute_dynamic_size] Exiting _compute_dynamic_size: return={result}")
     return result
 
 class Btn(QPushButton):
@@ -349,23 +349,51 @@ class BtnStyleTwo(Btn):
 
 class Btns:
     def __init__(self, parent: QWidget, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None) -> None:
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering __init__: args={(parent, style1_names, style2_names, slot_style1, slot_style2)}")
         self.parent = parent
         overlay = getattr(parent, "overlay_widget", parent)
-        self.style1_btns = []
-        self.style2_btns = []
-        self.button_group = QButtonGroup(overlay)
-        self.button_group.setExclusive(True)
+        self._style1_btns = []
+        self._style2_btns = []
+        self._button_group = QButtonGroup(overlay)
+        self._button_group.setExclusive(True)
         self.setup_buttons(style1_names, style2_names, slot_style1, slot_style2)
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting __init__: return=None")
+
+    def get_style1_btns(self) -> list:
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering get_style1_btns: args=()")
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting get_style1_btns: return={self._style1_btns}")
+        return self._style1_btns
+
+    def get_style2_btns(self) -> list:
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering get_style2_btns: args=()")
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting get_style2_btns: return={self._style2_btns}")
+        return self._style2_btns
+
+    def get_every_btns(self) -> list:
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering get_every_btns: args=()")
+        all_btns = self._style1_btns + self._style2_btns
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting get_every_btns: return={all_btns}")
+        return all_btns
 
     def lower_(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering lower_: args=()")
-        for btn in self.style1_btns + self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering lower_: args=()")
+        for btn in self._style1_btns + self._style2_btns:
             btn.setVisible(False)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting lower_: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting lower_: return=None")
 
     def setup_buttons(self, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None, layout=None, start_row: int = 3) -> None:
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering setup_buttons: args={(style1_names, style2_names, slot_style1, slot_style2, layout, start_row)}")
         self.lower_()
         self.clear_style1_btns()
         self.clear_style2_btns()
@@ -377,10 +405,12 @@ class Btns:
         if layout:
             self.place_all(layout, start_row)
         self.raise_()
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting setup_buttons: return=None")
 
     def setup_buttons_style_1(self, style1_names: list, slot_style1=None, layout=None, start_row: int = 3) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering setup_buttons_style_1: args={(style1_names, slot_style1, layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering setup_buttons_style_1: args={(style1_names, slot_style1, layout, start_row)}")
         self.lower_()
         self.clear_style1_btns()
         for name in style1_names:
@@ -389,11 +419,11 @@ class Btns:
             self.place_style1(layout, start_row)
         self.raise_()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting setup_buttons_style_1: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting setup_buttons_style_1: return=None")
 
     def setup_buttons_style_2(self, style2_names: list, slot_style2=None, layout=None, start_row: int = 4) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering setup_buttons_style_2: args={(style2_names, slot_style2, layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering setup_buttons_style_2: args={(style2_names, slot_style2, layout, start_row)}")
         self.lower_()
         self.clear_style2_btns()
         for name in style2_names:
@@ -402,98 +432,102 @@ class Btns:
             self.place_style2(layout, start_row)
         self.raise_()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting setup_buttons_style_2: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting setup_buttons_style_2: return=None")
 
     def add_style1_btn(self, name: str, slot_style1=None):
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering add_style1_btn: args={(name, slot_style1)}")
+            logger.info(f"[DEBUG][Btns] Entering add_style1_btn: args={(name, slot_style1)}")
         overlay = getattr(self.parent, "overlay_widget", self.parent)
         btn = BtnStyleOne(name, parent=overlay)
         if isinstance(slot_style1, str):
             btn.connect_by_name(self.parent, slot_style1)
         elif callable(slot_style1):
             btn.clicked.connect(slot_style1)
-        self.style1_btns.append(btn)
+        self._style1_btns.append(btn)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting add_style1_btn: return={btn}")
+            logger.info(f"[DEBUG][Btns] Exiting add_style1_btn: return={btn}")
         return btn
 
     def add_style2_btn(self, name: str, text_key: str, slot_style2=None):
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering add_style2_btn: args={(name, text_key, slot_style2)}")
         overlay = getattr(self.parent, "overlay_widget", self.parent)
         btn = BtnStyleTwo(name, text_key, parent=overlay)
         if isinstance(slot_style2, str):
             btn.connect_by_name(self.parent, slot_style2)
         elif callable(slot_style2):
             btn.clicked.connect(lambda checked, b=btn: slot_style2(checked, b))
-        self.button_group.addButton(btn)
-        self.style2_btns.append(btn)
+        self._button_group.addButton(btn)
+        self._style2_btns.append(btn)
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting add_style2_btn: return={btn}")
         return btn
 
     def remove_style1_btn(self, name: str) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering remove_style1_btn: args={(name,)}")
-        for btn in self.style1_btns:
+            logger.info(f"[DEBUG][Btns] Entering remove_style1_btn: args={(name,)}")
+        for btn in self._style1_btns:
             if btn.name == name:
                 btn.cleanup()
-                self.style1_btns.remove(btn)
+                self._style1_btns.remove(btn)
                 break
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting remove_style1_btn: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting remove_style1_btn: return=None")
 
     def remove_style2_btn(self, name: str) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering remove_style2_btn: args={(name,)}")
-        for btn in self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering remove_style2_btn: args={(name,)}")
+        for btn in self._style2_btns:
             if btn.name == name:
                 btn.cleanup()
-                self.button_group.removeButton(btn)
-                self.style2_btns.remove(btn)
+                self._button_group.removeButton(btn)
+                self._style2_btns.remove(btn)
                 break
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting remove_style2_btn: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting remove_style2_btn: return=None")
 
     def clear_style1_btns(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering clear_style1_btns: args=()")
-        for btn in self.style1_btns:
+            logger.info(f"[DEBUG][Btns] Entering clear_style1_btns: args=()")
+        for btn in self._style1_btns:
             btn.cleanup()
-        self.style1_btns.clear()
+        self._style1_btns.clear()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting clear_style1_btns: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting clear_style1_btns: return=None")
 
     def clear_style2_btns(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering clear_style2_btns: args=()")
-        for btn in self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering clear_style2_btns: args=()")
+        for btn in self._style2_btns:
             btn.cleanup()
-            self.button_group.removeButton(btn)
-        self.style2_btns.clear()
+            self._button_group.removeButton(btn)
+        self._style2_btns.clear()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting clear_style2_btns: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting clear_style2_btns: return=None")
 
     def place_style1(self, layout, start_row: int = 3) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering place_style1: args={(layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering place_style1: args={(layout, start_row)}")
         col_max = layout.columnCount() if hasattr(layout, "columnCount") else 7
-        n = len(self.style1_btns)
+        n = len(self._style1_btns)
         if n:
             if n % 2 == 0:
                 left = (col_max - n - 1) // 2
-                for i, btn in enumerate(self.style1_btns):
+                for i, btn in enumerate(self._style1_btns):
                     col = left + i if i < n // 2 else left + i + 1
                     btn.place(layout, start_row, col)
             else:
                 col1 = (col_max - n) // 2
-                for i, btn in enumerate(self.style1_btns):
+                for i, btn in enumerate(self._style1_btns):
                     btn.place(layout, start_row, col1 + i)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting place_style1: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting place_style1: return=None")
 
     def place_style2(self, layout, start_row: int = 4) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering place_style2: args={(layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering place_style2: args={(layout, start_row)}")
         col_max = (GRID_WIDTH)
-        nb_btn = len(self.style2_btns)
+        nb_btn = len(self._style2_btns)
         
         if nb_btn:        
             end_row = start_row + nb_btn // col_max
@@ -506,119 +540,119 @@ class Btns:
                i_end_btn_will_be_placed = i_start_btn_will_be_placed + nb_btn_in_row  
                if nb_btn_in_row % 2 == 0:
                    left = (col_max - nb_btn_in_row - 1) // 2
-                   for i, btn in enumerate(self.style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
+                   for i, btn in enumerate(self._style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
                        col = left + i if i < nb_btn_in_row // 2 else left + i + 1
                        btn.place(layout, row, col)
                else:
                     col2 = (col_max - nb_btn_in_row) // 2
-                    for i, btn in enumerate(self.style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
+                    for i, btn in enumerate(self._style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
                         btn.place(layout, row, col2 + i)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting place_style2: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting place_style2: return=None")
 
     def place_all(self, layout, start_row: int = 3) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering place_all: args={(layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering place_all: args={(layout, start_row)}")
         self.place_style1(layout, start_row)
         self.place_style2(layout, start_row + 1)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting place_all: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting place_all: return=None")
 
     def set_style1_btns(self, names: list, slot_style1=None, layout=None, start_row: int = 3) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_style1_btns: args={(names, slot_style1, layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering set_style1_btns: args={(names, slot_style1, layout, start_row)}")
         self.clear_style1_btns()
         for name in names:
             self.add_style1_btn(name, slot_style1)
         if layout:
             self.place_style1(layout, start_row)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_style1_btns: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_style1_btns: return=None")
 
     def set_style2_btns(self, names: list, slot_style2=None, layout=None, start_row: int = 4) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_style2_btns: args={(names, slot_style2, layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering set_style2_btns: args={(names, slot_style2, layout, start_row)}")
         self.clear_style2_btns()
         for name in names:
             self.add_style2_btn(name, slot_style2)
         if layout:
             self.place_style2(layout, start_row)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_style2_btns: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_style2_btns: return=None")
 
     def set_all_btns(self, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None, layout=None, start_row: int = 3) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_all_btns: args={(style1_names, style2_names, slot_style1, slot_style2, layout, start_row)}")
+            logger.info(f"[DEBUG][Btns] Entering set_all_btns: args={(style1_names, style2_names, slot_style1, slot_style2, layout, start_row)}")
         self.set_style1_btns(style1_names, slot_style1, layout, start_row)
         self.set_style2_btns(style2_names, slot_style2, layout, start_row + 1)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_all_btns: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_all_btns: return=None")
 
     def set_all_disabled_bw(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_all_disabled_bw: args=()")
-        for btn in self.style1_btns + self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering set_all_disabled_bw: args=()")
+        for btn in self._style1_btns + self._style2_btns:
             btn.set_disabled_bw()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_all_disabled_bw: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_all_disabled_bw: return=None")
 
     def set_all_enabled_color(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_all_enabled_color: args=()")
-        for btn in self.style1_btns + self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering set_all_enabled_color: args=()")
+        for btn in self._style1_btns + self._style2_btns:
             btn.set_enabled_color()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_all_enabled_color: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_all_enabled_color: return=None")
 
     def set_disabled_bw_style1(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_disabled_bw_style1: args=()")
-        for btn in self.style1_btns:
+            logger.info(f"[DEBUG][Btns] Entering set_disabled_bw_style1: args=()")
+        for btn in self._style1_btns:
             btn.set_disabled_bw()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_disabled_bw_style1: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_disabled_bw_style1: return=None")
 
     def set_disabled_bw_style2(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_disabled_bw_style2: args=()")
-        for btn in self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering set_disabled_bw_style2: args=()")
+        for btn in self._style2_btns:
             btn.set_disabled_bw()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_disabled_bw_style2: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_disabled_bw_style2: return=None")
 
     def set_enabled_color_style1(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_enabled_color_style1: args=()")
-        for btn in self.style1_btns:
+            logger.info(f"[DEBUG][Btns] Entering set_enabled_color_style1: args=()")
+        for btn in self._style1_btns:
             btn.set_enabled_color()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_enabled_color_style1: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_enabled_color_style1: return=None")
 
     def set_enabled_color_style2(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering set_enabled_color_style2: args=()")
-        for btn in self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering set_enabled_color_style2: args=()")
+        for btn in self._style2_btns:
             btn.set_enabled_color()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting set_enabled_color_style2: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting set_enabled_color_style2: return=None")
 
     def cleanup(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering cleanup: args=()")
-        for btn in self.style1_btns + self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering cleanup: args=()")
+        for btn in self._style1_btns + self._style2_btns:
             btn.cleanup()
-        self.style1_btns.clear()
-        self.style2_btns.clear()
-        self.button_group.setParent(None)
-        self.button_group.deleteLater()
+        self._style1_btns.clear()
+        self._style2_btns.clear()
+        self._button_group.setParent(None)
+        self._button_group.deleteLater()
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting cleanup: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting cleanup: return=None")
 
     def raise_(self) -> None:
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Entering raise_: args=()")
-        for btn in self.style1_btns + self.style2_btns:
+            logger.info(f"[DEBUG][Btns] Entering raise_: args=()")
+        for btn in self._style1_btns + self._style2_btns:
             btn.raise_()
             btn.setVisible(True)
         if DEBUG_Btns:
-            print(f"[DEBUG][Btns] Exiting raise_: return=None")
+            logger.info(f"[DEBUG][Btns] Exiting raise_: return=None")

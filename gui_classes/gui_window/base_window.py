@@ -74,7 +74,7 @@ class BaseWindow(QWidget):
         self.overlay_widget.setVisible(True)
         self.overlay_widget.raise_()
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.raise_()
         super().resizeEvent(event)
         if DEBUG_BaseWindow_FULL:
@@ -104,7 +104,7 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering clear_buttons: args={{}}")
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.hide()
                 btn.setParent(None)
                 btn.deleteLater()
@@ -303,7 +303,7 @@ class BaseWindow(QWidget):
             layout=self.overlay_layout, start_row=3
         )
         self.overlay_widget.raise_()
-        for btn in self.btns.style1_btns + self.btns.style2_btns:
+        for btn in self.btns.get_every_btns():
             btn.raise_()
             btn.show()
         self.raise_()
@@ -350,7 +350,7 @@ class BaseWindow(QWidget):
         super().showEvent(event)
         self.overlay_widget.raise_()
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.raise_()
         if DEBUG_BaseWindow_FULL:
             logger.info(f"[DEBUG][BaseWindow] Exiting showEvent: return=None")

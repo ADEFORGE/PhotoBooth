@@ -129,7 +129,7 @@ class Overlay(QWidget):
         """
         Handle the show event for the overlay.
         """
-        if DEBUG_Overlay: 
+        if DEBUG_Overlay_FULL: 
             logger.info(f"[DEBUG][Overlay] Entering showEvent: args={(event,)}")
 
         super().showEvent(event)
@@ -138,19 +138,19 @@ class Overlay(QWidget):
             self.center_overlay()
             self._centered_once = True
         self._disable_all_buttons_except_overlay()
-        if DEBUG_Overlay: 
+        if DEBUG_Overlay_FULL: 
             logger.info(f"[DEBUG][Overlay] Exiting showEvent: return=None")
 
     def hideEvent(self, event: QEvent) -> None:
         """
         Handle the hide event for the overlay.
         """
-        if DEBUG_Overlay: 
+        if DEBUG_Overlay_FULL: 
             logger.info(f"[DEBUG][Overlay] Entering hideEvent: args={(event,)}")
         super().hideEvent(event)
         self._is_visible = False
         self._reenable_all_buttons()
-        if DEBUG_Overlay: 
+        if DEBUG_Overlay_FULL: 
             logger.info(f"[DEBUG][Overlay] Exiting hideEvent: return=None")
 
     def get_overlay_bg_color(self) -> QColor:
@@ -166,12 +166,12 @@ class Overlay(QWidget):
         """
         Handle the paint event for the overlay.
         """
-        if DEBUG_Overlay: 
+        if DEBUG_Overlay_FULL: 
             logger.info(f"[DEBUG][Overlay] Entering paintEvent: args={(event,)}")
             
         painter = QPainter(self)
         if not painter.isActive():
-            if DEBUG_Overlay:
+            if DEBUG_Overlay_FULL:
                 logger.info("[DEBUG][Overlay] QPainter not active, skipping paintEvent.")
             return
         painter.setRenderHint(QPainter.Antialiasing)
@@ -180,7 +180,7 @@ class Overlay(QWidget):
         path.addRoundedRect(self.rect(), radius, radius)
         painter.fillPath(path, self.get_overlay_bg_color())
         painter.end()
-        if DEBUG_Overlay: 
+        if DEBUG_Overlay_FULL: 
             logger.info(f"[DEBUG][Overlay] Exiting paintEvent: return=None")
 
     def _setup_buttons(
@@ -538,8 +538,17 @@ class OverlayLoading(OverlayWhite):
             logger.info(f"[DEBUG][OverlayLoading] Exiting set_percent: return=None")
 
 class OverlayRules(OverlayWhite):
-    def __init__(self, parent: QWidget = None, on_validate: callable = None, on_close: callable = None) -> None:
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Entering __init__: args={(parent, on_validate, on_close)}")
+    def __init__(
+        self,
+        parent: QWidget = None,
+        on_validate: callable = None,
+        on_close: callable = None
+    ) -> None:
+        """
+        Initialize the OverlayRules widget with optional parent, validation, and close callbacks.
+        """
+        if DEBUG_OverlayRules: 
+            logger.info(f"[DEBUG][OverlayRules] Entering __init__: args={(parent, on_validate, on_close)}")
         super().__init__(parent)
         self.setFixedSize(700, 540)
         self._overlay_widget = QWidget(self)
@@ -551,15 +560,15 @@ class OverlayRules(OverlayWhite):
         row = 0
         self._on_validate = on_validate
         self._on_close = on_close
-        self.title_label = QLabel("", self._overlay_widget)
-        self.title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
-        self.title_label.setAlignment(Qt.AlignCenter)
-        self._overlay_layout.addWidget(self.title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._title_label = QLabel("", self._overlay_widget)
+        self._title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
+        self._title_label.setAlignment(Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self.msg_label = QLabel("", self._overlay_widget)
-        self.msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
-        self.msg_label.setAlignment(Qt.AlignCenter)
-        self._overlay_layout.addWidget(self.msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._msg_label = QLabel("", self._overlay_widget)
+        self._msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
+        self._msg_label.setAlignment(Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.btns = Btns(self, [], [], None, None)
         self._setup_buttons(
@@ -575,17 +584,27 @@ class OverlayRules(OverlayWhite):
         self.setLayout(layout)
         language_manager.subscribe(self.update_language)
         self.update_language()
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Exiting __init__: return=None")
+        if DEBUG_OverlayRules: 
+            logger.info(f"[DEBUG][OverlayRules] Exiting __init__: return=None")
 
     def update_language(self) -> None:
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Entering update_language: args=()")
+        """
+        Update the language texts for the rules overlay.
+        """
+        if DEBUG_OverlayRules: 
+            logger.info(f"[DEBUG][OverlayRules] Entering update_language: args=()")
         rules_texts = language_manager.get_texts("OverlayRules")
-        self.title_label.setText(rules_texts.get("title", ""))
-        self.msg_label.setText(rules_texts.get("message", ""))
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Exiting update_language: return=None")
+        self._title_label.setText(rules_texts.get("title", ""))
+        self._msg_label.setText(rules_texts.get("message", ""))
+        if DEBUG_OverlayRules: 
+            logger.info(f"[DEBUG][OverlayRules] Exiting update_language: return=None")
 
     def _on_accept_close(self) -> None:
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Entering _on_accept_close: args=()")
+        """
+        Handle accept and close button actions for the rules overlay.
+        """
+        if DEBUG_OverlayRules: 
+            logger.info(f"[DEBUG][OverlayRules] Entering _on_accept_close: args=()")
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             if self._on_validate:
@@ -595,9 +614,13 @@ class OverlayRules(OverlayWhite):
             if self._on_close:
                 self._on_close()
             self.hide_overlay()
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Exiting _on_accept_close: return=None")
+        if DEBUG_OverlayRules: 
+            logger.info(f"[DEBUG][OverlayRules] Exiting _on_accept_close: return=None")
 
     def closeEvent(self, event: QEvent) -> None:
+        """
+        Handle the close event for the rules overlay.
+        """
         if DEBUG_OverlayRules_FULL:
             logger.info(f"[DEBUG][OverlayRules] Entering closeEvent: args={(event,)}")
         language_manager.unsubscribe(self.update_language)
@@ -606,9 +629,17 @@ class OverlayRules(OverlayWhite):
             logger.info(f"[DEBUG][OverlayRules] Exiting closeEvent: return=None")
 
 class OverlayQrcode(OverlayWhite):
-    def __init__(self, parent: QWidget = None, on_close: callable = None, hotspot_url: str = None, image_to_send=None) -> None:
-        logger.info(f"[OverlayQrcode] __init__ called with parent={parent}, on_close={on_close}, hotspot_url={hotspot_url}, image_to_send={type(image_to_send)}")
-        if DEBUG_OverlayQrcode: logger.info(f"[DEBUG][OverlayQrcode] Entering __init__: args={{(parent, on_close, hotspot_url, image_to_send)}}")
+    def __init__(
+        self,
+        parent: QWidget = None,
+        on_close: callable = None,
+        hotspot_url: str = None,
+        image_to_send: object = None
+    ) -> None:
+        """
+        Initialize the OverlayQrcode widget with parent, close callback, hotspot URL, and image to send.
+        """
+
         super().__init__(parent)
         self._on_close = on_close
         self._init_overlay_widget()
@@ -616,23 +647,38 @@ class OverlayQrcode(OverlayWhite):
         self._init_buttons()
         self._init_language()
         self._init_hotspot_thread(hotspot_url, image_to_send)
-        if DEBUG_OverlayQrcode: logger.info(f"[DEBUG][OverlayQrcode] Exiting __init__: return=None")
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting __init__: return=None")
 
-    def _init_overlay_widget(self):
+    def _init_overlay_widget(self) -> None:
+        """
+        Set up the overlay widget and its layout for the QR code overlay.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _init_overlay_widget: args=()")
         self.setFixedSize(700, 540)
         self._overlay_widget = QWidget(self)
         self._overlay_layout = QGridLayout(self._overlay_widget)
         self._overlay_layout.setContentsMargins(40, 32, 40, 32)
         self._overlay_layout.setSpacing(24)
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _init_overlay_widget: return=None")
         for i, stretch in enumerate([0,2,1,0]):
             self._overlay_layout.setRowStretch(i, stretch)
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] _init_overlay_widget completed successfully.")
 
-    def _init_layout_and_labels(self):
+    def _init_layout_and_labels(self) -> None:
+        """
+        Set up the layout and labels for the QR code overlay.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _init_layout_and_labels: args=()")
         row = 0
-        self.title_label = QLabel("", self._overlay_widget)
-        self.title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
-        self.title_label.setAlignment(Qt.AlignCenter)
-        self._overlay_layout.addWidget(self.title_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._title_label = QLabel("", self._overlay_widget)
+        self._title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
+        self._title_label.setAlignment(Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._title_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.qr_label = QLabel(self._overlay_widget)
         self.qr_label.setAlignment(Qt.AlignCenter)
@@ -648,14 +694,21 @@ class OverlayQrcode(OverlayWhite):
         self.qr_label.setPixmap(scaled_pix)
         self._overlay_layout.addWidget(self.qr_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self.msg_label = QLabel("", self._overlay_widget)
-        self.msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
-        self.msg_label.setAlignment(Qt.AlignCenter)
-        self._overlay_layout.addWidget(self.msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._msg_label = QLabel("", self._overlay_widget)
+        self._msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
+        self._msg_label.setAlignment(Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self._row_for_buttons = row
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _init_layout_and_labels: return=None")
 
-    def _init_buttons(self):
+    def _init_buttons(self) -> None:
+        """
+        Set up the close button for the QR code overlay.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _init_buttons: args=()")
         self.btns = Btns(self, [], [], None, None)
         self._setup_buttons(
             style1_names=["close"],
@@ -668,12 +721,26 @@ class OverlayQrcode(OverlayWhite):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._overlay_widget)
         self.setLayout(layout)
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _init_buttons: return=None")
 
-    def _init_language(self):
+    def _init_language(self) -> None:
+        """
+        Subscribe to language changes and update the overlay language.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _init_language: args=()")
         language_manager.subscribe(self.update_language)
         self.update_language()
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _init_language: return=None")
 
-    def _init_hotspot_thread(self, hotspot_url, image_to_send):
+    def _init_hotspot_thread(self, hotspot_url: str, image_to_send: object) -> None:
+        """
+        Start the thread to share the image via hotspot if parameters are provided.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _init_hotspot_thread: args=()")
         logger.info(f"[OverlayQrcode] _init_hotspot_thread called with hotspot_url={hotspot_url}, image_to_send={type(image_to_send)}")
         if hotspot_url and image_to_send is not None:
             from gui_classes.gui_manager.thread_manager import ThreadShareImage
@@ -683,16 +750,30 @@ class OverlayQrcode(OverlayWhite):
             self._thread_share.start()
         else:
             logger.info(f"[OverlayQrcode] No hotspot_url or image_to_send provided, skipping thread start.")
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _init_hotspot_thread: return=None")
 
 
-    def clean_hotspot(self):
+    def clean_hotspot(self) -> None:
+        """
+        Clean up the hotspot sharing thread if it exists.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering clean_hotspot: args=()")
         logger.info(f"[OverlayQrcode] clean_hotspot called")
         if hasattr(self, '_thread_share') and self._thread_share is not None:
             if hasattr(self._thread_share, 'cleanup') and callable(self._thread_share.cleanup):
                 logger.info(f"[OverlayQrcode] Cleaning up ThreadShareImage")
                 self._thread_share.cleanup()
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting clean_hotspot: return=None")
 
-    def _on_share_finished(self):
+    def _on_share_finished(self) -> None:
+        """
+        Handle the completion of the hotspot sharing thread and update the QR code image.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _on_share_finished: args=()")
         logger.info(f"[OverlayQrcode] _on_share_finished called")
         if hasattr(self, '_thread_share'):
             if self._thread_share.qr_bytes:
@@ -703,24 +784,40 @@ class OverlayQrcode(OverlayWhite):
                 self.set_qimage(qimg)
             if self._thread_share.error:
                 logger.info(f"[OverlayQrcode] Error in ThreadShareImage: {self._thread_share.error}")
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _on_share_finished: return=None")
 
-    def set_qimage(self, qimage):
-        logger.info(f"[OverlayQrcode] set_qimage called with qimage={qimage}")
+    def set_qimage(self, qimage: QImage) -> None:
+        """
+        Set the QR code image in the overlay.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering set_qimage: args={(qimage,)}")
         if qimage is not None and hasattr(qimage, 'isNull') and not qimage.isNull():
             pix = QPixmap.fromImage(qimage)
             scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.qr_label.setPixmap(scaled_pix)
         else:
             logger.info(f"[OverlayQrcode] set_qimage: Provided qimage is null or invalid.")
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting set_qimage: return=None")
 
     def update_language(self) -> None:
-        if DEBUG_OverlayQrcode: logger.info(f"[DEBUG][OverlayQrcode] Entering update_language: args=()")
+        """
+        Update the language texts for the QR code overlay.
+        """
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering update_language: args=()")
         qr_texts = language_manager.get_texts("OverlayQrcode")
-        self.title_label.setText(qr_texts.get("title", ""))
-        self.msg_label.setText(qr_texts.get("message", ""))
-        if DEBUG_OverlayQrcode: logger.info(f"[DEBUG][OverlayQrcode] Exiting update_language: return=None")
+        self._title_label.setText(qr_texts.get("title", ""))
+        self._msg_label.setText(qr_texts.get("message", ""))
+        if DEBUG_OverlayQrcode: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting update_language: return=None")
 
     def _on_close_btn(self) -> None:
+        """
+        Handle the close button action for the QR code overlay.
+        """
         if DEBUG_OverlayQrcode:
             logger.info(f"[DEBUG][OverlayQrcode] Entering _on_close_btn: args=()")
         self.clean_hotspot()
@@ -731,93 +828,15 @@ class OverlayQrcode(OverlayWhite):
             logger.info(f"[DEBUG][OverlayQrcode] Exiting _on_close_btn: return=None")
 
     def closeEvent(self, event: QEvent) -> None:
+        """
+        Handle the close event for the QR code overlay.
+        """
         if DEBUG_OverlayQrcode_FULL:
             logger.info(f"[DEBUG][OverlayQrcode] Entering closeEvent: args={(event,)}")
         language_manager.unsubscribe(self.update_language)
         super().closeEvent(event)
         if DEBUG_OverlayQrcode_FULL:
             logger.info(f"[DEBUG][OverlayQrcode] Exiting closeEvent: return=None")
-
-class OverlayInfo(OverlayGray):
-    def __init__(self, parent: QWidget = None) -> None:
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Entering __init__: args={(parent,)}")
-        super().__init__(parent)
-        self.setWindowTitle("Information")
-        self.setFixedSize(600, 400)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self._overlay_widget = QWidget(self)
-        self._overlay_layout = QGridLayout(self._overlay_widget)
-        self._overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self._overlay_layout.setSpacing(0)
-        center_col = self.GRID_WIDTH // 2
-        bg = QLabel(self._overlay_widget)
-        bg.setGeometry(0, 0, 600, 400)
-        bg.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
-        blur = QGraphicsBlurEffect()
-        blur.setBlurRadius(18)
-        bg.setGraphicsEffect(blur)
-        bg.lower()
-        self.image_paths = [
-            "gui_template/info1.png",
-            "gui_template/info2.png",
-            "gui_template/info3.png"
-        ]
-        self.current_index = 0
-        self.image_label = QLabel(self._overlay_widget)
-        self.image_label.setStyleSheet("background: transparent;")
-        self.image_label.setAlignment(Qt.AlignCenter)
-        self.update_image()
-        self._overlay_layout.addWidget(self.image_label, 0, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
-        self.btns = Btns(self, [], [], None, None)
-        btn_previous = self.btns.add_style1_btn('previous', self._on_info_btn)
-        btn_close = self.btns.add_style1_btn('close', self._on_info_btn)
-        btn_next = self.btns.add_style1_btn('next', self._on_info_btn)
-        self.btns.place_style1(self._overlay_layout, 1)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self._overlay_widget)
-        self.setLayout(layout)
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Exiting __init__: return=None")
-
-    def _on_info_btn(self) -> None:
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Entering _on_info_btn: args=()")
-        sender = self.sender()
-        if sender and sender.objectName() == 'previous' and self.current_index > 0:
-            self.current_index -= 1
-            self.update_image()
-            self.update_buttons_state()
-        elif sender and sender.objectName() == 'next' and self.current_index < len(self.image_paths) - 1:
-            self.current_index += 1
-            self.update_image()
-            self.update_buttons_state()
-        elif sender and sender.objectName() == 'close':
-            self.hide_overlay()
-            self.deleteLater()
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Exiting _on_info_btn: return=None")
-
-    def update_image(self) -> None:
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Entering update_image: args=()")
-        current_path = self.image_paths[self.current_index]
-        pixmap = QPixmap(current_path)
-        if not pixmap.isNull():
-            self.image_label.setPixmap(pixmap.scaled(
-                500, 300,
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation
-            ))
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Exiting update_image: return=None")
-
-    def update_buttons_state(self) -> None:
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Entering update_buttons_state: args=()")
-        if DEBUG_OverlayInfo: 
-            logger.info(f"[DEBUG][OverlayInfo] Exiting update_buttons_state: return=None")
 
 class OverlayCountdown(Overlay):
     def __init__(self, parent: QWidget = None, start: int = None) -> None:

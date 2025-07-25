@@ -5,7 +5,7 @@ from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_S
 from gui_classes.gui_manager.language_manager import language_manager
 import os
 from PIL import Image
-import io
+import io, re
 
 import logging
 logger = logging.getLogger(__name__)
@@ -351,7 +351,7 @@ class Btns:
     def __init__(self, parent: QWidget, style1_names: list, style2_names: list, slot_style1=None, slot_style2=None) -> None:
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Entering __init__: args={(parent, style1_names, style2_names, slot_style1, slot_style2)}")
-        self.parent = parent
+        self._parent = parent
         overlay = getattr(parent, "overlay_widget", parent)
         self._style1_btns = []
         self._style2_btns = []
@@ -434,34 +434,50 @@ class Btns:
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting setup_buttons_style_2: return=None")
 
+
+    def _is_valid_btn_name(self, name: str) -> bool:
+        # Accept only alphanumeric and underscores, length 1-32
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Entering _is_valid_btn_name: args={(name,)}")
+        is_valid = bool(re.match(r'^[A-Za-z0-9_]{1,32}$', name))
+        if DEBUG_Btns:
+            logger.info(f"[DEBUG][Btns] Exiting _is_valid_btn_name: return={is_valid}")
+        return is_valid
+
     def add_style1_btn(self, name: str, slot_style1=None):
-        if DEBUG_Btns:
-            logger.info(f"[DEBUG][Btns] Entering add_style1_btn: args={(name, slot_style1)}")
-        overlay = getattr(self.parent, "overlay_widget", self.parent)
-        btn = BtnStyleOne(name, parent=overlay)
-        if isinstance(slot_style1, str):
-            btn.connect_by_name(self.parent, slot_style1)
-        elif callable(slot_style1):
-            btn.clicked.connect(slot_style1)
-        self._style1_btns.append(btn)
-        if DEBUG_Btns:
-            logger.info(f"[DEBUG][Btns] Exiting add_style1_btn: return={btn}")
-        return btn
+        if not self._is_valid_btn_name(name):
+            raise ValueError(f"Invalid button name: {name}. Must be alphanumeric or underscore, 1-32 characters.")
+        else:
+            if DEBUG_Btns:
+                logger.info(f"[DEBUG][Btns] Entering add_style1_btn: args={(name, slot_style1)}")
+            overlay = getattr(self._parent, "overlay_widget", self._parent)
+            btn = BtnStyleOne(name, parent=overlay)
+            if isinstance(slot_style1, str):
+                btn.connect_by_name(self._parent, slot_style1)
+            elif callable(slot_style1):
+                btn.clicked.connect(slot_style1)
+            self._style1_btns.append(btn)
+            if DEBUG_Btns:
+                logger.info(f"[DEBUG][Btns] Exiting add_style1_btn: return={btn}")
+            return btn
 
     def add_style2_btn(self, name: str, text_key: str, slot_style2=None):
-        if DEBUG_Btns:
-            logger.info(f"[DEBUG][Btns] Entering add_style2_btn: args={(name, text_key, slot_style2)}")
-        overlay = getattr(self.parent, "overlay_widget", self.parent)
-        btn = BtnStyleTwo(name, text_key, parent=overlay)
-        if isinstance(slot_style2, str):
-            btn.connect_by_name(self.parent, slot_style2)
-        elif callable(slot_style2):
-            btn.clicked.connect(lambda checked, b=btn: slot_style2(checked, b))
-        self._button_group.addButton(btn)
-        self._style2_btns.append(btn)
-        if DEBUG_Btns:
-            logger.info(f"[DEBUG][Btns] Exiting add_style2_btn: return={btn}")
-        return btn
+        if not self._is_valid_btn_name(name):
+            raise ValueError(f"Invalid button name: {name}. Must be alphanumeric or underscore, 1-32 characters.")
+        else:
+            if DEBUG_Btns:
+                logger.info(f"[DEBUG][Btns] Entering add_style2_btn: args={(name, text_key, slot_style2)}")
+            overlay = getattr(self._parent, "overlay_widget", self._parent)
+            btn = BtnStyleTwo(name, text_key, parent=overlay)
+            if isinstance(slot_style2, str):
+                btn.connect_by_name(self._parent, slot_style2)
+            elif callable(slot_style2):
+                btn.clicked.connect(lambda checked, b=btn: slot_style2(checked, b))
+            self._button_group.addButton(btn)
+            self._style2_btns.append(btn)
+            if DEBUG_Btns:
+                logger.info(f"[DEBUG][Btns] Exiting add_style2_btn: return={btn}")
+            return btn
 
     def remove_style1_btn(self, name: str) -> None:
         if DEBUG_Btns:

@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 )
 import re
 from gui_classes.gui_object.overlay import (
-    OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang
+    OverlayLoading, OverlayRules, OverlayQrcode, OverlayLang
 )
 from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
 from gui_classes.gui_object.constante import (

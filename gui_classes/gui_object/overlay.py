@@ -840,6 +840,9 @@ class OverlayQrcode(OverlayWhite):
 
 class OverlayCountdown(Overlay):
     def __init__(self, parent: QWidget = None, start: int = None) -> None:
+        """
+        Initialize the OverlayCountdown widget with optional parent and start value.
+        """
         if DEBUG_OverlayCountdown: 
             logger.info(f"[DEBUG][OverlayCountdown] Entering __init__: args={(parent, start)}")
         super().__init__(parent)
@@ -851,16 +854,16 @@ class OverlayCountdown(Overlay):
         self._overlay_layout = QVBoxLayout(self._overlay_widget)
         self._overlay_layout.setContentsMargins(0, 0, 0, 0)
         self._overlay_layout.setSpacing(0)
-        self.label = QLabel("", self._overlay_widget)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.label.setStyleSheet(COUNTDOWN_FONT_STYLE)
-        self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        shadow = QGraphicsDropShadowEffect(self.label)
+        self._label = QLabel("", self._overlay_widget)
+        self._label.setAlignment(Qt.AlignCenter)
+        self._label.setStyleSheet(COUNTDOWN_FONT_STYLE)
+        self._label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        shadow = QGraphicsDropShadowEffect(self._label)
         shadow.setBlurRadius(8)
         shadow.setColor(QColor("white"))
         shadow.setOffset(0, 0)
-        self.label.setGraphicsEffect(shadow)
-        self._overlay_layout.addWidget(self.label, alignment=Qt.AlignCenter)
+        self._label.setGraphicsEffect(shadow)
+        self._overlay_layout.addWidget(self._label, alignment=Qt.AlignCenter)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -875,54 +878,82 @@ class OverlayCountdown(Overlay):
             geometry = screen.geometry()
             self.setGeometry(geometry)
             self._overlay_widget.setGeometry(self.rect())
-        if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting __init__: return=None")
+        if DEBUG_OverlayCountdown: 
+            logger.info(f"[DEBUG][OverlayCountdown] Exiting __init__: return=None")
 
     def center_overlay(self) -> None:
+        """
+        Center the countdown overlay on the screen.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering center_overlay: args=()")
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting center_overlay: return=None")
 
     def resizeEvent(self, event: QEvent) -> None:
-        if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering resizeEvent: args={(event,)}")
+        """
+        Handle the resize event for the countdown overlay.
+        """
+        if DEBUG_OverlayCountdown_FULL: 
+            logger.info(f"[DEBUG][OverlayCountdown] Entering resizeEvent: args={(event,)}")
         self._overlay_widget.setGeometry(self.rect())
         super().resizeEvent(event)
-        if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting resizeEvent: return=None")
+        if DEBUG_OverlayCountdown_FULL: 
+            logger.info(f"[DEBUG][OverlayCountdown] Exiting resizeEvent: return=None")
 
     def show_overlay(self) -> None:
+        """
+        Show the countdown overlay and reset its appearance.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering show_overlay: args=()")
         super().show_overlay()
         self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
-        self.label.setVisible(False)
+        self._label.setVisible(False)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting show_overlay: return=None")
 
     def show_number(self, value: int) -> None:
+        """
+        Display the given number in the countdown overlay.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering show_number: args={(value,)}")
-        self.label.setText(str(value))
+        self._label.setText(str(value))
         opacity = 0.65 if value > 0 else 1.0
         self._overlay_widget.setStyleSheet(f"background-color: rgba(255,255,255,{int(opacity*255)});")
-        self.label.setVisible(True)
+        self._label.setVisible(True)
         self._anim_timer.start(500)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting show_number: return=None")
 
     def _hide_number(self) -> None:
+        """
+        Hide the countdown number from the overlay.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering _hide_number: args=()")
-        if self.label.text() != "0":
+        if self._label.text() != "0":
             self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
-        self.label.setVisible(False)
+        self._label.setVisible(False)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting _hide_number: return=None")
 
     def set_full_white(self) -> None:
+        """
+        Set the overlay background to fully white and hide the label.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering set_full_white: args=()")
         self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,1);")
-        self.label.setVisible(False)
+        self._label.setVisible(False)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting set_full_white: return=None")
 
     def clean_overlay(self) -> None:
+        """
+        Clean up and remove the countdown overlay from the UI.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering clean_overlay: args=()")
         self._anim_timer.stop()
         super().clean_overlay()
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting clean_overlay: return=None")
 
+
     def hide_overlay(self) -> None:
+        """
+        Hide the countdown overlay and stop the animation timer.
+        """
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering hide_overlay: args=()")
         self._anim_timer.stop()
         super().hide_overlay()
@@ -930,7 +961,8 @@ class OverlayCountdown(Overlay):
 
 class OverlayLang(OverlayGray):
     def __init__(self, parent: QWidget = None) -> None:
-        if DEBUG_OverlayLang: logger.info(f"[DEBUG][OverlayLang] Entering __init__: args={(parent,)}")
+        if DEBUG_OverlayLang: 
+            logger.info(f"[DEBUG][OverlayLang] Entering __init__: args={(parent,)}")
         super().__init__(parent)
         self.setWindowTitle("Choix de la langue")
         self.setFixedSize(600, 220)
@@ -960,7 +992,9 @@ class OverlayLang(OverlayGray):
         if DEBUG_OverlayLang: logger.info(f"[DEBUG][OverlayLang] Exiting __init__: return=None")
 
     def _on_lang_btn(self, lang_code: str) -> None:
-        if DEBUG_OverlayLang: logger.info(f"[DEBUG][OverlayLang] Entering _on_lang_btn: args={(lang_code,)}")
+        if DEBUG_OverlayLang: 
+            logger.info(f"[DEBUG][OverlayLang] Entering _on_lang_btn: args={(lang_code,)}")
         language_manager.load_language(lang_code)
         self.hide_overlay()
-        if DEBUG_OverlayLang: logger.info(f"[DEBUG][OverlayLang] Exiting _on_lang_btn: return=None")
+        if DEBUG_OverlayLang: 
+            logger.info(f"[DEBUG][OverlayLang] Exiting _on_lang_btn: return=None")

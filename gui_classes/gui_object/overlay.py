@@ -12,6 +12,7 @@ from gui_classes.gui_object.constante import TITLE_LABEL_STYLE, GRID_WIDTH, COUN
 from gui_classes.gui_object.btn import Btns
 from gui_classes.gui_object.toolbox import normalize_btn_name, LoadingBar
 from gui_classes.gui_manager.language_manager import language_manager
+import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -54,9 +55,9 @@ class Overlay(QWidget):
         self._center_on_screen = center_on_screen
         self._centered_once = False
         self._disabled_widgets = set()
-        if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.setAttribute(Qt.WA_TranslucentBackground)
-            self.overlay_widget.setStyleSheet("background: transparent; border-radius: 18px;")
+        if hasattr(self, '_overlay_widget'):
+            self._overlay_widget.setAttribute(Qt.WA_TranslucentBackground)
+            self._overlay_widget.setStyleSheet("background: transparent; border-radius: 18px;")
         self.setStyleSheet("background: transparent;")
         self._register_to_parent_window()
         if DEBUG_Overlay: 
@@ -199,8 +200,8 @@ class Overlay(QWidget):
         if hasattr(self, 'btns') and self.btns:
             self.btns.cleanup()
         self.btns = Btns(self, [], [], None, None)
-        self.btns._setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self.overlay_layout, start_row=start_row)
-        self.overlay_widget.raise_()
+        self.btns._setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self._overlay_layout, start_row=start_row)
+        self._overlay_widget.raise_()
         self.raise_()
         if DEBUG_Overlay: 
             logger.info(f"[DEBUG][Overlay] Exiting _setup_buttons: return=None")
@@ -219,8 +220,8 @@ class Overlay(QWidget):
             logger.info(f"[DEBUG][Overlay] Entering _setup_buttons_style_1: args={(style1_names, slot_style1, start_row)}")
         
         if hasattr(self, 'btns') and self.btns:
-            self.btns._setup_buttons_style_1(style1_names, slot_style1, layout=self.overlay_layout, start_row=start_row)
-            self.overlay_widget.raise_()
+            self.btns._setup_buttons_style_1(style1_names, slot_style1, layout=self._overlay_layout, start_row=start_row)
+            self._overlay_widget.raise_()
             self.raise_()
         if DEBUG_Overlay: 
             logger.info(f"[DEBUG][Overlay] Exiting _setup_buttons_style_1: return=None")
@@ -238,8 +239,8 @@ class Overlay(QWidget):
             logger.info(f"[DEBUG][Overlay] Entering _setup_buttons_style_2: args={(style2_names, slot_style2, start_row)}")
     
         if hasattr(self, 'btns') and self.btns:
-            self.btns._setup_buttons_style_2(style2_names, slot_style2, layout=self.overlay_layout, start_row=start_row)
-            self.overlay_widget.raise_()
+            self.btns._setup_buttons_style_2(style2_names, slot_style2, layout=self._overlay_layout, start_row=start_row)
+            self._overlay_widget.raise_()
             self.raise_()
         if DEBUG_Overlay: 
             logger.info(f"[DEBUG][Overlay] Exiting _setup_buttons_style_2: return=None")
@@ -289,10 +290,10 @@ class Overlay(QWidget):
             self.hide_overlay()
             self._centered_once = False
             self._reenable_all_buttons()
-            if hasattr(self, 'overlay_widget'):
-                self.overlay_widget.hide()
-                self.overlay_widget.setParent(None)
-                self.overlay_widget.deleteLater()
+            if hasattr(self, '_overlay_widget'):
+                self._overlay_widget.hide()
+                self._overlay_widget.setParent(None)
+                self._overlay_widget.deleteLater()
             self._disabled_widgets.clear()
             self._is_alive = False
             self.deleteLater()
@@ -359,35 +360,57 @@ class Overlay(QWidget):
 
 class OverlayGray(Overlay):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:
+        """
+        Initialize the OverlayGray widget with optional parent and centering.
+        """
         if DEBUG_OverlayGray: 
             logger.info(f"[DEBUG][OverlayGray] Entering __init__: args={(parent, center_on_screen)}")
+
         super().__init__(parent, center_on_screen)
         self.setStyleSheet("background: transparent;")
-        if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
+        if hasattr(self, '_overlay_widget'):
+            self._overlay_widget.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
         if DEBUG_OverlayGray: 
             logger.info(f"[DEBUG][OverlayGray] Exiting __init__: return=None")
 
     def get_overlay_bg_color(self) -> QColor:
-        if DEBUG_OverlayGray: logger.info(f"[DEBUG][OverlayGray] Entering get_overlay_bg_color: args=()")
+        """
+        Return the background color for the gray overlay.
+        """
+        if DEBUG_OverlayGray: 
+            logger.info(f"[DEBUG][OverlayGray] Entering get_overlay_bg_color: args=()")
+
         result = QColor(24, 24, 24, 210)
-        if DEBUG_OverlayGray: logger.info(f"[DEBUG][OverlayGray] Exiting get_overlay_bg_color: return={result}")
+        if DEBUG_OverlayGray: 
+            logger.info(f"[DEBUG][OverlayGray] Exiting get_overlay_bg_color: return={result}")
         return result
 
 class OverlayWhite(Overlay):
     def __init__(self, parent: QWidget = None, center_on_screen: bool = True) -> None:
-        if DEBUG_OverlayWhite: logger.info(f"[DEBUG][OverlayWhite] Entering __init__: args={(parent, center_on_screen)}")
+        """
+        Initialize the OverlayWhite widget with optional parent and centering.
+        """
+        if DEBUG_OverlayWhite: 
+            logger.info(f"[DEBUG][OverlayWhite] Entering __init__: args={(parent, center_on_screen)}")
+
         super().__init__(parent, center_on_screen)
         self.setStyleSheet("background: transparent;")
-        if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
-        if DEBUG_OverlayWhite: logger.info(f"[DEBUG][OverlayWhite] Exiting __init__: return=None")
+        if hasattr(self, '_overlay_widget'):
+            self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0.85); border-radius: 18px;")
+        if DEBUG_OverlayWhite: 
+            logger.info(f"[DEBUG][OverlayWhite] Exiting __init__: return=None")
 
     def get_overlay_bg_color(self) -> QColor:
-        if DEBUG_OverlayWhite: logger.info(f"[DEBUG][OverlayWhite] Entering get_overlay_bg_color: args=()")
+        """
+        Return the background color for the white overlay.
+        """
+        if DEBUG_OverlayWhite: 
+            logger.info(f"[DEBUG][OverlayWhite] Entering get_overlay_bg_color: args=()")
+
         alpha = int(255 * 0.85)
         result = QColor(255, 255, 255, alpha)
-        if DEBUG_OverlayWhite: logger.info(f"[DEBUG][OverlayWhite] Exiting get_overlay_bg_color: return={result}")
+        if DEBUG_OverlayWhite: 
+            logger.info(f"[DEBUG][OverlayWhite] Exiting get_overlay_bg_color: return={result}")
         return result
 
 class OverlayLoading(OverlayWhite):
@@ -399,7 +422,11 @@ class OverlayLoading(OverlayWhite):
         border_thickness: int = 8,
         duration: int = 45
     ) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering __init__: args={(parent, width_percent, height_percent, border_thickness, duration)}")
+        """
+        Initialize the OverlayLoading widget with loading bar and overlay settings.
+        """
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering __init__: args={(parent, width_percent, height_percent, border_thickness, duration)}")
         super().__init__(parent, center_on_screen=False)
         screen = QApplication.primaryScreen()
         if screen:
@@ -407,95 +434,132 @@ class OverlayLoading(OverlayWhite):
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background-color: rgba(255,255,255,0.3);")
-        self.overlay_widget = QWidget(self)
-        self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
-        self.overlay_widget.setGeometry(self.rect())
-        self.overlay_layout = QGridLayout(self.overlay_widget)
-        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self.overlay_layout.setSpacing(0)
-        self.loading_bar = LoadingBar(width_percent, height_percent, border_thickness, parent=self)
-        self.overlay_layout.addWidget(self.loading_bar, 0, 0, alignment=Qt.AlignCenter)
+        self._overlay_widget = QWidget(self)
+        self._overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self._overlay_widget.setGeometry(self.rect())
+        self._overlay_layout = QGridLayout(self._overlay_widget)
+        self._overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self._overlay_layout.setSpacing(0)
+        self._loading_bar = LoadingBar(width_percent, height_percent, border_thickness, parent=self)
+        self._overlay_layout.addWidget(self._loading_bar, 0, 0, alignment=Qt.AlignCenter)
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addWidget(self.overlay_widget)
+        main_layout.addWidget(self._overlay_widget)
         self.setFocusPolicy(Qt.NoFocus)
         if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting __init__: return=None")
 
     def resizeEvent(self, event: QEvent) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering resizeEvent: args={(event,)}")
+        """
+        Handle the resize event for the loading overlay.
+        """
+        if DEBUG_OverlayLoading_FULL: logger.info(f"[DEBUG][OverlayLoading] Entering resizeEvent: args={(event,)}")
         screen = self.screen()
         if screen:
             self.setGeometry(screen.geometry())
-            self.overlay_widget.setGeometry(self.rect())
+            self._overlay_widget.setGeometry(self.rect())
         super().resizeEvent(event)
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting resizeEvent: return=None")
+        if DEBUG_OverlayLoading_FULL: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting resizeEvent: return=None")
 
     def showEvent(self, event: QEvent) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering showEvent: args={(event,)}")
+        """
+        Handle the show event for the loading overlay.
+        """
+        if DEBUG_OverlayLoading_FULL: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering showEvent: args={(event,)}")
 
         super().showEvent(event)
 
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting showEvent: return=None")
+        if DEBUG_OverlayLoading_FULL: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting showEvent: return=None")
 
     def hideEvent(self, event: QEvent) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering hideEvent: args={(event,)}")
+        """
+        Handle the hide event for the loading overlay.
+        """
+        if DEBUG_OverlayLoading_FULL:
+            logger.info(f"[DEBUG][OverlayLoading] Entering hideEvent: args={(event,)}")
+
         super().hideEvent(event)
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting hideEvent: return=None")
+        if DEBUG_OverlayLoading_FULL:
+            logger.info(f"[DEBUG][OverlayLoading] Exiting hideEvent: return=None")
 
     def clean_overlay(self) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering clean_overlay: args=()")
+        """
+        Clean up and remove the loading overlay from the UI.
+        """
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering clean_overlay: args=()")
         super().clean_overlay()
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting clean_overlay: return=None")
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting clean_overlay: return=None")
 
     def stop_animation(self) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering stop_animation: args=()")
+        """
+        Stop the loading animation if running.
+        """
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering stop_animation: args=()")
 
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting stop_animation: return=None")
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting stop_animation: return=None")
 
     def hide_overlay(self) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering hide_overlay: args=()")
+        """
+        Hide the loading overlay and re-enable other buttons.
+        """
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering hide_overlay: args=()")
 
         super().hide_overlay()
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting hide_overlay: return=None")
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting hide_overlay: return=None")
 
     def __del__(self) -> None:
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Entering __del__: args=()")
+        """
+        Destructor for the loading overlay, marks it as not alive.
+        """
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering __del__: args=()")
 
         super().__del__()
-        if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting __del__: return=None")
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting __del__: return=None")
 
     def set_percent(self, percent: int) -> None:
         """
         Set the progress bar value (0-100) for the loading bar.
         """
-        if hasattr(self, 'loading_bar'):
-            self.loading_bar.set_percent(percent)
-    
-        
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering set_percent: args={(percent,)}")
+        if hasattr(self, '_loading_bar'):
+            self._loading_bar.set_percent(percent)
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting set_percent: return=None")
 
 class OverlayRules(OverlayWhite):
     def __init__(self, parent: QWidget = None, on_validate: callable = None, on_close: callable = None) -> None:
         if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Entering __init__: args={(parent, on_validate, on_close)}")
         super().__init__(parent)
         self.setFixedSize(700, 540)
-        self.overlay_widget = QWidget(self)
-        self.overlay_layout = QGridLayout(self.overlay_widget)
-        self.overlay_layout.setContentsMargins(40, 32, 40, 32)
-        self.overlay_layout.setSpacing(24)
+        self._overlay_widget = QWidget(self)
+        self._overlay_layout = QGridLayout(self._overlay_widget)
+        self._overlay_layout.setContentsMargins(40, 32, 40, 32)
+        self._overlay_layout.setSpacing(24)
         for i, stretch in enumerate([0,2,1,0]):
-            self.overlay_layout.setRowStretch(i, stretch)
+            self._overlay_layout.setRowStretch(i, stretch)
         row = 0
         self._on_validate = on_validate
         self._on_close = on_close
-        self.title_label = QLabel("", self.overlay_widget)
+        self.title_label = QLabel("", self._overlay_widget)
         self.title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
         self.title_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(self.title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self.msg_label = QLabel("", self.overlay_widget)
+        self.msg_label = QLabel("", self._overlay_widget)
         self.msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
         self.msg_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(self.msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.btns = Btns(self, [], [], None, None)
         self._setup_buttons(
@@ -507,7 +571,7 @@ class OverlayRules(OverlayWhite):
         )
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.overlay_widget)
+        layout.addWidget(self._overlay_widget)
         self.setLayout(layout)
         language_manager.subscribe(self.update_language)
         self.update_language()
@@ -534,10 +598,12 @@ class OverlayRules(OverlayWhite):
         if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Exiting _on_accept_close: return=None")
 
     def closeEvent(self, event: QEvent) -> None:
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Entering closeEvent: args={(event,)}")
+        if DEBUG_OverlayRules_FULL:
+            logger.info(f"[DEBUG][OverlayRules] Entering closeEvent: args={(event,)}")
         language_manager.unsubscribe(self.update_language)
         super().closeEvent(event)
-        if DEBUG_OverlayRules: logger.info(f"[DEBUG][OverlayRules] Exiting closeEvent: return=None")
+        if DEBUG_OverlayRules_FULL:
+            logger.info(f"[DEBUG][OverlayRules] Exiting closeEvent: return=None")
 
 class OverlayQrcode(OverlayWhite):
     def __init__(self, parent: QWidget = None, on_close: callable = None, hotspot_url: str = None, image_to_send=None) -> None:
@@ -554,27 +620,25 @@ class OverlayQrcode(OverlayWhite):
 
     def _init_overlay_widget(self):
         self.setFixedSize(700, 540)
-        self.overlay_widget = QWidget(self)
-        self.overlay_layout = QGridLayout(self.overlay_widget)
-        self.overlay_layout.setContentsMargins(40, 32, 40, 32)
-        self.overlay_layout.setSpacing(24)
+        self._overlay_widget = QWidget(self)
+        self._overlay_layout = QGridLayout(self._overlay_widget)
+        self._overlay_layout.setContentsMargins(40, 32, 40, 32)
+        self._overlay_layout.setSpacing(24)
         for i, stretch in enumerate([0,2,1,0]):
-            self.overlay_layout.setRowStretch(i, stretch)
+            self._overlay_layout.setRowStretch(i, stretch)
 
     def _init_layout_and_labels(self):
         row = 0
-        self.title_label = QLabel("", self.overlay_widget)
+        self.title_label = QLabel("", self._overlay_widget)
         self.title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
         self.title_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(self.title_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.title_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self.qr_label = QLabel(self.overlay_widget)
+        self.qr_label = QLabel(self._overlay_widget)
         self.qr_label.setAlignment(Qt.AlignCenter)
         self.qr_label.setMinimumSize(220, 220)
         self.qr_label.setMaximumSize(260, 260)
         self.qr_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # Always show the loading image first
-        import os
         load_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'gui_template', 'other', 'load.png'))
         if os.path.exists(load_path):
             pix = QPixmap(load_path)
@@ -582,12 +646,12 @@ class OverlayQrcode(OverlayWhite):
             pix = QPixmap()
         scaled_pix = pix.scaled(220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.qr_label.setPixmap(scaled_pix)
-        self.overlay_layout.addWidget(self.qr_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.qr_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self.msg_label = QLabel("", self.overlay_widget)
+        self.msg_label = QLabel("", self._overlay_widget)
         self.msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
         self.msg_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(self.msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self._row_for_buttons = row
 
@@ -602,7 +666,7 @@ class OverlayQrcode(OverlayWhite):
         )
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.overlay_widget)
+        layout.addWidget(self._overlay_widget)
         self.setLayout(layout)
 
     def _init_language(self):
@@ -667,24 +731,27 @@ class OverlayQrcode(OverlayWhite):
             logger.info(f"[DEBUG][OverlayQrcode] Exiting _on_close_btn: return=None")
 
     def closeEvent(self, event: QEvent) -> None:
-        if DEBUG_OverlayQrcode: logger.info(f"[DEBUG][OverlayQrcode] Entering closeEvent: args={(event,)}")
+        if DEBUG_OverlayQrcode_FULL:
+            logger.info(f"[DEBUG][OverlayQrcode] Entering closeEvent: args={(event,)}")
         language_manager.unsubscribe(self.update_language)
         super().closeEvent(event)
-        if DEBUG_OverlayQrcode: logger.info(f"[DEBUG][OverlayQrcode] Exiting closeEvent: return=None")
+        if DEBUG_OverlayQrcode_FULL:
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting closeEvent: return=None")
 
 class OverlayInfo(OverlayGray):
     def __init__(self, parent: QWidget = None) -> None:
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Entering __init__: args={(parent,)}")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Entering __init__: args={(parent,)}")
         super().__init__(parent)
         self.setWindowTitle("Information")
         self.setFixedSize(600, 400)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.overlay_widget = QWidget(self)
-        self.overlay_layout = QGridLayout(self.overlay_widget)
-        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self.overlay_layout.setSpacing(0)
+        self._overlay_widget = QWidget(self)
+        self._overlay_layout = QGridLayout(self._overlay_widget)
+        self._overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self._overlay_layout.setSpacing(0)
         center_col = self.GRID_WIDTH // 2
-        bg = QLabel(self.overlay_widget)
+        bg = QLabel(self._overlay_widget)
         bg.setGeometry(0, 0, 600, 400)
         bg.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
         blur = QGraphicsBlurEffect()
@@ -697,24 +764,26 @@ class OverlayInfo(OverlayGray):
             "gui_template/info3.png"
         ]
         self.current_index = 0
-        self.image_label = QLabel(self.overlay_widget)
+        self.image_label = QLabel(self._overlay_widget)
         self.image_label.setStyleSheet("background: transparent;")
         self.image_label.setAlignment(Qt.AlignCenter)
         self.update_image()
-        self.overlay_layout.addWidget(self.image_label, 0, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.image_label, 0, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         self.btns = Btns(self, [], [], None, None)
         btn_previous = self.btns.add_style1_btn('previous', self._on_info_btn)
         btn_close = self.btns.add_style1_btn('close', self._on_info_btn)
         btn_next = self.btns.add_style1_btn('next', self._on_info_btn)
-        self.btns.place_style1(self.overlay_layout, 1)
+        self.btns.place_style1(self._overlay_layout, 1)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.overlay_widget)
+        layout.addWidget(self._overlay_widget)
         self.setLayout(layout)
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Exiting __init__: return=None")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Exiting __init__: return=None")
 
     def _on_info_btn(self) -> None:
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Entering _on_info_btn: args=()")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Entering _on_info_btn: args=()")
         sender = self.sender()
         if sender and sender.objectName() == 'previous' and self.current_index > 0:
             self.current_index -= 1
@@ -727,10 +796,12 @@ class OverlayInfo(OverlayGray):
         elif sender and sender.objectName() == 'close':
             self.hide_overlay()
             self.deleteLater()
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Exiting _on_info_btn: return=None")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Exiting _on_info_btn: return=None")
 
     def update_image(self) -> None:
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Entering update_image: args=()")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Entering update_image: args=()")
         current_path = self.image_paths[self.current_index]
         pixmap = QPixmap(current_path)
         if not pixmap.isNull():
@@ -739,25 +810,29 @@ class OverlayInfo(OverlayGray):
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation
             ))
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Exiting update_image: return=None")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Exiting update_image: return=None")
 
     def update_buttons_state(self) -> None:
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Entering update_buttons_state: args=()")
-        if DEBUG_OverlayInfo: logger.info(f"[DEBUG][OverlayInfo] Exiting update_buttons_state: return=None")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Entering update_buttons_state: args=()")
+        if DEBUG_OverlayInfo: 
+            logger.info(f"[DEBUG][OverlayInfo] Exiting update_buttons_state: return=None")
 
 class OverlayCountdown(Overlay):
     def __init__(self, parent: QWidget = None, start: int = None) -> None:
-        if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering __init__: args={(parent, start)}")
+        if DEBUG_OverlayCountdown: 
+            logger.info(f"[DEBUG][OverlayCountdown] Entering __init__: args={(parent, start)}")
         super().__init__(parent)
         self.setWindowTitle("Countdown")
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.overlay_widget = QWidget(self)
-        self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
-        self.overlay_layout = QVBoxLayout(self.overlay_widget)
-        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self.overlay_layout.setSpacing(0)
-        self.label = QLabel("", self.overlay_widget)
+        self._overlay_widget = QWidget(self)
+        self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
+        self._overlay_layout = QVBoxLayout(self._overlay_widget)
+        self._overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self._overlay_layout.setSpacing(0)
+        self.label = QLabel("", self._overlay_widget)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setStyleSheet(COUNTDOWN_FONT_STYLE)
         self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -766,11 +841,11 @@ class OverlayCountdown(Overlay):
         shadow.setColor(QColor("white"))
         shadow.setOffset(0, 0)
         self.label.setGraphicsEffect(shadow)
-        self.overlay_layout.addWidget(self.label, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self.label, alignment=Qt.AlignCenter)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        layout.addWidget(self.overlay_widget)
+        layout.addWidget(self._overlay_widget)
         self.setLayout(layout)
         self._anim_timer = QTimer(self)
         self._anim_timer.setSingleShot(True)
@@ -780,7 +855,7 @@ class OverlayCountdown(Overlay):
         if screen:
             geometry = screen.geometry()
             self.setGeometry(geometry)
-            self.overlay_widget.setGeometry(self.rect())
+            self._overlay_widget.setGeometry(self.rect())
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting __init__: return=None")
 
     def center_overlay(self) -> None:
@@ -789,14 +864,14 @@ class OverlayCountdown(Overlay):
 
     def resizeEvent(self, event: QEvent) -> None:
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering resizeEvent: args={(event,)}")
-        self.overlay_widget.setGeometry(self.rect())
+        self._overlay_widget.setGeometry(self.rect())
         super().resizeEvent(event)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting resizeEvent: return=None")
 
     def show_overlay(self) -> None:
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering show_overlay: args=()")
         super().show_overlay()
-        self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
+        self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
         self.label.setVisible(False)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting show_overlay: return=None")
 
@@ -804,7 +879,7 @@ class OverlayCountdown(Overlay):
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering show_number: args={(value,)}")
         self.label.setText(str(value))
         opacity = 0.65 if value > 0 else 1.0
-        self.overlay_widget.setStyleSheet(f"background-color: rgba(255,255,255,{int(opacity*255)});")
+        self._overlay_widget.setStyleSheet(f"background-color: rgba(255,255,255,{int(opacity*255)});")
         self.label.setVisible(True)
         self._anim_timer.start(500)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting show_number: return=None")
@@ -812,13 +887,13 @@ class OverlayCountdown(Overlay):
     def _hide_number(self) -> None:
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering _hide_number: args=()")
         if self.label.text() != "0":
-            self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
+            self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,0);")
         self.label.setVisible(False)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting _hide_number: return=None")
 
     def set_full_white(self) -> None:
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Entering set_full_white: args=()")
-        self.overlay_widget.setStyleSheet("background-color: rgba(255,255,255,1);")
+        self._overlay_widget.setStyleSheet("background-color: rgba(255,255,255,1);")
         self.label.setVisible(False)
         if DEBUG_OverlayCountdown: logger.info(f"[DEBUG][OverlayCountdown] Exiting set_full_white: return=None")
 
@@ -841,11 +916,11 @@ class OverlayLang(OverlayGray):
         self.setWindowTitle("Choix de la langue")
         self.setFixedSize(600, 220)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.overlay_widget = QWidget(self)
-        self.overlay_layout = QGridLayout(self.overlay_widget)
-        self.overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self.overlay_layout.setSpacing(0)
-        bg = QLabel(self.overlay_widget)
+        self._overlay_widget = QWidget(self)
+        self._overlay_layout = QGridLayout(self._overlay_widget)
+        self._overlay_layout.setContentsMargins(0, 0, 0, 0)
+        self._overlay_layout.setSpacing(0)
+        bg = QLabel(self._overlay_widget)
         bg.setGeometry(0, 0, 600, 220)
         bg.setStyleSheet("background-color: rgba(24,24,24,0.82); border-radius: 18px;")
         blur = QGraphicsBlurEffect()
@@ -857,11 +932,11 @@ class OverlayLang(OverlayGray):
         btn_norway = self.btns.add_style1_btn('norway', lambda: self._on_lang_btn('norway'))
         btn_sami = self.btns.add_style1_btn('sami', lambda: self._on_lang_btn('sami'))
         for i in range(GRID_WIDTH):
-            self.overlay_layout.setColumnMinimumWidth(i, 1)
-        self.btns.place_style1(self.overlay_layout, 0)
+            self._overlay_layout.setColumnMinimumWidth(i, 1)
+        self.btns.place_style1(self._overlay_layout, 0)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.overlay_widget)
+        layout.addWidget(self._overlay_widget)
         self.setLayout(layout)
         if DEBUG_OverlayLang: logger.info(f"[DEBUG][OverlayLang] Exiting __init__: return=None")
 

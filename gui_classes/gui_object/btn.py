@@ -480,7 +480,7 @@ class Btns:
         self.clear_style2_btns()
         for name in style1_names:
             self.add_style1_btn(name, slot_style1)
-        # style2_names est maintenant [(name, text_key), ...]
+            
         for name, text_key in style2_names:
             self.add_style2_btn(name, text_key, slot_style2)
         if layout:

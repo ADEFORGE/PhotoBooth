@@ -200,7 +200,7 @@ class Overlay(QWidget):
         if hasattr(self, 'btns') and self.btns:
             self.btns.cleanup()
         self.btns = Btns(self, [], [], None, None)
-        self.btns._setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self._overlay_layout, start_row=start_row)
+        self.btns.setup_buttons(style1_names, style2_names, slot_style1, slot_style2, layout=self._overlay_layout, start_row=start_row)
         self._overlay_widget.raise_()
         self.raise_()
         if DEBUG_Overlay: 

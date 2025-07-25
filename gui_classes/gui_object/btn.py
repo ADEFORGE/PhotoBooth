@@ -436,10 +436,10 @@ class Btns:
 
 
     def _is_valid_btn_name(self, name: str) -> bool:
-        # Accept only alphanumeric and underscores, length 1-32
+        # Accept alphanumeric, underscores, and spaces, length 1-32
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Entering _is_valid_btn_name: args={(name,)}")
-        is_valid = bool(re.match(r'^[A-Za-z0-9_]{1,32}$', name))
+        is_valid = bool(re.match(r'^[A-Za-z0-9_ ]{1,32}$', name))
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting _is_valid_btn_name: return={is_valid}")
         return is_valid

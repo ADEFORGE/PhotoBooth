@@ -1,7 +1,7 @@
 {
   "3": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
@@ -149,9 +149,9 @@
   },
   "23": {
     "inputs": {
-      "seed": 519511931492240,
+      "seed": 1020113207740714,
       "steps": 15,
-      "cfg": 5,
+      "cfg": 4,
       "sampler_name": "dpmpp_2m",
       "scheduler": "AYS SD1",
       "denoise": 1,
@@ -187,7 +187,7 @@
     "inputs": {
       "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.7000000000000002,
+      "end_percent": 0.9000000000000002,
       "control_net": [
         "3",
         0
@@ -208,7 +208,7 @@
   },
   "45": {
     "inputs": {
-      "preprocessor": "CannyEdgePreprocessor",
+      "preprocessor": "ImageLuminanceDetector",
       "resolution": [
         "16",
         0
@@ -227,7 +227,7 @@
     "inputs": {
       "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.7000000000000002,
+      "end_percent": 0.9000000000000002,
       "control_net": [
         "48",
         0
@@ -244,7 +244,7 @@
   },
   "48": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11p_sd15_lineart_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
@@ -286,7 +286,7 @@
   },
   "88": {
     "inputs": {
-      "text": "Transform them into a bold comic book character while preserving their exact identity, age, and gender. Illustrate them with large inked outlines and vivid flat colors typical of classic comic art. Facial structure, body shape, and proportions must remain true to the original person. Use halftone patterns, and a high-contrast palette.(Comic book style: 1.2), (thick ink lines: 1.2), (bold vibrant colors: 1.1), (halftone texture: 1.1), (preserve identity: 1.3)"
+      "text": "\"Render the subject as a classical Renaissance oil painting. Preserve their exact identity, age, and gender, and depict them with high-contrast lighting emerging from a deep, shadowed background. Use smooth, yet expressive brushwork with rich pigment layering, especially in illuminated areas. The composition should be formal, dignified, and naturalistic, with refined anatomy and soft, golden light reminiscent of masters like Rembrandt, Caravaggio, or Leonardo da Vinci. Surround the figure with minimal, period-authentic detail or drapery, avoiding modern or fantastical elements. Textures should reflect aged canvas and layered oil paint, with subtle impasto highlights. Skin tones should be warm and realistic, set against velvety dark shadows. (renaissance painting: 1.1), (clair-obscur: 1.1), (oil painting: 1.1), (visible brushstrokes: 1.5), (pigment texture: 1.1), (impasto highlights: 1.5), (deep shadows: 1.1), (dramatic lighting: 1.1), (canvas texture: 1.1), (moody atmosphere: 1.1), (rich pigments: 1.5), (golden tones: 1.1)"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -337,7 +337,7 @@
   },
   "96": {
     "inputs": {
-      "preprocessor": "ImageLuminanceDetector",
+      "preprocessor": "LineArtPreprocessor",
       "resolution": [
         "16",
         0

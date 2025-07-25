@@ -35,6 +35,8 @@ class BaseWindow(QWidget):
         super().__init__(parent)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
+        # Always on top and fullscreen
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self._generation_in_progress = False
         self.loading_overlay = None
         self.generated_image = None

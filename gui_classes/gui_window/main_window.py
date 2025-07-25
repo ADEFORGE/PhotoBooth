@@ -31,7 +31,8 @@ class MainWindow(BaseWindow):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
         self.setAutoFillBackground(False)
-        self.showFullScreen()
+        # Always on top and fullscreen
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self._default_background_color = QColor(0, 0, 0)
         self.countdown_overlay_manager = CountdownThread(self, 5)
         self._generation_task = None
@@ -52,6 +53,8 @@ class MainWindow(BaseWindow):
         self._texts = {}
         language_manager.subscribe(self.update_language)
         self.update_language()
+        # Move showFullScreen to the very end to ensure all widgets exist
+        self.showFullScreen()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Exiting __init__: return=None")
 
@@ -212,7 +215,7 @@ class MainWindow(BaseWindow):
     def show_qrcode_overlay(self, image_to_send):
         logger.info(f"[MainWindow] show_qrcode_overlay called with image_to_send={type(image_to_send)}")
         # URL du hotspot, à adapter selon la config réseau
-        hotspot_url = "http://192.168.10.2:5000/share"
+        hotspot_url = "https://192.168.10.2:5000/share"
         overlay_qr = OverlayQrcode(
             self,
             on_close=self.set_state_default,
@@ -256,6 +259,12 @@ class MainWindow(BaseWindow):
                 return
             qimg = self.generated_image
             self.show_rules_overlay(qimg)
+        elif sender and sender.objectName() == 'regenerate':
+            self.generation(
+                self.selected_style,
+                self.original_photo,
+                callback=self.show_generation
+            )
         else:
             self.set_state_default()
         if DEBUG_MainWindow:
@@ -289,7 +298,7 @@ class MainWindow(BaseWindow):
             style1_names=["take_selfie"],
             style2_names=style2,
             slot_style1=self.take_selfie,
-            slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.style_name if btn else None, generate_image=False)
+            slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.get_name(), generate_image=False)
         )
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.raise_()
@@ -312,7 +321,7 @@ class MainWindow(BaseWindow):
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_validation: args={{}}")
-        self.setup_buttons_style_1(['accept', 'close'], slot_style1=self._on_accept_close)
+        self.setup_buttons_style_1(['accept', 'close','regenerate'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
             self.btns.raise_()
             for btn in self.btns.style1_btns:

@@ -18,7 +18,7 @@ class HotspotClient:
         self.resp_data: dict = {}
         self.qr_bytes: bytes = b""
         self.credentials: tuple = (None, None)
-        self.error_image = Path(__file__).parent / 'template' / 'error.png'
+        self.error_image = Path(__file__).parent.parent / 'gui_template' / 'other' / 'error.png'
         
     def set_image(self, path: str):
         """Définit le chemin de l'image à envoyer"""
@@ -57,7 +57,7 @@ class HotspotClient:
         try:
             with self.image_path.open("rb") as f:
                 files = {"image": (self.image_path.name, f, "image/png")}
-                resp = requests.post(self.url, files=files, timeout=self.timeout)
+                resp = requests.post(self.url, files=files, timeout=self.timeout, verify=False)
                 resp.raise_for_status()
             self.resp_data = resp.json()
             ssid = self.resp_data.get("ssid")
@@ -96,10 +96,11 @@ class HotspotClient:
         return p
 
     def save_info(self, out_path: str) -> Path:
-        """Sauve les credentials (SSID et mot de passe) dans un fichier JSON."""
+        """Sauve la réponse complète reçue du serveur dans un fichier JSON."""
         p = Path(out_path)
-        data = {"ssid": self.credentials[0], "password": self.credentials[1]}
-        p.write_text(json.dumps(data, indent=2))
+        p.write_text(
+            json.dumps(self.resp_data, indent=2, ensure_ascii=False)
+        )
         return p
 
 if __name__ == '__main__':
@@ -107,7 +108,7 @@ if __name__ == '__main__':
         print(f"Usage: {sys.argv[0]} <image_path>")
         sys.exit(1)
     img = sys.argv[1]
-    client = HotspotClient(url="http://192.168.10.2:5000/share")
+    client = HotspotClient(url="https://192.168.10.2:5000/share")
     client.set_image(img)
     client.run()
     try:

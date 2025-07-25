@@ -21,7 +21,8 @@ class SleepScreenWindow(BaseWindow):
         self.setWindowTitle("PhotoBooth - Veille")
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background: transparent;")
-        self.showFullScreen()
+        # Always on top and fullscreen
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.center_widget = QWidget(self.overlay_widget)
         self.center_widget.setAttribute(Qt.WA_TranslucentBackground)
         self.overlay_layout.addWidget(
@@ -48,6 +49,7 @@ class SleepScreenWindow(BaseWindow):
         )
         language_manager.subscribe(self.update_language)
         self.update_language()
+        self.showFullScreen()
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting __init__: return=None")
 

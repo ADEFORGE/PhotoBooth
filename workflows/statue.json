@@ -149,9 +149,9 @@
   },
   "23": {
     "inputs": {
-      "seed": 1089789284519586,
+      "seed": 277843561005862,
       "steps": 15,
-      "cfg": 3.6,
+      "cfg": 5,
       "sampler_name": "dpmpp_2m",
       "scheduler": "AYS SD1",
       "denoise": 1,
@@ -185,7 +185,7 @@
   },
   "26": {
     "inputs": {
-      "strength": 0.5000000000000001,
+      "strength": 1.0000000000000002,
       "start_percent": 0,
       "end_percent": 0.8000000000000002,
       "control_net": [
@@ -225,9 +225,9 @@
   },
   "47": {
     "inputs": {
-      "strength": 0.5000000000000001,
+      "strength": 1.0000000000000002,
       "start_percent": 0,
-      "end_percent": 0.8000000000000002,
+      "end_percent": 1,
       "control_net": [
         "48",
         0
@@ -286,7 +286,7 @@
   },
   "88": {
     "inputs": {
-      "text": "Turn this person into a marble statue while preserving their original identity, age, and gender exactly. Sculpt them in smooth, white marble with realistic but modest features. Avoid any exaggeration or changes to body shape or facial structure. The statue should resemble classical art with respectful, child-appropriate detail. Use soft lighting and natural stone texture, with no added accessories or fantasy elements. Make sure the whole statue is white without colors"
+      "text": "Make it into a marble statue while preserving their original identity, age, and gender exactly. Sculpt them in smooth, white marble with realistic but modest features. Avoid any exaggeration or changes to body shape or facial structure. The statue should resemble classical art with respectful, child-appropriate detail. Use soft lighting and natural stone texture, with no added accessories or fantasy elements. Make sure the whole statue is white without colors. Make the eyes white, no black details. Lapis blue stones mosaics, gold metal engravings, green jade stones, obsidian glass tiles. (White eyes: 1.1), (White hair: 1.1)"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -295,7 +295,7 @@
   },
   "92": {
     "inputs": {
-      "preset": "FACEID PORTRAIT (style transfer)",
+      "preset": "FACEID PLUS V2",
       "lora_strength": 0.6000000000000001,
       "provider": "CPU",
       "model": [
@@ -312,7 +312,7 @@
     "inputs": {
       "weight": 1.0000000000000002,
       "weight_faceidv2": 1.0000000000000002,
-      "weight_type": "composition",
+      "weight_type": "strong style transfer",
       "combine_embeds": "concat",
       "start_at": 0,
       "end_at": 1,
@@ -326,7 +326,7 @@
         1
       ],
       "image": [
-        "17",
+        "98",
         0
       ]
     },
@@ -337,7 +337,7 @@
   },
   "96": {
     "inputs": {
-      "preprocessor": "none",
+      "preprocessor": "TilePreprocessor",
       "resolution": [
         "16",
         0
@@ -367,13 +367,13 @@
   "98": {
     "inputs": {
       "brightness": 0,
-      "contrast": 1,
+      "contrast": 1.0000000000000002,
       "saturation": 0,
-      "sharpness": 1,
+      "sharpness": 1.0000000000000002,
       "blur": 0,
       "gaussian_blur": 0,
       "edge_enhance": 0,
-      "detail_enhance": "false",
+      "detail_enhance": "true",
       "image": [
         "96",
         0

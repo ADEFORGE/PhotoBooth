@@ -46,6 +46,13 @@ class Btn(QPushButton):
         self._setup_standby_manager_events()
         if DEBUG_Btn:
             logger.info(f"[DEBUG][Btn] Exiting __init__: return=None")
+    
+    def get_name(self) -> str:
+        if DEBUG_Btn:
+            logger.info(f"[DEBUG][Btn] Entering get_name: args=()")
+        if DEBUG_Btn:
+            logger.info(f"[DEBUG][Btn] Exiting get_name: return={self._name}")
+        return self._name
 
     def _setup_standby_manager_events(self) -> None:
         if DEBUG_Btn:

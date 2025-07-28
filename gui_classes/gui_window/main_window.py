@@ -20,18 +20,21 @@ from gui_classes.gui_manager.background_manager import BackgroundManager
 from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
 from gui_classes.gui_object.toolbox import QRCodeUtils
 from gui_classes.gui_manager.language_manager import language_manager
+from gui_classes.gui_object.constante import ShareByHotspot
 
 
 class MainWindow(BaseWindow):
 
     def __init__(self, parent: Optional[object] = None) -> None:
+        """
+        Initialize the MainWindow with an optional parent object.
+        """
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering __init__: args={{'parent':{parent}}}")
         super().__init__(parent)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
         self.setAutoFillBackground(False)
-        # Always on top and fullscreen
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self._default_background_color = QColor(0, 0, 0)
         self.countdown_overlay_manager = CountdownThread(self, 5)
@@ -53,20 +56,30 @@ class MainWindow(BaseWindow):
         self._texts = {}
         language_manager.subscribe(self.update_language)
         self.update_language()
-        # Move showFullScreen to the very end to ensure all widgets exist
         self.showFullScreen()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Exiting __init__: return=None")
 
     def update_language(self) -> None:
+        """
+        Update the UI texts based on the current language settings.
+        """
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Entering update_language: args={{}}")
         self.update_frame()
         self._texts = language_manager.get_texts('main_window') or {}
         self.update_frame()
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Exiting update_language: return=None")
 
     def on_enter(self) -> None:
+        """
+        Called when entering the window, updates UI and background.
+        """        
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering on_enter: args={{}}")
+        self.update_frame()
         if hasattr(self, 'background_manager'):
             self.background_manager.on_enter()
         self.set_state_default()
@@ -75,12 +88,14 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def on_leave(self) -> None:
+        """
+        Called when leaving the window, cleans up and resets state.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering on_leave: args={{}}")
         if hasattr(self, 'background_manager'):
             self.background_manager.on_leave()
-        # Appel du on_leave de la classe parente pour nettoyage overlays
         super().on_leave()
         self.cleanup()
         self.hide_loading()
@@ -98,6 +113,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def cleanup(self) -> None:
+        """
+        Clean up resources and disconnect signals for the window.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering cleanup: args={{}}")
@@ -115,6 +133,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def set_generation_style(self, checked: bool, style_name: str, generate_image: bool = False) -> None:
+        """
+        Set the selected style for image generation and optionally generate an image.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_generation_style: args={{'checked':{checked},'style_name':{style_name},'generate_image':{generate_image}}}")
@@ -135,6 +156,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def take_selfie(self) -> None:
+        """
+        Start the selfie process, including countdown and image generation.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering take_selfie: args={{}}")
@@ -163,11 +187,21 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def selfie_countdown(self, on_finished: Optional[Callable[[], None]] = None) -> None:
+        """
+        Start the countdown before taking a selfie, with an optional callback.
+        """
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Entering selfie_countdown: args={{'on_finished':{on_finished}}}")
         self.update_frame()
         self.countdown_overlay_manager.start_countdown(on_finished=on_finished)
         self.update_frame()
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Exiting selfie_countdown: return=None")
 
     def selfie(self, callback: Optional[Callable[[], None]] = None) -> None:
+        """
+        Capture a selfie and call the callback when done.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering selfie: args={{'callback':{callback}}}")
@@ -186,6 +220,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def generation(self, style_name: str, input_image: QImage, callback: Optional[Callable[[], None]] = None) -> None:
+        """
+        Generate an image using the selected style and input image, with an optional callback.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering generation: args={{'style_name':{style_name},'input_image':<QImage>,'callback':{callback}}}")
@@ -200,6 +237,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def show_generation(self, qimg: QImage) -> None:
+        """
+        Display the generated image and update the UI to validation state.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering show_generation: args={{'qimg':<QImage>}}")
@@ -212,9 +252,12 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Exiting show_generation: return=None")
         self.update_frame()
 
-    def show_qrcode_overlay(self, image_to_send):
-        logger.info(f"[MainWindow] show_qrcode_overlay called with image_to_send={type(image_to_send)}")
-        # URL du hotspot, à adapter selon la config réseau
+    def show_qrcode_overlay(self, image_to_send: object) -> None:
+        """
+        Show the QR code overlay for sharing the given image.
+        """
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Entering show_qrcode_overlay: args={{'image_to_send':{type(image_to_send)}}}")
         hotspot_url = "https://192.168.10.2:5000/share"
         overlay_qr = OverlayQrcode(
             self,
@@ -223,15 +266,18 @@ class MainWindow(BaseWindow):
             image_to_send=image_to_send
         )
         overlay_qr.show_overlay()
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Exiting show_qrcode_overlay: return=None")
 
-    def show_rules_overlay(self, qimg):
+    def show_rules_overlay(self, qimg: QImage) -> None:
         """
-        Initialise et affiche l'overlay des règles.
-        Si ShareByHotspot est False, saute l'overlay et revient à l'état par défaut.
+        Show the rules overlay and handle validation or refusal.
         """
-        from gui_classes.gui_object.constante import ShareByHotspot
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Entering show_rules_overlay: args={{'qimg':<QImage>}}")
         if not ShareByHotspot:
-            logger.info("[MainWindow] ShareByHotspot désactivé, retour à l'état par défaut.")
+            if DEBUG_MainWindow:
+                logger.info("[DEBUG][MainWindow] ShareByHotspot off.")
             self.set_state_default()
             return
         def on_rules_validated():
@@ -244,15 +290,19 @@ class MainWindow(BaseWindow):
             on_close=on_rules_refused
         )
         overlay.show_overlay()
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Exiting show_rules_overlay: return=None")
 
     def _on_accept_close(self) -> None:
+        """
+        Handle accept, close, or regenerate actions from the validation UI.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering _on_accept_close: args={{}}")
         sender = self.sender()
         if sender and sender.objectName() == 'accept':
             self.set_state_wait()
-            # Vérifier qu'une image a bien été générée
             if not hasattr(self, 'generated_image') or self.generated_image is None:
                 logger.info("Aucune image générée disponible.")
                 self.set_state_default()
@@ -272,6 +322,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def reset_generation_state(self) -> None:
+        """
+        Reset the state related to image generation.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering reset_generation_state: args={{}}")
@@ -285,12 +338,14 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def set_state_default(self) -> None:
+        """
+        Set the UI to the default state, ready for a new selfie.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
         self.clear_display()
-        # Prépare la liste des boutons style2 comme liste de paires (name, text_key)
         style2 = [
             (name, f"style.{name}") for name in dico_styles.keys()
         ]
@@ -318,6 +373,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def set_state_validation(self) -> None:
+        """
+        Set the UI to the validation state after image generation.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_validation: args={{}}")
@@ -336,6 +394,9 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def set_state_wait(self) -> None:
+        """
+        Set the UI to the waiting state, disabling buttons.
+        """
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_wait: args={{}}")
@@ -351,9 +412,11 @@ class MainWindow(BaseWindow):
         self.update_frame()
 
     def update_frame(self) -> None:
+        """
+        Update the background and UI frame.
+        """
         if DEBUG_MainWindow_FULL:
             logger.info(f"[DEBUG][MainWindow] Entering update_frame: args={{}}")
-        # Sécurité : update uniquement si les objets existent
         if hasattr(self, 'background_manager') and self.background_manager:
             if hasattr(self, 'generated_image') and self.generated_image and not isinstance(self.generated_image, str):
                 self.background_manager.set_generated(self.generated_image)
@@ -366,6 +429,9 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Exiting update_frame: return=None")
 
     def user_activity(self) -> None:
+        """
+        Notify the standby manager of user activity.
+        """
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering user_activity: args={{}}")
         if self.standby_manager:
@@ -374,6 +440,9 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Exiting user_activity: return=None")
 
     def resizeEvent(self, event: QEvent) -> None:
+        """
+        Handle window resize events and update geometry of UI elements.
+        """
         if DEBUG_MainWindow_FULL:
             logger.info(f"[DEBUG][MainWindow] Entering resizeEvent: args={{'event':{event}}}")
         super().resizeEvent(event)
@@ -388,6 +457,9 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Exiting resizeEvent: return=None")
 
     def closeEvent(self, event: QEvent) -> None:
+        """
+        Handle the window close event and clean up resources.
+        """
         if DEBUG_MainWindow_FULL:
             logger.info(f"[DEBUG][MainWindow] Entering closeEvent: args={{'event':{event}}}")
         if hasattr(self, 'background_manager'):
@@ -397,6 +469,9 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Exiting closeEvent: return=None")
 
     def paintEvent(self, event: QEvent) -> None:
+        """
+        Handle paint events for custom background rendering.
+        """
         if DEBUG_MainWindow_FULL:
             logger.info(f"[DEBUG][MainWindow] Entering paintEvent: args={{'event':{event}}}")
         painter = QPainter(self)
@@ -411,8 +486,14 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow_FULL:
             logger.info(f"[DEBUG][MainWindow] Exiting paintEvent: return=None")
 
-    def preset(self):
-        """Appelle le preset du background_manager si présent."""
-        logger.info("[MainWindow] Calling preset on background_manager")
+    def preset(self) -> None:
+        """
+        Call the preset method on the background manager if present.
+        """
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Entering preset: args={{}}")
+            logger.info("[DEBUG][MainWindow] Calling preset on background_manager")
         if hasattr(self, 'background_manager'):
             self.background_manager.preset()
+        if DEBUG_MainWindow:
+            logger.info(f"[DEBUG][MainWindow] Exiting preset: return=None")

@@ -80,15 +80,15 @@ class TimerUpdateDisplay:
         """
         Call all subscribed callback functions for each timer tick.
         """
-        if DEBUG_TimerUpdateDisplay:
+        if DEBUG_TimerUpdateDisplay_FULL:
             logger.info(f"[DEBUG][TimerUpdateDisplay] Entering update_frame: args={{}}")
         for func in self._subscribers:
             try:
                 func()
             except Exception as e:
-                if DEBUG_TimerUpdateDisplay:
+                if DEBUG_TimerUpdateDisplay_FULL:
                     logger.info(f"[DEBUG][TimerUpdateDisplay] Exception in subscriber {func}: {e}")
-        if DEBUG_TimerUpdateDisplay:
+        if DEBUG_TimerUpdateDisplay_FULL:
             logger.info(f"[DEBUG][TimerUpdateDisplay] Exiting update_frame: return=None")
 
 class WindowManager(QWidget):

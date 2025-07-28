@@ -1,4 +1,3 @@
-
 import logging
 logger = logging.getLogger(__name__)
 from PySide6.QtCore import Qt
@@ -14,6 +13,9 @@ DEBUG_SleepScreenWindow_FULL: bool = DEBUG_FULL
 
 class SleepScreenWindow(BaseWindow):
     def __init__(self, parent: QWidget = None) -> None:
+        """
+        Initialize the SleepScreenWindow with an optional parent widget.
+        """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering __init__: args={{'parent':{parent}}}")
         super().__init__(parent)
@@ -21,7 +23,6 @@ class SleepScreenWindow(BaseWindow):
         self.setWindowTitle("PhotoBooth - Veille")
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background: transparent;")
-        # Always on top and fullscreen
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.center_widget = QWidget(self.overlay_widget)
         self.center_widget.setAttribute(Qt.WA_TranslucentBackground)
@@ -54,6 +55,9 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting __init__: return=None")
 
     def update_language(self) -> None:
+        """
+        Update the displayed language texts for the title and message labels.
+        """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering update_language: args={{}}")
         texts = language_manager.get_texts('WelcomeWidget') or {}
@@ -63,6 +67,9 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting update_language: return=None")
 
     def resizeEvent(self, event: QResizeEvent) -> None:
+        """
+        Handle window resize events and update overlay geometry.
+        """
         if DEBUG_SleepScreenWindow_FULL:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering resizeEvent: args={{'event':{event}}}")
         super().resizeEvent(event)
@@ -71,17 +78,23 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting resizeEvent: return=None")
 
     def showEvent(self, event: QShowEvent) -> None:
+        """
+        Handle the show event and display all buttons.
+        """
         if DEBUG_SleepScreenWindow_FULL:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering showEvent: args={{'event':{event}}}")
         super().showEvent(event)
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.show()
                 btn.raise_()
         if DEBUG_SleepScreenWindow_FULL:
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting showEvent: return=None")
 
     def hideEvent(self, event: QHideEvent) -> None:
+        """
+        Handle the hide event for the window.
+        """
         if DEBUG_SleepScreenWindow_FULL:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering hideEvent: args={{'event':{event}}}")
         super().hideEvent(event)
@@ -89,6 +102,9 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting hideEvent: return=None")
 
     def cleanup(self) -> None:
+        """
+        Clean up resources and unsubscribe from language updates.
+        """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering cleanup: args={{}}")
         if self.btns:
@@ -100,6 +116,9 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting cleanup: return=None")
 
     def on_camera_button_clicked(self) -> None:
+        """
+        Handle the camera button click event and switch to the main window.
+        """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering on_camera_button_clicked: args={{}}")
         self.window().transition_window(1)
@@ -107,6 +126,9 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting on_camera_button_clicked: return=None")
 
     def on_enter(self) -> None:
+        """
+        Called when entering the window, updates language and shows UI elements.
+        """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering on_enter: args={{}}")
         language_manager.subscribe(self.update_language)
@@ -119,30 +141,38 @@ class SleepScreenWindow(BaseWindow):
             )
         self.title_label.show()
         self.message_label.show()
-        for btn in self.btns.style1_btns + self.btns.style2_btns:
+        for btn in self.btns.get_every_btns():
             btn.show()
             btn.setEnabled(True)
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting on_enter: return=None")
 
     def on_leave(self) -> None:
+        """
+        Called when leaving the window, hides UI elements and cleans up.
+        """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering on_leave: args={{}}")
         self.title_label.hide()
         self.message_label.hide()
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.hide()
                 btn.setEnabled(False)
             self.btns.cleanup()
             self.btns = None
         language_manager.unsubscribe(self.update_language)
-        # Appel du on_leave de la classe parente pour nettoyage overlays
         super().on_leave()
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting on_leave: return=None")
 
-    def mousePressEvent(self, event):
-        # Rendre toute la fenêtre cliquable et lancer le même signal que le bouton
+    def mousePressEvent(self, event) -> None:
+        """
+        Handle mouse press events to trigger the camera button click.
+        """
+        if DEBUG_SleepScreenWindow:
+            logger.info(f"[DEBUG][SleepScreenWindow] Entering mousePressEvent: args={{'event':{event}}}")
         self.on_camera_button_clicked()
         super().mousePressEvent(event)
+        if DEBUG_SleepScreenWindow:
+            logger.info(f"[DEBUG][SleepScreenWindow] Exiting mousePressEvent: return=None")

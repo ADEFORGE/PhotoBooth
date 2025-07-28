@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 )
 import re
 from gui_classes.gui_object.overlay import (
-    OverlayLoading, OverlayRules, OverlayInfo, OverlayQrcode, OverlayLang
+    OverlayLoading, OverlayRules, OverlayQrcode, OverlayLang
 )
 from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
 from gui_classes.gui_object.constante import (
@@ -30,12 +30,15 @@ from gui_classes.gui_object.btn import Btns
 
 class BaseWindow(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
+        """
+        Initialize the BaseWindow with an optional parent widget.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering __init__: args={{'parent': {parent}}}")
         super().__init__(parent)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
-        # Always on top and fullscreen
+
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self._generation_in_progress = False
         self.loading_overlay = None
@@ -62,11 +65,14 @@ class BaseWindow(QWidget):
         self._rules_btn.clicked.connect(self.show_rules_dialog)
         self.overlay_widget.raise_()
         self.raise_()
-        self._overlays = []  # Liste centralisée des overlays créés par cette fenêtre
+        self._overlays = [] 
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting __init__: return=None")
 
     def resizeEvent(self, event: QResizeEvent) -> None:
+        """
+        Handle window resize events and update overlay geometry.
+        """
         if DEBUG_BaseWindow_FULL:
             logger.info(f"[DEBUG][BaseWindow] Entering resizeEvent: args={{'event': {event}}}")
         self.update()
@@ -74,13 +80,16 @@ class BaseWindow(QWidget):
         self.overlay_widget.setVisible(True)
         self.overlay_widget.raise_()
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.raise_()
         super().resizeEvent(event)
         if DEBUG_BaseWindow_FULL:
             logger.info(f"[DEBUG][BaseWindow] Exiting resizeEvent: return=None")
 
     def paintEvent(self, event: QPaintEvent) -> None:
+        """
+        Handle paint events for custom rendering.
+        """
         if DEBUG_BaseWindow_FULL:
             logger.info(f"[DEBUG][BaseWindow] Entering paintEvent: args={{'event': {event}}}")
         painter = QPainter(self)
@@ -94,6 +103,9 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting paintEvent: return=None")
 
     def clear_display(self) -> None:
+        """
+        Clear and update the display area.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering clear_display: args={{}}")
         self.update()
@@ -101,10 +113,13 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting clear_display: return=None")
 
     def clear_buttons(self) -> None:
+        """
+        Remove and delete all buttons from the overlay layout.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering clear_buttons: args={{}}")
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.hide()
                 btn.setParent(None)
                 btn.deleteLater()
@@ -122,6 +137,9 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting clear_buttons: return=None")
 
     def get_grid_width(self) -> int:
+        """
+        Return the grid width used for layout.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering get_grid_width: args={{}}")
         result = GRID_WIDTH
@@ -130,6 +148,9 @@ class BaseWindow(QWidget):
         return result
 
     def setup_logo(self) -> QWidget:
+        """
+        Set up and return the logo widget for the window.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setup_logo: args={{}}")
         layout = QVBoxLayout()
@@ -152,12 +173,15 @@ class BaseWindow(QWidget):
         return widget
 
     def setup_interaction_btn(self) -> QWidget:
+        """
+        Set up and return the interaction buttons widget.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setup_interaction_btn: args={{}}")
-        # Utilisation de la taille dynamique des boutons
+
         from gui_classes.gui_object.btn import _compute_dynamic_size
         btn_size = _compute_dynamic_size(QSize(80, 80)).width()
-        # Style dynamique pour la taille du bouton
+
         btn_style = (
             f"QPushButton {{"
             f"background-color: rgba(180,180,180,0.35);"
@@ -206,6 +230,9 @@ class BaseWindow(QWidget):
         return widget
 
     def setupcontainer(self) -> None:
+        """
+        Set up the main container layout for the window.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setupcontainer: args={{}}")
         layout = QHBoxLayout()
@@ -224,6 +251,9 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting setupcontainer: return=None")
 
     def setup_row_stretches(self) -> None:
+        """
+        Configure row stretches for the overlay layout.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setup_row_stretches: args={{}}")
         for row, stretch in GRID_ROW_STRETCHES.items():
@@ -235,6 +265,9 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting setup_row_stretches: return=None")
 
     def show_loading(self) -> None:
+        """
+        Show the loading overlay on the window.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering show_loading: args={{}}")
         overlay = self._ensure_overlay()
@@ -245,6 +278,9 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting show_loading: return=None")
 
     def hide_loading(self) -> None:
+        """
+        Hide the loading overlay if it is visible.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering hide_loading: args={{}}")
         if self.loading_overlay:
@@ -253,6 +289,9 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting hide_loading: return=None")
 
     def _ensure_overlay(self) -> OverlayLoading:
+        """
+        Ensure the loading overlay exists and return it.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering _ensure_overlay: args={{}}")
         if not self.loading_overlay:
@@ -262,15 +301,19 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting _ensure_overlay: return={self.loading_overlay}")
         return self.loading_overlay
 
-    def register_overlay(self, overlay):
-        """Ferme tous les overlays actifs avant d'enregistrer le nouvel overlay."""
+    def register_overlay(self, overlay: object) -> None:
+        """
+        Register a new overlay, closing all active overlays first.
+        """
         logger.info(f"[BaseWindow] register_overlay called with overlay={overlay}")
-        #self.clean_all_overlays()
+
         if overlay not in self._overlays:
             self._overlays.append(overlay)
 
-    def clean_all_overlays(self):
-        """Nettoie tous les overlays enregistrés et vide la liste."""
+    def clean_all_overlays(self) -> None:
+        """
+        Clean up all registered overlays and clear the list.
+        """
         logger.info("[BaseWindow] clean_all_overlays called, cleaning overlays.")
         for overlay in list(self._overlays):
             try:
@@ -279,8 +322,10 @@ class BaseWindow(QWidget):
                 pass
         self._overlays.clear()
 
-    def on_leave(self):
-        """Appelée lors du changement de fenêtre, nettoie les overlays."""
+    def on_leave(self) -> None:
+        """
+        Called when changing windows, cleans up overlays.
+        """
         logger.info("[BaseWindow] on_leave called, cleaning overlays.")
         self.clean_all_overlays()
 
@@ -291,6 +336,9 @@ class BaseWindow(QWidget):
         slot_style1: Optional[Callable[..., None]] = None,
         slot_style2: Optional[Callable[..., None]] = None
     ) -> None:
+        """
+        Set up buttons for both style 1 and style 2 with optional slots.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setup_buttons: args={{'style1_names': {style1_names}, 'style2_names': {style2_names}, 'slot_style1': {slot_style1}, 'slot_style2': {slot_style2}}}")
         self.clear_buttons()
@@ -303,7 +351,7 @@ class BaseWindow(QWidget):
             layout=self.overlay_layout, start_row=3
         )
         self.overlay_widget.raise_()
-        for btn in self.btns.style1_btns + self.btns.style2_btns:
+        for btn in self.btns.get_every_btns():
             btn.raise_()
             btn.show()
         self.raise_()
@@ -315,6 +363,9 @@ class BaseWindow(QWidget):
         style1_names: List[str],
         slot_style1: Optional[Callable[..., None]] = None
     ) -> None:
+        """
+        Set up only style 1 buttons with an optional slot.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setup_buttons_style_1: args={{'style1_names': {style1_names}, 'slot_style1': {slot_style1}}}")
         if self.btns:
@@ -332,6 +383,9 @@ class BaseWindow(QWidget):
         style2_names: List[str],
         slot_style2: Optional[Callable[..., None]] = None
     ) -> None:
+        """
+        Set up only style 2 buttons with an optional slot.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering setup_buttons_style_2: args={{'style2_names': {style2_names}, 'slot_style2': {slot_style2}}}")
         if self.btns:
@@ -345,17 +399,23 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting setup_buttons_style_2: return=None")
 
     def showEvent(self, event: QShowEvent) -> None:
+        """
+        Handle the show event and raise overlays and buttons.
+        """
         if DEBUG_BaseWindow_FULL:
             logger.info(f"[DEBUG][BaseWindow] Entering showEvent: args={{'event': {event}}}")
         super().showEvent(event)
         self.overlay_widget.raise_()
         if self.btns:
-            for btn in self.btns.style1_btns + self.btns.style2_btns:
+            for btn in self.btns.get_every_btns():
                 btn.raise_()
         if DEBUG_BaseWindow_FULL:
             logger.info(f"[DEBUG][BaseWindow] Exiting showEvent: return=None")
 
     def cleanup(self) -> None:
+        """
+        Clean up resources, overlays, and buttons for the window.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering cleanup: args={{}}")
         if self.btns:
@@ -371,17 +431,14 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting cleanup: return=None")
 
-    def show_info_dialog(self) -> None:
-        if DEBUG_BaseWindow:
-            logger.info(f"[DEBUG][BaseWindow] Entering show_info_dialog: args={{}}")
-        OverlayInfo(self).show_overlay()
-        if DEBUG_BaseWindow:
-            logger.info(f"[DEBUG][BaseWindow] Exiting show_info_dialog: return=None")
+
 
     def show_rules_dialog(self) -> None:
+        """
+        Show the rules dialog overlay and display a QR code if validated.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering show_rules_dialog: args={{}}")
-        # Toujours utiliser self comme parent pour garantir l'enregistrement correct
         parent = self
         def show_qrcode_overlay() -> None:
             if self.generated_image is not None:
@@ -394,19 +451,24 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting show_rules_dialog: return=None")
 
     def show_lang_dialog(self) -> None:
+        """
+        Show the language selection dialog overlay.
+        """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering show_lang_dialog: args={{}}")
         OverlayLang(self).show_overlay()
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting show_lang_dialog: return=None")
 
-    def show_message(self, items, message: str, duration: int = 2000) -> None:
+    def show_message(self, items: object, message: str, duration: int = 2000) -> None:
         """
-        Affiche un message (tooltip) centré sur le premier widget trouvé dans items.
+        Display a tooltip message centered on the first widget found in items.
         items : liste de widgets (ou boutons)
         message : texte à afficher
         duration : durée d'affichage en ms
         """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering show_message: args={{'items': {items}, 'message': {message}, 'duration': {duration}}}")
         target = None
         for widget in items:
             if widget is not None:
@@ -424,3 +486,5 @@ class BaseWindow(QWidget):
                 app.setStyleSheet(new_style + "\n" + TOOLTIP_STYLE)
             global_pos = target.mapToGlobal(target.rect().center())
             QToolTip.showText(global_pos, message, target, target.rect(), duration)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting show_message: return=None")

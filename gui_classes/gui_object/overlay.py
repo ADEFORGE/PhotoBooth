@@ -157,9 +157,11 @@ class Overlay(QWidget):
         """
         Get the background color for the overlay.
         """
-        if DEBUG_Overlay: logger.info(f"[DEBUG][Overlay] Entering get_overlay_bg_color: args=()")
+        if DEBUG_Overlay_FULL:
+            logger.info(f"[DEBUG][Overlay] Entering get_overlay_bg_color: args=()")
         result = QColor(0, 0, 0, 0)
-        if DEBUG_Overlay: logger.info(f"[DEBUG][Overlay] Exiting get_overlay_bg_color: return={result}")
+        if DEBUG_Overlay_FULL: 
+            logger.info(f"[DEBUG][Overlay] Exiting get_overlay_bg_color: return={result}")
         return result
 
     def paintEvent(self, event: QEvent) -> None:
@@ -377,11 +379,11 @@ class OverlayGray(Overlay):
         """
         Return the background color for the gray overlay.
         """
-        if DEBUG_OverlayGray: 
+        if DEBUG_OverlayGray_FULL: 
             logger.info(f"[DEBUG][OverlayGray] Entering get_overlay_bg_color: args=()")
 
         result = QColor(24, 24, 24, 210)
-        if DEBUG_OverlayGray: 
+        if DEBUG_OverlayGray_FULL: 
             logger.info(f"[DEBUG][OverlayGray] Exiting get_overlay_bg_color: return={result}")
         return result
 
@@ -404,12 +406,12 @@ class OverlayWhite(Overlay):
         """
         Return the background color for the white overlay.
         """
-        if DEBUG_OverlayWhite: 
+        if DEBUG_OverlayWhite_FULL: 
             logger.info(f"[DEBUG][OverlayWhite] Entering get_overlay_bg_color: args=()")
 
         alpha = int(255 * 0.85)
         result = QColor(255, 255, 255, alpha)
-        if DEBUG_OverlayWhite: 
+        if DEBUG_OverlayWhite_FULL: 
             logger.info(f"[DEBUG][OverlayWhite] Exiting get_overlay_bg_color: return={result}")
         return result
 

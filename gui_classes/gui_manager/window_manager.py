@@ -93,6 +93,9 @@ class TimerUpdateDisplay:
 
 class WindowManager(QWidget):
     def __init__(self) -> None:
+        """
+        Initialize the WindowManager and set up the main application windows and overlays.
+        """
         if DEBUG_WindowManager:
             logger.info(f"[DEBUG][WindowManager] Entering __init__: args={{}}")
         super().__init__()
@@ -127,6 +130,9 @@ class WindowManager(QWidget):
             logger.info(f"[DEBUG][WindowManager] Exiting __init__: return=None")
 
     def resizeEvent(self, event: QResizeEvent) -> None:
+        """
+        Handle window resize events and update overlay geometry.
+        """
         if DEBUG_WindowManager:
             logger.info(f"[DEBUG][WindowManager] Entering resizeEvent: args={{'event':{event!r}}}")
         super().resizeEvent(event)
@@ -136,6 +142,9 @@ class WindowManager(QWidget):
             logger.info(f"[DEBUG][WindowManager] Exiting resizeEvent: return=None")
 
     def start(self) -> None:
+        """
+        Show the main window in full screen mode.
+        """
         if DEBUG_WindowManager:
             logger.info(f"[DEBUG][WindowManager] Entering start: args={{}}")
         self.showFullScreen()
@@ -143,6 +152,9 @@ class WindowManager(QWidget):
             logger.info(f"[DEBUG][WindowManager] Exiting start: return=None")
 
     def set_view(self, index: int) -> None:
+        """
+        Set the current view to the widget at the given index.
+        """
         if DEBUG_WindowManager:
             logger.info(f"[DEBUG][WindowManager] Entering set_view: args={{'index':{index!r}}}")
         new_widget = self.widgets[index]
@@ -152,6 +164,9 @@ class WindowManager(QWidget):
             logger.info(f"[DEBUG][WindowManager] Exiting set_view: return=None")
 
     def transition_window(self, index: int) -> None:
+        """
+        Transition to a different window, handling animations and callbacks.
+        """
         if DEBUG_WindowManager:
             logger.info(f"[DEBUG][WindowManager] Entering transition_window: args={{'index':{index!r}}}")
         current_index = self.stack.currentIndex()
@@ -185,6 +200,9 @@ class WindowManager(QWidget):
             logger.info(f"[DEBUG][WindowManager] Exiting transition_window: return=None")
 
     def scroll_animation(self, index: int, callback: Optional[Callable[[], None]] = None) -> None:
+        """
+        Perform a scroll animation when switching views, with an optional
+        """
         if DEBUG_WindowManager:
             logger.info(f"[DEBUG][WindowManager] Entering scroll_animation: args={{'index':{index!r}, 'callback':{callback!r}}}")
         if index == 1:

@@ -1,17 +1,27 @@
-#!/usr/bin/env python3
 import sys
 import json
 import base64
 import requests
 from pathlib import Path
 from PIL import Image
+import os
+from PySide6.QtGui import QImage
+
+import logging
+logger = logging.getLogger(__name__)
+
+from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+DEBUG_HotspotClient: bool = DEBUG
+DEBUG_HotspotClient_FULL: bool = DEBUG_FULL
 
 class HotspotClient:
     """
-    Client robuste pour envoyer une image à la Raspberry Pi et récupérer le QR code du hotspot.
-    En cas d'erreur, renvoie une image d'erreur.
+    Robust client to send an image to the Raspberry Pi and retrieve the hotspot QR code.
+    In case of error, returns an error image.
     """
-    def __init__(self, url: str, timeout: float = 10.0):
+    def __init__(self, url: str, timeout: float = 10.0) -> None:
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Initializing with URL: {url}, timeout: {timeout}")
         self.url = url
         self.timeout = timeout
         self.image_path: Path = None
@@ -19,41 +29,63 @@ class HotspotClient:
         self.qr_bytes: bytes = b""
         self.credentials: tuple = (None, None)
         self.error_image = Path(__file__).parent.parent / 'gui_template' / 'other' / 'error.png'
-        
-    def set_image(self, path: str):
-        """Définit le chemin de l'image à envoyer"""
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Error image path: {self.error_image}")
+
+    def set_image(self, path: str) -> None:
+        """
+        Sets the path of the image to be sent.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Setting image path: {path}")
         p = Path(path)
         if not p.exists():
-            raise FileNotFoundError(f"Fichier image introuvable: {path}")
+            raise FileNotFoundError(f"Image file not found: {path}")
         self.image_path = p
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Image path set to: {self.image_path}")
 
-    def set_qimage(self, qimg):
-        """Définit l'image à envoyer à partir d'un QImage (PySide6), sauvegardée dans gui_template/tm."""
-        import os
-        from PySide6.QtGui import QImage
+    def set_qimage(self, qimg: QImage) -> None:
+        """
+        Sets the image to be sent from a QImage (PySide6), saved in gui_template/tm.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Setting QImage for sending.")
+
         temp_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'gui_template', 'tm')
         temp_dir = os.path.abspath(temp_dir)
         os.makedirs(temp_dir, exist_ok=True)
         temp_img_path = os.path.join(temp_dir, "hotspotclient_qimage.png")
         if not qimg.save(temp_img_path):
-            raise RuntimeError("Impossible de sauvegarder le QImage en PNG.")
+            raise RuntimeError("Unable to save QImage as PNG.")
         self.set_image(temp_img_path)
-        self._temp_img_path = temp_img_path  # Pour suppression après usage
+        self._temp_img_path = temp_img_path
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] QImage saved to temporary path: {self._temp_img_path}")
 
-    def cleanup_temp_image(self):
-        """Supprime le fichier temporaire créé par set_qimage, si présent."""
-        import os
+    def cleanup_temp_image(self) -> None:
+        """
+        Deletes the temporary file created by set_qimage, if present.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Cleaning up temporary image: {self._temp_img_path if hasattr(self, '_temp_img_path') else 'None'}")
         if hasattr(self, '_temp_img_path') and self._temp_img_path:
             try:
                 os.remove(self._temp_img_path)
             except Exception:
                 pass
             self._temp_img_path = None
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Temporary image cleaned up.")
 
-    def run(self):
-        """Envoie l'image au serveur, récupère les données et le QR code. Timeout et fallback gérés."""
+    def run(self) -> None:
+        """
+        Sends the image to the server, retrieves the data and the QR code. Handles timeout and fallback.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Starting run with image path: {self.image_path}")
         if self.image_path is None:
-            raise RuntimeError("Aucune image définie. Appel set_image() avant run().")
+            raise RuntimeError("No image defined. Call set_image() before run().")
         try:
             with self.image_path.open("rb") as f:
                 files = {"image": (self.image_path.name, f, "image/png")}
@@ -64,43 +96,63 @@ class HotspotClient:
             pwd = self.resp_data.get("password")
             qr_b64 = self.resp_data.get("qr_code_base64", "")
             self.credentials = (ssid, pwd)
-            # Décoder le QR code
+
             try:
                 self.qr_bytes = base64.b64decode(qr_b64)
-                # Vérifier que ce sont bien des octets d'image
+
                 Image.open(Path("temp.png"))._close() if False else None
             except Exception:
-                raise ValueError("Données QR code invalides")
+                raise ValueError("Invalid QR code data")
         except Exception as e:
-            print(f"Erreur durant l'échange avec le serveur : {e}")
-            # Charger l'image d'erreur
+            logger.info(f"[DEBUG][HotspotClient] Error during exchange with the server: {e}")
+
             if self.error_image.exists():
                 self.qr_bytes = self.error_image.read_bytes()
             else:
                 self.qr_bytes = b""
             self.credentials = (None, None)
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Run completed. Credentials: {self.credentials}, QR bytes length: {len(self.qr_bytes)}")
 
-    def reset(self):
-        """Refait un hotspot mais avec l'image d'erreur comme image diffusée."""
+    def reset(self) -> None:
+        """
+        Resets the hotspot but uses the error image as the broadcasted image.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Resetting hotspot client, using error image: {self.error_image}")
         if not self.error_image.exists():
-            raise FileNotFoundError(f"Image d'erreur introuvable: {self.error_image}")
+            raise FileNotFoundError(f"Error image not found: {self.error_image}")
         self.set_image(str(self.error_image))
         self.run()
+        if DEBUG_HotspotClient: 
+            logger.info(f"[DEBUG][HotspotClient] Reset completed. Credentials: {self.credentials}, QR bytes length: {len(self.qr_bytes)}")
 
     def save_qr(self, out_path: str) -> Path:
-        """Sauve le QR code ou l'image d'erreur dans un fichier."""
+        """
+        Saves the QR code or the error image to a file.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Saving QR code to {out_path}")
         p = Path(out_path)
         if not self.qr_bytes:
-            raise RuntimeError("Aucune donnée QR à sauvegarder.")
+            raise RuntimeError("No QR data to save.")
         p.write_bytes(self.qr_bytes)
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] QR code saved successfully to {p}")
         return p
 
     def save_info(self, out_path: str) -> Path:
-        """Sauve la réponse complète reçue du serveur dans un fichier JSON."""
+        """
+        Saves the complete response received from the server to a JSON file.
+        """
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Saving info to {out_path}")
         p = Path(out_path)
         p.write_text(
             json.dumps(self.resp_data, indent=2, ensure_ascii=False)
         )
+        if DEBUG_HotspotClient:
+            logger.info(f"[DEBUG][HotspotClient] Info saved successfully to {p}")
         return p
 
 if __name__ == '__main__':
@@ -113,16 +165,16 @@ if __name__ == '__main__':
     client.run()
     try:
         qr_file = client.save_qr("wifi_qr.png")
-        print(f"QR code sauvegardé dans {qr_file}")
+        print(f"QR code saved to {qr_file}")
     except Exception as e:
-        print(f"Impossible de sauvegarder le QR code: {e}")
+        print(f"Unable to save QR code: {e}")
     try:
         info_file = client.save_info("hotspot_info.json")
         ssid, pwd = client.credentials
         if ssid:
-            print(f"Hotspot SSID : {ssid}\nMot de passe : {pwd}")
+            print(f"Hotspot SSID: {ssid}\nPassword: {pwd}")
         else:
-            print("Aucune credentiels reçus.")
-        print(f"Infos sauvegardées dans {info_file}")
+            print("No credentials received.")
+        print(f"Info saved to {info_file}")
     except Exception as e:
-        print(f"Impossible de sauvegarder les infos: {e}")
+        print(f"Unable to save info: {e}")

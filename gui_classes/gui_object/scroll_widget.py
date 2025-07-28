@@ -263,7 +263,7 @@ class Column:
         """
         Scroll the column by a given step, optionally in infinite mode. Returns True if all items have changed
         """
-        if DEBUG_Column:
+        if DEBUG_Column_FULL:
             logger.info(f"[DEBUG][Column] Entering scroll: args={{'step':{step}, 'infinite':{infinite}}}")
         for it in self.items:
             it.setY(it.y() + step * self.direction)
@@ -309,11 +309,11 @@ class Column:
             self._changed_count += changed
             if self._changed_count >= self._changed_total:
                 self._all_changed_once = True
-                if DEBUG_Column:
+                if DEBUG_Column_FULL:
                     logger.info(f"[DEBUG][Column] Exiting scroll: return=True (all changed once)")
                 return True
 
-        if DEBUG_Column:
+        if DEBUG_Column_FULL:
             logger.info(f"[DEBUG][Column] Exiting scroll: return=False")
         return False
 
@@ -472,10 +472,10 @@ class InfiniteScrollView(QGraphicsView):
         """
         Draw a transparent background for the view.
         """
-        if DEBUG_InfiniteScrollView:
+        if DEBUG_InfiniteScrollView_FULL:
             logger.info(f"[DEBUG][InfiniteScrollView] Entering drawBackground: args={{'painter':{painter}, 'rect':{rect}}}")
         painter.fillRect(rect, Qt.transparent)
-        if DEBUG_InfiniteScrollView:
+        if DEBUG_InfiniteScrollView_FULL:
             logger.info(f"[DEBUG][InfiniteScrollView] Exiting drawBackground: return=None")
 
     def get_physical_screen_resolution(self) -> tuple:
@@ -880,13 +880,13 @@ class ScrollOverlay(QWidget):
         Handle the resize event and update the overlay and gradient accordingly.
         """
         self.update_frame()
-        if DEBUG_ScrollOverlay:
+        if DEBUG_ScrollOverlay_FULL:
             logger.info(f"[DEBUG][ScrollOverlay] Entering resizeEvent: args={{'event': event}}")
         if self.parent():
             self.setGeometry(0, 0, self.parent().width(), self.parent().height())
         super().resizeEvent(event)
         self._resize_gradient()
-        if DEBUG_ScrollOverlay:
+        if DEBUG_ScrollOverlay_FULL:
             logger.info(f"[DEBUG][ScrollOverlay] Exiting resizeEvent: return=None")
         self.update_frame()
 
@@ -1048,9 +1048,9 @@ class ScrollOverlay(QWidget):
         """
         Update the current animation frame of the overlay and its
         """
-        if DEBUG_ScrollOverlay:
+        if DEBUG_ScrollOverlay_FULL:
             logger.info(f"[DEBUG][ScrollOverlay] Entering update_frame: args={{}}")
         if self.scroll_widget:
             self.scroll_widget.update_frame()
-        if DEBUG_ScrollOverlay:
+        if DEBUG_ScrollOverlay_FULL:
             logger.info(f"[DEBUG][ScrollOverlay] Exiting update_frame: return=None")

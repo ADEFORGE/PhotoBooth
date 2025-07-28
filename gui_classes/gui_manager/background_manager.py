@@ -208,7 +208,7 @@ class BackgroundManager(QObject):
         """
         Return the current QPixmap depending on the mode.
         """
-        if DEBUG_BackgroundManager:
+        if DEBUG_BackgroundManager_FULL:
             logger.info(f"[DEBUG][BackgroundManager] Entering get_pixmap: args=()")
         with QMutexLocker(self._mutex):
             if self.current == 'generated' and self.generated:
@@ -216,7 +216,7 @@ class BackgroundManager(QObject):
             if self.current == 'captured' and self.captured:
                 return self.captured
             return self.last_camera
-        if DEBUG_BackgroundManager:
+        if DEBUG_BackgroundManager_FULL:
             logger.info(f"[DEBUG][BackgroundManager] Exiting get_pixmap: return={self.last_camera}")
 
     def _update_view(self) -> None:

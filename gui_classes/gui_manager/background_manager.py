@@ -129,13 +129,13 @@ class BackgroundManager(QObject):
         """
         Handle a new frame from the camera thread.
         """
-        if DEBUG_BackgroundManager:
+        if DEBUG_BackgroundManager_FULL:
             logger.info(f"[DEBUG][BackgroundManager] Entering _on_frame_ready: args=({qimg!r})")
         pix = QPixmap.fromImage(qimg)
         with QMutexLocker(self._mutex):
             self.last_camera = pix
         self._update_view()
-        if DEBUG_BackgroundManager:
+        if DEBUG_BackgroundManager_FULL:
             logger.info(f"[DEBUG][BackgroundManager] Exiting _on_frame_ready: return=None")
 
     def set_live(self) -> None:
@@ -235,12 +235,13 @@ class BackgroundManager(QObject):
         """
         Render the given QPixmap to the label, applying rotation and scaling.
         """
-        if DEBUG_BackgroundManager:
+        if DEBUG_BackgroundManager_FULL:
             logger.info(f"[DEBUG][BackgroundManager] Entering _render_camera: args=({pix!r})")
         if pix is None:
+            if DEBUG_BackgroundManager_FULL:
+                logger.info(f"[DEBUG][BackgroundManager] No pixmap to render, clearing label")
             self.label.clear()
             return
-        # Appliquer la rotation uniquement pour la caméra ou la capture
         apply_rotation = False
         with QMutexLocker(self._mutex):
             if self.current in ('live', 'captured'):
@@ -268,7 +269,7 @@ class BackgroundManager(QObject):
             x = (nw - lw) // 2
             result = scaled.copy(x, 0, lw, lh)
         self.label.setPixmap(result)
-        if DEBUG_BackgroundManager:
+        if DEBUG_BackgroundManager_FULL:
             logger.info(f"[DEBUG][BackgroundManager] Exiting _render_camera: return=None")
 
     def resize_event(self) -> None:

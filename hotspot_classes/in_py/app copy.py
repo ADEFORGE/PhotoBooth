@@ -218,10 +218,21 @@ class HotspotShareImage:
 
         <script>
         window.addEventListener('load', function() {{
-        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var ua = navigator.userAgent || navigator.vendor || window.opera;
+        var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        var isAndroid = /Android/.test(ua);
 
-        if (!isIOS) {{
-            // Only trigger auto-download if not on iOS
+        if (isIOS) {{
+            if (!window.location.href.endsWith("/{self.image}")) {{
+            window.location.href = "/{self.image}";
+            }}
+        }} else if (isAndroid) {{
+            var link = document.createElement('a');
+            link.href = '/{self.image}';
+            link.download = '{self.image}';
+            document.body.appendChild(link);
+            link.click();
+        }} else {{
             var link = document.createElement('a');
             link.href = '/{self.image}';
             link.download = '{self.image}';
@@ -231,6 +242,7 @@ class HotspotShareImage:
         }});
         </script>
         '''
+
 
 
         content = content.replace('</body>', f'{injected_html}\n</body>')

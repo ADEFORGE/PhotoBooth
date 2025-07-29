@@ -10,9 +10,15 @@ from PySide6.QtGui import QImage
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
-DEBUG_HotspotClient: bool = DEBUG
-DEBUG_HotspotClient_FULL: bool = DEBUG_FULL
+try :
+    from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+    DEBUG_HotspotClient: bool = DEBUG
+    DEBUG_HotspotClient_FULL: bool = DEBUG_FULL
+    
+except ImportError:
+    DEBUG_HotspotClient: bool = True
+    DEBUG_HotspotClient_FULL: bool = True
+
 
 class HotspotClient:
     """

@@ -152,8 +152,9 @@ class ImageGeneratorAPIWrapper(QObject):
                 
             if ctype.lower().replace(' ', '') in ('textmultiline', 'textmultilinewidget', 'textmultilineprompt') or ctype in ('Text Multiline', 'TextMultiLine'):
                 if DEBUG_ImageGeneratorAPIWrapper:
-                    logger.info(f"[DEBUG][DEBUG_ImageGeneratorAPIWrapper] Replacing inputs['text'] for node {nid} (Text Multiline)")
+                    logger.info(f"[DEBUG_ImageGeneratorAPIWrapper] Remplacement inputs['text'] pour node {nid} (Text Multiline)")
 
+                inputs['text'] = self._styles_prompts[self._style]
             elif ctype in ('KSampler', 'KSampler (Efficient)'):
                 inputs['seed'] = random.randint(0, 2**32 - 1)
                 

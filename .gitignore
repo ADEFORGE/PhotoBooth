@@ -1,5 +1,5 @@
 **/__pycache__
 config_local.py
 app.log
-hotspot_classes/wifi_qr.png
-hotspot_classes/hotspot_info.json
+**/wifi_qr.png
+**/hotspot_info.json

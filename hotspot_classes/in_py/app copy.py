@@ -7,9 +7,10 @@ import random
 import string
 import qrcode
 from PIL import Image, UnidentifiedImageError
-from flask import Flask, request, send_file, jsonify, send_from_directory, redirect, url_for,Response
+from flask import Flask, request, send_file, jsonify, send_from_directory, redirect, url_for, Response
 import logging
 from typing import Optional, Any, List, Dict, Tuple
+import os
 
 DEBUG = True
 
@@ -102,7 +103,6 @@ class HotspotShareImage:
         self.hidden = hidden
         log("[HotspotShareImage.__init__] Exit", level="info")
 
-
     def generate_random_credentials(self, ssid_length: int = 8, pass_length: int = 12) -> None:
         """
         Entry: generate_random_credentials(self, ssid_length, pass_length)
@@ -186,17 +186,18 @@ class HotspotShareImage:
         """
         Entry: update_splash_html(self)
         Exit: None
-        Updates the splash HTML file with the shared image and download link.
+        Updates the splash HTML file with iOS-compatible image sharing.
         """
         log("[update_splash_html] Enter", level="info")
         content = self.splash_template
 
+        # Supprimer la redirection automatique pour iOS
         content = re.sub(
             r'<meta http-equiv="refresh" content="[0-9]+;url=[^"]+"',
-            f'<meta http-equiv="refresh" content="0;url=/{self.image}"',
+            '',  # Pas de redirection automatique
             content
         )
-        log("Meta refresh updated", level="debug")
+        log("Meta refresh removed for iOS compatibility", level="debug")
 
         content = re.sub(
             r'href="/[^"]+"\s+download',
@@ -205,50 +206,344 @@ class HotspotShareImage:
         )
         log("Download link updated", level="debug")
 
+        # HTML amélioré pour iOS
         injected_html = f'''
         <div style="text-align:center;margin-top:20px;">
-        <img src="/{self.image}" alt="Shared image" style="max-width:100%;height:auto;">
-        <p><a href="/{self.image}" download>Download the image</a></p>
-        <p>If you are not automatically redirected, <a href="/{self.image}">click here</a>.</p>
-        <p style="margin-top:20px; font-size:0.9em; color:#555;">
-            Still blocked? Open your browser and manually visit 
-            <a href="https://neverssl.com" target="_blank">https://neverssl.com</a>
-        </p>
+            <h2>Votre photo est prête !</h2>
+            
+            <!-- Image principale avec gestion iOS -->
+            <div style="margin: 20px 0;">
+                <img id="shared-image" src="/{self.image}" alt="Photo partagée" 
+                     style="max-width:90%;height:auto;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1);cursor:pointer;"
+                     oncontextmenu="return true;" 
+                     onclick="openImageFullscreen()">
+            </div>
+            
+            <!-- Instructions spécifiques par plateforme -->
+            <div id="ios-instructions" style="display:none;background:#f0f8ff;padding:15px;margin:10px;border-radius:8px;">
+                <h3>📱 Sur iPhone/iPad :</h3>
+                <p><strong>1.</strong> Appuyez longuement sur l'image ci-dessus</p>
+                <p><strong>2.</strong> Sélectionnez "Enregistrer dans Photos"</p>
+                <p><strong>3.</strong> L'image sera sauvegardée dans votre galerie</p>
+                <p style="color:#007AFF;"><em>Ou cliquez sur "Voir en grand" puis maintenez appuyé sur l'image</em></p>
+            </div>
+            
+            <div id="android-instructions" style="display:none;background:#e8f5e8;padding:15px;margin:10px;border-radius:8px;">
+                <h3>🤖 Sur Android :</h3>
+                <p><strong>1.</strong> Cliquez sur le bouton de téléchargement ci-dessous</p>
+                <p><strong>2.</strong> Ou appuyez longuement sur l'image et "Télécharger"</p>
+            </div>
+            
+            <!-- Boutons de téléchargement multiples -->
+            <div style="margin:20px 0;">
+                <a href="/download/{self.image}" 
+                   style="display:inline-block;background:#007AFF;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;margin:5px;font-weight:bold;"
+                   onclick="trackDownload('button')">
+                   📥 Télécharger la photo
+                </a>
+                
+                <a href="/{self.image}" target="_blank"
+                   style="display:inline-block;background:#34C759;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;margin:5px;font-weight:bold;"
+                   onclick="trackDownload('view')">
+                   👁️ Voir en grand
+                </a>
+            </div>
+            
+            <!-- Lien de secours -->
+            <div style="margin-top:20px;">
+                <p style="font-size:0.9em;color:#666;">
+                    <strong>Problème de téléchargement ?</strong><br>
+                    <a href="/{self.image}" target="_blank" style="color:#007AFF;">
+                        Cliquez ici pour afficher l'image en plein écran
+                    </a>
+                </p>
+            </div>
+            
+            <!-- Aide supplémentaire -->
+            <details style="margin-top:20px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+                <summary style="cursor:pointer;color:#007AFF;font-weight:bold;">🆘 Besoin d'aide ?</summary>
+                <div style="padding:10px;background:#f9f9f9;border-radius:4px;margin-top:10px;">
+                    <p><strong>Si l'image ne se télécharge pas :</strong></p>
+                    <ul style="text-align:left;">
+                        <li><strong>iPhone/iPad :</strong> Maintenez appuyé sur l'image → "Enregistrer dans Photos"</li>
+                        <li><strong>Android :</strong> Clic long sur l'image → "Télécharger l'image"</li>
+                        <li><strong>PC :</strong> Clic droit → "Enregistrer l'image sous"</li>
+                    </ul>
+                    <p style="margin-top:10px;color:#007AFF;">
+                        <strong>Alternative :</strong> Cliquez sur "Voir en grand" puis sauvegardez depuis la nouvelle page
+                    </p>
+                    <p style="margin-top:10px;">
+                        <a href="https://neverssl.com" target="_blank" style="color:#007AFF;">
+                            Problème de connexion ? Essayez neverssl.com
+                        </a>
+                    </p>
+                </div>
+            </details>
         </div>
 
         <script>
-        window.addEventListener('load', function() {{
-        var ua = navigator.userAgent || navigator.vendor || window.opera;
-        var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-        var isAndroid = /Android/.test(ua);
-
-        if (isIOS) {{
-            if (!window.location.href.endsWith("/{self.image}")) {{
-            window.location.href = "/{self.image}";
+        // Variables globales
+        let platformInfo = null;
+        
+        // Détection de la plateforme
+        function detectPlatform() {{
+            if (platformInfo) return platformInfo;
+            
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isIOS = /iphone|ipad|ipod/.test(userAgent) || 
+                         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isAndroid = /android/.test(userAgent);
+            const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent);
+            const isChrome = /chrome/.test(userAgent);
+            const isMobile = /mobile/.test(userAgent) || isIOS || isAndroid;
+            
+            platformInfo = {{ isIOS, isAndroid, isSafari, isChrome, isMobile, userAgent }};
+            
+            // Afficher les instructions appropriées
+            if (isIOS) {{
+                const iosDiv = document.getElementById('ios-instructions');
+                if (iosDiv) iosDiv.style.display = 'block';
+                console.log('iOS detected - showing iOS instructions');
+            }} else if (isAndroid) {{
+                const androidDiv = document.getElementById('android-instructions');
+                if (androidDiv) androidDiv.style.display = 'block';
+                console.log('Android detected - showing Android instructions');
             }}
-        }} else if (isAndroid) {{
-            var link = document.createElement('a');
-            link.href = '/{self.image}';
-            link.download = '{self.image}';
-            document.body.appendChild(link);
-            link.click();
-        }} else {{
-            var link = document.createElement('a');
-            link.href = '/{self.image}';
-            link.download = '{self.image}';
-            document.body.appendChild(link);
-            link.click();
+            
+            return platformInfo;
         }}
+        
+        // Suivi des téléchargements
+        function trackDownload(method) {{
+            console.log('Download attempted via:', method);
+            const platform = detectPlatform();
+            
+            // Pour iOS, on évite le téléchargement automatique
+            if (platform.isIOS && method === 'auto') {{
+                console.log('iOS detected - skipping auto download');
+                return false;
+            }}
+            
+            return true;
+        }}
+        
+        // Fonction pour ouvrir l'image en plein écran
+        function openImageFullscreen() {{
+            console.log('Opening image fullscreen');
+            const platform = detectPlatform();
+            
+            if (platform.isIOS) {{
+                // Sur iOS, ouvrir dans la même fenêtre pour éviter les blocages popup
+                window.location.href = '/{self.image}';
+            }} else {{
+                // Sur autres plateformes, essayer popup puis fallback
+                const newWindow = window.open('/{self.image}', '_blank', 'noopener,noreferrer');
+                if (!newWindow) {{
+                    console.log('Popup blocked, using same window');
+                    window.location.href = '/{self.image}';
+                }}
+            }}
+        }}
+        
+        // Gestion spéciale pour iOS
+        function handleImageInteraction() {{
+            const img = document.getElementById('shared-image');
+            if (!img) return;
+            
+            const platform = detectPlatform();
+            
+            if (platform.isIOS) {{
+                // Sur iOS, améliorer l'expérience tactile
+                img.style.webkitTouchCallout = 'default';
+                img.style.webkitUserSelect = 'none';
+                
+                // Gérer les événements tactiles
+                img.addEventListener('touchstart', function(e) {{
+                    console.log('Touch started on image (iOS)');
+                    this.style.opacity = '0.8';
+                }}, {{ passive: true }});
+                
+                img.addEventListener('touchend', function(e) {{
+                    console.log('Touch ended on image (iOS)');
+                    this.style.opacity = '1';
+                }}, {{ passive: true }});
+                
+                img.addEventListener('touchcancel', function(e) {{
+                    this.style.opacity = '1';
+                }}, {{ passive: true }});
+            }}
+        }}
+        
+        // Fonction pour le téléchargement automatique (non-iOS uniquement)
+        function attemptAutoDownload() {{
+            const platform = detectPlatform();
+            
+            if (platform.isIOS) {{
+                console.log('iOS detected - skipping auto download for better UX');
+                return;
+            }}
+            
+            console.log('Non-iOS platform - attempting auto download');
+            setTimeout(function() {{
+                try {{
+                    const link = document.createElement('a');
+                    link.href = '/download/{self.image}';
+                    link.download = '{self.image}';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    
+                    link.click();
+                    console.log('Auto download triggered');
+                    
+                    // Nettoyer
+                    setTimeout(() => document.body.removeChild(link), 100);
+                }} catch(e) {{
+                    console.log('Auto download failed:', e);
+                }}
+            }}, 1000);
+        }}
+        
+        // Gestion des erreurs d'image
+        function handleImageError() {{
+            const img = document.getElementById('shared-image');
+            if (img) {{
+                img.onerror = function() {{
+                    console.error('Failed to load image');
+                    this.alt = 'Erreur de chargement de l\'image';
+                    this.style.border = '2px dashed #ccc';
+                    this.style.padding = '20px';
+                }};
+            }}
+        }}
+        
+        // Fonction pour forcer le captive portal bypass sur iOS
+        function bypassCaptivePortal() {{
+            const platform = detectPlatform();
+            if (platform.isIOS) {{
+                // Tenter de déclencher la détection de portail captif
+                setTimeout(() => {{
+                    const testImg = new Image();
+                    testImg.src = 'http://captive.apple.com/hotspot-detect.html?' + Date.now();
+                    console.log('Attempted iOS captive portal bypass');
+                }}, 500);
+            }}
+        }}
+        
+        // Initialisation principale
+        function initializePage() {{
+            console.log('Page loaded - initializing...');
+            const platform = detectPlatform();
+            console.log('Platform detection:', platform);
+            
+            // Configurer les interactions
+            handleImageInteraction();
+            handleImageError();
+            
+            // Bypass captive portal pour iOS
+            bypassCaptivePortal();
+            
+            // Tentative de téléchargement automatique (sauf iOS)
+            attemptAutoDownload();
+            
+            // Ajouter des événements pour debug
+            if (platform.isIOS) {{
+                document.addEventListener('visibilitychange', function() {{
+                    console.log('Visibility changed:', document.visibilityState);
+                }});
+                
+                window.addEventListener('pagehide', function() {{
+                    console.log('Page hide event (iOS)');
+                }});
+            }}
+        }}
+        
+        // Lancement à la fin du chargement
+        if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initializePage);
+        }} else {{
+            initializePage();
+        }}
+        
+        // Fallback sur window.onload
+        window.addEventListener('load', function() {{
+            console.log('Window load event');
+            if (!platformInfo) {{
+                initializePage();
+            }}
         }});
         </script>
+        
+        <style>
+        /* Styles spécifiques pour iOS */
+        @supports (-webkit-touch-callout: none) {{
+            #shared-image {{
+                -webkit-touch-callout: default !important;
+                -webkit-user-select: none;
+                -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+            }}
+        }}
+        
+        /* Amélioration de l'accessibilité */
+        a {{
+            transition: all 0.2s ease;
+        }}
+        
+        a:hover, a:focus {{
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }}
+        
+        a:active {{
+            transform: translateY(0);
+        }}
+        
+        /* Image interactive */
+        #shared-image {{
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }}
+        
+        #shared-image:hover {{
+            transform: scale(1.02);
+        }}
+        
+        #shared-image:active {{
+            transform: scale(0.98);
+        }}
+        
+        /* Responsive design */
+        @media (max-width: 480px) {{
+            div {{
+                padding: 10px !important;
+                margin: 10px 5px !important;
+            }}
+            
+            #shared-image {{
+                max-width: 95% !important;
+            }}
+            
+            a {{
+                display: block !important;
+                margin: 10px auto !important;
+                max-width: 280px;
+            }}
+        }}
+        
+        /* Animation d'apparition */
+        @keyframes fadeIn {{
+            from {{ opacity: 0; transform: translateY(20px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+        
+        #shared-image {{
+            animation: fadeIn 0.5s ease-out;
+        }}
+        </style>
         '''
-
-
 
         content = content.replace('</body>', f'{injected_html}\n</body>')
         try:
             (self.image_dst_dir / 'splash.html').write_text(content)
-            log("splash.html updated", level="info")
+            log("splash.html updated with iOS compatibility", level="info")
         except Exception as e:
             log(f"Error writing splash.html: {e}", level="error")
             raise
@@ -394,7 +689,6 @@ def attach_app_log_to_response(response: Dict[str, Any], log_path: str = 'app.lo
     response['app_log_file'] = lines
     log(f"[attach_app_log_to_response] Exit for {log_path}", level="info")
     
-    
 
 @app.route('/share', methods=['POST'])
 def share() -> Response:
@@ -474,12 +768,12 @@ def force_splash() -> Optional[Response]:
     Flask before-request hook to redirect to splash.html except for allowed routes.
     """
     log("[force_splash] Enter", level="info")
-    if request.path.startswith('/share'):
-        log("[force_splash] /share route, bypass splash", level="debug")
+    if request.path.startswith('/share') or request.path.startswith('/download'):
+        log(f"[force_splash] {request.path} route, bypass splash", level="debug")
         log("[force_splash] Exit", level="info")
         return
     if request.path in ('/', '/splash.html', '/wifi_qr.png') \
-        or re.search(r'\.(png|jpe?g|gif)$', request.path):
+        or re.search(r'\.(png|jpe?g|gif|webp), request.path):
         log(f"[force_splash] Static or image route {request.path}, bypass splash", level="debug")
         log("[force_splash] Exit", level="info")
         return
@@ -488,6 +782,96 @@ def force_splash() -> Optional[Response]:
     return send_from_directory(SPLASH_DIR, 'splash.html')
 
 
+@app.after_request
+def add_ios_headers(response):
+    """Ajoute des headers spécifiques pour iOS et améliore la compatibilité"""
+    # Headers de sécurité
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    
+    # CSP plus permissif pour iOS
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; "
+        "img-src 'self' data: blob: https:; "
+        "connect-src 'self' https:; "
+        "font-src 'self' data:; "
+        "media-src 'self' data: blob:;"
+    )
+    
+    # Headers spécifiques iOS
+    response.headers['X-WebKit-CSP'] = response.headers['Content-Security-Policy']
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    
+    # Pour les images, ajouter headers de téléchargement si demandé
+    if request.path.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+        # Permettre le téléchargement direct
+        response.headers['Content-Disposition'] = 'inline'
+        
+        # Headers pour iOS Safari
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        
+        # Si c'est une route de téléchargement forcé
+        if request.path.startswith('/download/') or 'download' in request.args:
+            filename = os.path.basename(request.path)
+            response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response.headers['Content-Type'] = 'application/octet-stream'
+    
+    return response
+
+@app.route('/download/<filename>')
+def force_download(filename):
+    """Force le téléchargement pour tous les appareils, spécialement iOS"""
+    log(f"[force_download] Forcing download for {filename}", level="info")
+    
+    file_path = Path(SPLASH_DIR) / filename
+    if not file_path.exists():
+        log(f"[force_download] File not found: {filename}", level="error")
+        return "File not found", 404
+    
+    # Headers spéciaux pour forcer le téléchargement sur iOS
+    response = send_from_directory(
+        SPLASH_DIR, 
+        filename, 
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/octet-stream'
+    )
+    
+    # Headers additionnels pour iOS
+    response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response.headers['Content-Type'] = 'application/force-download'
+    response.headers['Content-Transfer-Encoding'] = 'binary'
+    response.headers['Cache-Control'] = 'must-revalidate, post-check=0, pre-check=0'
+    response.headers['Pragma'] = 'public'
+    
+    log(f"[force_download] Download headers set for {filename}", level="info")
+    return response
+
+@app.route('/status')
+def status():
+    """Route de status pour debug"""
+    return jsonify({
+        'status': 'running',
+        'platform': 'raspberry-pi',
+        'services': {
+            'flask': 'running',
+            'hotspot': 'available'
+        }
+    })
+
+@app.errorhandler(404)
+def not_found(error):
+    """Gestionnaire d'erreur 404 - redirige vers splash"""
+    log(f"[404] Path not found: {request.path}", level="warning")
+    return send_from_directory(SPLASH_DIR, 'splash.html')
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Gestionnaire d'erreur 500"""
+    log(f"[500] Internal error: {error}", level="error")
+    return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     """
@@ -495,4 +879,11 @@ if __name__ == '__main__':
     Exit: None
     Starts the Flask application server.
     """
-    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
+    log("Starting Flask application server", level="info")
+    try:
+        app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'), debug=DEBUG)
+    except Exception as e:
+        log(f"Error starting Flask server: {e}", level="error")
+        # Fallback sans SSL
+        log("Attempting to start without SSL", level="warning")
+        app.run(host='0.0.0.0', port=5000, debug=DEBUG)

@@ -1,6 +1,7 @@
 # === ComfyUI API/Workflow constants ===
 WS_URL = "ws://127.0.0.1:8188/ws"
 HTTP_BASE_URL = "http://127.0.0.1:8188"
+HOTSPOT_URL = "https://192.168.10.2:5000/share"
 
 # Paths
 import os
@@ -15,7 +16,7 @@ COMFY_WORKFLOW_DIR = os.path.abspath(
     os.path.join(BASE_DIR, "../../workflows")
 )
 
-ShareByHotspot = True  # Mettre à False pour désactiver le workflow Hotspot/QR
+ShareByHotspot = False  # Mettre à False pour désactiver le workflow Hotspot/QR
 # constante.py
 
 # =========================

@@ -1,7 +1,7 @@
 {
   "3": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11p_sd15_lineart_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
@@ -72,7 +72,7 @@
   },
   "17": {
     "inputs": {
-      "image": "WIN_20250715_14_18_05_Pro.jpg"
+      "image": "ComfyUI_temp_petea_00006_.png"
     },
     "class_type": "LoadImage",
     "_meta": {
@@ -91,7 +91,7 @@
         "88",
         0
       ],
-      "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
+      "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, (naked:1.1), muscles, nsfw, (makeup: 1.2)",
       "token_normalization": "mean",
       "weight_interpretation": "comfy",
       "empty_latent_width": [
@@ -149,9 +149,9 @@
   },
   "23": {
     "inputs": {
-      "seed": 1089789284519586,
-      "steps": 10,
-      "cfg": 4.5,
+      "seed": 1020113207740714,
+      "steps": 15,
+      "cfg": 4,
       "sampler_name": "dpmpp_2m",
       "scheduler": "AYS SD1",
       "denoise": 1,
@@ -208,7 +208,7 @@
   },
   "45": {
     "inputs": {
-      "preprocessor": "LineArtPreprocessor",
+      "preprocessor": "ImageLuminanceDetector",
       "resolution": [
         "16",
         0
@@ -227,7 +227,7 @@
     "inputs": {
       "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 1,
+      "end_percent": 0.9000000000000002,
       "control_net": [
         "48",
         0
@@ -244,7 +244,7 @@
   },
   "48": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11e_sd15_ip2p_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11p_sd15_lineart_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
@@ -286,7 +286,7 @@
   },
   "88": {
     "inputs": {
-      "text": "Transform this person into a claymation character. Give them a handcrafted look with soft, rounded features, visible fingerprints or texture in the clay, and slightly exaggerated expressions. Use stop-motion lighting and a warm, tactile feel. Background should look like a miniature set made of clay or craft materials. Use playdoh colors, and add fingerprint details on the surfaces"
+      "text": "Transform this person into a claymation character. Give them a handcrafted look with soft, rounded features, visible fingerprints or texture in the clay, and slightly exaggerated expressions. Use stop-motion lighting and a warm, tactile feel. Background should look like a miniature set made of clay or craft materials. (depth of field:1.2), (fingerprints:1.2), (dust:1.1)"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -295,8 +295,8 @@
   },
   "92": {
     "inputs": {
-      "preset": "FACEID",
-      "lora_strength": 0.6,
+      "preset": "FACEID PLUS V2",
+      "lora_strength": 0.6000000000000001,
       "provider": "CPU",
       "model": [
         "19",
@@ -312,7 +312,7 @@
     "inputs": {
       "weight": 1.0000000000000002,
       "weight_faceidv2": 1.0000000000000002,
-      "weight_type": "composition",
+      "weight_type": "strong style transfer",
       "combine_embeds": "concat",
       "start_at": 0,
       "end_at": 1,
@@ -337,7 +337,7 @@
   },
   "96": {
     "inputs": {
-      "preprocessor": "ImageLuminanceDetector",
+      "preprocessor": "LineArtPreprocessor",
       "resolution": [
         "16",
         0
@@ -350,6 +350,30 @@
     "class_type": "AIO_Preprocessor",
     "_meta": {
       "title": "AIO Aux Preprocessor"
+    }
+  },
+  "97": {
+    "inputs": {
+      "images": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "99": {
+    "inputs": {
+      "images": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
     }
   }
 }

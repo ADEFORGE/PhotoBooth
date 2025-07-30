@@ -71,6 +71,26 @@ Exit: None
 Flask application instance.
 """
 
+
+from PIL import Image, UnidentifiedImageError
+
+def save_as_jpeg(uploaded_file, dest_dir: Path) -> Path:
+    """
+    Open the incoming file (any format PIL supports),
+    convert to RGB (required for JPEG), and save as a .jpg.
+    Returns the Path to the saved JPEG.
+    """
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    jpeg_path = dest_dir / 'converted.jpg'
+
+    with Image.open(uploaded_file) as img:
+        # Convert to RGB if necessary (JPEG doesn't support alpha or P modes)
+        if img.mode not in ('RGB',):
+            img = img.convert('RGB')
+        img.save(jpeg_path, 'JPEG', quality=85)  # you can adjust quality
+    return jpeg_path
+
+
 class HotspotShareImage:
     """
     Entry: HotspotShareImage class
@@ -182,64 +202,91 @@ class HotspotShareImage:
             raise
         log("[copy_image] Exit", level="info")
 
+
     def update_splash_html(self) -> None:
         """
-        Entry: update_splash_html(self)
-        Exit: None
-        Updates the splash HTML file with the shared image and download link.
+        Generates a standalone HTML page (no external template) that displays the shared image
+        and provides proper instructions/links for iOS (tap & hold) and Android/Desktop (download).
         """
         log("[update_splash_html] Enter", level="info")
-        content = self.splash_template
 
-        content = re.sub(
-            r'<meta http-equiv="refresh" content="[0-9]+;url=[^"]+"',
-            f'<meta http-equiv="refresh" content="0;url=/{self.image}"',
-            content
-        )
-        log("Meta refresh updated", level="debug")
+        # Build a complete HTML document with inline CSS
+        html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhotoBooth</title>
+  <style>
+    /* Full-page black background and white text */
+    body {{
+      background: #000;
+      color: #fff;
+      margin: 0; padding: 1em;
+      text-align: center;
+      font-family: sans-serif;
+    }}
+    /* Responsive image styling */
+    img {{
+      max-width: 90%; height: auto;
+      border: 4px solid #333;
+      border-radius: 8px;
+    }}
+    /* Link/button styling */
+    a {{
+      color: #0af;
+      text-decoration: none;
+      display: inline-block;
+      margin: 0.5em 0;
+      padding: 0.5em 1em;
+      border: 2px solid #0af;
+      border-radius: 4px;
+    }}
+    /* Download button for desktop/Android */
+    a.download {{
+      background: #0af;
+      color: #000;
+    }}
+    /* Helper text styling */
+    small {{
+      display: block;
+      margin-top: 0.5em;
+      color: #888;
+    }}
+  </style>
+</head>
+<body>
+  <h1>Your Photo</h1>
+  <!-- Display the shared image -->
+  <img src="/{self.image}" alt="Shared photo">
 
-        content = re.sub(
-            r'href="/[^"]+"\s+download',
-            f'href="/{self.image}" download',
-            content
-        )
-        log("Download link updated", level="debug")
+  <!-- iOS: open in new tab, then tap & hold to save -->
+  <p>
+    <a href="http://192.168.5.1/{self.image}" target="_blank">
+      iOS: Open image in new tab, then tap & hold to save
+    </a>
+  </p>
 
-        injected_html = f'''
-        <div style="text-align:center;margin-top:20px;">
-        <img src="/{self.image}" alt="Shared image" style="max-width:100%;height:auto;">
-        <p><a href="/{self.image}" download>Download the image</a></p>
-        <p>If you are not automatically redirected, <a href="/{self.image}">click here</a>.</p>
-        <p style="margin-top:20px; font-size:0.9em; color:#555;">
-            Still blocked? Open your browser and manually visit 
-            <a href="https://neverssl.com" target="_blank">https://neverssl.com</a>
-        </p>
-        </div>
+  <!-- Desktop & Android: direct download link -->
+  <p>
+    <a class="download" href="http://192.168.5.1/{self.image}" download>
+      Android & Desktop: Click to download
+    </a>
+  </p>
 
-        <script>
-        window.addEventListener('load', function() {{
-        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-        if (!isIOS) {{
-            // Only trigger auto-download if not on iOS
-            var link = document.createElement('a');
-            link.href = '/{self.image}';
-            link.download = '{self.image}';
-            document.body.appendChild(link);
-            link.click();
-        }}
-        }});
-        </script>
-        '''
-
-
-        content = content.replace('</body>', f'{injected_html}\n</body>')
+  <!-- Fallback advice -->
+  <small>If nothing happens, please visit <a href="http://neverssl.com" target="_blank">neverssl.com</a></small>
+</body>
+</html>
+"""
+        # Write the generated HTML to splash.html
         try:
-            (self.image_dst_dir / 'splash.html').write_text(content)
-            log("splash.html updated", level="info")
+            (self.image_dst_dir / 'splash.html').write_text(html, encoding='utf-8')
+            log("Generated full HTML splash page", level="info")
         except Exception as e:
             log(f"Error writing splash.html: {e}", level="error")
             raise
+
         log("[update_splash_html] Exit", level="info")
 
     def generate_qrcode(self) -> None:
@@ -398,20 +445,27 @@ def share() -> Response:
         log("[/share] Exit endpoint (no image)", level="info")
         return send_file(str(error_img), mimetype='image/png')
 
-    tmp_path = Path('/tmp/uploaded_image.png')
-    tmp_path.unlink(missing_ok=True)
-    request.files['image'].save(str(tmp_path))
-    log("Image uploaded to /tmp/uploaded_image.png", level="info")
+# Save upload to a temp file so PIL can open it
+    orig_tmp = Path('/tmp/uploaded_orig')
+    orig_tmp.unlink(missing_ok=True)
+    request.files['image'].save(str(orig_tmp))
+    log(f"Image uploaded to {orig_tmp}", level="info")
 
+    # Verify it's an image
     try:
-        Image.open(tmp_path).verify()
+        Image.open(orig_tmp).verify()
         log("Uploaded file verified as image", level="info")
     except (UnidentifiedImageError, Exception) as e:
-        log(f"[/share] Uploaded file is not a valid image: {e}", level="error")
-        log("[/share] Exit endpoint (invalid image)", level="info")
+        log(f"[/share] Not a valid image: {e}", level="error")
         return send_file(str(error_img), mimetype='image/png')
 
-    h = HotspotShareImage(str(tmp_path), qr_dir=Path('/tmp'))
+    # Convert to JPEG
+    jpeg_tmp = save_as_jpeg(orig_tmp, Path('/tmp'))
+    log(f"Converted image to JPEG: {jpeg_tmp}", level="info")
+
+    # And now hand jpeg_tmp into your HotspotShareImage
+    h = HotspotShareImage(str(jpeg_tmp), qr_dir=Path('/tmp'))
+
     h.run()
     ssid, pwd = h.get_credentials()
     threading.Timer(HOTSPOT_TIMEOUT_SEC, shutdown_hotspot, args=[h.image]).start()
@@ -483,4 +537,4 @@ if __name__ == '__main__':
     Exit: None
     Starts the Flask application server.
     """
-    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
+    app.run(host='0.0.0.0', port=5000)

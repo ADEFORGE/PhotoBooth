@@ -1,7 +1,7 @@
 {
   "3": {
     "inputs": {
-      "control_net_name": "1.5\\control_v11f1p_sd15_depth_fp16.safetensors"
+      "control_net_name": "1.5\\control_v11p_sd15_canny_fp16.safetensors"
     },
     "class_type": "ControlNetLoader",
     "_meta": {
@@ -72,7 +72,7 @@
   },
   "17": {
     "inputs": {
-      "image": "WIN_20250715_14_18_05_Pro.jpg"
+      "image": "ComfyUI_temp_petea_00006_.png"
     },
     "class_type": "LoadImage",
     "_meta": {
@@ -91,7 +91,7 @@
         "88",
         0
       ],
-      "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, naked, muscles, nsfw",
+      "negative": "embedding:BadDream, embedding:UnrealisticDream, embedding:FastNegativeV2, (bare chest, breasts, visible anatomy, nude:1), ugly, deformed, noisy, blurry, low contrast, modern clothing, plastic, low detail, extra limbs, blurry, distorted face, text, watermark, poorly drawn hands, (naked:1.1), muscles, nsfw, (makeup: 1.2)",
       "token_normalization": "mean",
       "weight_interpretation": "comfy",
       "empty_latent_width": [
@@ -149,7 +149,7 @@
   },
   "23": {
     "inputs": {
-      "seed": 277843561005862,
+      "seed": 519511931492240,
       "steps": 15,
       "cfg": 5,
       "sampler_name": "dpmpp_2m",
@@ -185,9 +185,9 @@
   },
   "26": {
     "inputs": {
-      "strength": 1.0000000000000002,
+      "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 0.8000000000000002,
+      "end_percent": 0.7000000000000002,
       "control_net": [
         "3",
         0
@@ -208,7 +208,7 @@
   },
   "45": {
     "inputs": {
-      "preprocessor": "DepthAnythingV2Preprocessor",
+      "preprocessor": "CannyEdgePreprocessor",
       "resolution": [
         "16",
         0
@@ -225,15 +225,15 @@
   },
   "47": {
     "inputs": {
-      "strength": 1.0000000000000002,
+      "strength": 0.5000000000000001,
       "start_percent": 0,
-      "end_percent": 1,
+      "end_percent": 0.7000000000000002,
       "control_net": [
         "48",
         0
       ],
       "image": [
-        "98",
+        "96",
         0
       ]
     },
@@ -286,7 +286,7 @@
   },
   "88": {
     "inputs": {
-      "text": "Make it into a marble statue while preserving their original identity, age, and gender exactly. Sculpt them in smooth, white marble with realistic but modest features. Avoid any exaggeration or changes to body shape or facial structure. The statue should resemble classical art with respectful, child-appropriate detail. Use soft lighting and natural stone texture, with no added accessories or fantasy elements. Make sure the whole statue is white without colors. Make the eyes white, no black details. Lapis blue stones mosaics, gold metal engravings, green jade stones, obsidian glass tiles. (White eyes: 1.1), (White hair: 1.1)"
+      "text": "Transform them into a bold comic book character while preserving their exact identity, age, and gender. Illustrate them with large inked outlines and vivid flat colors typical of classic comic art. Facial structure, body shape, and proportions must remain true to the original person. Use halftone patterns, and a high-contrast palette.(Comic book style: 1.2), (thick ink lines: 1.2), (bold vibrant colors: 1.1), (halftone texture: 1.1), (preserve identity: 1.3)"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -326,7 +326,7 @@
         1
       ],
       "image": [
-        "98",
+        "17",
         0
       ]
     },
@@ -337,7 +337,7 @@
   },
   "96": {
     "inputs": {
-      "preprocessor": "TilePreprocessor",
+      "preprocessor": "ImageLuminanceDetector",
       "resolution": [
         "16",
         0
@@ -364,30 +364,10 @@
       "title": "Preview Image"
     }
   },
-  "98": {
-    "inputs": {
-      "brightness": 0,
-      "contrast": 1.0000000000000002,
-      "saturation": 0,
-      "sharpness": 1.0000000000000002,
-      "blur": 0,
-      "gaussian_blur": 0,
-      "edge_enhance": 0,
-      "detail_enhance": "true",
-      "image": [
-        "96",
-        0
-      ]
-    },
-    "class_type": "Image Filter Adjustments",
-    "_meta": {
-      "title": "Image Filter Adjustments"
-    }
-  },
   "99": {
     "inputs": {
       "images": [
-        "98",
+        "96",
         0
       ]
     },

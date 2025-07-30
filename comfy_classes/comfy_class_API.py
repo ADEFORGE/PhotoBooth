@@ -287,6 +287,12 @@ class ImageGeneratorAPIWrapper(QObject):
                         logger.info(f"[DEBUG][EVENT] GGeneration terminated (type={t})")
                     break
 
+                elif t == 'execution_error':
+                    self.progress_changed.emit(100.0)
+                    if DEBUG_ImageGeneratorAPIWrapper:
+                        logger.info(f"[DEBUG] Failed to generate image: Face not detected")
+                    break
+
         finally:
             code = getattr(getattr(ws, 'sock', None), 'close_code', None)
             reason = getattr(getattr(ws, 'sock', None), 'close_reason', None)

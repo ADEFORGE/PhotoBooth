@@ -354,9 +354,16 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
         self.clear_display()
-
+        stylesheet = """
+            background: rgba(80, 80, 80, 0.6);
+            color: rgba(255, 255, 255, 1.0);
+            font-weight: bold;
+            font-size: 24px;
+            border-radius: 18px;
+            padding: 12px 24px;
+        """
         self.set_header_text("coucou")
-        self.set_header_style("background: white; color: grey; font-size: 24px; border-radius: 8px; padding: 8px;")
+        self.set_header_style(stylesheet)
         self.show_header_label()
 
         style2 = [

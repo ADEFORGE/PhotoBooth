@@ -363,6 +363,7 @@ class MainWindow(BaseWindow):
             padding: 12px 24px;
         """
         self.set_header_text("coucou")
+        self.place_header_label()
         self.set_header_style(stylesheet)
         self.show_header_label()
 

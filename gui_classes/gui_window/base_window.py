@@ -61,7 +61,6 @@ class BaseWindow(QWidget):
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.overlay_widget)
         self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.place_header_label()
         self.hide_header_label()
         self.btns = None
         self._lang_btn.clicked.connect(self.show_lang_dialog)
@@ -539,6 +538,6 @@ class BaseWindow(QWidget):
         """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering set_header_style: args={{'style': {style}}}")
-        #self.header_label.setStyleSheet(style)
+        self.header_label.setStyleSheet(style)
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting set_header_style: return=None")

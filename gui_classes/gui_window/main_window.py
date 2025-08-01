@@ -354,6 +354,11 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
         self.clear_display()
+
+        self.set_header_text("coucou")
+        self.set_header_style("background: white; color: grey; font-size: 24px; border-radius: 8px; padding: 8px;")
+        self.show_header_label()
+
         style2 = [
             (name, f"style.{name}") for name in dico_styles.keys()
         ]
@@ -363,6 +368,8 @@ class MainWindow(BaseWindow):
             slot_style1=self.take_selfie,
             slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.get_name(), generate_image=False)
         )
+
+        
         
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.raise_()
@@ -389,6 +396,7 @@ class MainWindow(BaseWindow):
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_validation: args={{}}")
+        self.hide_header_label()
         self.setup_buttons_style_1(['accept', 'close','regenerate'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
             self.btns.raise_()

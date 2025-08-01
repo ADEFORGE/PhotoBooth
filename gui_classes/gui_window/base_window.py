@@ -491,7 +491,7 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting show_message: return=None")
 
-    def place_header_label(self, row: int = 2, col: int = 0, colspan: int = GRID_WIDTH) -> None:
+    def place_header_label(self, row: int = 1, col: int = 0, colspan: int = GRID_WIDTH) -> None:
         """
         Place and align the header label in the overlay layout at the specified position.
         """

@@ -119,6 +119,8 @@ class StandbyManager(QObject):
             return
         if seconds is not None:
             self.set_timer(seconds)
+        else:
+            self.set_timer_from_constante()
         self.stop_standby_timer()
         self.start_standby_timer()
         if DEBUG_StandbyManager:

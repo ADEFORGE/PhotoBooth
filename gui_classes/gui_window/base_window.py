@@ -58,12 +58,9 @@ class BaseWindow(QWidget):
 
 
                 # Add label at the top of the overlay layout
-        self.header_label = QLabel("test", self.overlay_widget)
-        self.header_label.setStyleSheet("background: white; color: grey; font-size: 24px; border-radius: 8px; padding: 8px;")
-        self.header_label.setAlignment(Qt.AlignCenter)
-        self.overlay_layout.addWidget(self.header_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
-
-
+        self.header_label = QLabel("", self.overlay_widget)
+        self.place_header_label(self.overlay_layout, 0, 0, GRID_WIDTH)
+        self.hide_header_label()
 
         self.setupcontainer()
         self.setup_row_stretches()
@@ -498,3 +495,33 @@ class BaseWindow(QWidget):
             QToolTip.showText(global_pos, message, target, target.rect(), duration)
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting show_message: return=None")
+
+    def place_header_label(self, row: int = 0, col: int = 0, colspan: int = GRID_WIDTH) -> None:
+        """
+        Place and align the header label in the overlay layout at the specified position.
+        """
+        self.header_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.header_label, row, col, 1, colspan, alignment=Qt.AlignCenter)
+
+    def show_header_label(self) -> None:
+        """
+        Show the header label.
+        """
+        self.header_label.show()
+
+    def hide_header_label(self) -> None:
+        """
+        Hide the header label.
+        """
+        self.header_label.hide()
+
+    def set_header_text(self, text: str) -> None:
+        """
+        Change the text displayed in the header label.
+        """
+        self.header_label.setText(text)
+
+    def set_header_style(self, style: str) -> None:
+        """
+        Apply a stylesheet to the header label.
+        """

@@ -363,14 +363,7 @@ class MainWindow(BaseWindow):
             slot_style1=self.take_selfie,
             slot_style2=lambda checked, btn=None: self.set_generation_style(checked, btn.get_name(), generate_image=False)
         )
-
-        label = QLabel("test", self.overlay_widget)
-        label.setStyleSheet("background: white; color: grey; font-size: 24px; border-radius: 8px; padding: 8px;")
-        label.setAlignment(Qt.AlignCenter)
-        # Ajoute le label à la première ligne de l'overlay_layout
-        self.overlay_layout.addWidget(label, 2, 0, 1, self.overlay_layout.columnCount(), alignment=Qt.AlignCenter)
-
-
+        
         if hasattr(self, 'overlay_widget'):
             self.overlay_widget.raise_()
         if hasattr(self, 'btns'):

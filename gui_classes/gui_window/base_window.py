@@ -55,6 +55,16 @@ class BaseWindow(QWidget):
         self.overlay_widget.setVisible(True)
         self.overlay_widget.setGeometry(0, 0, 1920, 1080)
         self.overlay_widget.raise_()
+
+
+                # Add label at the top of the overlay layout
+        self.header_label = QLabel("test", self.overlay_widget)
+        self.header_label.setStyleSheet("background: white; color: grey; font-size: 24px; border-radius: 8px; padding: 8px;")
+        self.header_label.setAlignment(Qt.AlignCenter)
+        self.overlay_layout.addWidget(self.header_label, 0, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+
+
+
         self.setupcontainer()
         self.setup_row_stretches()
         self.setLayout(QVBoxLayout())

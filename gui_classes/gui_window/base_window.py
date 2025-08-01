@@ -59,7 +59,7 @@ class BaseWindow(QWidget):
 
                 # Add label at the top of the overlay layout
         self.header_label = QLabel("", self.overlay_widget)
-        self.place_header_label(self.overlay_layout, 0, 0, GRID_WIDTH)
+        self.place_header_label( 0, 0, GRID_WIDTH)
         self.hide_header_label()
 
         self.setupcontainer()

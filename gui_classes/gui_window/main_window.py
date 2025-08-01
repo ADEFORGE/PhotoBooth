@@ -13,7 +13,7 @@ from PySide6.QtGui import QPainter, QColor, QImage
 from PySide6.QtWidgets import QApplication, QLabel
 
 from gui_classes.gui_window.base_window import BaseWindow
-from gui_classes.gui_object.constante import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles
+from gui_classes.gui_object.constante import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles,SLEEP_TIMER_SECONDS_QRCODE_OVERLAY
 from gui_classes.gui_manager.thread_manager import CountdownThread, ImageGenerationThread
 from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager
@@ -256,8 +256,12 @@ class MainWindow(BaseWindow):
         """
         Show the QR code overlay for sharing the given image.
         """
+
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering show_qrcode_overlay: args={{'image_to_send':{type(image_to_send)}}}")
+        if self.standby_manager:
+            self.standby_manager.put_standby(True)
+            self.standby_manager.set_timer(SLEEP_TIMER_SECONDS_QRCODE_OVERLAY)
         hotspot_url = HOTSPOT_URL
         overlay_qr = OverlayQrcode(
             self,

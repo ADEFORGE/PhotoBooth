@@ -55,18 +55,14 @@ class BaseWindow(QWidget):
         self.overlay_widget.setVisible(True)
         self.overlay_widget.setGeometry(0, 0, 1920, 1080)
         self.overlay_widget.raise_()
-
-
-                # Add label at the top of the overlay layout
         self.header_label = QLabel("", self.overlay_widget)
-        self.place_header_label()
-        self.hide_header_label()
-
         self.setupcontainer()
         self.setup_row_stretches()
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.overlay_widget)
         self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.place_header_label()
+        self.hide_header_label()
         self.btns = None
         self._lang_btn.clicked.connect(self.show_lang_dialog)
         self._rules_btn.clicked.connect(self.show_rules_dialog)
@@ -266,7 +262,7 @@ class BaseWindow(QWidget):
         for row, stretch in GRID_ROW_STRETCHES.items():
             if row == "title":
                 continue
-            idx = {"title": 0, "display": 1, "buttons": 2}[row]
+            idx = {"title": 0, "display": 1, "header": 2, "buttons": 3}[row]    
             self.overlay_layout.setRowStretch(idx, stretch)
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting setup_row_stretches: return=None")
@@ -496,7 +492,7 @@ class BaseWindow(QWidget):
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting show_message: return=None")
 
-    def place_header_label(self, row: int = 1, col: int = 0, colspan: int = GRID_WIDTH) -> None:
+    def place_header_label(self, row: int = 2, col: int = 0, colspan: int = GRID_WIDTH) -> None:
         """
         Place and align the header label in the overlay layout at the specified position.
         """
@@ -525,3 +521,4 @@ class BaseWindow(QWidget):
         """
         Apply a stylesheet to the header label.
         """
+        self.header_label.setStyleSheet(style)

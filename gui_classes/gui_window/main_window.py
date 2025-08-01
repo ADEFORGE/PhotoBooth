@@ -262,6 +262,9 @@ class MainWindow(BaseWindow):
         if self.standby_manager:
             self.standby_manager.put_standby(True)
             self.standby_manager.set_timer(SLEEP_TIMER_SECONDS_QRCODE_OVERLAY)
+            self.standby_manager.reset_standby_timer()
+            if DEBUG_MainWindow:
+                logger.info(f"[DEBUG][MainWindow] Standby timer set to {SLEEP_TIMER_SECONDS_QRCODE_OVERLAY} seconds.")
         hotspot_url = HOTSPOT_URL
         overlay_qr = OverlayQrcode(
             self,

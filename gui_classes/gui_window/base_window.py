@@ -496,29 +496,49 @@ class BaseWindow(QWidget):
         """
         Place and align the header label in the overlay layout at the specified position.
         """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering place_header_label: args={{'row': {row}, 'col': {col}, 'colspan': {colspan}}}")
         self.header_label.setAlignment(Qt.AlignCenter)
         self.overlay_layout.addWidget(self.header_label, row, col, 1, colspan, alignment=Qt.AlignCenter)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting place_header_label: return=None")
 
     def show_header_label(self) -> None:
         """
         Show the header label.
         """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering show_header_label: args={{}}")
         self.header_label.show()
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting show_header_label: return=None")
 
     def hide_header_label(self) -> None:
         """
         Hide the header label.
         """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering hide_header_label: args={{}}")
         self.header_label.hide()
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting hide_header_label: return=None")
 
     def set_header_text(self, text: str) -> None:
         """
         Change the text displayed in the header label.
         """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering set_header_text: args={{'text': {text}}}")
         self.header_label.setText(text)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting set_header_text: return=None")
 
     def set_header_style(self, style: str) -> None:
         """
         Apply a stylesheet to the header label.
         """
-        self.header_label.setStyleSheet(style)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering set_header_style: args={{'style': {style}}}")
+        #self.header_label.setStyleSheet(style)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting set_header_style: return=None")

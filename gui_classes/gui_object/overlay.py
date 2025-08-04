@@ -1,14 +1,14 @@
 from PySide6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QGridLayout, QHBoxLayout,
     QPushButton, QSizePolicy, QApplication, QGraphicsBlurEffect,
-    QGraphicsDropShadowEffect
+    QGraphicsDropShadowEffect, QScrollArea, QFrame
 )
 from PySide6.QtCore import Qt, QSize, QEvent, QThread, Signal, QObject, QTimer
 from PySide6.QtGui import (
     QMovie, QPixmap, QIcon, QImage, QPainter, QColor,
     QPen, QPainterPath
 )
-from gui_classes.gui_object.constante import TITLE_LABEL_STYLE, GRID_WIDTH, COUNTDOWN_FONT_STYLE
+from gui_classes.gui_object.constante import TITLE_LABEL_STYLE, GRID_WIDTH, COUNTDOWN_FONT_STYLE,OVERLAY_TITLE_STYLE, OVERLAY_MSG_STYLE,OVERLAY_LOADING_MSG_STYLE, OVERLAY_LOADING_TITLE_STYLE
 from gui_classes.gui_object.btn import Btns
 from gui_classes.gui_object.toolbox import normalize_btn_name, LoadingBar
 from gui_classes.gui_manager.language_manager import language_manager
@@ -439,16 +439,45 @@ class OverlayLoading(OverlayWhite):
         self._overlay_widget = QWidget(self)
         self._overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self._overlay_widget.setGeometry(self.rect())
-        self._overlay_layout = QGridLayout(self._overlay_widget)
+        self._overlay_layout = QVBoxLayout(self._overlay_widget)
         self._overlay_layout.setContentsMargins(0, 0, 0, 0)
-        self._overlay_layout.setSpacing(0)
+        self._overlay_layout.setSpacing(20)
         self._loading_bar = LoadingBar(width_percent, height_percent, border_thickness, parent=self)
-        self._overlay_layout.addWidget(self._loading_bar, 0, 0, alignment=Qt.AlignCenter)
+
+        self._title_label = QLabel("", self._overlay_widget)
+        self._title_label.setStyleSheet(OVERLAY_LOADING_TITLE_STYLE)
+        self._title_label.setAlignment(Qt.AlignCenter)
+
+        self._msg_label = QLabel("", self._overlay_widget)
+        self._msg_label.setStyleSheet(OVERLAY_LOADING_MSG_STYLE)
+        self._msg_label.setAlignment(Qt.AlignCenter)
+
+        self._overlay_layout.addStretch(1) 
+        self._overlay_layout.addWidget(self._title_label, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._loading_bar, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._msg_label, alignment=Qt.AlignCenter)
+        self._overlay_layout.addStretch(1)
+
+        language_manager.subscribe(self.update_language)
+        self.update_language()
+
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self._overlay_widget)
         self.setFocusPolicy(Qt.NoFocus)
         if DEBUG_OverlayLoading: logger.info(f"[DEBUG][OverlayLoading] Exiting __init__: return=None")
+
+    def update_language(self) -> None:
+        """
+        Update the language texts for the overlay.
+        """
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Entering update_language: args=()")
+        qr_texts = language_manager.get_texts("OverlayLoading")
+        self._title_label.setText(qr_texts.get("title", ""))
+        self._msg_label.setText(qr_texts.get("message", ""))
+        if DEBUG_OverlayLoading: 
+            logger.info(f"[DEBUG][OverlayLoading] Exiting update_language: return=None")
 
     def resizeEvent(self, event: QEvent) -> None:
         """
@@ -523,10 +552,21 @@ class OverlayLoading(OverlayWhite):
         """
         if DEBUG_OverlayLoading: 
             logger.info(f"[DEBUG][OverlayLoading] Entering __del__: args=()")
-
+        language_manager.unsubscribe(self.update_language)
         super().__del__()
         if DEBUG_OverlayLoading: 
             logger.info(f"[DEBUG][OverlayLoading] Exiting __del__: return=None")
+
+    def closeEvent(self, event: QEvent) -> None:
+        """
+        Handle the close event for the overlay.
+        """
+        if DEBUG_OverlayLoading_FULL:
+            logger.info(f"[DEBUG][OverlayLoading] Entering closeEvent: args={(event,)}")
+        language_manager.unsubscribe(self.update_language)
+        super().closeEvent(event)
+        if DEBUG_OverlayLoading_FULL:
+            logger.info(f"[DEBUG][OverlayLoading] Exiting closeEvent: return=None")
 
     def set_percent(self, percent: int) -> None:
         """
@@ -563,14 +603,26 @@ class OverlayRules(OverlayWhite):
         self._on_validate = on_validate
         self._on_close = on_close
         self._title_label = QLabel("", self._overlay_widget)
-        self._title_label.setStyleSheet("color: black; font-size: 24px; font-weight: bold; background: transparent;")
+        self._title_label.setStyleSheet(OVERLAY_TITLE_STYLE)
         self._title_label.setAlignment(Qt.AlignCenter)
+        self._title_label.setWordWrap(True)
         self._overlay_layout.addWidget(self._title_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self._msg_label = QLabel("", self._overlay_widget)
-        self._msg_label.setStyleSheet("color: black; font-size: 20px; background: transparent;")
-        self._msg_label.setAlignment(Qt.AlignCenter)
-        self._overlay_layout.addWidget(self._msg_label, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+
+        self._msg_label = QLabel("")
+        self._msg_label.setStyleSheet(OVERLAY_MSG_STYLE)
+        self._msg_label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        self._msg_label.setWordWrap(True)
+
+        self._msg_scroll = QScrollArea(self._overlay_widget)
+        self._msg_scroll.setWidgetResizable(True)
+        self._msg_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._msg_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self._msg_scroll.setFrameShape(QFrame.NoFrame)
+        self._msg_scroll.setWidget(self._msg_label)        
+        self._msg_scroll.setFixedHeight(400)
+
+        self._overlay_layout.addWidget(self._msg_scroll, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.btns = Btns(self, [], [], None, None)
         self._setup_buttons(
@@ -658,7 +710,7 @@ class OverlayQrcode(OverlayWhite):
         """
         if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Entering _init_overlay_widget: args=()")
-        self.setFixedSize(700, 540)
+        self.setFixedSize(700, 1300)
         self._overlay_widget = QWidget(self)
         self._overlay_layout = QGridLayout(self._overlay_widget)
         self._overlay_layout.setContentsMargins(40, 32, 40, 32)
@@ -678,8 +730,9 @@ class OverlayQrcode(OverlayWhite):
             logger.info(f"[DEBUG][OverlayQrcode] Entering _init_layout_and_labels: args=()")
         row = 0
         self._title_label = QLabel("", self._overlay_widget)
-        self._title_label.setStyleSheet(TITLE_LABEL_STYLE + "color: black; border-bottom: none; text-decoration: none; background: transparent;")
+        self._title_label.setStyleSheet(OVERLAY_TITLE_STYLE)
         self._title_label.setAlignment(Qt.AlignCenter)
+        self._title_label.setWordWrap(True)
         self._overlay_layout.addWidget(self._title_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self.qr_label = QLabel(self._overlay_widget)
@@ -696,10 +749,23 @@ class OverlayQrcode(OverlayWhite):
         self.qr_label.setPixmap(scaled_pix)
         self._overlay_layout.addWidget(self.qr_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
-        self._msg_label = QLabel("", self._overlay_widget)
-        self._msg_label.setStyleSheet("color: black; font-size: 18px; background: transparent;")
-        self._msg_label.setAlignment(Qt.AlignCenter)
-        self._overlay_layout.addWidget(self._msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+
+
+
+        self._msg_label = QLabel("")
+        self._msg_label.setStyleSheet(OVERLAY_MSG_STYLE)
+        self._msg_label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        self._msg_label.setWordWrap(True)
+
+        self._msg_scroll = QScrollArea(self._overlay_widget)
+        self._msg_scroll.setWidgetResizable(True)
+        self._msg_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._msg_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self._msg_scroll.setFrameShape(QFrame.NoFrame)
+        self._msg_scroll.setWidget(self._msg_label)
+        self._msg_scroll.setFixedHeight(600)
+
+        self._overlay_layout.addWidget(self._msg_scroll, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
         self._row_for_buttons = row
         if DEBUG_OverlayQrcode: 

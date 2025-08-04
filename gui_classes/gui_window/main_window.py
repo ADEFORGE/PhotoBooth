@@ -13,7 +13,7 @@ from PySide6.QtGui import QPainter, QColor, QImage
 from PySide6.QtWidgets import QApplication, QLabel
 
 from gui_classes.gui_window.base_window import BaseWindow
-from gui_classes.gui_object.constante import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles,SLEEP_TIMER_SECONDS_QRCODE_OVERLAY
+from gui_classes.gui_object.constante import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles,SLEEP_TIMER_SECONDS_QRCODE_OVERLAY, MAIN_WINDOW_MSG_STYLE
 from gui_classes.gui_manager.thread_manager import CountdownThread, ImageGenerationThread
 from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager
@@ -32,6 +32,7 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering __init__: args={{'parent':{parent}}}")
         super().__init__(parent)
+        self._default_texts = language_manager.get_texts('main_window') or {}
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("background: transparent;")
         self.setAutoFillBackground(False)
@@ -58,8 +59,7 @@ class MainWindow(BaseWindow):
         self.update_language()
         self.showFullScreen()
         if DEBUG_MainWindow:
-            logger.info(f"[DEBUG][MainWindow] Exiting __init__: return=None")
-        
+            logger.info(f"[DEBUG][MainWindow] Exiting __init__: return=None")   
 
     def update_language(self) -> None:
         """
@@ -68,7 +68,11 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering update_language: args={{}}")
         self.update_frame()
+        
+        texts = language_manager.get_texts('main_window') or {}
+        self.set_header_text(texts.get('message', self._default_texts.get('message', '')))
         self._texts = language_manager.get_texts('main_window') or {}
+
         self.update_frame()
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Exiting update_language: return=None")
@@ -81,6 +85,7 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering on_enter: args={{}}")
         self.update_frame()
+        language_manager.subscribe(self.update_language)
         if hasattr(self, 'background_manager'):
             self.background_manager.on_enter()
         self.set_state_default()
@@ -100,6 +105,7 @@ class MainWindow(BaseWindow):
         super().on_leave()
         self.cleanup()
         self.hide_loading()
+        language_manager.unsubscribe(self.update_language)
         if hasattr(self, '_countdown_overlay') and self._countdown_overlay:
             try:
                 if getattr(self._countdown_overlay, '_is_alive', True):
@@ -210,6 +216,7 @@ class MainWindow(BaseWindow):
         if hasattr(self, 'background_manager'):
             self.background_manager.capture()
             pixmap = self.background_manager.get_background_image()
+
             if pixmap is not None and not pixmap.isNull():
                 self.original_photo = pixmap.toImage()
             else:
@@ -229,6 +236,7 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Entering generation: args={{'style_name':{style_name},'input_image':<QImage>,'callback':{callback}}}")
         if self._generation_task:
             self.cleanup()
+        self.hide_header_label()
         self._generation_task = ImageGenerationThread(style=style_name, input_image=input_image, parent=self)
         if callback:
             self._generation_task.finished.connect(callback)
@@ -354,15 +362,8 @@ class MainWindow(BaseWindow):
             logger.info(f"[DEBUG][MainWindow] Entering set_state_default: args={{}}")
         self.reset_generation_state()
         self.clear_display()
-        stylesheet = """
-            background: rgba(80, 80, 80, 0.6);
-            color: rgba(255, 255, 255, 1.0);
-            font-weight: bold;
-            font-size: 24px;
-            border-radius: 18px;
-            padding: 12px 24px;
-        """
-        self.set_header_text("coucou")
+        stylesheet = MAIN_WINDOW_MSG_STYLE
+        self.update_language()
         self.place_header_label()
         self.set_header_style(stylesheet)
         self.show_header_label()
@@ -378,14 +379,6 @@ class MainWindow(BaseWindow):
         )
 
         
-        
-        if hasattr(self, 'overlay_widget'):
-            self.overlay_widget.raise_()
-        if hasattr(self, 'btns'):
-            self.btns.raise_()
-            for btn in self.btns.get_every_btns():
-                btn.show()
-                btn.setEnabled(True)
         self.bg_label.lower()
         if hasattr(self, 'background_manager'):
             self.background_manager.set_live()
@@ -447,7 +440,7 @@ class MainWindow(BaseWindow):
             if hasattr(self, 'generated_image') and self.generated_image and not isinstance(self.generated_image, str):
                 self.background_manager.set_generated(self.generated_image)
             elif hasattr(self, 'original_photo') and self.original_photo:
-                self.background_manager.capture()
+                self.background_manager.capture(self.original_photo)
             self.background_manager.update_background()
         if hasattr(self, 'update') and callable(self.update):
             self.update()

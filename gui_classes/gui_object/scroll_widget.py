@@ -82,7 +82,7 @@ class ImageLoader:
                     with Image.open(img_path) as im:
                         w, h = im.size
                         if w == width:
-                            continue  # déjà à la bonne taille
+                            continue  
                         ratio = h / w
                         new_h = int(width * ratio)
                         im = im.resize((width, new_h), Image.LANCZOS)

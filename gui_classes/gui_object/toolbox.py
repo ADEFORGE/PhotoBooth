@@ -10,6 +10,7 @@ DEBUG_QRCodeUtils = DEBUG
 DEBUG_OutlinedLabel = DEBUG
 DEBUG_LoadingBar = DEBUG
 
+from gui_classes.gui_object.constante import COLOR_LOADING_BAR
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QProgressBar, QFrame
 from PySide6.QtCore import QObject, Signal, Qt, QTimer
 from PySide6.QtGui import QImage, QFont, QPainter, QPen, QColor, QPainterPath
@@ -132,7 +133,7 @@ class LoadingBar(QWidget):
         frame.setStyleSheet(
             f"#frame {{"
             f"    background-color: transparent;"
-            f"    border: {border_thickness}px solid rgba(200, 200, 200, 255);"
+            f"    border: {border_thickness}px solid {COLOR_LOADING_BAR};"
             f"    border-radius: {corner_radius}px;"
             f"}}"
         )
@@ -152,7 +153,7 @@ class LoadingBar(QWidget):
             f"    border-radius: {corner_radius // 2}px;"
             "}"
             "QProgressBar::chunk {"
-            "    background-color: rgba(200, 200, 200, 255);"
+            f"    background-color: {COLOR_LOADING_BAR};"
             f"    border-radius: {corner_radius // 2}px;"
             "}"
         )

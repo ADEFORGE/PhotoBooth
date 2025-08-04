@@ -1,25 +1,35 @@
 {
   "OverlayRules": {
-    "title": "Bruksregler",
-    "message": "Vennligst les og godta reglene for å fortsette."
+    "title": "Ønsker du å laste ned bildet til telefonen din?",
+    "message": "Alle bilder som tas av «Fotoautomaten» slettes automatisk etter 5 minutter."
   },
   "OverlayQrcode": {
-    "title": "Skann QR-koden for å fortsette",
-    "message": "Takk for at du godtok reglene."
+    "title": "Scan QR-koden med telefonen din",
+    "message": "1. Gå inn på kamera-appen på telefonen din.\n\n2. Hold kameraet foran QR-koden til den har blitt skannet.\n\n3. Trykk «Koble til» for å koble deg til Fotoautomaten sin hotspot.\n\n4. Vent til popup-vinduet dukker opp. Det kan ta inntil 10 sekunder.\n\n5. Hold fingeren på bildet og lagre bildet."
+  },
+  "OverlayLoading": {
+    "title": "Laster inn bildet...",
+    "message": "Vennligst vent til bildet er innlastet. Det kan ta noen sekunder."
   },
   "WelcomeWidget": {
-    "title": "Velkommen til PhotoBooth!",
-    "message": "Posér og ha det gøy. Klikk på kameraknappen for å starte."
+    "title": "Velkommen til\nFotoautomaten!",
+    "message": "Slå deg løs foran kameraet og ha det gøy! Trykk på knappen for å starte."
   },
   "main_window": {
     "title": "",
-    "message": "",
+    "message": "Velg et filter. Trykk deretter på knappen og posér!",
     "popup":"Velg en stil først"
   },
   "style":{
     "cyberpunk": "Cyberpunk",
     "comic": "Tegneserie",
     "oil paint": "Oljemaleri",
-    "statue": "Skulptur"
+    "statue": "Statue",
+    "clay":  "Leire",
+    "steampunk": "Steampunk",
+    "minecraft": "Minecraft",
+    "pixel art": "Pikselert",
+    "vintage": "Vintage",
+    "disney":"Disney"
   }
 }

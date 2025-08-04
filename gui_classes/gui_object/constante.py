@@ -64,7 +64,7 @@ TEMP_IMAGE = "temp.jpg"
 
 LABEL_WIDTH_RATIO = 0.8   # % largeur écran pour l'affichage principal
 LABEL_HEIGHT_RATIO = 0.9  # % hauteur écran pour l'affichage principal
-GRID_WIDTH = 7            # Largeur par défaut de toutes les grilles
+            # Largeur par défaut de toutes les grilles
 
 # --- Styles disponibles ---
 dico_styles = {
@@ -118,7 +118,7 @@ APP_FONT_SIZE = 14
 
 # --- Titre principal (label tout en haut) ---
 TITLE_LABEL_TEXT = WINDOW_TITLE
-TITLE_LABEL_FONT_SIZE = 32
+TITLE_LABEL_FONT_SIZE = 40
 TITLE_LABEL_FONT_FAMILY = "Arial"
 TITLE_LABEL_BOLD = True
 TITLE_LABEL_ITALIC = True
@@ -415,7 +415,18 @@ VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de con
 
 # --- Styles personnalisables pour les boutons ---
 # BTN_STYLE_ONE supprimé, n'est plus utilisé
-BTN_STYLE_TWO_FONT_SIZE_PERCENT = 14  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
+
+MAIN_WINDOW_MSG_STYLE = (   """
+            background: rgba(80, 80, 80, 0.6);
+            color: rgba(255, 255, 255, 1.0);
+            font-size: 20px;
+            border-radius: 18px;
+            padding: 12px 24px;
+        """)
+
+
+BTN_SIZE = 1 
+BTN_STYLE_TWO_FONT_SIZE_PERCENT = 11  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
 BTN_STYLE_TWO = (
     "QPushButton {{"
     "background: transparent;"
@@ -457,12 +468,25 @@ TOOLTIP_STYLE = (
     "}"
 )
 
+OVERLAY_TITLE_STYLE = ("color: black; font-size: 40px; font-weight: bold; background: transparent;")
+OVERLAY_MSG_STYLE = ("color: black; font-size: 30px; background: transparent;")
+
+OVERLAY_LOADING_TITLE_STYLE = (TITLE_LABEL_STYLE + "color: rgba(0, 0, 0, 255); border-bottom: none; text-decoration: none; background: transparent;")
+OVERLAY_LOADING_MSG_STYLE = (
+    "color: rgba(0, 0, 0, 255); "
+    "font-size: 18px; "
+    "background: transparent; "
+    "line-height: 2.2;"
+)
+COLOR_LOADING_BAR = "rgba(0, 0, 0, 255)"
+
+
 # --- Countdown Overlay ---
 COUNTDOWN_START = 2  # Valeur de départ du compteur (modifiable)
 COUNTDOWN_FONT_STYLE = "font-size: 120px; font-weight: bold; color: #fff; font-family: Arial, sans-serif; background: transparent;"
 
 # DEBUG constant for controlling debug prints
-DEBUG = True
+DEBUG = False
 DEBUG_FULL = False
 
 # Tooltip configuration
@@ -487,4 +511,5 @@ HUD_SIZE_RATIO = 0.08  # 8% de la hauteur de l'écran par défaut
 
 # --- Affichage des logos dans le HUD ---
 SHOW_LOGOS = True  # Mettre à False pour masquer les logos dans le HUD
-
+GRID_WIDTH = 7
+EASY_KID_ACCESS = False

@@ -420,14 +420,16 @@ VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de con
 MAIN_WINDOW_MSG_STYLE = (   """
             background: rgba(80, 80, 80, 0.6);
             color: rgba(255, 255, 255, 1.0);
-            font-size: 20px;
+            font-size: 35px;
             border-radius: 18px;
             padding: 12px 24px;
         """)
 
 
 BTN_SIZE = 2 
-BTN_STYLE_TWO_FONT_SIZE_PERCENT = 13  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
+BTN_STYLE_TWO_SIZE_COEFFICIENT = 1.6
+BTN_STYLE_TWO_FONT_SIZE_PERCENT = 12  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
+BTN_STYLE_TWO_FONT_OUTLINE = 0.15
 BTN_STYLE_TWO = (
     "QPushButton {{"
     "background: transparent;"
@@ -513,4 +515,6 @@ HUD_SIZE_RATIO = 0.08  # 8% de la hauteur de l'écran par défaut
 # --- Affichage des logos dans le HUD ---
 SHOW_LOGOS = True  # Mettre à False pour masquer les logos dans le HUD
 GRID_WIDTH = 5
-EASY_KID_ACCESS = False
+EASY_KID_ACCESS = True
+BTN_STYLE_ONE_ROW = 4
+BTN_STYLE_TWO_ROW = 5

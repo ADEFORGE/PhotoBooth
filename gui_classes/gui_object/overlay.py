@@ -611,7 +611,7 @@ class OverlayRules(OverlayWhite):
 
         self._msg_label = QLabel("")
         self._msg_label.setStyleSheet(OVERLAY_MSG_STYLE)
-        self._msg_label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        self._msg_label.setAlignment(Qt.AlignCenter)
         self._msg_label.setWordWrap(True)
 
         self._msg_scroll = QScrollArea(self._overlay_widget)
@@ -620,9 +620,9 @@ class OverlayRules(OverlayWhite):
         self._msg_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self._msg_scroll.setFrameShape(QFrame.NoFrame)
         self._msg_scroll.setWidget(self._msg_label)        
-        self._msg_scroll.setFixedHeight(400)
+        self._msg_scroll.setFixedHeight(200)
 
-        self._overlay_layout.addWidget(self._msg_scroll, row, 0, 1, self.GRID_WIDTH, alignment=Qt.AlignCenter)
+        self._overlay_layout.addWidget(self._msg_scroll, row, 0, 1, self.GRID_WIDTH,  alignment=Qt.AlignCenter)
         row += 1
         self.btns = Btns(self, [], [], None, None)
         self._setup_buttons(
@@ -696,11 +696,13 @@ class OverlayQrcode(OverlayWhite):
 
         super().__init__(parent)
         self._on_close = on_close
+        self.device = "android"
         self._init_overlay_widget()
         self._init_layout_and_labels()
         self._init_buttons()
         self._init_language()
         self._init_hotspot_thread(hotspot_url, image_to_send)
+        
         if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Exiting __init__: return=None")
 
@@ -710,7 +712,7 @@ class OverlayQrcode(OverlayWhite):
         """
         if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Entering _init_overlay_widget: args=()")
-        self.setFixedSize(700, 1300)
+        self.setFixedSize(700, 1400)
         self._overlay_widget = QWidget(self)
         self._overlay_layout = QGridLayout(self._overlay_widget)
         self._overlay_layout.setContentsMargins(40, 32, 40, 32)
@@ -750,20 +752,34 @@ class OverlayQrcode(OverlayWhite):
         self._overlay_layout.addWidget(self.qr_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
 
-
-
         self._msg_label = QLabel("")
         self._msg_label.setStyleSheet(OVERLAY_MSG_STYLE)
         self._msg_label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         self._msg_label.setWordWrap(True)
+        self._overlay_layout.addWidget(self._msg_label, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
+        row += 1
+
+        if hasattr(self, 'btns_phone') and self.btns_phone:
+            self.btns_phone.cleanup()
+        self.btns_phone = Btns(self, [], [], None, None)
+        style1_names=["android","iphone","samsung"]
+        slot_style1 = self._change_instruction
+        self.btns_phone.set_style1_btns(style1_names, slot_style1,  layout=self._overlay_layout, start_row=row)
+        row += 1
+
+        self._msg_label_by_device = QLabel("")
+        self._msg_label_by_device.setStyleSheet(OVERLAY_MSG_STYLE)
+        self._msg_label_by_device.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        self._msg_label_by_device.setWordWrap(True)
 
         self._msg_scroll = QScrollArea(self._overlay_widget)
         self._msg_scroll.setWidgetResizable(True)
         self._msg_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._msg_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self._msg_scroll.setFrameShape(QFrame.NoFrame)
-        self._msg_scroll.setWidget(self._msg_label)
-        self._msg_scroll.setFixedHeight(600)
+        self._msg_scroll.setAlignment(Qt.AlignCenter)
+        self._msg_scroll.setWidget(self._msg_label_by_device)
+        self._msg_scroll.setFixedHeight(800)
 
         self._overlay_layout.addWidget(self._msg_scroll, row, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter)
         row += 1
@@ -874,13 +890,40 @@ class OverlayQrcode(OverlayWhite):
         """
         Update the language texts for the QR code overlay.
         """
-        if DEBUG_OverlayQrcode: 
+        if True: 
             logger.info(f"[DEBUG][OverlayQrcode] Entering update_language: args=()")
         qr_texts = language_manager.get_texts("OverlayQrcode")
         self._title_label.setText(qr_texts.get("title", ""))
         self._msg_label.setText(qr_texts.get("message", ""))
+        if self.device == "android":
+            self._msg_label_by_device.setText(qr_texts.get("message_android", ""))
+        elif self.device == "iphone":
+            self._msg_label_by_device.setText(qr_texts.get("message_iphone", ""))
+        elif self.device == "samsung":
+            self._msg_label_by_device.setText(qr_texts.get("message_samsung", ""))
+        else:
+            self._msg_label_by_device.setText(qr_texts.get("message_android", ""))
+
         if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Exiting update_language: return=None")
+
+    def _change_instruction(self) -> None:
+        if True: 
+            logger.info(f"[DEBUG][OverlayQrcode] Entering _change_instruction: args=()")
+        sender = self.sender()
+        if True: 
+            logger.info(f"[OverlayQrcode] _change_instruction called by sender={sender.objectName() if sender else 'None'}")
+        if sender and sender.objectName() == 'android':
+            self.device = "android"
+        elif sender and sender.objectName() == 'iphone':
+            self.device = "iphone"
+        elif sender and sender.objectName() == 'samsung':
+            self.device = "samsung"
+        else:
+            self.device = "android"
+        self.update_language()
+        if True: 
+            logger.info(f"[DEBUG][OverlayQrcode] Exiting _change_instruction: return=None")
 
     def _on_close_btn(self) -> None:
         """

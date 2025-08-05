@@ -26,14 +26,11 @@ class SleepScreenWindow(BaseWindow):
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.center_widget = QWidget(self.overlay_widget)
         self.center_widget.setAttribute(Qt.WA_TranslucentBackground)
-        if not EASY_KID_ACCESS:
-            self.overlay_layout.addWidget(
-                self.center_widget, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter
-            )
-        else:
-            self.overlay_layout.addWidget(
-                self.center_widget, 1, 0, 1, GRID_WIDTH+1, alignment=Qt.AlignCenter
-            )
+    
+        self.overlay_layout.addWidget(
+            self.center_widget, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter
+        )
+
         self.center_layout = QVBoxLayout(self.center_widget)
         self.center_layout.setContentsMargins(40, 40, 40, 40)
         self.center_layout.setSpacing(30)

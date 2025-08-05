@@ -55,6 +55,7 @@ class MainWindow(BaseWindow):
         self.bg_label.lower()
         self.background_manager.update_background()
         self._texts = {}
+        self.flag_show_generation = False
         language_manager.subscribe(self.update_language)
         self.update_language()
         self.showFullScreen()
@@ -331,6 +332,26 @@ class MainWindow(BaseWindow):
                 self.original_photo,
                 callback=self.show_generation
             )
+        elif sender and sender.objectName() == 'view':
+            if True:
+                logger.info(f"[DEBUG][MainWindow] Entering _on_accept_close: args={{}}")
+            self.flag_show_generation = not self.flag_show_generation
+            if self.flag_show_generation:
+                if True:
+                    logger.info("[DEBUG][MainWindow] Showing generated image.")
+                if hasattr(self, 'background_manager') and self.background_manager:
+                    self.background_manager.set_generated(self.generated_image)
+                    if True:
+                        logger.info("[DEBUG][MainWindow] Generated image set in background manager.")
+                self.update_frame()
+            else:
+                if True:
+                    logger.info("[DEBUG][MainWindow] Showing original image.")
+                if hasattr(self, 'background_manager') and self.background_manager:
+                    self.background_manager.set_generated(self.original_photo)
+                    if True:
+                        logger.info("[DEBUG][MainWindow] Original image set in background manager.")
+                self.update_frame()
         else:
             self.set_state_default()
         if DEBUG_MainWindow:
@@ -349,6 +370,7 @@ class MainWindow(BaseWindow):
         self.generated_image = None
         self.original_photo = None
         self.selected_style = None
+        self.flag_show_generation = False
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Exiting reset_generation_state: return=None")
         self.update_frame()
@@ -367,6 +389,7 @@ class MainWindow(BaseWindow):
         self.place_header_label()
         self.set_header_style(stylesheet)
         self.show_header_label()
+        self.flag_show_generation = False
 
         style2 = [
             (name, f"style.{name}") for name in dico_styles.keys()
@@ -398,16 +421,17 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_validation: args={{}}")
         self.hide_header_label()
-        self.setup_buttons_style_1(['accept', 'close','regenerate'], slot_style1=self._on_accept_close)
+        self.setup_buttons_style_1(['accept', 'close','regenerate', 'view'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
             self.btns.raise_()
             for btn in self.btns.get_style1_btns():
                 btn.show()
                 btn.setEnabled(True)
-            self.btns.set_disabled_bw_style2()
+            self.btns.clear_style2_btns()            
         self.update_frame()
         if self.standby_manager:
             self.standby_manager.put_standby(False)
+        self.flag_show_generation = True
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Exiting set_state_validation: return=None")
         self.update_frame()
@@ -420,7 +444,7 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering set_state_wait: args={{}}")
         if hasattr(self, 'btns'):
-            self.btns.set_disabled_bw_style2()
+            self.btns.clear_style2_btns()
             for btn in self.btns.get_every_btns():
                 btn.hide()
         self.update_frame()
@@ -436,9 +460,12 @@ class MainWindow(BaseWindow):
         """
         if DEBUG_MainWindow_FULL:
             logger.info(f"[DEBUG][MainWindow] Entering update_frame: args={{}}")
-        if hasattr(self, 'background_manager') and self.background_manager:
+        if hasattr(self, 'background_manager') and self.background_manager:            
             if hasattr(self, 'generated_image') and self.generated_image and not isinstance(self.generated_image, str):
-                self.background_manager.set_generated(self.generated_image)
+                if self.flag_show_generation:
+                    self.background_manager.set_generated(self.generated_image)
+                else:
+                    self.background_manager.set_generated(self.original_photo)
             elif hasattr(self, 'original_photo') and self.original_photo:
                 self.background_manager.capture(self.original_photo)
             self.background_manager.update_background()

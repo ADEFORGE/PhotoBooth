@@ -90,6 +90,7 @@ dico_styles = {
     "vintage": "Transform this person into a vintage character from the 1920s-1950s. Use sepia tones, classic hairstyles, and period-appropriate clothing. Emphasize a nostalgic, timeless look with soft lighting and a vintage aesthetic. The background should reflect the era with elements like old cars, vintage posters, or classic architecture.",
     #"roblox": "Transform this person into a Roblox character, ensuring their original facial features, hairstyle, body type, and gender expression are clearly recognizable within the blocky, pixelated aesthetic of the Roblox universe. Use simple shapes and bright colors to recreate the person's appearance, translating realistic details into a more cartoonish style while retaining defining characteristics such as skin tone, hair color, hairstyle, facial structure, and clothing style. The Roblox character should look as if it truly represents the individual, as though they were authentically rendered inside the game. Clothing should reflect the person’s usual outfit or fashion sense, reimagined with the classic Roblox textures and limited color palettes typical of Roblox avatars. Accessories or unique style elements—such as glasses, jewelry, or hats—should be adapted in a blocky manner while still clearly referencing the real-world look. Maintain proportional accuracy according to Roblox’s character format (e.g., blocky limbs, oversized head), but ensure the transformed version still feels personal and identifiable. Place the character in a richly detailed Roblox environment that complements their style or personality—this could be a vibrant cityscape, a cozy home, or any classic Roblox setting. The background should include iconic blocky elements such as pixelated grass, trees, clouds, and structures made of wood, stone, or brick. Lighting should be bright and vivid, reflecting the cheerful tone of Roblox’s visual style.",
     "disney": "Transform this person into a Disney-style character, ensuring their original facial features, hairstyle, body type, and gender expression are clearly recognizable within the whimsical, animated aesthetic of Disney films. Use soft lines and vibrant colors to recreate the person's appearance, translating realistic details into a more cartoonish style while retaining defining characteristics such as skin tone, hair color, hairstyle, facial structure, and clothing style. The Disney character should look as if it truly represents the individual, as though they were authentically rendered inside a Disney movie. Clothing should reflect the person’s usual outfit or fashion sense, reimagined with the classic Disney textures and limited color palettes typical of Disney characters. Accessories or unique style elements—such as glasses, jewelry, or hats—should be adapted in a playful manner while still clearly referencing the real-world look. Maintain proportional accuracy according to Disney’s character format (e.g., exaggerated features, large eyes), but ensure the transformed version still feels personal and identifiable. Place the character in a richly detailed Disney environment that complements their style or personality—this could be a magical kingdom, a bustling city, or any classic Disney setting. The background should include iconic elements such as lush landscapes, whimsical architecture, and enchanting details. Lighting should be bright and cheerful, reflecting the optimistic tone of Disney’s visual style."
+
 }
 
 
@@ -425,8 +426,8 @@ MAIN_WINDOW_MSG_STYLE = (   """
         """)
 
 
-BTN_SIZE = 1 
-BTN_STYLE_TWO_FONT_SIZE_PERCENT = 11  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
+BTN_SIZE = 2 
+BTN_STYLE_TWO_FONT_SIZE_PERCENT = 13  # Pourcentage de la taille du bouton (ex: 28 pour 28%)
 BTN_STYLE_TWO = (
     "QPushButton {{"
     "background: transparent;"
@@ -474,7 +475,7 @@ OVERLAY_MSG_STYLE = ("color: black; font-size: 30px; background: transparent;")
 OVERLAY_LOADING_TITLE_STYLE = (TITLE_LABEL_STYLE + "color: rgba(0, 0, 0, 255); border-bottom: none; text-decoration: none; background: transparent;")
 OVERLAY_LOADING_MSG_STYLE = (
     "color: rgba(0, 0, 0, 255); "
-    "font-size: 18px; "
+    "font-size: 24px; "
     "background: transparent; "
     "line-height: 2.2;"
 )
@@ -511,5 +512,5 @@ HUD_SIZE_RATIO = 0.08  # 8% de la hauteur de l'écran par défaut
 
 # --- Affichage des logos dans le HUD ---
 SHOW_LOGOS = True  # Mettre à False pour masquer les logos dans le HUD
-GRID_WIDTH = 7
+GRID_WIDTH = 5
 EASY_KID_ACCESS = False

@@ -1,7 +1,7 @@
 {
   "OverlayRules": {
     "title": "Do you wish to download your photo to your phone?",
-    "message": "Any photo taken by the PhotoBooth is automatically deleted after 5 minutes."
+    "message": "Any photo taken by the Photo Booth is automatically deleted after 5 minutes."
   },
   "OverlayQrcode": {
     "title": "Scan the QR code with your phone",
@@ -9,11 +9,11 @@
   },
   "OverlayLoading": {
     "title": "Loading picture...",
-    "message": "Please wait while we load your picture. It may take a few seconds"
+    "message": "Please wait. It may take a few seconds."
   },
   "WelcomeWidget": {
     "title": "Welcome to the\nPhoto Booth!",
-    "message": "Strike a pose in front of the camera and have fun! Press the button to begin"
+    "message": "Strike a pose in front of the camera\n and have fun!\n\nPress the button to begin"
   },
   "main_window": {
     "title": "",

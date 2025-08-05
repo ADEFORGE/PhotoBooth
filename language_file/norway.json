@@ -1,7 +1,7 @@
 {
   "OverlayRules": {
     "title": "Ønsker du å laste ned bildet til telefonen din?",
-    "message": "Alle bilder som tas av «Fotoautomaten» slettes automatisk etter 5 minutter."
+    "message": "Alle bilder som tas av Fotoautomaten slettes automatisk etter 5 minutter."
   },
   "OverlayQrcode": {
     "title": "Scan QR-koden med telefonen din",
@@ -9,7 +9,7 @@
   },
   "OverlayLoading": {
     "title": "Laster inn bildet...",
-    "message": "Vennligst vent til bildet er innlastet. Det kan ta noen sekunder."
+    "message": "Vennligst vent. Det kan ta noen sekunder."
   },
   "WelcomeWidget": {
     "title": "Velkommen til\nFotoautomaten!",

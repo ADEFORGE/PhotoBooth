@@ -378,7 +378,7 @@ class BtnStyleTwo(Btn):
             texture_path = "gui_template/btn_textures/default.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
         dyn = _compute_dynamic_size(QSize(BTN_SIZE, BTN_SIZE))
-        side = max(dyn.width()* 1.1, dyn.height()* 1.1) 
+        side = max(dyn.width()* 1.4, dyn.height()* 1.4) 
         square = QSize(side, side)
         self.setText("") 
         self.initialize(style=style, icon_path=None, size=square, checkable=True)

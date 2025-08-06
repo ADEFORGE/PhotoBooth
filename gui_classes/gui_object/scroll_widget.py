@@ -868,7 +868,7 @@ class ScrollOverlay(QWidget):
             scroll_speed=0.2,
             fps=20,
             margin_x=1.05,
-            margin_y=1,
+            margin_y=1.05,
             angle=15
         )
         layout.addWidget(self.scroll_widget)

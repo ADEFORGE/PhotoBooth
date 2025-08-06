@@ -130,12 +130,7 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Entering on_enter: args={{}}")
         language_manager.subscribe(self.update_language)
         self.update_language()
-        if self.btns is None:
-            self.setup_buttons(
-                style1_names=['camera'],
-                style2_names=[],
-                slot_style1='on_camera_button_clicked'
-            )
+
         self.title_label.show()
         self.message_label.show()
         for btn in self.btns.get_every_btns():

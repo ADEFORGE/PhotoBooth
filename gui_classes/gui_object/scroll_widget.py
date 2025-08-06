@@ -82,7 +82,7 @@ class ImageLoader:
                     with Image.open(img_path) as im:
                         w, h = im.size
                         if w == width:
-                            continue  # déjà à la bonne taille
+                            continue  
                         ratio = h / w
                         new_h = int(width * ratio)
                         im = im.resize((width, new_h), Image.LANCZOS)
@@ -597,16 +597,21 @@ class InfiniteScrollView(QGraphicsView):
         """
         Handle a frame update during the start animation.
         """
-        if DEBUG_InfiniteScrollView:
-            logger.info(f"[DEBUG][InfiniteScrollView] Entering _on_start_frame: args={{}}")
-        for col in self.scroll_tab.columns:
-            col.scroll(self._start_speed, infinite=True)
-            if  self.scroll_tab.get_endstart() and self._starting:
-                self._starting = False
-                if self._start_callback:
-                    self._start_callback()
-        if DEBUG_InfiniteScrollView:
-            logger.info(f"[DEBUG][InfiniteScrollView] Exiting _on_start_frame: return=None")
+        try:
+            if DEBUG_InfiniteScrollView:
+                logger.info(f"[DEBUG][InfiniteScrollView] Entering _on_start_frame: args={{}}")
+            for col in self.scroll_tab.columns:
+                col.scroll(self._start_speed, infinite=True)
+                if  self.scroll_tab.get_endstart() and self._starting:
+                    self._starting = False
+                    if self._start_callback:
+                        self._start_callback()
+            if DEBUG_InfiniteScrollView:
+                logger.info(f"[DEBUG][InfiniteScrollView] Exiting _on_start_frame: return=None")
+        except Exception as e:
+            logging.getLogger(__name__).error("Erreur dans update_frame", exc_info=True)
+            from gui_classes.gui_object.recovery import restart_app 
+            restart_app()
 
     def stop(self) -> None:
         """
@@ -863,7 +868,7 @@ class ScrollOverlay(QWidget):
             scroll_speed=0.2,
             fps=20,
             margin_x=1.05,
-            margin_y=1,
+            margin_y=1.05,
             angle=15
         )
         layout.addWidget(self.scroll_widget)

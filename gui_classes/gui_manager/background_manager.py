@@ -32,24 +32,19 @@ class BackgroundManager(QObject):
         self.rotation = rotation
         self.gradient_path = gradient_path
         self._mutex = QMutex()
-        self._show_gradient = True  # Flag pour afficher ou masquer le gradient
+        self._show_gradient = True 
 
-        # Optimisation du peintre: ne pas effacer entièrement
         self.label.setAttribute(Qt.WA_OpaquePaintEvent)
 
-        # Création du QLabel pour le dégradé
         self.gradient_label = QLabel(self.label.parent())
         self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
         self.gradient_label.setStyleSheet("background: transparent;")
         self._init_gradient()
-
-        # Thread caméra
         self.thread = CameraCaptureThread()
         self.thread.set_resolution_level(resolution_level)
         self.thread.frame_ready.connect(self._on_frame_ready)
         self.thread.start()
 
-        # États des images
         self.last_camera: QPixmap | None = None
         self.captured: QPixmap | None = None
         self.generated: QPixmap | None = None
@@ -150,16 +145,18 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager:
             logger.info(f"[DEBUG][BackgroundManager] Exiting set_live: return=None")
 
-    def capture(self) -> None:
+    def capture(self, qimage: QImage = None) -> None:
         """
         Capture the current camera frame.
         """
         if DEBUG_BackgroundManager:
             logger.info(f"[DEBUG][BackgroundManager] Entering capture: args=()")
         with QMutexLocker(self._mutex):
-            if self.last_camera:
+            if qimage is not None:
+                pix = QPixmap.fromImage(qimage)
+                self.captured = pix
+            elif self.last_camera:
                 pix = QPixmap(self.last_camera)
-                # Ne plus appliquer la rotation ici
                 self.captured = pix
             self.current = 'captured'
         if DEBUG_BackgroundManager:
@@ -244,7 +241,7 @@ class BackgroundManager(QObject):
             return
         apply_rotation = False
         with QMutexLocker(self._mutex):
-            if self.current in ('live', 'captured'):
+            if self.current in ('live'):
                 apply_rotation = True
         if apply_rotation and self.rotation:
             pix = pix.transformed(
@@ -311,7 +308,6 @@ class BackgroundManager(QObject):
         if DEBUG_BackgroundManager:
             logger.info(f"[DEBUG][BackgroundManager] Entering get_background_image: args=()")
         pix = self.get_pixmap()
-        # Appliquer la rotation uniquement si définie
         if pix and self.rotation:
             if DEBUG_BackgroundManager:
                 logger.info(f"[DEBUG][BackgroundManager] Applying rotation: {self.rotation} degrees")

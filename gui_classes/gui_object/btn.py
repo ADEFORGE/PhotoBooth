@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QButtonGroup
-from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication
+from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication,QPainter, QPainterPath, QPen, QColor, QFontMetrics
 from PySide6.QtCore import QSize, Qt, QEvent
-from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT, GRID_WIDTH
+from gui_classes.gui_object.constante import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT, GRID_WIDTH, BTN_SIZE,EASY_KID_ACCESS,BTN_STYLE_ONE_ROW, BTN_STYLE_TWO_ROW,BTN_STYLE_TWO_SIZE_COEFFICIENT,BTN_STYLE_TWO_FONT_OUTLINE
 from gui_classes.gui_manager.language_manager import language_manager
 import os
 from PIL import Image
@@ -28,7 +28,7 @@ def _compute_dynamic_size(original_size: QSize) -> QSize:
         logger.info(f"[DEBUG][_compute_dynamic_size] Entering _compute_dynamic_size: args={(original_size,)}")
     screen = QGuiApplication.primaryScreen()
     geom = screen.availableGeometry()
-    target = int(min(geom.width(), geom.height()) * 0.07)
+    target = int(min(geom.width(), geom.height()) * 0.11)
     result = QSize(target, target)
     if DEBUG_compute_dynamic_size:
         logger.info(f"[DEBUG][_compute_dynamic_size] Exiting _compute_dynamic_size: return={result}")
@@ -47,6 +47,8 @@ class Btn(QPushButton):
         self.setObjectName(name)
         self._icon_path = None
         self._setup_standby_manager_events()
+        self.hide()
+        self.setVisible(False)
         if DEBUG_Btn:
             logger.info(f"[DEBUG][Btn] Exiting __init__: return=None")
     
@@ -182,20 +184,31 @@ class Btn(QPushButton):
 
     def cleanup(self) -> None:
         """
-        Disconnect all slots, remove the button from its parent, and delete it.
+        Fully disconnect and destroy the button, removing it from any layout and parent.
         """
         if DEBUG_Btn:
-            logger.info(f"[DEBUG][Btn] Entering cleanup: args=()")
+            logger.info(f"[DEBUG][Btn] Entering cleanup: {self.objectName()}")
+
+        self.hide()
+        self.setVisible(False)
         for sig, sl in self._connected_slots:
             try:
                 getattr(self, sig).disconnect(sl)
-            except:
-                pass
+            except Exception as e:
+                if DEBUG_Btn:
+                    logger.warning(f"[DEBUG][Btn] Failed to disconnect slot: {e}")
         self._connected_slots.clear()
+
+        parent_layout = self.parentWidget().layout() if self.parentWidget() else None
+        if parent_layout:
+            parent_layout.removeWidget(self)
+
+        self.hide()
         self.setParent(None)
         self.deleteLater()
+
         if DEBUG_Btn:
-            logger.info(f"[DEBUG][Btn] Exiting cleanup: return=None")
+            logger.info(f"[DEBUG][Btn] Exiting cleanup: {self.objectName()}")
 
     def set_disabled_bw(self) -> None:
         """
@@ -270,8 +283,8 @@ class BtnStyleOne(Btn):
         base = f"gui_template/btn_icons/{name}"
         self._icon_path_passive = f"{base}_passive.png"
         self._icon_path_pressed = f"{base}_pressed.png"
-        dyn = _compute_dynamic_size(QSize(80, 80))
-        side = max(dyn.width(), dyn.height(), 120)
+        dyn = _compute_dynamic_size(QSize(BTN_SIZE, BTN_SIZE))
+        side = max(dyn.width(), dyn.height())
         self._btn_side = side
         self._icon_pad = 1.0
         self.setStyleSheet("QPushButton { background: transparent; border: none; }")
@@ -280,8 +293,6 @@ class BtnStyleOne(Btn):
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setVisible(True)
-        self.raise_()
         self.pressed.connect(self._set_pressed_icon)
         self.released.connect(self._set_passive_icon)
         self.toggled.connect(self._on_toggled)
@@ -364,16 +375,14 @@ class BtnStyleTwo(Btn):
         if not os.path.exists(texture_path):
             texture_path = "gui_template/btn_textures/default.png"
         style = BTN_STYLE_TWO.format(texture=texture_path)
-        dyn = _compute_dynamic_size(QSize(80, 80))
-        side = max(dyn.width(), dyn.height(), 120)
+        dyn = _compute_dynamic_size(QSize(BTN_SIZE, BTN_SIZE))
+        side = max(dyn.width() * BTN_STYLE_TWO_SIZE_COEFFICIENT, dyn.height() * BTN_STYLE_TWO_SIZE_COEFFICIENT)
         square = QSize(side, side)
         self.setText("") 
         self.initialize(style=style, icon_path=None, size=square, checkable=True)
         self.setMinimumSize(square)
         self.setMaximumSize(square)
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setVisible(True)
-        self.raise_()
         font = self.font()
         font.setFamily("Arial")
         font.setPointSize(int(side * BTN_STYLE_TWO_FONT_SIZE_PERCENT / 100))
@@ -409,6 +418,37 @@ class BtnStyleTwo(Btn):
         super().cleanup()
         if DEBUG_BtnStyleTwo:
             logger.info(f"[DEBUG][BtnStyleTwo] Exiting cleanup: return=None")
+    
+    # def paintEvent(self, event):
+    #     super().paintEvent(event)
+    #
+    #     painter = QPainter(self)
+    #     painter.setRenderHint(QPainter.Antialiasing)
+    #     painter.setRenderHint(QPainter.TextAntialiasing)
+    #
+    #     font = self.font()
+    #     painter.setFont(font)
+    #     text = self.text()
+    #
+    #     fm = QFontMetrics(font)
+    #     text_width = fm.horizontalAdvance(text)
+    #     text_height = fm.height()
+    #     x = (self.width() - text_width) / 2
+    #     y = (self.height() + fm.ascent() - fm.descent()) / 2
+    #
+    #     path = QPainterPath()
+    #     path.addText(x, y, font, text)
+    #
+    #     outline_width = max(1.0, font.pointSizeF() * BTN_STYLE_TWO_FONT_OUTLINE)
+    #     pen = QPen(QColor("black"), outline_width)
+    #     pen.setJoinStyle(Qt.RoundJoin)
+    #     painter.setPen(pen)
+    #     painter.setBrush(Qt.NoBrush)
+    #     painter.drawPath(path)
+    #
+    #     painter.setPen(QColor("white"))
+    #     painter.drawText(self.rect(), Qt.AlignCenter, text)
+
 
 class Btns:
     def __init__(self, parent: QWidget, style1_names: list, style2_names: list, slot_style1: object = None, slot_style2: object = None) -> None:
@@ -469,7 +509,7 @@ class Btns:
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting lower_: return=None")
 
-    def setup_buttons(self, style1_names: list, style2_names: list, slot_style1: object = None, slot_style2: object = None, layout: object = None, start_row: int = 3) -> None:
+    def setup_buttons(self, style1_names: list, style2_names: list, slot_style1: object = None, slot_style2: object = None, layout: object = None, start_row: int = BTN_STYLE_ONE_ROW) -> None:
         """
         Create and place all buttons according to provided names and layout.
         """
@@ -489,7 +529,7 @@ class Btns:
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting setup_buttons: return=None")
 
-    def setup_buttons_style_1(self, style1_names: list, slot_style1: object = None, layout: object = None, start_row: int = 3) -> None:
+    def setup_buttons_style_1(self, style1_names: list, slot_style1: object = None, layout: object = None, start_row: int = BTN_STYLE_ONE_ROW) -> None:
         """
         Create and place only style 1 buttons.
         """
@@ -505,7 +545,7 @@ class Btns:
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting setup_buttons_style_1: return=None")
 
-    def setup_buttons_style_2(self, style2_names: list, slot_style2: object = None, layout: object = None, start_row: int = 4) -> None:
+    def setup_buttons_style_2(self, style2_names: list, slot_style2: object = None, layout: object = None, start_row: int = BTN_STYLE_TWO_ROW) -> None:
         """
         Create and place only style 2 buttons.
         """
@@ -520,7 +560,6 @@ class Btns:
         self.raise_()
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting setup_buttons_style_2: return=None")
-
 
     def _is_valid_btn_name(self, name: str) -> bool:
         """
@@ -628,28 +667,42 @@ class Btns:
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting clear_style2_btns: return=None")
 
-    def place_style1(self, layout: object, start_row: int = 3) -> None:
+  
+
+    def place_style1(self, layout: object, start_row: int = BTN_STYLE_ONE_ROW) -> None:
         """
         Place all style 1 buttons in the given layout.
         """
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Entering place_style1: args={(layout, start_row)}")
-        col_max = layout.columnCount() if hasattr(layout, "columnCount") else 7
+            
+        col_max = (GRID_WIDTH)
         n = len(self._style1_btns)
-        if n:
-            if n % 2 == 0:
-                left = (col_max - n - 1) // 2
-                for i, btn in enumerate(self._style1_btns):
-                    col = left + i if i < n // 2 else left + i + 1
+        if n == 0:
+            return
+        if n >= col_max - 1:
+            maxn = min(n, col_max - 1)
+            for i, btn in enumerate(self._style1_btns[:maxn]):
+                col = 1 + i
+                btn.place(layout, start_row, col)
+            return
+        if n % 2 == 0:
+            left = (col_max - n - 1) // 2
+            for i, btn in enumerate(self._style1_btns):
+                col = left + i if i < n // 2 else left + i + 1
+                if not ((start_row, col) == (BTN_STYLE_ONE_ROW, 0) and EASY_KID_ACCESS):
                     btn.place(layout, start_row, col)
-            else:
-                col1 = (col_max - n) // 2
-                for i, btn in enumerate(self._style1_btns):
-                    btn.place(layout, start_row, col1 + i)
+        else:
+            left = (col_max - n) // 2
+            for i, btn in enumerate(self._style1_btns):
+                btn.place(layout, start_row, left + i)               
+
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting place_style1: return=None")
 
-    def place_style2(self, layout: object, start_row: int = 4) -> None:
+
+
+    def place_style2(self, layout: object, start_row: int = BTN_STYLE_TWO_ROW) -> None:
         """
         Place all style 2 buttons in the given layout.
         """
@@ -662,24 +715,25 @@ class Btns:
             end_row = start_row + nb_btn // col_max
             if nb_btn % col_max != 0:
                 end_row += 1
-            for row in range(start_row, end_row):    
-               nb_btn_in_row = min(col_max, nb_btn)               
-               nb_btn -= nb_btn_in_row               
-               i_start_btn_will_be_placed = (row - start_row) * col_max
-               i_end_btn_will_be_placed = i_start_btn_will_be_placed + nb_btn_in_row  
-               if nb_btn_in_row % 2 == 0:
-                   left = (col_max - nb_btn_in_row - 1) // 2
-                   for i, btn in enumerate(self._style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
-                       col = left + i if i < nb_btn_in_row // 2 else left + i + 1
-                       btn.place(layout, row, col)
-               else:
-                    col2 = (col_max - nb_btn_in_row) // 2
+            for row in range(start_row, end_row):
+                nb_btn_in_row = min(col_max, nb_btn)
+                nb_btn -= nb_btn_in_row
+                i_start_btn_will_be_placed = (row - start_row) * col_max
+                i_end_btn_will_be_placed = i_start_btn_will_be_placed + nb_btn_in_row  
+                if nb_btn_in_row % 2 == 0:
+                    left = (col_max - nb_btn_in_row - 1) // 2
                     for i, btn in enumerate(self._style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
-                        btn.place(layout, row, col2 + i)
+                        col = left + i if i < nb_btn_in_row // 2 else left + i + 1
+                        btn.place(layout, row, col)
+                else:
+                        col2 = (col_max - nb_btn_in_row) // 2
+                        for i, btn in enumerate(self._style2_btns[i_start_btn_will_be_placed:i_end_btn_will_be_placed]):
+                            btn.place(layout, row, col2 + i)                        
         if DEBUG_Btns:
             logger.info(f"[DEBUG][Btns] Exiting place_style2: return=None")
 
-    def place_all(self, layout: object, start_row: int = 3) -> None:
+
+    def place_all(self, layout: object, start_row: int = BTN_STYLE_ONE_ROW) -> None:
         """
         Place all buttons in the given layout.
         """
@@ -695,7 +749,7 @@ class Btns:
         names: list,
         slot_style1: object = None,
         layout: object = None,
-        start_row: int = 3
+        start_row: int = BTN_STYLE_ONE_ROW
     ) -> None:
         """
         Set and place style 1 buttons.
@@ -715,7 +769,7 @@ class Btns:
         names: list,
         slot_style2: object = None,
         layout: object = None,
-        start_row: int = 4
+        start_row: int = BTN_STYLE_TWO_ROW
     ) -> None:
         """
         Set and place style 2 buttons.
@@ -737,7 +791,7 @@ class Btns:
         slot_style1: object = None,
         slot_style2: object = None,
         layout: object = None,
-        start_row: int = 3
+        start_row: int = BTN_STYLE_ONE_ROW
     ) -> None:
         """
         Set and place all buttons.

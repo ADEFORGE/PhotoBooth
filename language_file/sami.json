@@ -4,8 +4,12 @@
     "message": "Lohkke ja dohkke vuogit vai gávdnat viidodettiin."
   },
   "OverlayQrcode": {
-    "title": "Skanna QR-koda vai joatkit",
-    "message": "Giitu go dohkke vuogit."
+    "title": "Skaun QR-kódda telefónas",
+    "message": "Veahka gadgettipa doaibma instrukšuvnnat nedenfor.",
+
+    "message_android": "1. Oađđá telefónas kamera\n\n2. Čohkka kamerabuvssat QR-kódda go das lea skaunahan.\n\n3. Geahččal “Connect” PhotoBooth lokála hotspot guovttos.\n\n4. Váldde pop-up bálvalus, mii sáhtá fásttádut oažžut 10 sekundda.\n\n5. Geahččal váimmus foto ja save-heapmái!",
+    "message_iphone": "1. Oađđá telefónas kamera\n\n2. Čohkka kamerabuvssat QR-kódda go das lea skaunahan.\n\n3. Geahččal “Connect” PhotoBooth lokála hotspot guovttos.\n\n4. Go QR-orieggadit bálvalus lávddut, geahččal screenshot dávjáaktuide ja volum ovtta gávdnojit.\n\n5. Avnna Photo-app, loga screenshot, rievdki maid bargá foto isolere ja geahččal share-ikona save-heapmái!",
+    "message_samsung": "1. Oađđá telefónas kamera\n\n2. Čohkka kamerabuvssat QR-kódda go das lea skaunahan.\n\n3. Geahččal “Connect” PhotoBooth lokála hotspot guovttos.\n\n4. Jus čuovgga válddánsergudus bálvalus, válda sáhttit ja geahččal “Connect” eará báziha.\n\n5. Avnna browser ja čál URL: photobooth.ml, muhto guovttos dán bizosiid ja sáhtát save-heapmái!"
   },
   "WelcomeWidget": {
     "title": "Bures boahtin PhotoBoothii!",

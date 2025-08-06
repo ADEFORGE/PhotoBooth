@@ -5,7 +5,7 @@ from PySide6.QtGui import QResizeEvent, QShowEvent, QHideEvent
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from gui_classes.gui_window.base_window import BaseWindow
 from gui_classes.gui_manager.language_manager import language_manager
-from gui_classes.gui_object.constante import GRID_WIDTH
+from gui_classes.gui_object.constante import GRID_WIDTH, EASY_KID_ACCESS
 
 from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
 DEBUG_SleepScreenWindow: bool = DEBUG
@@ -26,9 +26,11 @@ class SleepScreenWindow(BaseWindow):
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.center_widget = QWidget(self.overlay_widget)
         self.center_widget.setAttribute(Qt.WA_TranslucentBackground)
+    
         self.overlay_layout.addWidget(
             self.center_widget, 1, 0, 1, GRID_WIDTH, alignment=Qt.AlignCenter
         )
+
         self.center_layout = QVBoxLayout(self.center_widget)
         self.center_layout.setContentsMargins(40, 40, 40, 40)
         self.center_layout.setSpacing(30)
@@ -43,11 +45,6 @@ class SleepScreenWindow(BaseWindow):
         self.message_label.setWordWrap(True)
         self.center_layout.addWidget(self.title_label)
         self.center_layout.addWidget(self.message_label)
-        self.setup_buttons(
-            style1_names=['camera'],
-            style2_names=[],
-            slot_style1='on_camera_button_clicked'
-        )
         language_manager.subscribe(self.update_language)
         self.update_language()
         self.showFullScreen()
@@ -133,12 +130,7 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Entering on_enter: args={{}}")
         language_manager.subscribe(self.update_language)
         self.update_language()
-        if self.btns is None:
-            self.setup_buttons(
-                style1_names=['camera'],
-                style2_names=[],
-                slot_style1='on_camera_button_clicked'
-            )
+
         self.title_label.show()
         self.message_label.show()
         for btn in self.btns.get_every_btns():

@@ -21,9 +21,10 @@ from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
 from gui_classes.gui_object.constante import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
-    ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE, HUD_SIZE_RATIO, SHOW_LOGOS
+    ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE, HUD_SIZE_RATIO, SHOW_LOGOS,
+    EASY_KID_ACCESS, BTN_STYLE_ONE_ROW, BTN_STYLE_TWO_ROW
 )
-from gui_classes.gui_object.btn import Btns
+from gui_classes.gui_object.btn import Btns, Btn
 
 
 
@@ -55,14 +56,15 @@ class BaseWindow(QWidget):
         self.overlay_widget.setVisible(True)
         self.overlay_widget.setGeometry(0, 0, 1920, 1080)
         self.overlay_widget.raise_()
-        self.setupcontainer()
+        self.header_label = QLabel("", self.overlay_widget)
         self.setup_row_stretches()
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.overlay_widget)
         self.overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.setupcontainer()
+        self.hide_header_label()
         self.btns = None
-        self._lang_btn.clicked.connect(self.show_lang_dialog)
-        self._rules_btn.clicked.connect(self.show_rules_dialog)
+
         self.overlay_widget.raise_()
         self.raise_()
         self._overlays = [] 
@@ -114,27 +116,16 @@ class BaseWindow(QWidget):
 
     def clear_buttons(self) -> None:
         """
-        Remove and delete all buttons from the overlay layout.
+        Remove and delete all buttons managed by self.btns from the overlay layout.
         """
-        if DEBUG_BaseWindow:
-            logger.info(f"[DEBUG][BaseWindow] Entering clear_buttons: args={{}}")
+        logger.info("[DEBUG][BaseWindow] Entering clear_buttons")
+
         if self.btns:
-            for btn in self.btns.get_every_btns():
-                btn.hide()
-                btn.setParent(None)
-                btn.deleteLater()
-        for i in range(self.overlay_layout.rowCount() - 1, 1, -1):
-            for j in range(self.overlay_layout.columnCount()):
-                item = self.overlay_layout.itemAtPosition(i, j)
-                if item:
-                    widget = item.widget()
-                    if widget:
-                        widget.hide()
-                        widget.setParent(None)
-                        widget.deleteLater()
-                    self.overlay_layout.removeItem(item)
-        if DEBUG_BaseWindow:
-            logger.info(f"[DEBUG][BaseWindow] Exiting clear_buttons: return=None")
+            logger.info("[DEBUG][BaseWindow] Clearing buttons via Btns manager")
+            self.btns.cleanup() 
+            self.btns = None     
+
+        logger.info("[DEBUG][BaseWindow] Exiting clear_buttons")
 
     def get_grid_width(self) -> int:
         """
@@ -172,7 +163,7 @@ class BaseWindow(QWidget):
             logger.info(f"[DEBUG][BaseWindow] Exiting setup_logo: return={widget}")
         return widget
 
-    def setup_interaction_btn(self) -> QWidget:
+    def setup_interaction_btn(self) -> QPushButton:
         """
         Set up and return the interaction buttons widget.
         """
@@ -204,30 +195,12 @@ class BaseWindow(QWidget):
         lang_btn.setIconSize(QSize(btn_size, btn_size))
         lang_btn.setFixedSize(btn_size, btn_size)
         lang_btn.raise_()
+        lang_btn.clicked.connect(self.show_lang_dialog)
         self._lang_btn = lang_btn
 
-        rules_btn = QPushButton()
-        rules_btn.setStyleSheet(btn_style)
-        rules_btn.setIcon(QIcon(QPixmap("gui_template/base_window/rule_ico.png")))
-        rules_btn.setIconSize(QSize(btn_size, btn_size))
-        rules_btn.setFixedSize(btn_size, btn_size)
-        rules_btn.raise_()
-        self._rules_btn = rules_btn
-
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-        layout.addWidget(lang_btn, alignment=Qt.AlignRight | Qt.AlignTop)
-        layout.addWidget(rules_btn, alignment=Qt.AlignRight | Qt.AlignTop)
-        layout.addStretch(1)
-
-        widget = QWidget()
-        widget.setLayout(layout)
-        widget.setAttribute(Qt.WA_TranslucentBackground)
-        widget.setStyleSheet("background: rgba(0,0,0,0);")
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting setup_interaction_btn: return={{widget}}")
-        return widget
+        return self._lang_btn
 
     def setupcontainer(self) -> None:
         """
@@ -241,14 +214,28 @@ class BaseWindow(QWidget):
         if SHOW_LOGOS:
             layout.addWidget(self.setup_logo(), alignment=Qt.AlignLeft | Qt.AlignTop)
         layout.addStretch(1)
-        layout.addWidget(self.setup_interaction_btn(), alignment=Qt.AlignRight | Qt.AlignTop)
-        container = QWidget()
-        container.setLayout(layout)
-        container.setAttribute(Qt.WA_TranslucentBackground)
-        container.setStyleSheet("background: rgba(0,0,0,0);")
-        self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
-        if DEBUG_BaseWindow:
-            logger.info(f"[DEBUG][BaseWindow] Exiting setupcontainer: return=None")
+        if not EASY_KID_ACCESS:
+            layout.addWidget(self.setup_interaction_btn(), alignment=Qt.AlignRight | Qt.AlignTop)
+            container = QWidget()
+            container.setLayout(layout)
+            container.setAttribute(Qt.WA_TranslucentBackground)
+            container.setStyleSheet("background: rgba(0,0,0,0);")
+            self.overlay_layout.addWidget(container, 0, 0, 1, GRID_WIDTH)
+            if DEBUG_BaseWindow:
+                logger.info(f"[DEBUG][BaseWindow] Exiting setupcontainer: return=None")
+        else:
+            container_1 = QWidget()
+            container_1.setLayout(layout)
+            container_1.setAttribute(Qt.WA_TranslucentBackground)
+            container_1.setStyleSheet("background: rgba(0,0,0,0);")
+            self.overlay_layout.addWidget(container_1, 0, 0, 1, GRID_WIDTH)
+
+            layout_2 = QHBoxLayout()
+            layout_2.setContentsMargins(0, 0, 0, 0)
+            layout_2.setSpacing(10)
+            layout_2.addWidget(self.setup_interaction_btn(), alignment=Qt.AlignRight | Qt.AlignTop)
+            self.setup_interaction_btn()
+            self.overlay_layout.addWidget(self._lang_btn, BTN_STYLE_ONE_ROW, 0, alignment= Qt.AlignCenter)
 
     def setup_row_stretches(self) -> None:
         """
@@ -259,7 +246,7 @@ class BaseWindow(QWidget):
         for row, stretch in GRID_ROW_STRETCHES.items():
             if row == "title":
                 continue
-            idx = {"title": 0, "display": 1, "buttons": 2}[row]
+            idx = {"title": 0, "display": 1, "header_1": 2,"header_2": 3, "buttons": 4}[row]    
             self.overlay_layout.setRowStretch(idx, stretch)
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting setup_row_stretches: return=None")
@@ -348,7 +335,7 @@ class BaseWindow(QWidget):
         self.btns = Btns(self, [], [], None, None)
         self.btns.setup_buttons(
             style1_names, style2_names, slot_style1, slot_style2,
-            layout=self.overlay_layout, start_row=3
+            layout=self.overlay_layout, start_row=BTN_STYLE_ONE_ROW
         )
         self.overlay_widget.raise_()
         for btn in self.btns.get_every_btns():
@@ -371,7 +358,7 @@ class BaseWindow(QWidget):
         if self.btns:
             self.btns.setup_buttons_style_1(
                 style1_names, slot_style1,
-                layout=self.overlay_layout, start_row=3
+                layout=self.overlay_layout, start_row=BTN_STYLE_ONE_ROW
             )
             self.overlay_widget.raise_()
             self.raise_()
@@ -391,7 +378,7 @@ class BaseWindow(QWidget):
         if self.btns:
             self.btns.setup_buttons_style_2(
                 style2_names, slot_style2,
-                layout=self.overlay_layout, start_row=4
+                layout=self.overlay_layout, start_row=BTN_STYLE_TWO_ROW
             )
             self.overlay_widget.raise_()
             self.raise_()
@@ -488,3 +475,65 @@ class BaseWindow(QWidget):
             QToolTip.showText(global_pos, message, target, target.rect(), duration)
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Exiting show_message: return=None")
+
+
+    def place_header_label(self, row: int = 2, col: int = 0, colspan: int = GRID_WIDTH) -> None:
+        """
+        Place and align the header label in the overlay layout at the specified position.
+        """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering place_header_label: args={{'row': {row}, 'col': {col}, 'colspan': {colspan}}}")
+        self.header_label.setAlignment(Qt.AlignCenter)
+
+        item = self.overlay_layout.itemAtPosition(row, col)
+        if item is not None and item.widget() is not None:
+            if DEBUG_BaseWindow:
+                logger.info("Il y a déjà un widget ici :", item.widget())
+        else:
+            if DEBUG_BaseWindow:
+                logger.info("La case est vide, on peut ajouter un widget")
+            self.overlay_layout.addWidget(self.header_label, row, col, 2, colspan, alignment=Qt.AlignCenter)
+
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting place_header_label: return=None")
+
+    def show_header_label(self) -> None:
+        """
+        Show the header label.
+        """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering show_header_label: args={{}}")
+        self.header_label.show()
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting show_header_label: return=None")
+
+    def hide_header_label(self) -> None:
+        """
+        Hide the header label.
+        """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering hide_header_label: args={{}}")
+        self.header_label.hide()
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting hide_header_label: return=None")
+
+    def set_header_text(self, text: str) -> None:
+        """
+        Change the text displayed in the header label.
+        """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering set_header_text: args={{'text': {text}}}")
+        self.header_label.setText(text)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting set_header_text: return=None")
+
+    def set_header_style(self, style: str) -> None:
+        """
+        Apply a stylesheet to the header label.
+        """
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Entering set_header_style: args={{'style': {style}}}")
+        self.header_label.setStyleSheet(style)
+        self.header_label.setWordWrap(True)
+        if DEBUG_BaseWindow:
+            logger.info(f"[DEBUG][BaseWindow] Exiting set_header_style: return=None")

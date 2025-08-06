@@ -1,25 +1,39 @@
 {
   "OverlayRules": {
-    "title": "Bruksregler",
-    "message": "Vennligst les og godta reglene for å fortsette."
+    "title": "Ønsker du å laste ned bildet til telefonen din?",
+    "message": "Alle bilder som tas av Fotoautomaten slettes automatisk etter 5 minutter."
   },
   "OverlayQrcode": {
-    "title": "Skann QR-koden for å fortsette",
-    "message": "Takk for at du godtok reglene."
+    "title": "Skann QR-koden med telefonen din",
+    "message": "Velg enhetstypen din nedenfor for å se instruksjonene.",
+
+    "message_android": "1. Åpne telefonens kamera\n\n2. Hold kameraet foran QR-koden til den blir skannet.\n\n3. Trykk “Koble til” for å koble til PhotoBooth sitt lokale hotspot.\n\n4. Vent til popup-vinduet vises. Dette kan ta opptil 10 sekunder.\n\n5. Hold fingeren på bildet og lagre det!",
+    "message_iphone": "1. Åpne telefonens kamera\n\n2. Hold kameraet foran QR-koden til den blir skannet.\n\n3. Trykk “Koble til” for å koble til PhotoBooth sitt lokale hotspot.\n\n4. Når forhåndsvisningen av QR-innholdet vises, ta et skjermbilde ved å trykke sideknappen og volum opp-knappen samtidig.\n\n5. Åpne Bilder-appen, finn skjermbildet, beskjær det for å isolere bildet, og trykk på delingsikonet for å lagre!",
+    "message_samsung": "1. Åpne telefonens kamera\n\n2. Hold kameraet foran QR-koden til den blir skannet.\n\n3. Trykk “Koble til” for å koble til PhotoBooth sitt lokale hotspot.\n\n4. Hvis en sikkerhetsadvarsel vises, godta den og trykk “Koble til” igjen.\n\n5. Åpne nettleseren og skriv inn URL-en: photobooth.ml for å se og lagre bildene dine!"
+  },
+  "OverlayLoading": {
+    "title": "Laster inn bildet...",
+    "message": "Vennligst vent. Det kan ta noen sekunder."
   },
   "WelcomeWidget": {
-    "title": "Velkommen til PhotoBooth!",
-    "message": "Posér og ha det gøy. Klikk på kameraknappen for å starte."
+    "title": "Velkommen til\nFotoautomaten!",
+    "message": "Slå deg løs foran kameraet og ha det gøy! Trykk på knappen for å starte."
   },
   "main_window": {
     "title": "",
-    "message": "",
+    "message": "Velg et filter. Trykk deretter på knappen og posér!",
     "popup":"Velg en stil først"
   },
   "style":{
     "cyberpunk": "Cyberpunk",
     "comic": "Tegneserie",
     "oil paint": "Oljemaleri",
-    "statue": "Skulptur"
+    "statue": "Statue",
+    "clay":  "Leire",
+    "steampunk": "Steampunk",
+    "minecraft": "Minecraft",
+    "pixel art": "Pikselert",
+    "vintage": "Vintage",
+    "disney":"Disney"
   }
 }

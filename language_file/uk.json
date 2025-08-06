@@ -1,26 +1,39 @@
 {
   "OverlayRules": {
-    "title": "Terms of Use",
-    "message": "Please read and accept the terms to continue."
+    "title": "Do you wish to download your photo to your phone?",
+    "message": "Any photo taken by the Photo Booth is automatically deleted after 5 minutes."
   },
   "OverlayQrcode": {
-    "title": "Scan the QR code to continue",
-    "message": "Thank you for accepting the terms."
+    "title": "Scan the QR code with your phone",
+    "message": "Select your device type below to see the instructions.",
+    "message_android": "1. Open the phone’s camera\n\n2. Hold the camera in front of the QR code until it is scanned.\n\n3. Press “Connect” to connect to the PhotoBooth’s local hotspot.\n\n4. Wait until the pop-up window shows up. This may take up to 10 seconds.\n\n5. Hold your finger on the photo and save it!",
+    "message_iphone": "1. Open the phone’s camera\n\n2. Hold the camera in front of the QR code until it is scanned.\n\n3. Press “Connect” to connect to the PhotoBooth’s local hotspot.\n\n4. When the QR content preview appears, take a screenshot by pressing the side and volume up buttons simultaneously.\n\n5. Open your Photos app, locate your screenshot, crop it to isolate the photo, then tap the share icon to save!",
+    "message_samsung": "1. Open the phone’s camera\n\n2. Hold the camera in front of the QR code until it is scanned.\n\n3. Press “Connect” to connect to the PhotoBooth’s local hotspot.\n\n4. If a security warning appears, accept it and tap “Connect” again.\n\n5. Open your browser and enter the URL: photobooth.ml to view and save your photos!"
+  },
+  "OverlayLoading": {
+    "title": "Loading picture...",
+    "message": "Please wait. It may take a few seconds."
   },
   "WelcomeWidget": {
-    "title": "Welcome to the PhotoBooth!",
-    "message": "Strike a pose and have fun. Click the camera icon to get started."
+    "title": "Welcome to the\nPhoto Booth!",
+    "message": "Strike a pose in front of the camera\n and have fun!\n\nPress the button to begin"
   },
   "main_window": {
     "title": "",
-    "message": "",
+    "message": "Choose a filter, then press the button and pose!",
     "popup":"Select a style first"
   },
   "style":{
     "cyberpunk": "Cyberpunk",
     "comic": "Comic",
     "oil paint": "Oil Paint",
-    "statue": "Statue"
+    "statue": "Statue",
+    "clay":  "Clay",
+    "steampunk": "Steampunk",
+    "minecraft": "Minecraft",
+    "pixel art": "Pixel Art",
+    "vintage": "Vintage",
+    "disney":"Disney"
   }
 
 }

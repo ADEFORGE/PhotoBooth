@@ -34,6 +34,7 @@ class StandbyManager(QObject):
             logger.info(f"[DEBUG][StandbyManager] put_standby({enable})")
         self._standby_enabled = bool(enable)
         if self._standby_enabled:
+            self.set_timer_from_constante()
             self.reset_standby_timer()
         else:
             self.stop_standby_timer()
@@ -117,8 +118,9 @@ class StandbyManager(QObject):
             if DEBUG_StandbyManager:
                 logger.info(f"[DEBUG][StandbyManager] Standby désactivé, reset ignoré")
             return
-        if seconds is not None:
-            self.set_timer(seconds)
+        if self._duration  is not None:
+            self.set_timer(self._duration)
+
         self.stop_standby_timer()
         self.start_standby_timer()
         if DEBUG_StandbyManager:

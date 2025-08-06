@@ -695,7 +695,7 @@ class OverlayQrcode(OverlayWhite):
         """
 
         super().__init__(parent)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        #self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self._on_close = on_close
         self.device = "android"
         self._init_overlay_widget()

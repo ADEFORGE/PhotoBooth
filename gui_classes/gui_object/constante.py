@@ -489,7 +489,7 @@ COUNTDOWN_START = 2  # Valeur de départ du compteur (modifiable)
 COUNTDOWN_FONT_STYLE = "font-size: 120px; font-weight: bold; color: #fff; font-family: Arial, sans-serif; background: transparent;"
 
 # DEBUG constant for controlling debug prints
-DEBUG = True
+DEBUG = False
 DEBUG_FULL = False
 
 # Tooltip configuration

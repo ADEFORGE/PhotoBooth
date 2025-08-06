@@ -201,6 +201,8 @@ class MainWindow(BaseWindow):
         if DEBUG_MainWindow:
             logger.info(f"[DEBUG][MainWindow] Entering selfie_countdown: args={{'on_finished':{on_finished}}}")
         self.update_frame()
+        self.hide_header_label()
+        self.btns.clear_style2_btns()
         self.countdown_overlay_manager.start_countdown(on_finished=on_finished)
         self.update_frame()
         if DEBUG_MainWindow:
@@ -238,6 +240,7 @@ class MainWindow(BaseWindow):
         if self._generation_task:
             self.cleanup()
         self.hide_header_label()
+
         self._generation_task = ImageGenerationThread(style=style_name, input_image=input_image, parent=self)
         if callback:
             self._generation_task.finished.connect(callback)
@@ -423,6 +426,7 @@ class MainWindow(BaseWindow):
         self.hide_header_label()
         self.setup_buttons_style_1(['accept', 'close','regenerate', 'view'], slot_style1=self._on_accept_close)
         if hasattr(self, 'btns'):
+            
             self.btns.raise_()
             for btn in self.btns.get_style1_btns():
                 btn.show()

@@ -45,11 +45,6 @@ class SleepScreenWindow(BaseWindow):
         self.message_label.setWordWrap(True)
         self.center_layout.addWidget(self.title_label)
         self.center_layout.addWidget(self.message_label)
-        self.setup_buttons(
-            style1_names=['camera'],
-            style2_names=[],
-            slot_style1='on_camera_button_clicked'
-        )
         language_manager.subscribe(self.update_language)
         self.update_language()
         self.showFullScreen()

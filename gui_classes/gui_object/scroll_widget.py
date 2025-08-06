@@ -597,16 +597,21 @@ class InfiniteScrollView(QGraphicsView):
         """
         Handle a frame update during the start animation.
         """
-        if DEBUG_InfiniteScrollView:
-            logger.info(f"[DEBUG][InfiniteScrollView] Entering _on_start_frame: args={{}}")
-        for col in self.scroll_tab.columns:
-            col.scroll(self._start_speed, infinite=True)
-            if  self.scroll_tab.get_endstart() and self._starting:
-                self._starting = False
-                if self._start_callback:
-                    self._start_callback()
-        if DEBUG_InfiniteScrollView:
-            logger.info(f"[DEBUG][InfiniteScrollView] Exiting _on_start_frame: return=None")
+        try:
+            if DEBUG_InfiniteScrollView:
+                logger.info(f"[DEBUG][InfiniteScrollView] Entering _on_start_frame: args={{}}")
+            for col in self.scroll_tab.columns:
+                col.scroll(self._start_speed, infinite=True)
+                if  self.scroll_tab.get_endstart() and self._starting:
+                    self._starting = False
+                    if self._start_callback:
+                        self._start_callback()
+            if DEBUG_InfiniteScrollView:
+                logger.info(f"[DEBUG][InfiniteScrollView] Exiting _on_start_frame: return=None")
+        except Exception as e:
+            logging.getLogger(__name__).error("Erreur dans update_frame", exc_info=True)
+            from gui_classes.gui_object.recovery import restart_app 
+            restart_app()
 
     def stop(self) -> None:
         """

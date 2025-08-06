@@ -192,6 +192,8 @@ class BaseWindow(QWidget):
         lang_btn = QPushButton()
         lang_btn.setStyleSheet(btn_style)
         lang_btn.setIcon(QIcon(QPixmap("gui_template/base_window/language.png")))
+        lang_btn.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+
         lang_btn.setIconSize(QSize(btn_size, btn_size))
         lang_btn.setFixedSize(btn_size, btn_size)
         lang_btn.raise_()

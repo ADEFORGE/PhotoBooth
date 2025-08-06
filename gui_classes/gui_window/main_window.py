@@ -336,23 +336,23 @@ class MainWindow(BaseWindow):
                 callback=self.show_generation
             )
         elif sender and sender.objectName() == 'view':
-            if True:
+            if DEBUG_MainWindow:
                 logger.info(f"[DEBUG][MainWindow] Entering _on_accept_close: args={{}}")
             self.flag_show_generation = not self.flag_show_generation
             if self.flag_show_generation:
-                if True:
+                if DEBUG_MainWindow:
                     logger.info("[DEBUG][MainWindow] Showing generated image.")
                 if hasattr(self, 'background_manager') and self.background_manager:
                     self.background_manager.set_generated(self.generated_image)
-                    if True:
+                    if DEBUG_MainWindow:
                         logger.info("[DEBUG][MainWindow] Generated image set in background manager.")
                 self.update_frame()
             else:
-                if True:
+                if DEBUG_MainWindow:
                     logger.info("[DEBUG][MainWindow] Showing original image.")
                 if hasattr(self, 'background_manager') and self.background_manager:
                     self.background_manager.set_generated(self.original_photo)
-                    if True:
+                    if DEBUG_MainWindow:
                         logger.info("[DEBUG][MainWindow] Original image set in background manager.")
                 self.update_frame()
         else:

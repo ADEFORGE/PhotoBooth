@@ -890,7 +890,7 @@ class OverlayQrcode(OverlayWhite):
         """
         Update the language texts for the QR code overlay.
         """
-        if True: 
+        if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Entering update_language: args=()")
         qr_texts = language_manager.get_texts("OverlayQrcode")
         self._title_label.setText(qr_texts.get("title", ""))
@@ -908,10 +908,10 @@ class OverlayQrcode(OverlayWhite):
             logger.info(f"[DEBUG][OverlayQrcode] Exiting update_language: return=None")
 
     def _change_instruction(self) -> None:
-        if True: 
+        if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Entering _change_instruction: args=()")
         sender = self.sender()
-        if True: 
+        if DEBUG_OverlayQrcode: 
             logger.info(f"[OverlayQrcode] _change_instruction called by sender={sender.objectName() if sender else 'None'}")
         if sender and sender.objectName() == 'android':
             self.device = "android"
@@ -922,7 +922,7 @@ class OverlayQrcode(OverlayWhite):
         else:
             self.device = "android"
         self.update_language()
-        if True: 
+        if DEBUG_OverlayQrcode: 
             logger.info(f"[DEBUG][OverlayQrcode] Exiting _change_instruction: return=None")
 
     def _on_close_btn(self) -> None:

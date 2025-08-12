@@ -17,20 +17,21 @@ It integrates with **ComfyUI** for image generation and style transfer, and incl
 
 ## Project Structure
 
+```
 PhotoBooth/
-├── comfy_classes/ # Communication with ComfyUI
-│ └── comfy_class_API.py
-├── gui_classes/ # GUI components (PySide6)
-│ ├── photobooth_app.py
-│ ├── choosestylewidget.py
-│ ├── resultwidget.py
-│ └── loadwidget.py
-├── workflows/ # ComfyUI workflow definitions
-│ └── default.json
-├── constante.py # Style dictionary and constants
-├── main.py # Main GUI application
-└── hotspot_classes/ # Raspberry Pi hotspot integration
-
+├── comfy_classes/        # Communication avec ComfyUI
+│   └── comfy_class_API.py
+├── gui_classes/          # Composants GUI (PySide6)
+│   ├── photobooth_app.py
+│   ├── choosestylewidget.py
+│   ├── resultwidget.py
+│   └── loadwidget.py
+├── workflows/            # Définitions de workflows ComfyUI
+│   └── default.json
+├── constante.py          # Dictionnaire de styles et constantes
+├── main.py               # Application GUI principale
+└── hotspot_classes/      # Intégration hotspot Raspberry Pi
+```
 
 ---
 

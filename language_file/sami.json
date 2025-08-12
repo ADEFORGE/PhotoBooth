@@ -1,29 +1,38 @@
 {
   "OverlayRules": {
-    "title": "Geavahusvuogit",
-    "message": "Lohkke ja dohkke vuogit vai gávdnat viidodettiin."
+    "title": "Gáibidit buorit foto du telefona?",
+    "message": "Buorit fotoid PhotoBooth-s lea automáhtalaš gillii 5 minuvdnan gaskkas."
   },
   "OverlayQrcode": {
-    "title": "Skaun QR-kódda telefónas",
-    "message": "Veahka gadgettipa doaibma instrukšuvnnat nedenfor.",
-
-    "message_android": "1. Oađđá telefónas kamera\n\n2. Čohkka kamerabuvssat QR-kódda go das lea skaunahan.\n\n3. Geahččal “Connect” PhotoBooth lokála hotspot guovttos.\n\n4. Váldde pop-up bálvalus, mii sáhtá fásttádut oažžut 10 sekundda.\n\n5. Geahččal váimmus foto ja save-heapmái!",
-    "message_iphone": "1. Oađđá telefónas kamera\n\n2. Čohkka kamerabuvssat QR-kódda go das lea skaunahan.\n\n3. Geahččal “Connect” PhotoBooth lokála hotspot guovttos.\n\n4. Go QR-orieggadit bálvalus lávddut, geahččal screenshot dávjáaktuide ja volum ovtta gávdnojit.\n\n5. Avnna Photo-app, loga screenshot, rievdki maid bargá foto isolere ja geahččal share-ikona save-heapmái!",
-    "message_samsung": "1. Oađđá telefónas kamera\n\n2. Čohkka kamerabuvssat QR-kódda go das lea skaunahan.\n\n3. Geahččal “Connect” PhotoBooth lokála hotspot guovttos.\n\n4. Jus čuovgga válddánsergudus bálvalus, válda sáhttit ja geahččal “Connect” eará báziha.\n\n5. Avnna browser ja čál URL: photobooth.ml, muhto guovttos dán bizosiid ja sáhtát save-heapmái!"
+    "title": "Skanná QR-koda du telefona leažžis",
+    "message": "Vali du oaidnalávdi daid eará barggáid instrukšuvnnat válddán.",
+    "message_android": "1. Oahpahka kamerahot.\n\n2. Čáje kamera QR-koda čuojahuvvon gaskkas go de lea skannadus.\n\n3. Váldde “Geavahit” PhotoBooth-sii geavahit.\n\n4. Ođđa pop-up-gáigge leat degoašat. Dát sáhttá leat 15 sekunddat.\n\n5. Čuovvut du mielde foton ja goarri seammáša.",
+    "message_iphone": "1. Oahpahka kamerahot\n\n2. Čáje kamera QR-koda čuojahuvvon gaskkas go de lea skannadus.\n\n3. Váldde “Geavahit” PhotoBooth-sii geavahit.\n\n4. Go foto álbmot báket, beassat dahkan go skírre- ja voluuppaža boktehot.\n\n5. Oahpahka Fotoapp, ain findno dahkan, njunni foton ja váldde golbmačalbmi.",
+    "message_samsung": "1. Oahpahka kamerahot\n\n2. Čáje kamera QR-koda čuojahuvvon gaskkas go de lea skannadus.\n\n3. Váldde “Geavahit” PhotoBooth-sii geavahit.\n\n4. Jus gávdnojuhkásahtti lohkat, goddit ja váldde “Geavahit” maid.\n\n5. Oahpahka veahkkimaš app ja okta photobooth.ml adressavázzi ovddas, gos don sáhtát geavahit ja goarri foton."
+  },
+  "OverlayLoading": {
+    "title": "Láhtte foto...",
+    "message": "Geavahit. Dát sáhttá leat muohttin sekunddat."
   },
   "WelcomeWidget": {
-    "title": "Bures boahtin PhotoBoothii!",
-    "message": "Čuožžilit ja šaddet liekkus. Coahkkalat kameraoassiid ala vai álggahit."
+    "title": "Bures boahtin\nPhotoBooth-sii!",
+    "message": "Geavahit fotoga ovddas ja váttis go don leat hui!\n\nVáldde botnna láhkanis."
   },
   "main_window": {
     "title": "",
-    "message": "",
-    "popup":"Váldde stil evttaš"
+    "message": "Váldde filtera, de váldde botnna ja poose!",
+    "popup": "Váldde stili muhto"
   },
-  "style":{
+  "style": {
     "cyberpunk": "Cyberpunk",
-    "comic": "Tegneserie",
-    "oil paint": "Olje‑málet",
-    "statue": "Statua"
+    "comic": "Koomi",
+    "oil paint": "Álddi mállás",
+    "statue": "Statua",
+    "clay": "Šuvvi",
+    "steampunk": "Steampunk",
+    "minecraft": "Minecraft",
+    "pixel art": "Pikselaš",
+    "vintage": "Vintage",
+    "disney": "Disney"
   }
 }

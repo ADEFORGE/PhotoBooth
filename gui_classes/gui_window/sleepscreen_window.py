@@ -81,10 +81,6 @@ class SleepScreenWindow(BaseWindow):
         if DEBUG_SleepScreenWindow_FULL:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering showEvent: args={{'event':{event}}}")
         super().showEvent(event)
-        if self.btns:
-            for btn in self.btns.get_every_btns():
-                btn.show()
-                btn.raise_()
         if DEBUG_SleepScreenWindow_FULL:
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting showEvent: return=None")
 
@@ -104,9 +100,7 @@ class SleepScreenWindow(BaseWindow):
         """
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Entering cleanup: args={{}}")
-        if self.btns:
-            self.btns.cleanup()
-            self.btns = None
+
         language_manager.unsubscribe(self.update_language)
         super().cleanup()
         if DEBUG_SleepScreenWindow:
@@ -133,9 +127,7 @@ class SleepScreenWindow(BaseWindow):
 
         self.title_label.show()
         self.message_label.show()
-        for btn in self.btns.get_every_btns():
-            btn.show()
-            btn.setEnabled(True)
+
         if DEBUG_SleepScreenWindow:
             logger.info(f"[DEBUG][SleepScreenWindow] Exiting on_enter: return=None")
 
@@ -147,12 +139,7 @@ class SleepScreenWindow(BaseWindow):
             logger.info(f"[DEBUG][SleepScreenWindow] Entering on_leave: args={{}}")
         self.title_label.hide()
         self.message_label.hide()
-        if self.btns:
-            for btn in self.btns.get_every_btns():
-                btn.hide()
-                btn.setEnabled(False)
-            self.btns.cleanup()
-            self.btns = None
+
         language_manager.unsubscribe(self.update_language)
         super().on_leave()
         if DEBUG_SleepScreenWindow:

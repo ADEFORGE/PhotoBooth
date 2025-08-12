@@ -7,9 +7,9 @@
     "title": "Skann QR-koden med telefonen din",
     "message": "Velg enhetstypen din nedenfor for å se instruksjonene.",
 
-    "message_android": "1. Åpne telefonens kamera\n\n2. Hold kameraet foran QR-koden til den blir skannet.\n\n3. Trykk “Koble til” for å koble til PhotoBooth sitt lokale hotspot.\n\n4. Vent til popup-vinduet vises. Dette kan ta opptil 10 sekunder.\n\n5. Hold fingeren på bildet og lagre det!",
-    "message_iphone": "1. Åpne telefonens kamera\n\n2. Hold kameraet foran QR-koden til den blir skannet.\n\n3. Trykk “Koble til” for å koble til PhotoBooth sitt lokale hotspot.\n\n4. Når forhåndsvisningen av QR-innholdet vises, ta et skjermbilde ved å trykke sideknappen og volum opp-knappen samtidig.\n\n5. Åpne Bilder-appen, finn skjermbildet, beskjær det for å isolere bildet, og trykk på delingsikonet for å lagre!",
-    "message_samsung": "1. Åpne telefonens kamera\n\n2. Hold kameraet foran QR-koden til den blir skannet.\n\n3. Trykk “Koble til” for å koble til PhotoBooth sitt lokale hotspot.\n\n4. Hvis en sikkerhetsadvarsel vises, godta den og trykk “Koble til” igjen.\n\n5. Åpne nettleseren og skriv inn URL-en: photobooth.ml for å se og lagre bildene dine!"
+    "message_android": "1. Åpne kamera-appen.\n\n2. Hold kameraet foran QR-koden til den er skannet.\n\n3. Trykk “Koble til” for å koble til Fotoautomaten.\n\n4. Vent til popup-vinduet dukker opp. Dette kan ta opptil 15 sekunder.\n\n5. Hold fingeren på bildet og lagre det.",
+    "message_iphone": "1. Åpne kamera-appen\n\n2. Hold kameraet foran QR-koden til den er skannet.\n\n3. Trykk “Koble til” for å koble til Fotoautomaten.\n\n4. Når bildet dukker opp, ta et skjermbilde ved å trykke sideknappen og volum opp-knappen samtidig.\n\n5. Åpne Bilder-appen, finn skjermbildet, beskjær bildet, og trykk på delingsikonet for å lagre.",
+    "message_samsung": "1. Åpne kamera-appen\n\n2. Hold kameraet foran QR-koden til den er skannet.\n\n3. Trykk “Koble til” for å koble til Fotoautomaten.\n\n4. Hvis et sikkerhetsadvarsel vises, godta den og trykk “Koble til” en gang til.\n\n5. Åpne nettleseren og skriv inn photobooth.ml i adressefeltet for å se og lagre bildet ditt."
   },
   "OverlayLoading": {
     "title": "Laster inn bildet...",

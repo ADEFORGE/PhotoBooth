@@ -5,7 +5,7 @@ from typing import Callable, List, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 
 
 DEBUG_LanguageManager = DEBUG

@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 
 DEBUG_BaseWindow: bool = DEBUG
 DEBUG_BaseWindow_FULL: bool = DEBUG_FULL
@@ -18,7 +18,7 @@ from gui_classes.gui_object.overlay import (
     OverlayLoading, OverlayRules, OverlayQrcode, OverlayLang
 )
 from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
-from gui_classes.gui_object.constante import (
+from gui_classes.gui_object.constant import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
     ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE, HUD_SIZE_RATIO, SHOW_LOGOS,
@@ -451,8 +451,8 @@ class BaseWindow(QWidget):
         """
         Display a tooltip message centered on the first widget found in items.
         items : liste de widgets (ou boutons)
-        message : texte à afficher
-        duration : durée d'affichage en ms
+        message : text to show
+        duration :display time in ms
         """
         if DEBUG_BaseWindow:
             logger.info(f"[DEBUG][BaseWindow] Entering show_message: args={{'items': {items}, 'message': {message}, 'duration': {duration}}}")
@@ -466,7 +466,7 @@ class BaseWindow(QWidget):
             if app is not None:
                 old_style = app.styleSheet() or ""
                 try:
-                    from gui_classes.gui_object.constante import TOOLTIP_STYLE
+                    from gui_classes.gui_object.constant import TOOLTIP_STYLE
                 except ImportError:
                     TOOLTIP_STYLE = ""
                 new_style = re.sub(r"QToolTip\\s*\\{[^}]*\\}", "", old_style)
@@ -488,10 +488,10 @@ class BaseWindow(QWidget):
         item = self.overlay_layout.itemAtPosition(row, col)
         if item is not None and item.widget() is not None:
             if DEBUG_BaseWindow:
-                logger.info("Il y a déjà un widget ici :", item.widget())
+                logger.info("There is already a widget here:", item.widget())
         else:
             if DEBUG_BaseWindow:
-                logger.info("La case est vide, on peut ajouter un widget")
+                logger.info("The box is empty, we can add a widget")
             self.overlay_layout.addWidget(self.header_label, row, col, 2, colspan, alignment=Qt.AlignCenter)
 
         if DEBUG_BaseWindow:

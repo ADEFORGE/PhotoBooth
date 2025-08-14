@@ -2,7 +2,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 
 DEBUG_Module = DEBUG
 DEBUG_ImageUtils = DEBUG
@@ -10,7 +10,7 @@ DEBUG_QRCodeUtils = DEBUG
 DEBUG_OutlinedLabel = DEBUG
 DEBUG_LoadingBar = DEBUG
 
-from gui_classes.gui_object.constante import COLOR_LOADING_BAR
+from gui_classes.gui_object.constant import COLOR_LOADING_BAR
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QProgressBar, QFrame
 from PySide6.QtCore import QObject, Signal, Qt, QTimer
 from PySide6.QtGui import QImage, QFont, QPainter, QPen, QColor, QPainterPath

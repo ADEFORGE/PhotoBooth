@@ -23,7 +23,6 @@ COLORS = {
     "darkgray": "#222222",
     "lightgray": "#CCCCCC",
     "orange": "#FFA500",
-    # Couleurs personnalisées
     "primary": "#1abc9c",
     "secondary": "#2ecc71",
     "accent": "#e67e22",
@@ -78,7 +77,7 @@ TITLE_LABEL_STYLE = (
     f"{'font-weight: bold;' if TITLE_LABEL_BOLD else ''}"
     f"{'font-style: italic;' if TITLE_LABEL_ITALIC else ''}"
     f"text-align: center;"
-    # f"text-shadow: {TITLE_LABEL_BORDER_WIDTH}px {TITLE_LABEL_BORDER_WIDTH}px 0 {TITLE_LABEL_BORDER_COLOR};"  # <-- À supprimer ou commenter
+    # f"text-shadow: {TITLE_LABEL_BORDER_WIDTH}px {TITLE_LABEL_BORDER_WIDTH}px 0 {TITLE_LABEL_BORDER_COLOR};" 
     f"border-bottom: {TITLE_LABEL_BORDER_WIDTH}px {TITLE_LABEL_BORDER_STYLE} {TITLE_LABEL_BORDER_COLOR};"
 )
 
@@ -136,7 +135,7 @@ SPECIAL_BUTTON_NAMES = [
 
 SPECIAL_BUTTON_STYLE = (
     f"QPushButton {{"
-    f"background-color: {COLORS['red']};"  # Fond plus foncé
+    f"background-color: {COLORS['red']};" 
     f"color: {COLORS['white']};"
     f"font-size: {BUTTON_TEXT_SIZE}px;"
     f"border: {BUTTON_BORDER_WIDTH}px solid {COLORS['black']};"
@@ -144,10 +143,10 @@ SPECIAL_BUTTON_STYLE = (
     f"font-weight: bold;"
     f"}}"
     f"QPushButton:hover {{"
-    f"background-color: {COLORS['gray']};"  # Hover plus foncé
+    f"background-color: {COLORS['gray']};"  
     f"}}"
     f"QPushButton:pressed {{"
-    f"background-color: {COLORS['black']};"  # Pressed encore plus foncé
+    f"background-color: {COLORS['black']};"  
     f"}}"
     f"QPushButton:checked {{"
     f"background-color: {COLORS['primary']};"
@@ -342,7 +341,7 @@ def get_style_button_style(style_name):
             f"background-image: url('{texture_path}');"
             "background-repeat: no-repeat;"
             "background-position: center;"
-            # "background-size: cover;"  # <-- Supprimé car non supporté par Qt
+            # "background-size: cover;" 
             "background-color: black;"
             "color: white;"
             "font-size: 18px;"
@@ -458,11 +457,10 @@ ShareByHotspot = True
 try:
     from config_local import CAMERA_ID # type: ignore
 except ImportError:
-    CAMERA_ID = 0  # Valeur par défaut si pas de config locale
-
+    CAMERA_ID = 0  
 TEMP_IMAGE = "temp.jpg"
 
-VALIDATION_OVERLAY_MESSAGE = "Merci de lire et accepter les règles avant de continuer."  # Personnalisez ici
+VALIDATION_OVERLAY_MESSAGE = "" 
 
 
 COUNTDOWN_START = 2  

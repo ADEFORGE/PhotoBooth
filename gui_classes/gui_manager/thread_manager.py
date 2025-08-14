@@ -13,7 +13,7 @@ from hotspot_classes.hotspot_client import HotspotClient
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 DEBUG_CountdownThread = DEBUG
 DEBUG_CountdownThread_FULL = DEBUG_FULL
 

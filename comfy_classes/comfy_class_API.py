@@ -16,9 +16,9 @@ from websocket import WebSocketConnectionClosedException, WebSocketTimeoutExcept
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 DEBUG_ImageGeneratorAPIWrapper = DEBUG
-from gui_classes.gui_object.constante import (
+from gui_classes.gui_object.constant import (
     WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, dico_styles
 )
 

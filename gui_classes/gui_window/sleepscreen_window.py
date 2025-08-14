@@ -5,9 +5,9 @@ from PySide6.QtGui import QResizeEvent, QShowEvent, QHideEvent
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from gui_classes.gui_window.base_window import BaseWindow
 from gui_classes.gui_manager.language_manager import language_manager
-from gui_classes.gui_object.constante import GRID_WIDTH, EASY_KID_ACCESS
+from gui_classes.gui_object.constant import GRID_WIDTH, EASY_KID_ACCESS
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 DEBUG_SleepScreenWindow: bool = DEBUG
 DEBUG_SleepScreenWindow_FULL: bool = DEBUG_FULL
 

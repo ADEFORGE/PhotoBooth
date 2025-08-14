@@ -1,10 +1,10 @@
 from PySide6.QtCore import QTimer, QObject, QEvent
-from gui_classes.gui_object.constante import DEBUG, SLEEP_TIMER_SECONDS
+from gui_classes.gui_object.constant import DEBUG, SLEEP_TIMER_SECONDS
 
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 
 DEBUG_StandbyManager = DEBUG
 DEBUG_StandbyManager_FULL = DEBUG_FULL
@@ -34,7 +34,7 @@ class StandbyManager(QObject):
             logger.info(f"[DEBUG][StandbyManager] put_standby({enable})")
         self._standby_enabled = bool(enable)
         if self._standby_enabled:
-            self.set_timer_from_constante()
+            self.set_timer_from_constant()
             self.reset_standby_timer()
         else:
             self.stop_standby_timer()
@@ -47,7 +47,7 @@ class StandbyManager(QObject):
         """
         if event.type() == QEvent.MouseButtonPress:
             if DEBUG_StandbyManager:
-                logger.info(f"[StandbyManager] Clic détecté sur {obj} à la position {event.pos()}")
+                logger.info(f"[StandbyManager] Click detected on {obj} at position {event.pos()}")
             self.reset_standby_timer()
         return super().eventFilter(obj, event)
 
@@ -59,7 +59,7 @@ class StandbyManager(QObject):
             logger.info(f"[DEBUG][StandbyManager] Entering set_standby: args={self._standby_enabled}")
         if self._standby_enabled:
             if DEBUG_StandbyManager:
-                logger.info(f"[DEBUG][StandbyManager] Standby activé, timer expiré")
+                logger.info(f"[DEBUG][StandbyManager] Standby enabled, timer expired")
             if hasattr(self.main_window, 'transition_window'):
                 self.main_window.transition_window(0)
                 ret = None
@@ -68,7 +68,7 @@ class StandbyManager(QObject):
                 ret = None
         else:
             if DEBUG_StandbyManager:
-                logger.info(f"[DEBUG][StandbyManager] Standby désactivé, timer non démarré")
+                logger.info(f"[DEBUG][StandbyManager] Standby disabled, timer not started")
         if DEBUG_StandbyManager:
             logger.info(f"[DEBUG][StandbyManager] Exiting set_standby: return={ret}")
 
@@ -82,15 +82,15 @@ class StandbyManager(QObject):
         if DEBUG_StandbyManager:
             logger.info(f"[DEBUG][StandbyManager] Exiting set_timer: return=None")
 
-    def set_timer_from_constante(self) -> None:
+    def set_timer_from_constant(self) -> None:
         """
         Set the standby timer duration from the constant value.
         """
         if DEBUG_StandbyManager:
-            logger.info(f"[DEBUG][StandbyManager] Entering set_timer_from_constante: args=()")
+            logger.info(f"[DEBUG][StandbyManager] Entering set_timer_from_constant: args=()")
         self._duration = SLEEP_TIMER_SECONDS
         if DEBUG_StandbyManager:
-            logger.info(f"[DEBUG][StandbyManager] Exiting set_timer_from_constante: return=None")
+            logger.info(f"[DEBUG][StandbyManager] Exiting set_timer_from_constant: return=None")
 
     def start_standby_timer(self) -> None:
         """
@@ -104,7 +104,7 @@ class StandbyManager(QObject):
                 logger.info(f"[DEBUG][StandbyManager] Timer started (standby enabled)")
         else:
             if DEBUG_StandbyManager:
-                logger.info(f"[DEBUG][StandbyManager] Standby désactivé, timer non démarré")
+                logger.info(f"[DEBUG][StandbyManager] Standby disabled, timer not started")
         if DEBUG_StandbyManager:
             logger.info(f"[DEBUG][StandbyManager] Exiting start_standby_timer: return=None")
 
@@ -116,7 +116,7 @@ class StandbyManager(QObject):
             logger.info(f"[DEBUG][StandbyManager] Entering reset_standby_timer: args=({seconds})")
         if not self._standby_enabled:
             if DEBUG_StandbyManager:
-                logger.info(f"[DEBUG][StandbyManager] Standby désactivé, reset ignoré")
+                logger.info(f"[DEBUG][StandbyManager] Standby disabled, reset ignored")
             return
         if self._duration  is not None:
             self.set_timer(self._duration)

@@ -28,7 +28,7 @@ PhotoBooth/
 │   └── loadwidget.py         # Widget to load or process images
 ├── workflows/            # ComfyUI workflow definitions
 │   └── default.json          # Default workflow configuration
-├── constante.py          # Style dictionary and constants
+├── constant.py          # Style dictionary and constants
 ├── main.py               # Entry point for the GUI application
 └── hotspot_classes/      # Raspberry Pi hotspot integration
 ```

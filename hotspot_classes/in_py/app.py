@@ -217,7 +217,6 @@ class HotspotShareImage:
         </div>
         <script>
         window.addEventListener('load', function() {{
-          // Crée un lien invisible, définit download et clique dessus
           var link = document.createElement('a');
           link.href = '/{self.image}';
           link.download = '{self.image}';
@@ -310,7 +309,7 @@ class HotspotShareImage:
             log("Services restarted", level="info")
         except Exception as e:
             log(f"Error in restart_services: {e}", level="error")
-            raise RuntimeError(f"Erreur lors de redémarrage: {e}")
+            raise RuntimeError(f"Error during restart: {e}")
         log("[restart_services] Exit", level="info")
 
     def run(self, use_random: bool = True, ssid: Optional[str] = None, password: Optional[str] = None) -> None:

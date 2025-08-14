@@ -17,7 +17,7 @@ from screeninfo import get_monitors
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 DEBUG_ImageLoader = DEBUG
 DEBUG_Column = DEBUG
 DEBUG_Column_FULL = DEBUG_FULL
@@ -88,7 +88,7 @@ class ImageLoader:
                         im = im.resize((width, new_h), Image.LANCZOS)
                         im.save(img_path)
                 except Exception as e:
-                    logger.error(f"[ImageLoader] Erreur lors du redimensionnement de {img_path}: {e}")
+                    logger.error(f"[ImageLoader]Error while resizing {img_path}: {e}")
         if DEBUG_ImageLoader:
             logger.info(f"[DEBUG][ImageLoader] Exiting resize_images_in_folder: return=None")
 
@@ -499,7 +499,7 @@ class InfiniteScrollView(QGraphicsView):
             logger.info(f"[DEBUG][InfiniteScrollView] Entering reset: args={{'gradient_only':{gradient_only}}}")
         vw, vh = self.get_physical_screen_resolution()
         if DEBUG_InfiniteScrollView:
-            logger.info(f"[DEBUG][InfiniteScrollView] Résolution physique détectée (screeninfo, widget): {vw}x{vh}")
+            logger.info(f"[DEBUG][InfiniteScrollView] Physical resolution detected(screeninfo, widget): {vw}x{vh}")
         self.scroll_tab = ScrollTab(self.image_paths, vw, vh, self.margin_x, self.margin_y, self.angle, gradient_only=gradient_only)
         self.scroll_tab.create_columns(self._scene)
         self.center_view()

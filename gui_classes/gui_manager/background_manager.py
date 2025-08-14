@@ -8,7 +8,7 @@ from gui_classes.gui_manager.thread_manager import CameraCaptureThread
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 
 DEBUG_BackgroundManager = DEBUG
 DEBUG_BackgroundManager_FULL = DEBUG_FULL

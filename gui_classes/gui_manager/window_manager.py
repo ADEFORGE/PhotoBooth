@@ -9,7 +9,7 @@ from gui_classes.gui_object.scroll_widget import ScrollOverlay
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constante import DEBUG, DEBUG_FULL
+from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
 
 DEBUG_TimerUpdateDisplay: bool = DEBUG
 DEBUG_TimerUpdateDisplay_FULL: bool = DEBUG_FULL
@@ -223,7 +223,7 @@ class WindowManager(QWidget):
             )
             if callback:
                 if DEBUG_WindowManager:
-                    logger.info(f"[DEBUG][WindowManager] scroll_animation: index==1, calling callback directement après animation trigger")
+                    logger.info(f"[DEBUG][WindowManager] scroll_animation: index==1, calling callback directly after animation trigger")
                 callback()
         elif index == 0:
             if DEBUG_WindowManager:

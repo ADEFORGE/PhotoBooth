@@ -452,12 +452,12 @@ COMFY_WORKFLOW_DIR = os.path.abspath(
     os.path.join(BASE_DIR, "../../workflows")
 )
 
-ShareByHotspot = True  
+ShareByHotspot = False  
 
-try:
-    from config_local import CAMERA_ID # type: ignore
-except ImportError:
-    CAMERA_ID = 0  
+#try:
+#    from config_local import CAMERA_ID # type: ignore
+#except ImportError:
+CAMERA_ID = 4
 TEMP_IMAGE = "temp.jpg"
 
 VALIDATION_OVERLAY_MESSAGE = "" 

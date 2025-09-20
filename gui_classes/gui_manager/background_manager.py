@@ -5,6 +5,8 @@ from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
 from gui_classes.gui_manager.thread_manager import CameraCaptureThread
 
+from gui_classes.gui_object.constant import CAMERA_ID
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ class BackgroundManager(QObject):
         self.gradient_label.setAttribute(Qt.WA_TranslucentBackground)
         self.gradient_label.setStyleSheet("background: transparent;")
         self._init_gradient()
-        self.thread = CameraCaptureThread()
+        self.thread = CameraCaptureThread(camera_id=CAMERA_ID)
         self.thread.set_resolution_level(resolution_level)
         self.thread.frame_ready.connect(self._on_frame_ready)
         self.thread.start()

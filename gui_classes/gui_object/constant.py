@@ -2,7 +2,7 @@
 ########################################
 #   Constant Aesthetic
 ########################################
-SHOW_LOGOS = True  
+SHOW_LOGOS = False  
 GRID_WIDTH = 5
 
 BTN_STYLE_ONE_ROW = 4
@@ -457,7 +457,9 @@ ShareByHotspot = False
 #try:
 #    from config_local import CAMERA_ID # type: ignore
 #except ImportError:
-CAMERA_ID = 4
+CAMERA_ID = 0
+CAMERA_ROTATE_ANGLE = 270    # Default camera rotation angle (0, 90, 180, 270)
+
 TEMP_IMAGE = "temp.jpg"
 
 VALIDATION_OVERLAY_MESSAGE = "" 

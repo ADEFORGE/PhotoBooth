@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 
 DEBUG_MainWindow = DEBUG
 DEBUG_MainWindow_FULL = DEBUG_FULL
@@ -13,14 +13,14 @@ from PySide6.QtGui import QPainter, QColor, QImage
 from PySide6.QtWidgets import QApplication, QLabel
 
 from gui_classes.gui_window.base_window import BaseWindow
-from gui_classes.gui_object.constant import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles,SLEEP_TIMER_SECONDS_QRCODE_OVERLAY, MAIN_WINDOW_MSG_STYLE
+from constant import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles,SLEEP_TIMER_SECONDS_QRCODE_OVERLAY, MAIN_WINDOW_MSG_STYLE
 from gui_classes.gui_manager.thread_manager import CountdownThread, ImageGenerationThread
 from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager
 from gui_classes.gui_object.overlay import OverlayRules, OverlayQrcode
 from gui_classes.gui_object.toolbox import QRCodeUtils
 from gui_classes.gui_manager.language_manager import language_manager
-from gui_classes.gui_object.constant import ShareByHotspot
+from constant import ShareByHotspot
 
 
 class MainWindow(BaseWindow):

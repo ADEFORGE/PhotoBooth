@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QButtonGroup
 from PySide6.QtGui import QIcon, QPixmap, QImage, QGuiApplication,QPainter, QPainterPath, QPen, QColor, QFontMetrics
 from PySide6.QtCore import QSize, Qt, QEvent
-from gui_classes.gui_object.constant import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT, GRID_WIDTH, BTN_SIZE,EASY_KID_ACCESS,BTN_STYLE_ONE_ROW, BTN_STYLE_TWO_ROW,BTN_STYLE_TWO_SIZE_COEFFICIENT,BTN_STYLE_TWO_FONT_OUTLINE
+from constant import BTN_STYLE_TWO, BTN_STYLE_TWO_FONT_SIZE_PERCENT, GRID_WIDTH, BTN_SIZE,EASY_KID_ACCESS,BTN_STYLE_ONE_ROW, BTN_STYLE_TWO_ROW,BTN_STYLE_TWO_SIZE_COEFFICIENT,BTN_STYLE_TWO_FONT_OUTLINE
 from gui_classes.gui_manager.language_manager import language_manager
 import os
 from PIL import Image
@@ -10,7 +10,7 @@ import io, re
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 
 DEBUG_Btn = DEBUG
 DEBUG_Btn_FULL = DEBUG_FULL

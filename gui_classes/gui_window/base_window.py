@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 
 DEBUG_BaseWindow: bool = DEBUG
 DEBUG_BaseWindow_FULL: bool = DEBUG_FULL
@@ -18,7 +18,7 @@ from gui_classes.gui_object.overlay import (
     OverlayLoading, OverlayRules, OverlayQrcode, OverlayLang
 )
 from gui_classes.gui_object.toolbox import normalize_btn_name, QRCodeUtils
-from gui_classes.gui_object.constant import (
+from constant import (
     GRID_WIDTH, GRID_VERTICAL_SPACING, GRID_HORIZONTAL_SPACING,
     GRID_LAYOUT_MARGINS, GRID_LAYOUT_SPACING, GRID_ROW_STRETCHES,
     ICON_BUTTON_STYLE, LOGO_SIZE, INFO_BUTTON_SIZE, HUD_SIZE_RATIO, SHOW_LOGOS,
@@ -466,7 +466,7 @@ class BaseWindow(QWidget):
             if app is not None:
                 old_style = app.styleSheet() or ""
                 try:
-                    from gui_classes.gui_object.constant import TOOLTIP_STYLE
+                    from constant import TOOLTIP_STYLE
                 except ImportError:
                     TOOLTIP_STYLE = ""
                 new_style = re.sub(r"QToolTip\\s*\\{[^}]*\\}", "", old_style)

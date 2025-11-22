@@ -5,12 +5,12 @@ from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
 
 from gui_classes.gui_manager.thread_manager import CameraCaptureThread
 
-from gui_classes.gui_object.constant import CAMERA_ID, CAMERA_ROTATE_ANGLE
+from constant import CAMERA_ID, CAMERA_ROTATE_ANGLE
 
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 
 DEBUG_BackgroundManager = DEBUG
 DEBUG_BackgroundManager_FULL = DEBUG_FULL

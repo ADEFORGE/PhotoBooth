@@ -25,7 +25,7 @@ def log_uncaught_exceptions(exctype, value, tb):
 
 sys.excepthook = log_uncaught_exceptions
 
-from gui_classes.gui_object.constant import DEBUG
+from constant import DEBUG
 from PySide6.QtWidgets import QApplication
 from gui_classes.gui_manager.window_manager import WindowManager
 

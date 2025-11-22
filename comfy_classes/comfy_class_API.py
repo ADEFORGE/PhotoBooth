@@ -19,8 +19,9 @@ logger = logging.getLogger(__name__)
 from constant import DEBUG, DEBUG_FULL
 DEBUG_ImageGeneratorAPIWrapper = DEBUG
 from constant import (
-    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, dico_styles
+    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR
 )
+from prompts import dico_styles
 
 TOTAL_STEPS: dict[str, float] = {}
 TOTAL_STEPS_SUM: float = 0

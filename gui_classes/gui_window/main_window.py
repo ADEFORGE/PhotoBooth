@@ -13,7 +13,8 @@ from PySide6.QtGui import QPainter, QColor, QImage
 from PySide6.QtWidgets import QApplication, QLabel
 
 from gui_classes.gui_window.base_window import BaseWindow
-from constant import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, dico_styles,SLEEP_TIMER_SECONDS_QRCODE_OVERLAY, MAIN_WINDOW_MSG_STYLE
+from constant import HOTSPOT_URL, TOOLTIP_STYLE, TOOLTIP_DURATION_MS, SLEEP_TIMER_SECONDS_QRCODE_OVERLAY, MAIN_WINDOW_MSG_STYLE
+from prompts import dico_styles
 from gui_classes.gui_manager.thread_manager import CountdownThread, ImageGenerationThread
 from gui_classes.gui_manager.standby_manager import StandbyManager
 from gui_classes.gui_manager.background_manager import BackgroundManager

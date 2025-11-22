@@ -74,16 +74,20 @@ pip install onnxruntime-gpu
 
 ### 4. Install Qt (Qt6) and System Libraries
 
+#### Linux
+
 ```bash
 sudo apt update
 sudo apt install qt6-base-dev
-sudo apt install libxcb-cursor0
+sudo apt install libxcb-cursor0 #may be needed
 ```
 
 ### 5. Configure ComfyUI
 
 
 #### ComfyUI Installation & Model Setup
+
+Comfy is assumed to be in the same folder as Photobooth. If this is not the case, be sure to set the correct path in `constant.py`.
 
 1. **Install ComfyUI**
 	 - Follow instructions at: https://github.com/comfyanonymous/ComfyUI
@@ -178,6 +182,10 @@ pause
 
 **Note:**
 Adapt this `.bat` file to your own configuration, including the paths to `ComfyUI.exe` and the PhotoBooth folder.
+
+### 8. Quit Photobooth
+
+Just press the keys alt and F4 to close the window. The Photobooth window is configured to be always in front.
 
 ---
 

@@ -156,6 +156,8 @@ Follow the steps in the PDF to set up the hotspot and captive portal. Place conf
 
 ### 7. Run PhotoBooth
 
+Photobooth assumes that ComfyUI is running and accessible at the local url `HTTP_BASE_URL = "http://127.0.0.1:8188"`.
+If it is serving another url, you can modify the `constant.py` to point to the correct one.
 
 #### Linux/macOS
 ```bash
@@ -163,7 +165,7 @@ python main.py
 ```
 
 #### Windows
-You can use a `.bat` script to automate launching PhotoBooth and ComfyUI:
+You can use a `.bat` script to automate launching PhotoBooth and ComfyUI (change the paths to your correct comfy and photobooth paths):
 
 ```bat
 @echo off

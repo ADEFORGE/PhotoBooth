@@ -2,7 +2,7 @@
 ########################################
 #   Constant Aesthetic
 ########################################
-SHOW_LOGOS = False  
+SHOW_LOGOS = False  # ML group and Tvibit logos display
 GRID_WIDTH = 5
 
 BTN_STYLE_ONE_ROW = 4
@@ -44,7 +44,7 @@ LABEL_WIDTH_RATIO = 0.8
 LABEL_HEIGHT_RATIO = 0.9  
 
 WINDOW_TITLE = "PhotoBooth"
-WINDOW_BG_COLOR = "transparent"  # transparent au lieu d'une couleur
+WINDOW_BG_COLOR = "transparent"  # transparent instead of a color
 WINDOW_STYLE = """
     QWidget {
         background-color: transparent;

@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 try :
-    from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+    from constant import DEBUG, DEBUG_FULL
     DEBUG_HotspotClient: bool = DEBUG
     DEBUG_HotspotClient_FULL: bool = DEBUG_FULL
     

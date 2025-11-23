@@ -8,7 +8,7 @@ from PySide6.QtGui import (
     QMovie, QPixmap, QIcon, QImage, QPainter, QColor,
     QPen, QPainterPath
 )
-from gui_classes.gui_object.constant import TITLE_LABEL_STYLE, GRID_WIDTH, COUNTDOWN_FONT_STYLE,OVERLAY_TITLE_STYLE, OVERLAY_MSG_STYLE,OVERLAY_LOADING_MSG_STYLE, OVERLAY_LOADING_TITLE_STYLE
+from constant import TITLE_LABEL_STYLE, GRID_WIDTH, COUNTDOWN_FONT_STYLE,OVERLAY_TITLE_STYLE, OVERLAY_MSG_STYLE,OVERLAY_LOADING_MSG_STYLE, OVERLAY_LOADING_TITLE_STYLE
 from gui_classes.gui_object.btn import Btns
 from gui_classes.gui_object.toolbox import normalize_btn_name, LoadingBar
 from gui_classes.gui_manager.language_manager import language_manager
@@ -17,7 +17,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 
 DEBUG_Overlay = DEBUG
 DEBUG_Overlay_FULL = DEBUG_FULL

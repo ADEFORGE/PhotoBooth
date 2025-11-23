@@ -9,7 +9,7 @@ from gui_classes.gui_object.scroll_widget import ScrollOverlay
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 
 DEBUG_TimerUpdateDisplay: bool = DEBUG
 DEBUG_TimerUpdateDisplay_FULL: bool = DEBUG_FULL

@@ -16,11 +16,12 @@ from websocket import WebSocketConnectionClosedException, WebSocketTimeoutExcept
 import logging
 logger = logging.getLogger(__name__)
 
-from gui_classes.gui_object.constant import DEBUG, DEBUG_FULL
+from constant import DEBUG, DEBUG_FULL
 DEBUG_ImageGeneratorAPIWrapper = DEBUG
-from gui_classes.gui_object.constant import (
-    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR, dico_styles
+from constant import (
+    WS_URL, HTTP_BASE_URL, BASE_DIR, COMFY_OUTPUT_FOLDER, INPUT_IMAGE_PATH, COMFY_WORKFLOW_DIR
 )
+from prompts import dico_styles
 
 TOTAL_STEPS: dict[str, float] = {}
 TOTAL_STEPS_SUM: float = 0

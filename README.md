@@ -1,3 +1,7 @@
+![PhotoBooth Screenshot](photoboothscreenshotsmall.png)
+
+<center><b>Welcome to PhotoBooth!</b><br>Strike a pose and have fun with AI-powered styles.</center>
+
 # PhotoBooth
 
 **PhotoBooth** is a Python-based GUI application for capturing images, applying AI-powered artistic styles, and sharing the results.  
@@ -19,23 +23,74 @@ It integrates with **ComfyUI** for image generation and style transfer, and incl
 
 ```
 PhotoBooth/
-├── comfy_classes/        # Handles communication with ComfyUI
+├── comfy_classes/           # ComfyUI API integration
 │   └── comfy_class_API.py
-├── gui_classes/          # GUI components (PySide6)
-│   ├── photobooth_app.py      # Main PhotoBooth GUI logic
-│   ├── choosestylewidget.py  # Widget to select image styles
-│   ├── resultwidget.py       # Widget to display generated results
-│   └── loadwidget.py         # Widget to load or process images
-├── workflows/            # ComfyUI workflow definitions
-│   └── default.json          # Default workflow configuration
-├── constant.py          # Style dictionary and constants
-├── main.py               # Entry point for the GUI application
-└── hotspot_classes/      # Raspberry Pi hotspot integration
+├── gui_classes/            # GUI logic and components (Pyside6)
+│   ├── gui_manager/        # Managers for background, language, standby, threads, windows
+│   ├── gui_object/         # GUI widgets: buttons, overlays, toolbox, etc.
+│   └── gui_window/         # Window classes: main, base, sleep screen
+├── gui_template/           # UI assets: icons, textures, gradients, sleep images
+├── hotspot_classes/        # Hotspot and captive portal integration (Raspberry Pi)
+├── language_file/          # Language translations (norway.json, sami.json, uk.json)
+├── workflows/              # ComfyUI workflow definitions (default.json, clay.json, etc.)
+├── constant.py             # Application constants and settings
+├── prompts.py              # Style prompts for AI transformations
+├── main.py                 # Main entry point for the application
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
 ```
 ---
 
 ## Documentation
 
+## Configuration Guide
+
+PhotoBooth uses two key files for configuration:
+
+- **`prompts.py`**: Contains the dictionary `dico_styles` for all available artistic style prompts. You can customize or add new styles by editing this file. Each style entry defines how the AI should transform images in that style.
+- **`constant.py`**: This file contains, in particular:
+  - Interface appearance settings (colors, fonts, button styles, dimensions)
+  - The messages displayed on the screen
+  - Paths to working folders (input/output)
+  - ComfyUI connection settings
+  - The location of the workflows associated with each AI transformation
+  - It is possible to fine-tune the appearance and behavior of the application by modifying this file.
+  - Important note: Some constants present in this file are no longer used in the current version of the interface, but have been retained to ensure compatibility with older imports and avoid runtime errors.
+
+### Customization possible
+Main elements you can edit in `constant.py`:
+- **Colors:** The `COLORS` dictionary centralizes all the colors used.
+- **Text and button styles:** Constants like `BUTTON_STYLE`, `TITLE_LABEL_STYLE`, `DISPLAY_LABEL_STYLE`, etc., precisely define the visual rendering.
+- **Size and layout:** Ratios (`DISPLAY_SIZE_RATIO`, `HUD_SIZE_RATIO`) or margins (`GRID_MARGIN_TOP`, etc.) allow you to adjust the display on screens of various sizes.
+- **Custom AI prompt:** The `dico_styles` variable allows you to associate each style with a unique prompt used in the build via ComfyUI.
+- **Timeout settings:** `SLEEP_TIMER_SECONDS`, `COUNTDOWN_START`, etc.
+
+### Enable debug logs
+There are two constants that control the amount of logs displayed in the console or saved in log files:
+- `DEBUG = False`
+- `DEBUG_FULL = False`
+
+Set `DEBUG = True` to enable standard logs for monitoring normal execution.
+Set `DEBUG_FULL = True` to enable all logs, including frequent operations (e.g., refreshing the image), resulting in very verbose output.
+
+### Change connection addresses (ComfyUI, Flask, WebSocket)
+If you have changed the network configuration or launched the services on different ports/addresses, update the following constants:
+- `WS_URL = "ws://127.0.0.1:8188/ws"`
+- `HTTP_BASE_URL = "http://127.0.0.1:8188"`
+- `HOTSPOT_URL = "https://192.168.10.2:5000/share"`
+
+- `WS_URL`: The URL of the WebSocket to receive build notifications from ComfyUI.
+- `HTTP_BASE_URL`: HTTP URL to send requests to ComfyUI.
+- `HOTSPOT_URL`: Local address of the Raspberry Pi Flask server (see dedicated section).
+
+### Disable hotspot image sharing
+If you don't have a Raspberry Pi connected or you don't want to enable Wi-Fi sharing (captive portal), disable this option in `constant.py`:
+- `ShareByHotspot = False`
+
+
+After making changes, restart PhotoBooth to apply your new configuration.
+
+---
 
 ## Installation
 

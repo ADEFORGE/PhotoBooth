@@ -4,8 +4,7 @@
 
 # PhotoBooth
 
-**PhotoBooth** is a Python-based GUI application for capturing images, applying AI-powered artistic styles, and sharing the results.  
-It integrates with **ComfyUI** for image generation and style transfer, and includes a Raspberry Pi–based hotspot system (optional) for offline image sharing via a captive portal.
+**PhotoBooth** takes a picture of you from the webcam and generate an imaginary version of your picture, in different styles, using AI. It is a Python-based GUI application which applies AI-powered artistic styles using Comfy.ui. It includes a Raspberry Pi–based hotspot system (optional) for offline image sharing via a captive portal.
 
 ---
 
@@ -13,9 +12,16 @@ It integrates with **ComfyUI** for image generation and style transfer, and incl
 
 - Capture images from a connected camera.
 - Choose from multiple artistic styles.
-- Apply styles using ComfyUI workflows.
+- Apply styles using ComfyUI workflows. (styles are customizable)
 - View, save, and share generated images.
 - Local hotspot and captive portal for phone downloads without internet.
+
+---
+
+## Hardware requirements
+
+A gamer PC with a GPU is required. It works with a Nvidia 3050 but a bit slow (~20 seconds to generate an image). It has been tested on Windows and Linux. It should work decently with recent Macs.
+Connecting to a Raspberry Pi is optional and only required for sharing the generated pictures on a wifi hotspot run on the Raspberry Pi.
 
 ---
 
